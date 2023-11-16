@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_HOST_FAKEROOT
+	bool "host fakeroot"
+	default y
+
+if BR2_PACKAGE_HOST_FAKEROOT
+config BR2_PACKAGE_HOST_FAKEROOT_USE_PREBUILT
+	bool "fakeroot"
+	default y
+endif

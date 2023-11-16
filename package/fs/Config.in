@@ -1,0 +1,23 @@
+menu "Filesystem images"
+
+menu "RootFS images"
+source "package/fs/ext2/Config.in"
+source "package/fs/cpio/Config.in"
+source "package/fs/initramfs/Config.in"
+source "package/fs/jffs2/Config.in"
+source "package/fs/squashfs/Config.in"
+source "package/fs/tar/Config.in"
+source "package/fs/Config.ubi.in"
+source "package/fs/ubi/Config.in"
+source "package/fs/ubifs/Config.in"
+endmenu
+
+source "package/fs/userfs/Config.in.userfs1"
+source "package/fs/userfs/Config.in.userfs2"
+source "package/fs/userfs/Config.in.userfs3"
+
+config BR2_GENERATE_BURNER_IMAGE
+	bool "Generate burner format image"
+	default n
+
+endmenu

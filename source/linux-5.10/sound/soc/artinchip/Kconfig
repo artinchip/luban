@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config SND_SOC_AIC_I2S
+	tristate "ArtInChip I2S Support"
+	depends on ARCH_ARTINCHIP || COMPILE_TEST
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	select REGMAP_MMIO
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the ArtInChip I2S. You will also need to select the
+	  individual machine drivers to support below.
+
+config SND_SOC_AIC_CODEC_V1
+	bool
+
+config SND_SOC_AIC_CODEC
+	tristate "ArtInChip CODEC Support"
+	depends on ARCH_ARTINCHIP || COMPILE_TEST
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	select REGMAP_MMIO
+	select SND_SOC_AIC_CODEC_V1 if RISCV
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the ArtInChip I2S. You will also need to select the
+	  individual machine drivers to support below.
+
+config SND_SOC_AIC_AC102
+	tristate "ArtInChip boards using a AC102 codec"
+	depends on I2C
+	select SND_SOC_AIC_I2S
+	select SND_SOC_AC102
+	help
+	  Say Y or M here if you want to add support for SoC audio on ArtInChip
+	  boards using the AC102 codec.
+
+config SND_SOC_AIC_AC107
+	tristate "ArtInChip boards using a AC107 codec"
+	depends on I2C
+	select SND_SOC_AIC_I2S
+	select SND_SOC_AC107
+	help
+	  Say Y or M here if you want to add support for SoC audio on ArtInChip
+	  boards using the AC107 codec.

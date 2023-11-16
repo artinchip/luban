@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_HOST_GETTEXT_GNU
+	bool "host gettext-gnu"
+	depends on BR2_PACKAGE_GETTEXT_GNU
+	default n
+
+if BR2_PACKAGE_HOST_GETTEXT_GNU
+
+config BR2_PACKAGE_HOST_GETTEXT_GNU_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

@@ -1,0 +1,710 @@
+/*
+ * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <dt-bindings/clock/artinchip,aic-cmu.h>
+#include <dt-bindings/reset/artinchip,aic-reset.h>
+#include <dt-bindings/dma/d211-dma.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		opensbi-domains {
+			compatible = "opensbi,domain,config";
+
+			device: device {
+				compatible = "opensbi,domain,memregion";
+				base = <0x0 0x00000000>;
+				order = <30>;
+				mmio;
+			};
+
+			mem0: mem {
+				compatible = "opensbi,domain,memregion";
+				base = <0x0 0x80000000>;
+				order = <30>;
+			};
+
+			pmp_domain: pmp_domain {
+				compatible = "opensbi,domain,instance";
+				possible-harts = <&cpu0>;
+				regions = <&device 0x3>, <&mem0 0x7>;
+				boot-hart = <&cpu0>;
+				system-reset-allowed;
+			};
+		};
+	};
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <10000000>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64gcxthead";
+			mmu-type = "riscv,sv39";
+			cpu-freq = "600Mhz";
+			cpu-icache = "32KB";
+			cpu-dcache = "32KB";
+			cpu-tlb = "1024 4-ways";
+			cpu-cacheline = "64Bytes";
+			opensbi-domain = <&pmp_domain>;
+			cpu0_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+	};
+
+	clocks {
+		osc24m: clock-hosc {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+			clock-output-names = "osc24m";
+		};
+
+		rc1m: clock-mosc {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <1000000>;
+			clock-output-names = "rc1m";
+		};
+
+		osc32k: clock-losc {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32768>;
+			clock-output-names = "osc32k";
+		};
+	};
+
+	soc {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		compatible = "simple-bus";
+		ranges;
+
+		clint0: clint@2000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7>;
+			reg = <0x0 0x2000000 0x0 0x10000>;
+			clint,has-no-64bit-mmio;
+		};
+
+		plic0: interrupt-controller@c000000 {
+			#interrupt-cells = <2>;
+			compatible = "riscv,plic0";
+			interrupt-controller;
+			interrupts-extended = <&cpu0_intc 0xffffffff &cpu0_intc 9>;
+			reg = <0x0 0xc000000 0x0 0x400000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev=<159>;
+		};
+
+		dma: dma-controller@10000004 {
+			compatible = "artinchip,aic-dma-v1.0";
+			reg = <0x0 0x20000000 0x0 0x1000>;
+			interrupts-extended = <&plic0 32 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_DMA>;
+			resets = <&rst RESET_DMA>;
+			#dma-cells = <1>;
+			status = "okay";
+		};
+
+		crypto: crypto-engine@10020000 {
+			compatible = "artinchip,aic-crypto-v1.0";
+			reg = <0x0 0x20020000 0x0 0x1000>;
+			interrupts-extended = <&plic0 33 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_CE>;
+			resets = <&rst RESET_CE>;
+			status = "okay";
+		};
+
+		aicudc: udc@10200000 {
+			compatible = "artinchip,aic-udc-v1.0";
+			reg = <0x0 0x10200000 0x0 0x1000>;
+			interrupts-extended = <&plic0 34 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_USBD>, <&cmu CLK_USB_PHY0>;
+			clock-names = "udc_clk";
+			resets = <&rst RESET_USBD>, <&rst RESET_USBPHY0>;
+			reset-names = "aicudc", "aicudc-ecc";
+			status = "okay";
+			// phys = <&usbphy0>;
+			// phy-names = "usb2-phy";
+		};
+
+		usbh0: usb@10210000 {
+			compatible = "artinchip,aic-usbh-v1.0";
+			reg = <0x0 0x20210000 0x0 0x100>;
+			interrupts-extended = <&plic0 35 IRQ_TYPE_LEVEL_HIGH>, <&plic0 4 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_USBH0>;
+			clock-names = "usbh";
+			resets = <&rst RESET_USBH0>;
+			reset-names = "usbh";
+			dr_mode = "host";
+			// phys = <&usbphy0>;
+			// phy-names = "usb2-phy";
+		};
+
+		usbh1: usb@10220000 {
+			compatible = "artinchip,aic-usbh-v1.0";
+			reg = <0x0 0x20220000 0x0 0x100>;
+			interrupts-extended = <&plic0 37 IRQ_TYPE_LEVEL_HIGH>,
+								<&plic0 38 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_USBH1>;
+			clock-names = "usbh";
+			resets = <&rst RESET_USBH1>, <&rst RESET_USBPHY1>;
+			reset-names = "usbh", "usbh-phy";
+			dr_mode = "host";
+			// phys = <&usbphy1>;
+			// phy-names = "usb2-phy";
+		};
+
+		usbphy: phy {
+			compatible = "artinchip,aic-usb-phy";
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			usbphy0: usb-phy@1020004 {
+				#phy-cells = <0>;
+				reg = <0x0 0x1020004 0x0 0x400>;
+				clocks = <&cmu CLK_USB_PHY0>;
+				clock-names = "phyclk";
+				resets = <&rst RESET_USBPHY0>;
+				reset-names = "usbphy";
+			};
+
+			usbphy1: usb-phy@10210004 {
+				#phy-cells = <0>;
+				reg = <0x0 0x1021004 0x0 0x400>;
+				clocks = <&cmu CLK_USB_PHY1>;
+				clock-names = "phyclk";
+				resets = <&rst RESET_USBPHY1>;
+				reset-names = "usbphy";
+			};
+		};
+
+		gmac0: ethernet@10280000 {
+			compatible = "artinchip,aic-gmac";
+			#local-mac-address = [2e f6 01 e3 76 b6];
+			reg = <0x0 0x20280000 0x0 0x10000>;
+			interrupts-extended = <&plic0 39 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&cmu CLK_GMAC0>;
+			clock-names = "gmac";
+			resets = <&rst RESET_GMAC0>;
+			reset-names = "gmac";
+		};
+
+		gmac1: ethernet@10290000 {
+			compatible = "artinchip,aic-gmac";
+			#local-mac-address = [2e f6 01 e3 76 b7];
+			reg = <0x0 0x20290000 0x0 0x10000>;
+			interrupts-extended = <&plic0 40 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&cmu CLK_GMAC1>;
+			clock-names = "gmac";
+			resets = <&rst RESET_GMAC1>;
+			reset-names = "gmac";
+		};
+
+		spi0: spi@10400000 {
+			compatible = "artinchip,aic-spi";
+			reg = <0x0 0x20400000 0x0 0x1000>;
+			interrupts-extended = <&plic0 44 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SPI0>;
+			resets = <&rst RESET_SPI0>;
+			dmas = <&dma DMA_SPI0>, <&dma DMA_SPI0>;
+			dma-names = "rx", "tx";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <24000000>;
+		};
+
+		spi1: spi@10410000 {
+			compatible = "artinchip,aic-spi";
+			reg = <0x0 0x20410000 0x0 0x1000>;
+			interrupts-extended = <&plic0 45 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SPI1>;
+			resets = <&rst RESET_SPI1>;
+			dmas = <&dma DMA_SPI1>, <&dma DMA_SPI1>;
+			dma-names = "rx", "tx";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <24000000>;
+		};
+
+		pbus: pbus@107F0000 {
+			compatible = "artinchip,aic-pbus-v1.0";
+			reg = <0x0 0x207F0000 0x0 0x1000>;
+			clocks = <&cmu CLK_PBUS>;
+			resets = <&rst RESET_PBUS>;
+		};
+
+		sdmc0: sdmc@10440000 {
+			compatible = "artinchip,aic-sdmc";
+			reg = <0x0 0x20440000 0x0 0x1000>;
+			interrupts-extended = <&plic0 46 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SDMC0>;
+			clock-names = "ciu";
+			resets = <&rst RESET_SDMC0>;
+			reset-names = "reset";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			max-frequency = <24000000>;
+			clock-frequency = <48000000>;
+			bus-width = <4>;
+			fifo-depth = <128>;
+		};
+
+		sdmc1: sdmc@10450000 {
+			compatible = "artinchip,aic-sdmc";
+			reg = <0x0 0x20450000 0x0 0x1000>;
+			interrupts-extended = <&plic0 47 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SDMC1>;
+			clock-names = "ciu";
+			resets = <&rst RESET_SDMC1>;
+			reset-names = "reset";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			max-frequency = <24000000>;
+			clock-frequency = <48000000>;
+			bus-width = <4>;
+			fifo-depth = <128>;
+		};
+
+		sdmc2: sdmc@10460000 {
+			compatible = "artinchip,aic-sdmc";
+			reg = <0x0 0x20460000 0x0 0x1000>;
+			interrupts-extended = <&plic0 48 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SDMC2>;
+			clock-names = "ciu";
+			resets = <&rst RESET_SDMC2>;
+			reset-names = "reset";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		cmu: clock@18020000 {
+			compatible = "artinchip,aic-cmu-v1.0";
+			reg = <0 0x20020000 0 0x1000>;
+			clocks = <&osc24m>, <&rc1m>, <&osc32k>;
+			clock-names = "osc24m", "rc1m", "osc32k";
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		rst: reset@18020004 {
+			compatible = "artinchip,aic-reset-v1.0";
+			reg = <0 0x20020000 0 0x1000>;
+			#reset-cells = <1>;
+			status = "okay";
+		};
+
+		rtc: rtc@18030000 {
+			compatible = "artinchip,aic-rtc-v1.0";
+			reg = <0x0 0x20030000 0x0 0x1000>;
+			interrupts-extended = <&plic0 50 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_RTC>;
+			resets = <&rst RESET_RTC>;
+		};
+
+		mtop: mtop@184ff000 {
+			compatible = "artinchip,aic-mtop";
+			reg = <0x0 0x204ff000 0x0 0x1000>;
+			interrupts-extended = <&plic0 51 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_MTOP>;
+			resets = <&rst RESET_MTOP>;
+			status = "okay";
+		};
+
+		syscfg: syscfg@18000000 {
+			compatible = "artinchip,aic-syscfg";
+			reg = <0x0 0x20000000 0x0 0x1000>;
+			clocks = <&cmu CLK_SYSCFG>;
+			resets = <&rst RESET_SYSCFG>;
+			status = "okay";
+		};
+
+		i2s0: i2s@18600000 {
+			#sound-dai-cells = <0>;
+			compatible = "artinchip,aic-i2s-v1.0";
+			reg = <0x0 0x22600000 0x0 0x400>;
+			interrupts-extended = <&plic0 52 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2S0>;
+			resets = <&rst RESET_I2S0>;
+			dmas = <&dma DMA_I2S0>, <&dma DMA_I2S0>;
+			dma-names = "rx", "tx";
+		};
+
+		i2s1: i2s@18601000 {
+			#sound-dai-cells = <0>;
+			compatible = "artinchip,aic-i2s-v1.0";
+			reg = <0x0 0x22601000 0x0 0x400>;
+			interrupts-extended = <&plic0 53 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2S1>;
+			resets = <&rst RESET_I2S1>;
+			dmas = <&dma DMA_I2S1>, <&dma DMA_I2S1>;
+			dma-names = "rx", "tx";
+		};
+
+		codec: codec@18610000 {
+			#sound-dai-cells = <0>;
+			compatible = "artinchip,aic-codec-v1.0";
+			reg = <0x0 0x22610000 0x0 0x400>;
+			interrupts-extended = <&plic0 54 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_CODEC>;
+			resets = <&rst RESET_CODEC>;
+			dmas = <&dma DMA_CODEC>, <&dma DMA_CODEC>;
+			dma-names = "rx", "tx";
+		};
+
+		pinctrl: pinctrl@19200000 {
+			compatible = "artinchip,aic-pinctrl-v1.0";
+			reg = <0x0  0x23200000 0x0  0x800>;
+		};
+
+		uart0: serial@10000000 {
+			compatible = "artinchip,aic-uart", "snps,dw-apb-uart", "ns16550a";
+			reg = <0x0  0x10000000 0x0  0x100>;
+			interrupts-extended = <&plic0 10 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_UART0>;
+			clock-frequency = <3686400>;
+			resets = <&rst RESET_UART0>;
+			dmas = <&dma DMA_UART0>, <&dma DMA_UART0>;
+			dma-names = "rx", "tx";
+		};
+
+		uart1: serial@19211000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19211000 0x0 0x400>;
+			interrupts-extended = <&plic0 77 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART1>;
+			resets = <&rst RESET_UART1>;
+			dmas = <&dma DMA_UART1>, <&dma DMA_UART1>;
+			dma-names = "rx", "tx";
+		};
+
+		uart2: serial@19212000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19212000 0x0 0x400>;
+			interrupts-extended = <&plic0 78 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART2>;
+			resets = <&rst RESET_UART2>;
+			dmas = <&dma DMA_UART2>, <&dma DMA_UART2>;
+			dma-names = "rx", "tx";
+		};
+
+		uart3: serial@19213000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19213000 0x0 0x400>;
+			interrupts-extended = <&plic0 79 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART3>;
+			resets = <&rst RESET_UART3>;
+			dmas = <&dma DMA_UART3>, <&dma DMA_UART3>;
+			dma-names = "rx", "tx";
+		};
+
+		uart4: serial@19214000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19214000 0x0 0x400>;
+			interrupts-extended = <&plic0 80 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART4>;
+			resets = <&rst RESET_UART4>;
+			dmas = <&dma DMA_UART4>, <&dma DMA_UART4>;
+			dma-names = "rx", "tx";
+		};
+
+		uart5: serial@19215000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19215000 0x0 0x400>;
+			interrupts-extended = <&plic0 81 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART5>;
+			resets = <&rst RESET_UART5>;
+			dmas = <&dma DMA_UART5>, <&dma DMA_UART5>;
+			dma-names = "rx", "tx";
+		};
+
+		uart6: serial@19216000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19216000 0x0 0x400>;
+			interrupts-extended = <&plic0 82 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART6>;
+			resets = <&rst RESET_UART6>;
+			dmas = <&dma DMA_UART6>, <&dma DMA_UART6>;
+			dma-names = "rx", "tx";
+		};
+
+		uart7: serial@19217000 {
+			compatible = "artinchip,aic-uart";
+			reg = <0x0 0x19217000 0x0 0x400>;
+			interrupts-extended = <&plic0 83 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&cmu CLK_UART7>;
+			resets = <&rst RESET_UART7>;
+			dmas = <&dma DMA_UART7>, <&dma DMA_UART7>;
+			dma-names = "rx", "tx";
+		};
+
+		i2c0: i2c@19220000 {
+			compatible = "artinchip,aic-i2c";
+			reg = <0x0 0x23220000 0x0 0x400>;
+			interrupts-extended = <&plic0 84 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2C0>;
+			resets = <&rst RESET_I2C0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1: i2c@19221000 {
+			compatible = "artinchip,aic-i2c";
+			reg = <0x0 0x23221000 0x0 0x400>;
+			interrupts-extended = <&plic0 85 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2C1>;
+			resets = <&rst RESET_I2C1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c2: i2c@19222000 {
+			compatible = "artinchip,aic-i2c";
+			reg = <0x0 0x23222000 0x0 0x400>;
+			interrupts-extended = <&plic0 86 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2C2>;
+			resets = <&rst RESET_I2C2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c3: i2c@19223000 {
+			compatible = "artinchip,aic-i2c";
+			reg = <0x0 0x23223000 0x0 0x400>;
+			interrupts-extended = <&plic0 87 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_I2C3>;
+			resets = <&rst RESET_I2C3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		can0: can@19230000 {
+			compatible = "artc,artc-can";
+			reg = <0x0 0x23230000 0x0 0x400>;
+			interrupts-extended = <&plic0 88 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_CAN0>;
+			resets = <&rst RESET_CAN0>;
+		};
+
+		can1: can@19231000 {
+			compatible = "artc,artc-can";
+			reg = <0x0 0x23231000 0x0 0x400>;
+			interrupts-extended = <&plic0 89 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_CAN1>;
+			resets = <&rst RESET_CAN1>;
+		};
+
+		pwm: pwm@19240000 {
+			compatible = "artinchip,aic-pwm-v1.0";
+			reg = <0x0 0x23240000 0x0 0x1000>;
+			interrupts-extended = <&plic0 90 IRQ_TYPE_LEVEL_HIGH>;
+			#pwm-cells = <3>;
+			clocks = <&cmu CLK_PWM>, <&cmu CLK_PLL_INT1>;
+			clock-names = "pwm", "sysclk";
+			resets = <&rst RESET_PWM>;
+			clock-rate = <24000000>;
+		};
+
+		cir: cir@19260000 {
+			compatible = "artinchip,aic-cir";
+			reg = <0x0 0x23260000 0x0 0x400>;
+			interrupts-extended = <&plic0 95 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_CIR>;
+			resets = <&rst RESET_CIR>;
+		};
+
+		rgb0: rgb@18800000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-rgb-v1.0";
+			reg = <0x0 0x22800000 0x0 0x1000>;
+			clocks = <&cmu CLK_RGB>, <&cmu CLK_SCLK>;
+			clock-names = "rgb0", "sclk";
+			resets = <&rst RESET_RGB>;
+			reset-names = "rgb0";
+		};
+
+		lvds0: lvds@18810000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-lvds-v1.0";
+			reg = <0x0 0x22810000 0x0 0x1000>;
+			clocks = <&cmu CLK_LVDS>, <&cmu CLK_SCLK>;
+			clock-names = "lvds0", "sclk";
+			resets = <&rst RESET_LVDS>;
+			reset-names = "lvds0";
+		};
+
+		dsi0: dsi@18820000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-mipi-dsi-v1.0";
+			reg = <0x0 0x22820000 0x0 0x1000>;
+			clocks = <&cmu CLK_MIPIDSI>, <&cmu CLK_SCLK>;
+			clock-names = "dsi0", "sclk";
+			resets = <&rst RESET_MIPIDSI>;
+			reset-names = "dsi0";
+			interrupts-extended = <&plic0 56 IRQ_TYPE_LEVEL_HIGH>;
+			format = "rgb888";
+			mode = "video-burst";
+			lane_num = <4>;
+			virtual_channel_num = <0>;
+		};
+
+		de0: de@18a00000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-de-v1.0";
+			reg = <0x0 0x22a00000 0x0 0x1000>;
+			interrupts-extended = <&plic0 59 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_DE>, <&cmu CLK_PIX>;
+			clock-names = "de0", "pix";
+			resets = <&rst RESET_DE>;
+			reset-names = "de0";
+			mclk = <200000000>;
+		};
+
+		display-fb {
+			compatible = "artinchip,aic-framebuffer";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			fb0: fb@0 {
+				reg = <0x0 0x0>;
+			};
+		};
+
+		ge0: ge@18b00000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-ge-v1.0";
+			reg = <0x0 0x22b00000 0x0 0x1000>;
+			interrupts-extended = <&plic0 60 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_GE>;
+			clock-names = "ge";
+			resets = <&rst RESET_GE>;
+			reset-names = "ge";
+		};
+
+		dvp0: dvp@18830000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-dvp-v1.0";
+			reg = <0x0 0x22830000 0x0 0x1000>;
+			interrupts-extended = <&plic0 57 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_DVP>;
+			clock-rate = <200000000>;
+			resets = <&rst RESET_DVP>;
+		};
+
+		wdt0: watchdog@19000000 {
+			compatible = "artinchip,aic-wdt-v1.0";
+			reg = <0x0 0x23000000 0x0 0x1000>;
+			interrupts-extended = <&plic0 64 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_WDOG>;
+			resets = <&rst RESET_WDOG>;
+		};
+
+		adcim: adcim@19250000 {
+			compatible = "artinchip,aic-adcim-v1.0";
+			reg = <0x0 0x23250000 0x0 0x1000>;
+			clocks = <&cmu CLK_ADCIM>;
+			resets = <&rst RESET_ADCIM>;
+		};
+
+		gpai: gpai@19251000 {
+			compatible = "artinchip,aic-gpai-v1.0";
+			reg = <0x0 0x23251000 0x0 0x1000>;
+			interrupts-extended = <&plic0 92 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_GPAI>, <&cmu CLK_APB1>;
+			clock-names = "gpai", "pclk";
+			resets = <&rst RESET_GPAI>;
+		};
+
+		rtp: rtp@19252000 {
+			compatible = "artinchip,aic-rtp-v1.0";
+			reg = <0x0 0x23252000 0x0 0x1000>;
+			interrupts-extended = <&plic0 93 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_RTP>;
+			resets = <&rst RESET_RTP>;
+		};
+
+		tsen: tsen@19253000 {
+			compatible = "artinchip,aic-tsen-v1.0";
+			reg = <0x0 0x23253000 0x0 0x1000>;
+			interrupts-extended = <&plic0 94 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_TSEN>, <&cmu CLK_APB1>;
+			clock-names = "tsen", "pclk";
+			resets = <&rst RESET_TSEN>;
+		};
+	};
+};

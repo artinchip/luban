@@ -1,0 +1,21 @@
+TEST_LVGL_VERSION =
+TEST_LVGL_ENABLE_TARBALL = NO
+TEST_LVGL_ENABLE_PATCH = NO
+
+TEST_LVGL_DEPENDENCIES += lvgl tslib
+TEST_LVGL_CONF_OPTS += -DCMAKE_INSTALL_PREFIX=/usr/local
+ifeq ($(BR2_TEST_LVGL_USE_RTP),y)
+TEST_LVGL_CONF_OPTS += -DUSE_RTP_TSLIB=yes
+else
+TEST_LVGL_CONF_OPTS += -DUSE_RTP_TSLIB=no
+endif
+
+define TEST_LVGL_POST_TARGET_INSTALL
+    @$(call MESSAGE,"post target install")
+	$(INSTALL) -m 0755 -D package/artinchip/test-lvgl/S20test_lvgl \
+		$(TARGET_DIR)/etc/init.d/S00lvgl
+endef
+
+TEST_LVGL_POST_INSTALL_TARGET_HOOKS += TEST_LVGL_POST_TARGET_INSTALL
+
+$(eval $(cmake-package))

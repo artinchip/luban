@@ -1,0 +1,69 @@
+config BR2_PACKAGE_ZLIB_NG_ARCH_SUPPORTS
+	bool
+	default y if BR2_arm
+	default y if BR2_aarch64
+	default y if BR2_i386
+	default y if BR2_powerpc || BR2_powerpc64 || BR2_powerpc64le
+	default y if BR2_s390x
+	default y if BR2_x86_64
+
+menuconfig BR2_PACKAGE_ZLIB
+	bool "zlib support"
+	help
+	  Select the desired Zlib library provider.
+
+if BR2_PACKAGE_ZLIB
+
+config BR2_PACKAGE_ZLIB_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+config BR2_PACKAGE_LIBZLIB_USE_PREBUILT
+	bool
+	default y if BR2_PACKAGE_ZLIB_USE_PREBUILT
+
+config BR2_PACKAGE_ZLIB_NG_USE_PREBUILT
+	bool
+	default y if BR2_PACKAGE_ZLIB_USE_PREBUILT
+
+choice
+	prompt "zlib variant"
+	default BR2_PACKAGE_LIBZLIB
+	help
+	  Select the desired Zlib library provider.
+
+config BR2_PACKAGE_LIBZLIB
+	bool "zlib"
+	select BR2_PACKAGE_HAS_ZLIB
+	help
+	  Standard (de)compression library. Used by things like
+	  gzip and libpng.
+
+	  http://www.zlib.net
+
+config BR2_PACKAGE_ZLIB_NG
+	bool "zlib-ng"
+	depends on BR2_PACKAGE_ZLIB_NG_ARCH_SUPPORTS
+	select BR2_PACKAGE_HAS_ZLIB
+	help
+	  Zlib replacement with optimizations for
+	  "next generation" systems.
+
+	  https://github.com/zlib-ng/zlib-ng
+
+endchoice
+
+config BR2_PACKAGE_HAS_ZLIB
+	bool
+
+config BR2_PACKAGE_PROVIDES_ZLIB
+	string
+	default "libzlib" if BR2_PACKAGE_LIBZLIB
+	default "zlib-ng" if BR2_PACKAGE_ZLIB_NG
+
+endif
+
+# ensure libzlib is used for the host variant
+config BR2_PACKAGE_PROVIDES_HOST_ZLIB
+	string
+	default "host-libzlib"

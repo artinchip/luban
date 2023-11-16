@@ -1,0 +1,65 @@
+menu "ArtInChip debug"
+
+config ARTINCHIP_DEBUG_UART
+	bool "Enable early print information"
+	select DEBUG_UART
+	select DEBUG_UART_BOARD_INIT
+	select ARTINCHIP_SERIAL
+	select SPL_SERIAL_PRESENT
+	select SPL_SERIAL_SUPPORT
+	default n
+
+comment "CONFIG_LOGLEVEL is needed to set for message in pr_xxx"
+
+config ARTINCHIP_DEBUG_DM
+	bool "Enable device binding log"
+	select ARTINCHIP_DEBUG_UART
+	default n
+
+config ARTINCHIP_DEBUG_MMC_DRIVER
+	bool "Enable mmc driver log"
+	select ARTINCHIP_DEBUG_UART
+	default n
+
+config ARTINCHIP_DEBUG_SPINAND_DRIVER
+	bool "Enable spi-nand driver log"
+	select ARTINCHIP_DEBUG_UART
+	default n
+
+config ARTINCHIP_DEBUG_SPINOR_DRIVER
+	bool "Enable spi-nor driver log"
+	select ARTINCHIP_DEBUG_UART
+	default n
+
+config ARTINCHIP_DEBUG_SPI_DRIVER
+	bool "Enable spi driver log"
+	select ARTINCHIP_DEBUG_UART
+	default n
+
+config ARTINCHIP_DEBUG_MMC_FRAMEWORK
+	bool "Enable mmc framework trace log"
+	select MMC_VERBOSE
+	select MMC_TRACE
+	default n
+
+config ARTINCHIP_DEBUG_BOOT_TIME
+	bool "Show boot time"
+	select ARTINCHIP_SERIAL
+	default n
+
+config ARTINCHIP_DEBUG_SPL_BOOT_TIME
+	hex "Address to keep SPL boot time"
+	depends on ARTINCHIP_DEBUG_BOOT_TIME
+	default 0x103000
+
+config ARTINCHIP_DEBUG_UBI
+	bool "Show UBI debug log"
+	select ARTINCHIP_SERIAL
+	default n
+
+config ARTINCHIP_DEBUG_AICUPG
+	bool "Show aicupg debug log"
+	select ARTINCHIP_SERIAL
+	default n
+
+endmenu

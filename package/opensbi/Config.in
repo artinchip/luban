@@ -1,0 +1,17 @@
+menu "OpenSBI"
+
+config BR2_PACKAGE_OPENSBI
+	bool "opensbi"
+	default y
+	depends on BR2_riscv
+
+if BR2_PACKAGE_OPENSBI
+config BR2_PACKAGE_OPENSBI_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+
+config BR2_PACKAGE_OPENSBI_FW_TEXT_BASE
+	hex "Firmware text base"
+	default 0x40000000
+endif
+endmenu

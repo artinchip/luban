@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_LIBPCAP
+	bool "libpcap"
+	select BR2_PACKAGE_BLUEZ5_UTILS_HEADERS if BR2_PACKAGE_BLUEZ5_UTILS
+	help
+	  A system-independent library for user-level network packet
+	  capture.
+
+	  https://www.tcpdump.org/
+
+if BR2_PACKAGE_LIBPCAP
+
+config BR2_PACKAGE_LIBPCAP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

@@ -1,0 +1,36 @@
+From 8f56b9d757b6b308c4090df841fea77fff72be2e Mon Sep 17 00:00:00 2001
+From: matteo <duanmt@artinchip.com>
+Date: Mon, 12 Sep 2022 10:46:14 +0800
+Subject: [PATCH 2/2] modutils: Do xstrdup() eariler to fix the compile warning
+
+Signed-off-by: matteo <duanmt@artinchip.com>
+---
+ modutils/modutils.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/modutils/modutils.c b/modutils/modutils.c
+index f7ad5e8..b590695 100644
+--- a/modutils/modutils.c
++++ b/modutils/modutils.c
+@@ -98,7 +98,7 @@ char* FAST_FUNC filename2modname(const char *filename, char *modname)
+ 	if (filename == NULL)
+ 		return NULL;
+ 	if (modname == NULL)
+-		modname = local_modname;
++		modname = xstrdup(local_modname);
+ 	// Disabled since otherwise "modprobe dir/name" would work
+ 	// as if it is "modprobe name". It is unclear why
+ 	// 'basenamization' was here in the first place.
+@@ -108,9 +108,6 @@ char* FAST_FUNC filename2modname(const char *filename, char *modname)
+ 		modname[i] = (from[i] == '-') ? '_' : from[i];
+ 	modname[i] = '\0';
+ 
+-	if (modname == local_modname)
+-		return xstrdup(modname);
+-
+ 	return modname;
+ }
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0
+
+menuconfig ARTINCHIP_GRAPHICS
+	bool "Artinchip Graphics support"
+
+if ARTINCHIP_GRAPHICS
+
+source "drivers/video/artinchip/decoder/Kconfig"
+source "drivers/video/artinchip/display/Kconfig"
+
+endif

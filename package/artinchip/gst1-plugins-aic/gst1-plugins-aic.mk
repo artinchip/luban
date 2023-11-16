@@ -1,0 +1,9 @@
+GST1_PLUGINS_AIC_VERSION =
+GST1_PLUGINS_AIC_ENABLE_TARBALL = NO
+GST1_PLUGINS_AIC_ENABLE_PATCH = NO
+GST1_PLUGINS_AIC_INSTALL_STAGING = YES
+
+GST1_PLUGINS_AIC_DEPENDENCIES += gstreamer1 gst1-plugins-base aic-mpp
+
+$(eval $(meson-package))
+#$(eval $(cmake-package))

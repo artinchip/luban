@@ -1,0 +1,21 @@
+config ARTINCHIP_GE
+	tristate "ArtInChip 2D Graphics Engine"
+	default n
+	help
+	  This is a 2D Graphics Engine driver
+choice
+	prompt "select 2D Graphics Engine Mode"
+	default ARTINCHIP_GE_NORMAL
+	depends on ARTINCHIP_GE
+
+config ARTINCHIP_GE_CMDQ
+	bool "CMD queue mode"
+	help
+	  Enable CMD Queue
+
+config ARTINCHIP_GE_NORMAL
+	bool "normal mode"
+	help
+	  Disable CMD Queue
+
+endchoice

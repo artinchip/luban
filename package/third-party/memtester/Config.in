@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_MEMTESTER
+	bool "memtester"
+	help
+	  A userspace utility for testing the memory subsystem for
+	  faults.
+
+	  http://pyropus.ca/software/memtester/
+
+if BR2_PACKAGE_MEMTESTER
+config BR2_PACKAGE_MEMTESTER_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

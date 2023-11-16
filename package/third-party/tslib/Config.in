@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_TSLIB
+	bool "tslib"
+	help
+	  Tslib is a filtering layer for touchscreen panel events.
+
+	  http://tslib.org
+
+if BR2_PACKAGE_TSLIB
+config BR2_PACKAGE_TSLIB_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

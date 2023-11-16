@@ -1,0 +1,29 @@
+config AICUPG_ARTINCHIP
+	bool "ArtInChip Firmware Upgrade Module"
+	depends on ARCH_ARTINCHIP
+	imply CMD_AICUPG
+
+if AICUPG_ARTINCHIP
+config AICUPG_MMC_ARTINCHIP
+	bool "MMC device support"
+	depends on MMC
+	default y
+
+config AICUPG_NAND_ARTINCHIP
+	bool "NAND device support"
+	depends on MTD_UBI
+	default y
+
+config AICUPG_NOR_ARTINCHIP
+	bool "SPI NOR device support"
+	depends on SPI_FLASH
+	default y
+
+config AICUPG_SINGLE_TRANS_BURN_CRC32_VERIFY
+	bool "CRC32 verify transfer data"
+	default n
+
+config AICUPG_FORCE_USBUPG_SUPPORT
+	bool "Force USB upgrading check during boot"
+	default n
+endif

@@ -1,0 +1,9 @@
+if TARGET_D211
+
+config SYS_BOARD
+	default "d211"
+
+config SYS_CONFIG_NAME
+	default "d211"
+
+endif

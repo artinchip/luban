@@ -1,0 +1,34 @@
+#!/bin/sh
+# Run the swupdate daemon
+
+case "$1" in
+        start)
+		echo -n "Starting swupdate... "
+		# obtain ubisystem mtd number
+
+		param=$(cat /proc/mtd | grep "ubisystem")
+		mtd_param=$(echo "$param" | awk -F ':' '{print $1}')
+		mtd_num=$(echo "$mtd_param" | awk -F 'mtd' '{print $2}')
+		echo "ubisystem mtd number is $mtd_num"
+
+		ubiattach /dev/ubi_ctrl -m $mtd_num
+
+		# obtain the ota part device node
+
+		param=$(grep -H -r "ota" /sys/class/ubi/* | sed 1q)
+		ubi_param=$(echo "$param" | awk -F '/name:ota' '{print $1}')
+		ubi_param=$(echo "$ubi_param" | awk -F '/sys/class/ubi/' '{print $2}')
+		ubi_param=$(echo "$ubi_param" | awk -F '/' '{print $2}')
+		echo "ota part device node is /dev/$ubi_param"
+
+		if [ -c "/dev/$ubi_param" ]; then
+			mkdir -p /mnt/ota
+			mount -t ubifs /dev/$ubi_param /mnt/ota
+		fi
+		;;
+	stop)
+                echo -n "Stopping swupdate... "
+                umount /mnt/ota
+                ;;
+esac
+

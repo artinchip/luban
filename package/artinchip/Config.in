@@ -1,0 +1,35 @@
+menu "ArtInChip packages"
+
+source package/artinchip/openssl-hwengine/Config.in
+source package/artinchip/aic-authorization/Config.in
+source package/artinchip/aic-mpp/Config.in
+source package/artinchip/aic-logo/Config.in
+source package/artinchip/libuserid/Config.in
+source package/artinchip/gst1-plugins-aic/Config.in
+source package/artinchip/awtk-ui/Config.in
+
+menu "Sample code"
+	source package/artinchip/test-mtop/Config.in
+	source package/artinchip/test-ce/Config.in
+	source package/artinchip/test-dma-buf/Config.in
+	source package/artinchip/test-dvp/Config.in
+	source package/artinchip/test-fb/Config.in
+	source package/artinchip/test-lvgl/Config.in
+	source package/artinchip/test-touchscreen/Config.in
+	source package/artinchip/test-uart/Config.in
+	source package/artinchip/test-watchdog/Config.in
+	source package/artinchip/test-libmad/Config.in
+	source package/artinchip/test-clock/Config.in
+	source package/artinchip/test-keyadc/Config.in
+	source package/artinchip/reg-dump/Config.in
+	source package/artinchip/test-gpio/Config.in
+	source package/artinchip/test-can/Config.in
+	source package/artinchip/test-eth/Config.in
+	source package/artinchip/test-audio/Config.in
+	source package/artinchip/test-blkdev/Config.in
+endmenu
+
+menu "Launchers"
+	source package/artinchip/qtlauncher/Config.in
+endmenu
+endmenu

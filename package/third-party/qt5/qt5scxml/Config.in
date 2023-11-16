@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_QT5SCXML
+	bool "qt5scxml"
+	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE # qt5declarative
+	select BR2_PACKAGE_QT5DECLARATIVE
+	help
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
+
+	  The Qt SCXML module provides functionality to create state
+	  machines from SCXML files.
+
+	  https://doc.qt.io/qt-5/qtscxml-index.html
+
+if BR2_PACKAGE_QT5SCXML
+config BR2_PACKAGE_QT5SCXML_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_HOST_GZIP
+	bool "host gzip"
+
+if BR2_PACKAGE_HOST_GZIP
+config BR2_PACKAGE_HOST_GZIP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif
+

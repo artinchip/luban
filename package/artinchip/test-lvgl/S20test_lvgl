@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# Start test_lvgl....
+#
+
+
+DAEMON="/usr/local/bin/test_lvgl"
+DAEMONOPTS=" -qws"
+PIDFILE=/var/run/test_lvgl.pid
+TSCALIB=/etc/pointercal
+
+start() {
+      printf "Starting test_lvgl: "
+
+      export TSLIB_FBDEVICE=/dev/fb0
+      export POINTERCAL_CALIBFILE=$TSCALIB
+      export TSLIB_CONSOLEDEVICE=none
+      export TSLIB_TSDEVICE=/dev/input/event0
+      export TSLIB_PLUGINDIR=/usr/lib/ts
+
+      if [ ! -f $TSCALIB ]; then
+          /usr/bin/ts_calibrate
+      fi
+      sync
+      PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
+      if [ -z $PID ]; then
+          printf "Fail \n"
+      else
+          echo $PID >$PIDFILE
+          printf "OK \n"
+      fi
+}
+
+stop() {
+	printf "Stopping test_lvgl: "
+        PID=`cat $PIDFILE`
+        if [ -f $PIDFILE]; then
+            kill -HUP $PID
+            printf "OK \n"
+            rm -f $PIDFILE
+        else
+            printf "pidfile not found \n"
+        fi
+}
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart|reload)
+	stop
+	start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

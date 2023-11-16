@@ -1,0 +1,866 @@
+/*
+ * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This file is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This file is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+#include "d211.dtsi"
+#include "d211-ddr2-512Mb.dtsi"
+#include "d211-ddr.dtsi"
+#include "d211-pinctrl.dtsi"
+#include <dt-bindings/display/artinchip,aic-disp.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pwm/pwm.h>
+
+/ {
+	model = "Artinchip PER1";
+	compatible = "artinchip,d211";
+	package = "QFN128";
+
+	aliases {
+		gpio0 = &gpio_a;
+		gpio1 = &gpio_b;
+		gpio2 = &gpio_c;
+		gpio3 = &gpio_d;
+		gpio4 = &gpio_e;
+		gpio5 = &gpio_f;
+		pinctrl = &pinctrl;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		serial5 = &uart5;
+		serial6 = &uart6;
+		serial7 = &uart7;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		can0 = &can0;
+		can1 = &can1;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		gmac0 = &gmac0;
+		gmac1 = &gmac1;
+		rtc = &rtc;
+		wdt0 = &wdt0;
+		fb0 = &fb0;
+		de0 = &de0;
+		lvds0 = &lvds0;
+		rgb0 = &rgb0;
+		dsi0 = &dsi0;
+		dvp0 = &dvp0;
+		cir = &cir;
+		adcim = &adcim;
+		gpai = &gpai;
+		rtp = &rtp;
+		tsen = &tsen;
+		pwm = &pwm;
+		sdmc0 = &sdmc0;
+		sdmc1 = &sdmc1;
+		sdmc2 = &sdmc2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+		bootargs = "rdinit=/init earlycon=sbi loglevel=7";
+		reset-after-fw-burn;
+	};
+	config {
+		/*
+		 * The "aic,upgmode-gpio" is used to define upgrade-mode
+		 * pin to enter USB upgrade mode.
+		 * Why don't use the naming format "-gpios" as other gpio?
+		 * Because this pin maybe reuse some other device's pin,
+		 * e.g. UART. If use the "-gpios" to name it, it will cause
+		 * PINMUX conflict error during pinmux check.
+		 */
+		aic,upgmode-gpio = <&gpio_a 0 GPIO_ACTIVE_LOW>;
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+        reg = <0x0 0x40000000 0x0 0x4000000>;
+	};
+
+	/* Reserved 1M memory for aic ramdump
+	   When enable CONFIG_AIC_RAMDUMP in linux kernel, also must enable below node.
+	*/
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+	#if 0
+		aic_ramdump_buf {
+			compatible = "artinchip,aic-ramdump";
+			no-map;
+			reg = <0x43f00000 0x100000>;
+		};
+	#endif
+		};
+#if 0
+	syspower {
+		compatible = "artinchip,aic-power";
+		power-gpios = <&gpio_e 13 GPIO_ACTIVE_HIGH>;
+	};
+#endif
+	panel_lvds {
+		compatible = "artinchip,aic-general-lvds-panel";
+		enable-gpios = <&gpio_e 19 GPIO_ACTIVE_HIGH>;
+		data-mapping = "vesa-24";
+		data-channel = "single-link1";
+		/*backlight = <&backlight>;*/
+		status = "okay";
+
+		port {
+			panel_lvds_in: endpoint {
+				remote-endpoint = <&lvds0_out>;
+			};
+		};
+
+		display-timings {
+			native-mode = <&timing1>;
+			timing1: 1024x600 {
+				clock-frequency = <52000000>;
+				hactive = <1024>;
+				vactive = <600>;
+				hback-porch = <160>;
+				hfront-porch = <160>;
+				hsync-len = <20>;
+				vback-porch = <20>;
+				vfront-porch = <12>;
+				vsync-len = <3>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+		};
+	};
+
+	panel_rgb {
+		compatible = "artinchip,aic-general-rgb-panel";
+		status = "disabled";
+
+		enable-gpios = <&gpio_e 19 GPIO_ACTIVE_HIGH>;
+		rgb-mode = <PRGB>;
+		interface-format = <PRGB_16BIT_LD>;
+		clock-phase = <DEGREE_0>;
+		data-order = <RGB>;
+		data-mirror;
+
+		port {
+			panel_rgb_in: endpoint {
+			remote-endpoint = <&rgb0_out>;
+			};
+		};
+
+		display-timings {
+			native-mode = <&timing0>;
+			timing0: 1024x600 {
+				clock-frequency = <52000000>;
+				hactive = <1024>;
+				vactive = <600>;
+				hback-porch = <160>;
+				hfront-porch = <160>;
+				hsync-len = <20>;
+				vback-porch = <12>;
+				vfront-porch = <20>;
+				vsync-len = <3>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+		};
+	};
+
+	panel_dsi {
+		compatible = "artinchip,aic-dsi-panel-simple";
+		status = "disabled";
+
+		dcdc-en-gpios = <&gpio_d 3 GPIO_ACTIVE_HIGH>;
+		reset-gpios  = <&gpio_d 1 GPIO_ACTIVE_HIGH>;
+		enable-gpios = <&gpio_d 0 GPIO_ACTIVE_HIGH>;
+
+		port {
+			panel_dsi_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		/* pwm node name; pwm device No.; period_ns; pwm_polarity */
+		pwms = <&pwm 3 1000000 0>;
+		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
+		default-brightness-level = <0>;
+		status = "okay";
+	};
+};
+
+&cmu {
+	pll-int0 = <600000000>;
+	pll-int1 = <1200000000>;
+	pll-frac1 = <491520000>;
+	pll-frac2 = <840000000>;
+	axi0 = <240000000>;
+	ahb0 = <240000000>;
+	apb0 = <100000000>;
+	apb1 = <24000000>;
+	clk-out0 = <25000000>;
+	clk-out1 = <25000000>;
+	clk-out2 = <25000000>;
+	clk-out3 = <25000000>;
+	// clk-out0-enable;
+	// clk-out1-enable;
+	/* Enable clock out2 */
+	clk-out2-enable;
+	// clk-out3-enable;
+};
+
+&rtc {
+	aic,alarm-io-output;
+	status = "okay";
+};
+
+&wdt0 {
+	timeout-sec = <16>;
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_a>;
+	status = "okay";
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins_a>;
+	status = "disabled";
+};
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pins_a>;
+	status = "disabled";
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins_c>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_a>;
+	status = "disabled";
+};
+
+&uart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart5_pins_a>;
+	linux,rs485-enabled-at-boot-time;
+	aic,rs485-compact-io-mode;
+	status = "okay";
+};
+
+&uart6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart6_pins_a>;
+	status = "disabled";
+};
+
+&uart7 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart7_pins_a>;
+	status = "disabled";
+};
+
+&dvp0 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&dvp_pins>;
+
+	port@0 {
+		reg = <0>;
+		dvp0_in: endpoint {
+			// remote-endpoint = <&camera_out>;
+/*			bus-type = <6>; /* V4L2_FWNODE_BUS_TYPE_BT656 */
+			bus-width = <8>;
+			hsync-active = <1>;
+			vsync-active = <1>;
+			field-even-active = <1>;
+			pclk-sample = <1>;
+		};
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins_b>;
+	status = "disabled";
+	rtc@32 {
+		compatible = "epson,rx8010";
+		reg = <0x32>;
+	};
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "disabled";
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins_a>;
+	status = "disabled";
+
+#if 0
+	ov5640: camera@3C {
+		compatible = "ovti,ov5640";
+		reg = <0x3C>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk_out1_pins>;
+		clocks = <&cmu CLK_OUT1>;
+		clock-names = "xclk";
+		clock-rate = <24000000>;
+		reset-gpios = <&gpio_e 14 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&gpio_e 15 GPIO_ACTIVE_HIGH>;
+
+		port {
+			camera_out: endpoint {
+				remote-endpoint = <&dvp0_in>;
+				/* V4L2_FWNODE_BUS_TYPE_BT656
+				bus-type = <6>; */
+				bus-width = <8>;
+				data-shift = <2>;
+				hsync-active = <0>;
+				vsync-active = <1>;
+				pclk-sample = <1>;
+			};
+		};
+	};
+#endif
+#if 0
+	ov2659: camera@30 {
+		compatible = "ovti,ov2659";
+		reg = <0x30>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk_out1_pins>;
+		clocks = <&cmu CLK_OUT1>;
+		clock-names = "xvclk";
+		clock-rate = <24000000>;
+		reset-gpios = <&gpio_e 14 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&gpio_e 15 GPIO_ACTIVE_HIGH>;
+
+		port {
+			camera_out: endpoint {
+				remote-endpoint = <&dvp0_in>;
+				link-frequencies = /bits/ 64 <40000000>;
+			};
+		};
+	};
+#endif
+#if 0
+	ov7670: camera@21 {
+		compatible = "ovti,ov7670";
+		reg = <0x21>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk_out1_pins>;
+		clocks = <&cmu CLK_OUT1>;
+		clock-names = "xclk";
+		clock-rate = <24000000>;
+		reset-gpios = <&gpio_e 14 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&gpio_e 15 GPIO_ACTIVE_HIGH>;
+
+		port {
+			camera_out: endpoint {
+				remote-endpoint = <&dvp0_in>;
+			};
+		};
+	};
+#endif
+};
+
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins_a>;
+	status = "disabled";
+
+	gt9xx@5d {
+		status = "disabled";
+		compatible = "goodix,gt9xx";
+		reg = <0x5d>;
+		reset-gpios = <&gpio_a 8 GPIO_ACTIVE_LOW>;
+		irq-gpios = <&gpio_a 9 GPIO_ACTIVE_HIGH>;
+		irq-flags = <2>;
+
+		touchscreen-max-id = <11>;
+		touchscreen-size-x = <1024>;
+		touchscreen-size-y = <600>;
+		touchscreen-max-w = <512>;
+		touchscreen-max-p = <512>;
+
+		goodix,int-sync = <1>;
+	};
+};
+
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0_pins_a>;
+	status = "disabled";
+};
+
+&spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi1_pins_a>;
+	status = "disabled";
+};
+
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_pins_a>;
+	status = "disabled";
+};
+
+&spi3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi3_pins_a>;
+	status = "disabled";
+};
+
+&sdmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmc0_pins>;
+	bus-width = <4>;
+	cap-mmc-highspeed;
+	status = "okay";
+};
+
+&sdmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmc1_pins>;
+	bus-width = <4>;
+	cap-sd-highspeed;
+	status = "okay";
+};
+
+&sdmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmc2_pins>;
+	status = "disabled";
+};
+
+/* case 1: USB0 = OTG Enable */
+#if 0
+&otg {
+	id-gpios = <&gpio_a 2 GPIO_ACTIVE_HIGH>;
+	// vbus-en-gpios = <&gpio_a 3 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&aicudc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb0_pins_a>;
+	status = "okay";
+};
+
+&usbh0 {
+	status = "okay";
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+/* case 2: USB0 = OTG Disable */
+#else
+
+&otg {
+	status = "disabled";
+};
+
+/* case 2.1: USB0 = Device */
+#if 1
+&aicudc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb0_pins_a>;
+	status = "okay";
+};
+
+&usbh0 {
+	status = "disabled";
+};
+&ohci0 {
+	status = "disabled";
+};
+
+/* case 2.2: USB0 = Host */
+#else
+&aicudc {
+	aic,only-uboot-use;
+	status = "okay";
+};
+
+&usbh0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb0_pins_a>;
+	artinchip,sw_usb_phy0;
+	// vbus-en-gpios = <&gpio_a 3 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+&ohci0 {
+	status = "okay";
+};
+#endif
+#endif
+
+&usbh1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb1_pins_a>;
+	status = "okay";
+};
+
+&ohci1 {
+	status = "okay";
+};
+
+&pinctrl {
+	gmac0_local_pins: gmac0-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 6)>,
+				 <AIC_PINMUX('E', 1, 6)>,
+				 <AIC_PINMUX('E', 2, 6)>,
+				 <AIC_PINMUX('E', 3, 6)>,
+				 <AIC_PINMUX('E', 4, 6)>,
+				 <AIC_PINMUX('E', 5, 6)>,
+				 <AIC_PINMUX('E', 7, 6)>,
+				 <AIC_PINMUX('E', 8, 6)>,
+				 <AIC_PINMUX('E', 9, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_d: pwm3-3 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 19, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spk_pins_d: spk-3 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 11, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+};
+
+&gmac0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac0_local_pins>, <&clk_out2_pins_b>;
+	phy-handle = <&gmac0_phy>;
+	phy-reset-gpios = <&gpio_e 6 GPIO_ACTIVE_HIGH>;
+	phy-addr = <1>;
+	phy-mode = "rmii";
+	max-speed = <100>;
+	aic,use_extclk;
+
+
+	status = "okay";
+
+	gmac0_mdio: mdio {
+		compatible = "aicmac-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		gmac0_phy: ethernet-phy@1 {
+			reg = <1>;
+		};
+	};
+};
+
+&gmac1 {
+	status = "disabled";
+};
+
+&codec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spk_pins_d>, <&dmic_pins_b>;
+	pa-gpios = <&gpio_a 7 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+/* The data flow:
+ * fb ---> de ----> lvds ----> panel
+ *              |-> rgb  ->|
+ *              '-> dsi  ->'
+ */
+
+&fb0 {
+	artinchip,uboot-logo-on=<1>;
+	height-virtual = <1200>;
+	port {
+		fb0_out: endpoint {
+			remote-endpoint = <&de0_in>;
+		};
+	};
+};
+
+&de0 {
+	status = "okay";
+
+	port@0 {
+		reg = <0>;
+		de0_in: endpoint {
+			remote-endpoint = <&fb0_out>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		de0_out: endpoint {
+			remote-endpoint = <&lvds0_in>;
+		};
+	};
+};
+
+&rgb0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lcd_pins>;
+	status = "disabled";
+
+	port@0 {
+		reg = <0>;
+		rgb0_in: endpoint {
+			remote-endpoint = <&rgb0_in>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		rgb0_out: endpoint {
+			remote-endpoint = <&panel_rgb_in>;
+		};
+	};
+};
+
+
+&lvds0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lvds1_pins>;
+	status = "okay";
+
+	port@0 {
+		reg = <0>;
+		lvds0_in: endpoint {
+			remote-endpoint = <&de0_out>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		lvds0_out: endpoint {
+			remote-endpoint = <&panel_lvds_in>;
+		};
+	};
+};
+
+&dsi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&dsi_pins>;
+	status = "disabled";
+
+	port@0 {
+		reg = <0>;
+		dsi0_in: endpoint {
+			remote-endpoint = <&dsi0_in>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		dsi0_out: endpoint {
+			remote-endpoint = <&panel_dsi_in>;
+		};
+	};
+};
+
+&cir {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cir_pins_a>;
+	rx-level = <1>;
+	linux,rc-map-name = "rc-empty";
+	status = "disabled";
+};
+
+&adcim {
+	status = "okay";
+};
+
+&gpai {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&gpai7_pins>;
+
+	gpai0 {
+		aic,sample-period-ms = <10>;
+		aic,high-level-thd = <1830>;
+		aic,low-level-thd = <1800>;
+		status = "disabled";
+	};
+
+	gpai1 {
+		status = "disabled";
+	};
+
+	gpai2 {
+		status = "disabled";
+	};
+
+	gpai3 {
+		status = "disabled";
+	};
+
+	gpai4 {
+		status = "disabled";
+	};
+
+	gpai5 {
+		status = "disabled";
+	};
+
+	gpai6 {
+		status = "disabled";
+	};
+
+	gpai7 {
+		status = "okay";
+	};
+};
+
+&rtp {
+	aic,max-pressure = <800>;
+	aic,x-plate = <235>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&rtp_pins>;
+	status = "okay";
+};
+
+&tsen {
+	status = "okay";
+
+	tsen0 {
+		status = "okay";
+	};
+
+	tsen1 {
+		status = "okay";
+	};
+};
+
+&pwm {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm3_pins_d>;
+	/* mode: up-count, down-count, up-down-count
+	   action: none, low, high, inverse */
+	pwm0 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		aic,rise-edge-delay = <10>;
+		aic,fall-edge-delay = <10>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "low", "none", "high";
+		aic,action1 = "none", "none", "none", "high", "none", "low";
+		status = "disabled";
+	};
+
+	pwm1 {
+		aic,mode = "down-count";
+		aic,tb-clk-rate = <24000000>;
+		aic,rise-edge-delay = <10>;
+		aic,fall-edge-delay = <10>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "low", "none", "high";
+		aic,action1 = "none", "none", "none", "high", "none", "low";
+		status = "disabled";
+	};
+
+	pwm2 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "low", "none";
+		aic,action1 = "none", "none", "none", "low", "high", "none";
+		aic,default-level = <0>;
+		aic,rise-edge-delay = <10>;
+		aic,fall-edge-delay = <10>;
+		status = "okay";
+	};
+
+	pwm3 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "low", "none", "high";
+		aic,action1 = "none", "none", "none", "high", "none", "low";
+		aic,rise-edge-delay = <10>;
+		aic,fall-edge-delay = <10>;
+		status = "okay";
+	};
+};
+
+&can0 {
+       pinctrl-names = "default";
+       pinctrl-0 = <&can0_pins_a>;
+       status = "disabled";
+};
+
+&can1 {
+       pinctrl-names = "default";
+       pinctrl-0 = <&can1_pins_a>;
+       status = "disabled";
+};

@@ -1,0 +1,11 @@
+config VIDEO_ARTINCHIP_DVP
+	tristate "ArtInChip Digital Video Port Support"
+	depends on VIDEO_V4L2 && COMMON_CLK && VIDEO_V4L2_SUBDEV_API && HAS_DMA
+	depends on ARCH_ARTINCHIP
+	select VIDEOBUF2_DMA_CONTIG
+	select V4L2_FWNODE
+	help
+	  This is a V4L2 driver for the ArtInChip DVP V1.0
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called aic-dvp.

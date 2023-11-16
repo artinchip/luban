@@ -1,0 +1,13 @@
+#
+#  Touchscreen driver configuration
+#
+config TOUCHSCREEN_ICN81XX
+       tristate "icn81xx based touchscreens"
+       depends on I2C
+       help 
+         Say Y here if you have a icn81xx based touchscreen.
+
+         If unsure, say N.
+
+         To compile this driver as a module, choose M here: the
+         module will be called icn81xx.

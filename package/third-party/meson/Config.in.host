@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_HOST_MESON
+	bool "host meson"
+
+if BR2_PACKAGE_HOST_MESON
+config BR2_PACKAGE_HOST_MESON_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

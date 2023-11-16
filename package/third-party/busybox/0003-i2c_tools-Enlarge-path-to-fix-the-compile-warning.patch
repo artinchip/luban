@@ -1,0 +1,58 @@
+From 607445161b826295c4b7677b42da17cc9e749e5d Mon Sep 17 00:00:00 2001
+From: matteo <duanmt@artinchip.com>
+Date: Mon, 12 Sep 2022 10:44:37 +0800
+Subject: [PATCH 1/2] i2c_tools: Enlarge path[] to fix the compile warning
+
+Signed-off-by: matteo <duanmt@artinchip.com>
+---
+ miscutils/i2c_tools.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/miscutils/i2c_tools.c b/miscutils/i2c_tools.c
+index b25d497..92d0742 100644
+--- a/miscutils/i2c_tools.c
++++ b/miscutils/i2c_tools.c
+@@ -1127,7 +1127,7 @@ static void NORETURN list_i2c_busses_and_exit(void)
+ {
+ 	const char *const i2cdev_path = "/sys/class/i2c-dev";
+ 
+-	char path[NAME_MAX], name[128];
++	char path[NAME_MAX * 3], name[128];
+ 	struct dirent *de, *subde;
+ 	enum adapter_type adt;
+ 	DIR *dir, *subdir;
+@@ -1147,11 +1147,11 @@ static void NORETURN list_i2c_busses_and_exit(void)
+ 			continue;
+ 
+ 		/* Simple version for ISA chips. */
+-		snprintf(path, NAME_MAX, "%s/%s/name",
++		snprintf(path, NAME_MAX * 3, "%s/%s/name",
+ 			 i2cdev_path, de->d_name);
+ 		fp = fopen_for_read(path);
+ 		if (fp == NULL) {
+-			snprintf(path, NAME_MAX,
++			snprintf(path, NAME_MAX * 3,
+ 				 "%s/%s/device/name",
+ 				 i2cdev_path, de->d_name);
+ 			fp = fopen_for_read(path);
+@@ -1159,7 +1159,7 @@ static void NORETURN list_i2c_busses_and_exit(void)
+ 
+ 		/* Non-ISA chips require the hard-way. */
+ 		if (fp == NULL) {
+-			snprintf(path, NAME_MAX,
++			snprintf(path, NAME_MAX * 3,
+ 				 "%s/%s/device/name",
+ 				 i2cdev_path, de->d_name);
+ 			subdir = opendir(path);
+@@ -1171,7 +1171,7 @@ static void NORETURN list_i2c_busses_and_exit(void)
+ 					continue;
+ 
+ 				if (is_prefixed_with(subde->d_name, "i2c-")) {
+-					snprintf(path, NAME_MAX,
++					snprintf(path, NAME_MAX * 3,
+ 						 "%s/%s/device/%s/name",
+ 						 i2cdev_path, de->d_name,
+ 						 subde->d_name);
+-- 
+2.29.0
+

@@ -1,0 +1,68 @@
+From 4981bcd94a1a5b9d993aad8e3220507935ff654b Mon Sep 17 00:00:00 2001
+From: "keliang.liu" <keliang.liu@artinchip.com>
+Date: Sat, 3 Dec 2022 13:30:12 +0800
+Subject: [PATCH] directfb: remove dma buffer log
+
+---
+ src/core/dmabuf_surface_pool.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/core/dmabuf_surface_pool.c b/src/core/dmabuf_surface_pool.c
+index 77fa967..5934635 100644
+--- a/src/core/dmabuf_surface_pool.c
++++ b/src/core/dmabuf_surface_pool.c
+@@ -108,7 +108,7 @@ static void* dmabuf_alloc(int dev_fd, int *size, int *fd)
+         return NULL;
+     }
+ 
+-    D_INFO("dmabuf_alloc fd %d size %d addr %p\n", data.fd, data.len, addr);
++    //D_INFO("dmabuf_alloc fd %d size %d addr %p\n", data.fd, data.len, addr);
+ 
+     *fd  = data.fd;
+     *size = data.len;
+@@ -119,7 +119,7 @@ static void* dmabuf_alloc(int dev_fd, int *size, int *fd)
+ static void dmabuf_free(void* buf, int size, int fd)
+ {
+ 
+-     D_INFO("dmabuf_free fd %d size %d addr %p\n", fd, size, buf);
++     //D_INFO("dmabuf_free fd %d size %d addr %p\n", fd, size, buf);
+ 
+     if (buf)
+         munmap(buf, size);
+@@ -266,7 +266,7 @@ dmabufAllocateBuffer( CoreSurfacePool       *pool,
+      D_MAGIC_ASSERT( buffer, CoreSurfaceBuffer );
+      D_ASSERT( alloc != NULL );
+ 
+-     D_INFO("dmabufAllocateBuffer\n" );
++     //D_INFO("dmabufAllocateBuffer\n" );
+ 
+      surface = buffer->surface;
+      D_MAGIC_ASSERT( surface, CoreSurface );
+@@ -289,7 +289,7 @@ dmabufAllocateBuffer( CoreSurfacePool       *pool,
+ 
+      alloc->addr = dmabuf_alloc(data->dmabuf_fd, &alloc->size, &alloc->fd);
+ 
+-     D_INFO("DmabufAllocateBuffe alloc->addr %p fd %d, size %d, pitch %d, width %d, height %d\n", alloc->addr, alloc->fd, alloc->size, alloc->pitch, alloc->width, alloc->height);
++     //D_INFO("DmabufAllocateBuffe alloc->addr %p fd %d, size %d, pitch %d, width %d, height %d\n", alloc->addr, alloc->fd, alloc->size, alloc->pitch, alloc->width, alloc->height);
+ 
+      if (!alloc->addr)
+           return DFB_TEMPUNAVAIL;
+@@ -319,13 +319,13 @@ dmabufDeallocateBuffer( CoreSurfacePool       *pool,
+      D_MAGIC_ASSERT( alloc, DmabufAllocationData );
+      D_MAGIC_ASSERT( data, DmabufPoolData );
+ 
+-     D_INFO("dmabufDeallocateBuffer\n" );
++     //D_INFO("dmabufDeallocateBuffer\n" );
+ 
+      if (alloc->addr) {
+           if (data->dfb_fbdev && data->dfb_fbdev->gfx_dev) {
+                mpp_ge_rm_dmabuf(data->dfb_fbdev->gfx_dev, alloc->fd);
+           }
+-          D_INFO("dmabufDeallocateBuffer alloc->addr %p, fd %d, size %d\n", alloc->addr, alloc->fd, alloc->size);
++          //D_INFO("dmabufDeallocateBuffer alloc->addr %p, fd %d, size %d\n", alloc->addr, alloc->fd, alloc->size);
+           dmabuf_free(alloc->addr, alloc->size, alloc->fd);
+      }
+      alloc->addr = NULL;
+-- 
+2.29.0
+

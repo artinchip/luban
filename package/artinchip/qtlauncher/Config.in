@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_QTLAUNCHER
+	bool "qtlauncher"
+	default n
+	select BR2_PACKAGE_QT
+	select BR2_PACKAGE_DIRECTFB
+	help
+	  ArtInChip's Launcher App Developed with QT.
+
+if BR2_PACKAGE_QTLAUNCHER
+config BR2_QTLAUNCHER_GE_SUPPORT
+	bool "use GE to render image"
+	default y
+config BR2_QTLAUNCHER_SMALL_MEMORY
+	bool "small memory device"
+	default y
+endif

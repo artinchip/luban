@@ -1,0 +1,10 @@
+menuconfig BR2_PACKAGE_IPROUTE2
+	bool "iproute2"
+	depends on BR2_USE_MMU # fork()
+	default n
+
+if BR2_PACKAGE_IPROUTE2
+config BR2_PACKAGE_IPROUTE2_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

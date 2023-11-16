@@ -1,0 +1,22 @@
+{
+  "name": "Chart.v2-Demo",
+  "version": "1.0",
+  "assets": "res/assets",
+  "author": "AWTK Develop Team",
+  "copyright": "Guangzhou ZHIYUAN Electronics Co.,Ltd.",
+  "themes":["default", "res_480_272"],
+  "web": {
+    "app_type": "c",
+    "assets": "design",
+    "sources": [
+	  "3rd/awtk-widget-chart-view/src/*.c",
+	  "3rd/awtk-widget-chart-view/src/*/*.c",
+      "src/*.c",
+      "src/*/*.c"
+    ],
+    "config": {
+      "fontScale": "0.8",
+      "defaultFont": "sans"
+    }
+  }
+}

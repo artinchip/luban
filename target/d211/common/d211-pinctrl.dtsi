@@ -1,0 +1,1834 @@
+/*
+ * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <dt-bindings/pinctrl/aic-pinctrl.h>
+
+&pinctrl {
+	interrupt-parent = <&plic0>;
+	pins-are-numbered;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	gpio_a: bank-0 {
+		interrupts-extended = <&plic0 68 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <0>;
+		artinchip,bank-name = "PA";
+		gpio-ranges = <&pinctrl 0 0 12>;
+		gpio_regs = <0x0000 0x0004 0x0008 0x000C 0x0080>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_b: bank-1 {
+		interrupts-extended = <&plic0 69 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <1>;
+		artinchip,bank-name = "PB";
+		gpio-ranges = <&pinctrl 0 12 12>;
+		gpio_regs = <0x0100 0x0104 0x0108 0x010C 0x0180>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_c: bank-2 {
+		interrupts-extended = <&plic0 70 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <2>;
+		artinchip,bank-name = "PC";
+		gpio-ranges = <&pinctrl 0 24 8>;
+		gpio_regs = <0x0200 0x0204 0x0208 0x020C 0x0280>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_d: bank-3 {
+		interrupts-extended = <&plic0 71 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <3>;
+		artinchip,bank-name = "PD";
+		gpio-ranges = <&pinctrl 0 32 28>;
+		gpio_regs = <0x0300 0x0304 0x0308 0x030C 0x0380>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_e: bank-4 {
+		interrupts-extended = <&plic0 72 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <4>;
+		artinchip,bank-name = "PE";
+		gpio-ranges = <&pinctrl 0 60 20>;
+		gpio_regs = <0x0400 0x0404 0x0408 0x040C 0x0480>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_f: bank-5 {
+		interrupts-extended = <&plic0 73 IRQ_TYPE_LEVEL_HIGH>;
+		gpio-controller;
+		artinchip,bank-port = <5>;
+		artinchip,bank-name = "PF";
+		gpio-ranges = <&pinctrl 0 80 16>;
+		gpio_regs = <0x0500 0x0504 0x0508 0x050C 0x0580>;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio_n: bank-6 {
+		gpio-controller;
+		artinchip,bank-port = <6>;
+		artinchip,bank-name = "PU";
+		gpio-ranges = <&pinctrl 0 96 4>;
+		gpio_regs = <0x0E00 0x0E04 0x0E08 0x0E0C 0x0E80>;
+		#gpio-cells = <2>;
+	};
+
+	//GPIOP has no interrupt number
+	gpio_p: bank-7 {
+		gpio-controller;
+		artinchip,bank-port = <7>;
+		artinchip,bank-name = "PP";
+		gpio-ranges = <&pinctrl 0 100 12>;
+		gpio_regs = <0x0F00 0x0F04 0x0F08 0x0F0C 0x0F80>;
+		#gpio-cells = <2>;
+	};
+
+	/*
+	--------------------------------------------------------------------
+	xxx_pins: xxx-0 {
+		Pin mux can be configured in several groups, each group
+		has different push-pull and drive-strength. The push-pull
+		can be 'bias-pull-up', 'bias-pull-down' and 'bias-disable',
+		and the drive-strength can be configured as 0~7.
+		pins1 {
+			pinmux = <AIC_PINMUX(port, index, function)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX(port, index, function)>;
+			bias-pull-up;
+			drive-strength = <5>;
+		}
+		pins3 {
+			pinmux = <AIC_PINMUX(port, index, function)>;
+			bias-pull-down;
+			drive-strength = <5>;
+		}
+		...
+	}
+	--------------------------------------------------------------------
+	*/
+
+	jtag_pins_a: jtag-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 8, 6)>,
+					 <AIC_PINMUX('A', 9, 6)>,
+					 <AIC_PINMUX('A', 10, 6)>,
+					 <AIC_PINMUX('A', 11, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	jtag_pins_b: jtag-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 0, 6)>,
+					 <AIC_PINMUX('C', 1, 6)>,
+					 <AIC_PINMUX('C', 3, 6)>,
+					 <AIC_PINMUX('C', 5, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_pins_a: uart0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 5)>,
+					 <AIC_PINMUX('A', 1, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_pins_b: uart0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 2, 6)>,
+					 <AIC_PINMUX('C', 4, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_pins_c: uart0-2 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 0, 4)>,
+					 <AIC_PINMUX_U('U', 1, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_pins_d: uart0-3 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 2, 4)>,
+					 <AIC_PINMUX_U('U', 3, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_rts_pins_a: uart0-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 2, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart0_cts_pins_a: uart0-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 3, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_pins_a: uart1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 4, 5)>,
+					 <AIC_PINMUX('A', 5, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_pins_b: uart1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 0, 5)>,
+					 <AIC_PINMUX('C', 1, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_pins_c: uart1-2 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 6, 5)>,
+					 <AIC_PINMUX('D', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_pins_d: uart1-3 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 0, 5)>,
+					 <AIC_PINMUX_U('U', 1, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_rts_pins_a: uart1-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 6, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_rts_pins_b: uart1-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 2, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart1_cts_pins_a: uart1-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_pins_a: uart2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 8, 5)>,
+					 <AIC_PINMUX('A', 9, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_pins_b: uart2-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 3, 5)>,
+					 <AIC_PINMUX('C', 4, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_pins_c: uart2-2 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 5)>,
+					 <AIC_PINMUX('D', 9, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_pins_d: uart2-3 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 2, 5)>,
+					 <AIC_PINMUX_U('U', 3, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_rts_pins_a: uart2-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 10, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_rts_pins_b: uart2-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 5, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart2_cts_pins_a: uart2-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 11, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_pins_a: uart3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 5, 5)>,
+					 <AIC_PINMUX('C', 6, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_pins_b: uart3-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 12, 5)>,
+					 <AIC_PINMUX('F', 11, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_pins_c: uart3-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 14, 5)>,
+					 <AIC_PINMUX('E', 15, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_pins_d: uart3-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 10, 5)>,
+					 <AIC_PINMUX('D', 11, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_rts_pins_a: uart3-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_rts_pins_b: uart3-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 13, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart3_cts_pins_a: uart3-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 10, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_pins_a: uart4-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 14, 5)>,
+					 <AIC_PINMUX('F', 15, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_pins_b: uart4-1 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 6, 5)>,
+					 <AIC_PINMUX('B', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_pins_c: uart4-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 2, 5)>,
+					 <AIC_PINMUX('E', 3, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_pins_d: uart4-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 12, 5)>,
+					 <AIC_PINMUX('D', 13, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_rts_pins_a: uart4-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 8, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_rts_pins_b: uart4-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 12, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart4_cts_pins_a: uart4-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 13, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_pins_a: uart5-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 5)>,
+					 <AIC_PINMUX('F', 1, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_pins_b: uart5-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 4, 5)>,
+					 <AIC_PINMUX('E', 5, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_pins_c: uart5-2 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 8, 5)>,
+					 <AIC_PINMUX('B', 9, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_pins_d: uart5-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 24, 5)>,
+					 <AIC_PINMUX('D', 25, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_rts_pins_a: uart5-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 6, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_rts_pins_b: uart5-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 2, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart5_cts_pins_a: uart5-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 3, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_pins_a: uart6-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 6, 5)>,
+					 <AIC_PINMUX('E', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_pins_b: uart6-1 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 10, 5)>,
+					 <AIC_PINMUX('B', 11, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_pins_c: uart6-2 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 4, 5)>,
+					 <AIC_PINMUX('F', 5, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_pins_d: uart6-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 22, 6)>,
+					 <AIC_PINMUX('D', 23, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_rts_pins_a: uart6-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 9, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_rts_pins_b: uart6-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 8, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart6_cts_pins_a: uart6-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 9, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_pins_a: uart7-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 6, 5)>,
+					 <AIC_PINMUX('F', 7, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_pins_b: uart7-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 8, 5)>,
+					 <AIC_PINMUX('E', 9, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_pins_c: uart7-2 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 0, 5)>,
+					 <AIC_PINMUX('B', 1, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_pins_d: uart7-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 20, 5)>,
+					 <AIC_PINMUX('D', 21, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_rts_pins_a: uart7-rts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 7, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_rts_pins_b: uart7-rts-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 8, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	uart7_cts_pins_a: uart7-cts-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 9, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c0_pins_a: i2c0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 4)>,
+					 <AIC_PINMUX('A', 1, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c0_pins_b: i2c0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 6, 4)>,
+					 <AIC_PINMUX('D', 7, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c0_pins_c: i2c0-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 4)>,
+					 <AIC_PINMUX('E', 1, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c1_pins_a: i2c1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 6, 4)>,
+					 <AIC_PINMUX('A', 7, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c1_pins_b: i2c1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 0, 4)>,
+					 <AIC_PINMUX('B', 1, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c1_pins_c: i2c1-2 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 18, 5)>,
+					 <AIC_PINMUX('D', 19, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_pins_a: i2c2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 8, 4)>,
+					 <AIC_PINMUX('A', 9, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_pins_b: i2c2-1 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 6, 4)>,
+					 <AIC_PINMUX('B', 7, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_pins_c: i2c2-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 12, 5)>,
+					 <AIC_PINMUX('E', 13, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c3_pins_a: i2c3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 10, 4)>,
+					 <AIC_PINMUX('A', 11, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c3_pins_b: i2c3-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 22, 5)>,
+					 <AIC_PINMUX('D', 23, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c3_pins_c: i2c3-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 16, 5)>,
+					 <AIC_PINMUX('E', 17, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi0_pins_a: spi0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 0, 3)>,
+				<AIC_PINMUX('B', 1, 3)>,
+				<AIC_PINMUX('B', 2, 3)>,
+				<AIC_PINMUX('B', 3, 3)>,
+				<AIC_PINMUX('B', 4, 3)>,
+				<AIC_PINMUX('B', 5, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi0_pins_b: spi0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 16, 3)>,
+				<AIC_PINMUX('E', 17, 3)>,
+				<AIC_PINMUX('E', 18, 3)>,
+				<AIC_PINMUX('E', 19, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi1_pins_a: spi1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 6, 3)>,
+				<AIC_PINMUX('B', 7, 3)>,
+				<AIC_PINMUX('B', 8, 3)>,
+				<AIC_PINMUX('B', 9, 3)>,
+				<AIC_PINMUX('B', 10, 3)>,
+				<AIC_PINMUX('B', 11, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi1_pins_b: spi1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 4)>,
+				<AIC_PINMUX('D', 9, 4)>,
+				<AIC_PINMUX('D', 10, 4)>,
+				<AIC_PINMUX('D', 11, 4)>,
+				<AIC_PINMUX('D', 12, 4)>,
+				<AIC_PINMUX('D', 13, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi1_pins_c: spi1-2 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 24, 6)>,
+				<AIC_PINMUX('D', 25, 6)>,
+				<AIC_PINMUX('D', 26, 6)>,
+				<AIC_PINMUX('D', 27, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi2_pins_a: spi2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 0, 4)>,
+				<AIC_PINMUX('C', 1, 4)>,
+				<AIC_PINMUX('C', 2, 4)>,
+				<AIC_PINMUX('C', 3, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi2_pins_b: spi2-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 3)>,
+				<AIC_PINMUX('D', 1, 3)>,
+				<AIC_PINMUX('D', 2, 3)>,
+				<AIC_PINMUX('D', 7, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi2_pins_c: spi2-2 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 3)>,
+				<AIC_PINMUX('F', 1, 3)>,
+				<AIC_PINMUX('F', 2, 3)>,
+				<AIC_PINMUX('F', 3, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi3_pins_a: spi3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 3, 3)>,
+				<AIC_PINMUX('D', 4, 3)>,
+				<AIC_PINMUX('D', 5, 3)>,
+				<AIC_PINMUX('D', 6, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi3_pins_b: spi3-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 14, 4)>,
+				<AIC_PINMUX('D', 15, 4)>,
+				<AIC_PINMUX('D', 16, 4)>,
+				<AIC_PINMUX('D', 17, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spi3_pins_c: spi3-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 12, 3)>,
+				<AIC_PINMUX('E', 13, 3)>,
+				<AIC_PINMUX('E', 14, 3)>,
+				<AIC_PINMUX('E', 15, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm0_pins_a: pwm0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 0, 7)>,
+					 <AIC_PINMUX('C', 1, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm0_pins_b: pwm0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 7)>,
+				     <AIC_PINMUX('D', 1, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm0_pins_c: pwm0-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 8)>,
+				     <AIC_PINMUX('E', 1, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm1_pins_a: pwm1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 2, 7)>,
+				     <AIC_PINMUX('C', 3, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm1_pins_b: pwm1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 2, 7)>,
+				     <AIC_PINMUX('D', 3, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm1_pins_c: pwm1-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 2, 8)>,
+				     <AIC_PINMUX('E', 3, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm2_pins_a: pwm2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 4, 7)>,
+				     <AIC_PINMUX('C', 5, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm2_pins_b: pwm2-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 4, 7)>,
+				     <AIC_PINMUX('D', 5, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm2_pins_c: pwm2-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 4, 8)>,
+				     <AIC_PINMUX('E', 5, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_a: pwm3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 6, 7)>,
+				     <AIC_PINMUX('C', 7, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_a_0: pwm3-0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 6, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_a_1: pwm3-0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 7, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_b: pwm3-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 26, 5)>,
+				     <AIC_PINMUX('D', 27, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pwm3_pins_c: pwm3-2 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 18, 5)>,
+				     <AIC_PINMUX('E', 19, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	can0_pins_a: can0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 16, 4)>,
+					 <AIC_PINMUX('E', 17, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	can0_pins_b: can0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 2, 4)>,
+					 <AIC_PINMUX('E', 3, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	can1_pins_a: can1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 18, 4)>,
+					 <AIC_PINMUX('E', 19, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	can1_pins_b: can1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 4, 4)>,
+					 <AIC_PINMUX('E', 5, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	sdmc0_pins: sdmc0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 0, 2)>,
+					 <AIC_PINMUX('B', 1, 2)>,
+					 <AIC_PINMUX('B', 2, 2)>,
+					 <AIC_PINMUX('B', 3, 2)>,
+					 <AIC_PINMUX('B', 4, 2)>,
+					 <AIC_PINMUX('B', 5, 2)>,
+					 <AIC_PINMUX('B', 6, 2)>,
+					 <AIC_PINMUX('B', 7, 2)>,
+					 <AIC_PINMUX('B', 8, 2)>,
+					 <AIC_PINMUX('B', 9, 2)>,
+					 <AIC_PINMUX('B', 10, 2)>,
+					 <AIC_PINMUX('B', 11, 2)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	sdmc1_pins: sdmc1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 0, 2)>,
+					 <AIC_PINMUX('C', 1, 2)>,
+					 <AIC_PINMUX('C', 2, 2)>,
+					 <AIC_PINMUX('C', 3, 2)>,
+					 <AIC_PINMUX('C', 4, 2)>,
+					 <AIC_PINMUX('C', 5, 2)>,
+					 <AIC_PINMUX('C', 6, 2)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	sdmc2_pins: sdmc2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 2)>,
+					 <AIC_PINMUX('F', 1, 2)>,
+					 <AIC_PINMUX('F', 2, 2)>,
+					 <AIC_PINMUX('F', 3, 2)>,
+					 <AIC_PINMUX('F', 4, 2)>,
+					 <AIC_PINMUX('F', 5, 2)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s0_clk_pins: i2s0-clk-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 8, 2)>,
+					 <AIC_PINMUX('E', 9, 2)>,
+					 <AIC_PINMUX('E', 10, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s0_dout_pins: i2s0-dout-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 11, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s0_din_pins_a: i2s0-din-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 11, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s0_din_pins_b: i2s0-din-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 12, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_clk_pins: i2s1-clk-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 11, 2)>,
+					 <AIC_PINMUX('F', 12, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_mclk_pins: i2s1-mclk-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 10, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_dout_pins: i2s1-dout-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 13, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_din_pins_a: i2s1-din-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 13, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_din_pins_b: i2s1-din-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 14, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	i2s1_din_pins_c: i2s1-din-2 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 10, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	dmic_pins_a: dmic-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 12, 4)>,
+					 <AIC_PINMUX('E', 13, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	dmic_pins_b: dmic-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 14, 4)>,
+					 <AIC_PINMUX('F', 15, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spk_pins_a: spk-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 6, 2)>,
+					 <AIC_PINMUX('E', 7, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spk_pins_b: spk-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 10, 4)>,
+					 <AIC_PINMUX('E', 11, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	spk_pins_c: spk-2 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 14, 3)>,
+					 <AIC_PINMUX('F', 15, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	amic_pins: amic-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 6)>,
+					 <AIC_PINMUX('A', 1, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gmac0_pins: gmac0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 6)>,
+					 <AIC_PINMUX('E', 1, 6)>,
+					 <AIC_PINMUX('E', 2, 6)>,
+					 <AIC_PINMUX('E', 3, 6)>,
+					 <AIC_PINMUX('E', 4, 6)>,
+					 <AIC_PINMUX('E', 5, 6)>,
+					 <AIC_PINMUX('E', 6, 6)>,
+					 <AIC_PINMUX('E', 7, 6)>,
+					 <AIC_PINMUX('E', 8, 6)>,
+					 <AIC_PINMUX('E', 9, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gmac0_1000m_pins: gmac0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 6)>,
+					 <AIC_PINMUX('E', 1, 6)>,
+					 <AIC_PINMUX('E', 2, 6)>,
+					 <AIC_PINMUX('E', 3, 6)>,
+					 <AIC_PINMUX('E', 4, 6)>,
+					 <AIC_PINMUX('E', 5, 6)>,
+					 <AIC_PINMUX('E', 6, 6)>,
+					 <AIC_PINMUX('E', 7, 6)>,
+					 <AIC_PINMUX('E', 8, 6)>,
+					 <AIC_PINMUX('E', 9, 6)>,
+					 <AIC_PINMUX('E', 11, 6)>,
+					 <AIC_PINMUX('E', 12, 6)>,
+					 <AIC_PINMUX('E', 13, 6)>,
+					 <AIC_PINMUX('E', 14, 6)>,
+					 <AIC_PINMUX('E', 15, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lcd_pins: lcd-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 2)>,
+					 <AIC_PINMUX('D', 1, 2)>,
+					 <AIC_PINMUX('D', 2, 2)>,
+					 <AIC_PINMUX('D', 3, 2)>,
+					 <AIC_PINMUX('D', 4, 2)>,
+					 <AIC_PINMUX('D', 5, 2)>,
+					 <AIC_PINMUX('D', 6, 2)>,
+					 <AIC_PINMUX('D', 7, 2)>,
+					 <AIC_PINMUX('D', 8, 2)>,
+					 <AIC_PINMUX('D', 9, 2)>,
+					 <AIC_PINMUX('D', 10, 2)>,
+					 <AIC_PINMUX('D', 11, 2)>,
+					 <AIC_PINMUX('D', 12, 2)>,
+					 <AIC_PINMUX('D', 13, 2)>,
+					 <AIC_PINMUX('D', 14, 2)>,
+					 <AIC_PINMUX('D', 15, 2)>,
+					 <AIC_PINMUX('D', 16, 2)>,
+					 <AIC_PINMUX('D', 17, 2)>,
+					 <AIC_PINMUX('D', 18, 2)>,
+					 <AIC_PINMUX('D', 19, 2)>,
+					 <AIC_PINMUX('D', 20, 2)>,
+					 <AIC_PINMUX('D', 21, 2)>,
+					 <AIC_PINMUX('D', 22, 2)>,
+					 <AIC_PINMUX('D', 23, 2)>,
+					 <AIC_PINMUX('D', 24, 2)>,
+					 <AIC_PINMUX('D', 25, 2)>,
+					 <AIC_PINMUX('D', 26, 2)>,
+					 <AIC_PINMUX('D', 27, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lcd_rgb565_ld_pins: lcd-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 2)>,
+					 <AIC_PINMUX('D', 9, 2)>,
+					 <AIC_PINMUX('D', 10, 2)>,
+					 <AIC_PINMUX('D', 11, 2)>,
+					 <AIC_PINMUX('D', 12, 2)>,
+					 <AIC_PINMUX('D', 13, 2)>,
+					 <AIC_PINMUX('D', 14, 2)>,
+					 <AIC_PINMUX('D', 15, 2)>,
+					 <AIC_PINMUX('D', 16, 2)>,
+					 <AIC_PINMUX('D', 17, 2)>,
+					 <AIC_PINMUX('D', 18, 2)>,
+					 <AIC_PINMUX('D', 19, 2)>,
+					 <AIC_PINMUX('D', 20, 2)>,
+					 <AIC_PINMUX('D', 21, 2)>,
+					 <AIC_PINMUX('D', 22, 2)>,
+					 <AIC_PINMUX('D', 23, 2)>,
+					 <AIC_PINMUX('D', 24, 2)>,
+					 <AIC_PINMUX('D', 25, 2)>,
+					 <AIC_PINMUX('D', 26, 2)>,
+					 <AIC_PINMUX('D', 27, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lcd_rgb565_hd_pins: lcd-2 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 2)>,
+					 <AIC_PINMUX('D', 1, 2)>,
+					 <AIC_PINMUX('D', 2, 2)>,
+					 <AIC_PINMUX('D', 3, 2)>,
+					 <AIC_PINMUX('D', 4, 2)>,
+					 <AIC_PINMUX('D', 5, 2)>,
+					 <AIC_PINMUX('D', 6, 2)>,
+					 <AIC_PINMUX('D', 7, 2)>,
+					 <AIC_PINMUX('D', 8, 2)>,
+					 <AIC_PINMUX('D', 9, 2)>,
+					 <AIC_PINMUX('D', 10, 2)>,
+					 <AIC_PINMUX('D', 11, 2)>,
+					 <AIC_PINMUX('D', 12, 2)>,
+					 <AIC_PINMUX('D', 13, 2)>,
+					 <AIC_PINMUX('D', 14, 2)>,
+					 <AIC_PINMUX('D', 15, 2)>,
+					 <AIC_PINMUX('D', 24, 2)>,
+					 <AIC_PINMUX('D', 25, 2)>,
+					 <AIC_PINMUX('D', 26, 2)>,
+					 <AIC_PINMUX('D', 27, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lcd_sleep_pins: lcd-3 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 0)>,
+					 <AIC_PINMUX('D', 1, 0)>,
+					 <AIC_PINMUX('D', 2, 0)>,
+					 <AIC_PINMUX('D', 3, 0)>,
+					 <AIC_PINMUX('D', 4, 0)>,
+					 <AIC_PINMUX('D', 5, 0)>,
+					 <AIC_PINMUX('D', 6, 0)>,
+					 <AIC_PINMUX('D', 7, 0)>,
+					 <AIC_PINMUX('D', 8, 0)>,
+					 <AIC_PINMUX('D', 9, 0)>,
+					 <AIC_PINMUX('D', 10, 0)>,
+					 <AIC_PINMUX('D', 11, 0)>,
+					 <AIC_PINMUX('D', 12, 0)>,
+					 <AIC_PINMUX('D', 13, 0)>,
+					 <AIC_PINMUX('D', 14, 0)>,
+					 <AIC_PINMUX('D', 15, 0)>,
+					 <AIC_PINMUX('D', 16, 0)>,
+					 <AIC_PINMUX('D', 17, 0)>,
+					 <AIC_PINMUX('D', 18, 0)>,
+					 <AIC_PINMUX('D', 19, 0)>,
+					 <AIC_PINMUX('D', 20, 0)>,
+					 <AIC_PINMUX('D', 21, 0)>,
+					 <AIC_PINMUX('D', 22, 0)>,
+					 <AIC_PINMUX('D', 23, 0)>,
+					 <AIC_PINMUX('D', 24, 0)>,
+					 <AIC_PINMUX('D', 25, 0)>,
+					 <AIC_PINMUX('D', 26, 0)>,
+					 <AIC_PINMUX('D', 27, 0)>;
+			bias-disable;
+			drive-strength = <0>;
+		};
+	};
+
+	lcd_rgb565_ld_sleep_pins: lcd-4 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 0)>,
+					 <AIC_PINMUX('D', 9, 0)>,
+					 <AIC_PINMUX('D', 10, 0)>,
+					 <AIC_PINMUX('D', 11, 0)>,
+					 <AIC_PINMUX('D', 12, 0)>,
+					 <AIC_PINMUX('D', 13, 0)>,
+					 <AIC_PINMUX('D', 14, 0)>,
+					 <AIC_PINMUX('D', 15, 0)>,
+					 <AIC_PINMUX('D', 16, 0)>,
+					 <AIC_PINMUX('D', 17, 0)>,
+					 <AIC_PINMUX('D', 18, 0)>,
+					 <AIC_PINMUX('D', 19, 0)>,
+					 <AIC_PINMUX('D', 20, 0)>,
+					 <AIC_PINMUX('D', 21, 0)>,
+					 <AIC_PINMUX('D', 22, 0)>,
+					 <AIC_PINMUX('D', 23, 0)>,
+					 <AIC_PINMUX('D', 24, 0)>,
+					 <AIC_PINMUX('D', 25, 0)>,
+					 <AIC_PINMUX('D', 26, 0)>,
+					 <AIC_PINMUX('D', 27, 0)>;
+			bias-disable;
+			drive-strength = <0>;
+		};
+	};
+
+	lcd_rgb565_hd_sleep_pins: lcd-5 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 0)>,
+					 <AIC_PINMUX('D', 1, 0)>,
+					 <AIC_PINMUX('D', 2, 0)>,
+					 <AIC_PINMUX('D', 3, 0)>,
+					 <AIC_PINMUX('D', 4, 0)>,
+					 <AIC_PINMUX('D', 5, 0)>,
+					 <AIC_PINMUX('D', 6, 0)>,
+					 <AIC_PINMUX('D', 7, 0)>,
+					 <AIC_PINMUX('D', 8, 0)>,
+					 <AIC_PINMUX('D', 9, 0)>,
+					 <AIC_PINMUX('D', 10, 0)>,
+					 <AIC_PINMUX('D', 11, 0)>,
+					 <AIC_PINMUX('D', 12, 0)>,
+					 <AIC_PINMUX('D', 13, 0)>,
+					 <AIC_PINMUX('D', 14, 0)>,
+					 <AIC_PINMUX('D', 15, 0)>,
+					 <AIC_PINMUX('D', 24, 0)>,
+					 <AIC_PINMUX('D', 25, 0)>,
+					 <AIC_PINMUX('D', 26, 0)>,
+					 <AIC_PINMUX('D', 27, 0)>;
+			bias-disable;
+			drive-strength = <0>;
+		};
+	};
+
+	lvds0_pins: lvds0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 18, 3)>,
+					 <AIC_PINMUX('D', 19, 3)>,
+					 <AIC_PINMUX('D', 20, 3)>,
+					 <AIC_PINMUX('D', 21, 3)>,
+					 <AIC_PINMUX('D', 22, 3)>,
+					 <AIC_PINMUX('D', 23, 3)>,
+					 <AIC_PINMUX('D', 24, 3)>,
+					 <AIC_PINMUX('D', 25, 3)>,
+					 <AIC_PINMUX('D', 26, 3)>,
+					 <AIC_PINMUX('D', 27, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lvds1_pins: lvds1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 3)>,
+					 <AIC_PINMUX('D', 9, 3)>,
+					 <AIC_PINMUX('D', 10, 3)>,
+					 <AIC_PINMUX('D', 11, 3)>,
+					 <AIC_PINMUX('D', 12, 3)>,
+					 <AIC_PINMUX('D', 13, 3)>,
+					 <AIC_PINMUX('D', 14, 3)>,
+					 <AIC_PINMUX('D', 15, 3)>,
+					 <AIC_PINMUX('D', 16, 3)>,
+					 <AIC_PINMUX('D', 17, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	lvds2_pins: lvds2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 8, 3)>,
+					 <AIC_PINMUX('D', 9, 3)>,
+					 <AIC_PINMUX('D', 10, 3)>,
+					 <AIC_PINMUX('D', 11, 3)>,
+					 <AIC_PINMUX('D', 12, 3)>,
+					 <AIC_PINMUX('D', 13, 3)>,
+					 <AIC_PINMUX('D', 14, 3)>,
+					 <AIC_PINMUX('D', 15, 3)>,
+					 <AIC_PINMUX('D', 16, 3)>,
+					 <AIC_PINMUX('D', 17, 3)>,
+					 <AIC_PINMUX('D', 18, 3)>,
+					 <AIC_PINMUX('D', 19, 3)>,
+					 <AIC_PINMUX('D', 20, 3)>,
+					 <AIC_PINMUX('D', 21, 3)>,
+					 <AIC_PINMUX('D', 22, 3)>,
+					 <AIC_PINMUX('D', 23, 3)>,
+					 <AIC_PINMUX('D', 24, 3)>,
+					 <AIC_PINMUX('D', 25, 3)>,
+					 <AIC_PINMUX('D', 26, 3)>,
+					 <AIC_PINMUX('D', 27, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	dsi_pins: dsi-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 18, 4)>,
+					 <AIC_PINMUX('D', 19, 4)>,
+					 <AIC_PINMUX('D', 20, 4)>,
+					 <AIC_PINMUX('D', 21, 4)>,
+					 <AIC_PINMUX('D', 22, 4)>,
+					 <AIC_PINMUX('D', 23, 4)>,
+					 <AIC_PINMUX('D', 24, 4)>,
+					 <AIC_PINMUX('D', 25, 4)>,
+					 <AIC_PINMUX('D', 26, 4)>,
+					 <AIC_PINMUX('D', 27, 4)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	dvp_pins: dvp-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 0, 3)>,
+					 <AIC_PINMUX('E', 1, 3)>,
+					 <AIC_PINMUX('E', 2, 3)>,
+					 <AIC_PINMUX('E', 3, 3)>,
+					 <AIC_PINMUX('E', 4, 3)>,
+					 <AIC_PINMUX('E', 5, 3)>,
+					 <AIC_PINMUX('E', 6, 3)>,
+					 <AIC_PINMUX('E', 7, 3)>,
+					 <AIC_PINMUX('E', 8, 3)>,
+					 <AIC_PINMUX('E', 9, 3)>,
+					 <AIC_PINMUX('E', 10, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out0_pins_a: clk-out0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('C', 6, 3)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out0_pins_b: clk-out0-1 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 21, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out1_pins: clk-out1 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 11, 5)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out2_pins_a: clk-out2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 6, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out2_pins_b: clk-out2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 10, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out3_pins_a: clk-out3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 6, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	clk_out3_pins_b: clk-out3-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 10, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gmac1_pins: gmac1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 6)>,
+					 <AIC_PINMUX('F', 1, 6)>,
+					 <AIC_PINMUX('F', 2, 6)>,
+					 <AIC_PINMUX('F', 3, 6)>,
+					 <AIC_PINMUX('F', 4, 6)>,
+					 <AIC_PINMUX('F', 5, 6)>,
+					 <AIC_PINMUX('F', 6, 6)>,
+					 <AIC_PINMUX('F', 7, 6)>,
+					 <AIC_PINMUX('F', 8, 6)>,
+					 <AIC_PINMUX('F', 9, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gmac1_1000m_pins: gmac1-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 6)>,
+					 <AIC_PINMUX('F', 1, 6)>,
+					 <AIC_PINMUX('F', 2, 6)>,
+					 <AIC_PINMUX('F', 3, 6)>,
+					 <AIC_PINMUX('F', 4, 6)>,
+					 <AIC_PINMUX('F', 5, 6)>,
+					 <AIC_PINMUX('F', 6, 6)>,
+					 <AIC_PINMUX('F', 7, 6)>,
+					 <AIC_PINMUX('F', 8, 6)>,
+					 <AIC_PINMUX('F', 9, 6)>,
+					 <AIC_PINMUX('F', 11, 6)>,
+					 <AIC_PINMUX('F', 12, 6)>,
+					 <AIC_PINMUX('F', 13, 6)>,
+					 <AIC_PINMUX('F', 14, 6)>,
+					 <AIC_PINMUX('F', 15, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai0_pins: gpai0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai1_pins: gpai1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 1, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai2_pins: gpai2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 2, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai3_pins: gpai3-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 3, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai4_pins: gpai4-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 4, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai5_pins: gpai5-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 5, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai6_pins: gpai6-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 6, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	gpai7_pins: gpai7-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 7, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	rtp_pins: rtp-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 8, 2)>,
+					 <AIC_PINMUX('A', 9, 2)>,
+					 <AIC_PINMUX('A', 10, 2)>,
+					 <AIC_PINMUX('A', 11, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	psadc_pins: psadc-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 3)>,
+					 <AIC_PINMUX('A', 1, 3)>,
+					 <AIC_PINMUX('A', 2, 3)>,
+					 <AIC_PINMUX('A', 3, 3)>,
+					 <AIC_PINMUX('A', 4, 3)>,
+					 <AIC_PINMUX('A', 5, 3)>,
+					 <AIC_PINMUX('A', 6, 3)>,
+					 <AIC_PINMUX('A', 7, 3)>,
+					 <AIC_PINMUX('A', 8, 3)>,
+					 <AIC_PINMUX('A', 9, 3)>,
+					 <AIC_PINMUX('A', 10, 3)>,
+					 <AIC_PINMUX('A', 11, 3)>,
+					 <AIC_PINMUX('B', 8, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pbus_pins_a: pbus-0 {
+		pins {
+			pinmux = <AIC_PINMUX('D', 0, 6)>,
+					 <AIC_PINMUX('D', 1, 6)>,
+					 <AIC_PINMUX('D', 2, 6)>,
+					 <AIC_PINMUX('D', 3, 6)>,
+					 <AIC_PINMUX('D', 4, 6)>,
+					 <AIC_PINMUX('D', 5, 6)>,
+					 <AIC_PINMUX('D', 6, 6)>,
+					 <AIC_PINMUX('D', 7, 6)>,
+					 <AIC_PINMUX('D', 8, 6)>,
+					 <AIC_PINMUX('D', 9, 6)>,
+					 <AIC_PINMUX('D', 10, 6)>,
+					 <AIC_PINMUX('D', 11, 6)>,
+					 <AIC_PINMUX('D', 12, 6)>,
+					 <AIC_PINMUX('D', 13, 6)>,
+					 <AIC_PINMUX('D', 14, 6)>,
+					 <AIC_PINMUX('D', 15, 6)>,
+					 <AIC_PINMUX('D', 16, 6)>,
+					 <AIC_PINMUX('D', 17, 6)>,
+					 <AIC_PINMUX('D', 18, 6)>,
+					 <AIC_PINMUX('D', 19, 6)>,
+					 <AIC_PINMUX('D', 20, 6)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	pbus_pins_b: pbus-1 {
+		pins {
+			pinmux = <AIC_PINMUX('F', 0, 7)>,
+					 <AIC_PINMUX('F', 1, 7)>,
+					 <AIC_PINMUX('F', 2, 7)>,
+					 <AIC_PINMUX('F', 3, 7)>,
+					 <AIC_PINMUX('F', 4, 7)>,
+					 <AIC_PINMUX('F', 5, 7)>,
+					 <AIC_PINMUX('F', 6, 7)>,
+					 <AIC_PINMUX('F', 7, 7)>,
+					 <AIC_PINMUX('F', 8, 7)>,
+					 <AIC_PINMUX('F', 9, 7)>,
+					 <AIC_PINMUX('F', 10, 7)>,
+					 <AIC_PINMUX('F', 11, 7)>,
+					 <AIC_PINMUX('F', 12, 7)>,
+					 <AIC_PINMUX('F', 13, 7)>,
+					 <AIC_PINMUX('F', 14, 7)>,
+					 <AIC_PINMUX('F', 15, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	cir_pins_a: cir-0 {
+		pins {
+			pinmux = <AIC_PINMUX('A', 0, 7)>,
+					 <AIC_PINMUX('A', 1, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	cir_pins_b: cir-1 {
+		pins {
+			pinmux = <AIC_PINMUX('B', 8, 7)>,
+					 <AIC_PINMUX('B', 9, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	usb0_pins_a: usb0-0 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 0, 2)>,
+					 <AIC_PINMUX_U('U', 1, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	usb1_pins_a: usb1-0 {
+		pins {
+			pinmux = <AIC_PINMUX_U('U', 2, 2)>,
+					 <AIC_PINMUX_U('U', 3, 2)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+};
+
+
+

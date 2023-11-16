@@ -1,0 +1,38 @@
+#!/bin/sh
+
+start() {
+	if [ -d /proc/asound/card0 ] && [ -f /usr/sbin/alsactl ]
+	then
+		if [ -f "/var/lib/alsa/asound.state" ]
+		then
+			echo "ALSA: Restoring mixer setting..."
+			alsactl -f /var/lib/alsa/asound.state restore
+		else
+		echo "ALSA: no asound.state file to restore"
+		fi
+	fi
+}
+
+stop() {
+	printf "Stopping alsactl: "
+
+	echo "OK"
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		stop
+		start
+		;;
+	*)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

@@ -1,0 +1,68 @@
+ArtInChip RGB Panel
+=====================
+
+Required properties:
+ - compatible: value should be "artinchip,aic-general-rgb-panel".
+ - port: the input port connected to the display interface
+
+Optional properties:
+ - rgb-mode: This describes the rgb display interface mode,
+   include parallel, serial, i8080, spi. Default is parallel rgb.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+ - interface-format: This describes the rgb display interface format.
+   Default is parallel rgb 24 bit.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+ - backlight: phandle of the backlight device attached to the panel
+ - enable-gpios: GPIO pin to enable or disable the panel
+ - display-timings: timings for the connected panel as described by
+   Documentation/devicetree/bindings/display/panel/display-timing.txt
+ - data-mirror: If set, reverse the bit order described in the rgb output data
+   all data lanes, transmitting bits for slots 7 to 0 instead of 0 to 7.
+ - data-order: This describes the rgb display interface data lane output sequence.
+   Allow the data lane output sequence as RGB, RBG, BRG, BGR, GRB, GBR. Default is RGB.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+ - clock-phase: This describes the rgb display interface pixel clock output phase.
+   Allow the rising edge of the clock to delay the data X degress phase,
+   X include 0, 90, 180, 270, default is 0.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+ - disp-dither: This describes the output color depth.
+   Make the image smoother when the output is 6 bit or 5 bit, otherwise discard
+   the low bits directly. Allow the output color depth as RGB565, RGB666.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+
+Example:
+
+	panel_rgb {
+		compatible = "artinchip,aic-general-rgb-panel";
+		enable-gpios = <&gpio_e 13 GPIO_ACTIVE_HIGH>;
+		rgb-mode = <PRGB>;
+		interface-format = <PRGB_24BIT>;
+		clock-phase = <DEGREE_90>;
+		data-order = <RGB>;
+		data-mirror;
+		status = "okay";
+
+		port {
+			panel_rgb_in: endpoint {
+				remote-endpoint = <&rgb0_out>;
+			};
+		};
+
+		display-timings {
+			native-mode = <&timing0>;
+			timing0: 800x480 {
+				clock-frequency = <30000000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <88>;
+				hfront-porch = <40>;
+				hsync-len = <48>;
+				vback-porch = <32>;
+				vfront-porch = <13>;
+				vsync-len = <3>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+
+		};
+	};

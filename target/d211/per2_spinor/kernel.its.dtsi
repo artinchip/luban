@@ -1,0 +1,51 @@
+/*
+ * Simple U-Boot uImage source file containing a single kernel and FDT blob
+ */
+
+/dts-v1/;
+
+/ {
+	description = "Artinchip Linux kernel and FDT blob";
+	#address-cells = <1>;
+
+	images {
+		kernel {
+			description = "Artinchip Linux kernel";
+			data = /incbin/("./Image.gz");
+			type = "kernel";
+			arch = "riscv";
+			compression = "gzip";
+			os = "linux";
+			load =  <0x40000000>;
+			entry = <0x40000000>;
+		};
+		opensbi {
+			description = "OpenSBI fw_dynamic Firmware";
+			type = "firmware";
+			os = "opensbi";
+			arch = "riscv";
+			compression = "none";
+			load = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+			entry = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+			data = /incbin/("fw_dynamic.bin");
+		};
+		fdt-1 {
+			description = "Flattened Device Tree blob";
+			data = /incbin/("./u-boot.dtb");
+			type = "flat_dt";
+			arch = "riscv";
+			load = <0x43F00000>;
+			compression = "none";
+		};
+	};
+
+	configurations {
+		default = "conf-1";
+		conf-1 {
+			description = "Boot Linux kernel with FDT blob";
+			firmware = "opensbi";
+			kernel = "kernel";
+			fdt = "fdt-1";
+		};
+	};
+};

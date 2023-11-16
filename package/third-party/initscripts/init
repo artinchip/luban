@@ -1,0 +1,179 @@
+#!/bin/bash
+
+source /etc/profile
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs none /dev
+
+mdev -s
+exec < /dev/console > /dev/console 2>&1
+
+wait_dev_ready()
+{
+	DEV=$1
+	CNT=10
+	while true; do
+		if [ -e $DEV ]; then
+			return 0
+		fi
+		
+		echo "[$0]: Waiting $DEV ready ..."
+		
+		CNT=`expr $CNT - 1`
+		if [ $CNT -eq 0 ]; then
+			echo "[$0]: $DEV is not available"
+			return 1
+		fi
+		sleep 1
+	done
+}
+
+mount_from_mtd()
+{
+	ROOT=$1
+	TYPE=$2
+
+	echo "[$0]: Try to load RootFS from MTD $ROOT, fs type $TYPE"
+	wait_dev_ready $ROOT
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	mount -o ro,noatime,nodiratime,norelatime -t $TYPE $ROOT /mnt
+	if [ $? -ne 0 ]; then
+		echo "[$0]: Failed to mount $ROOT"
+		return 1
+	fi
+	return 0
+}
+
+mount_from_blk()
+{
+	ROOT=$1
+	TYPE=$2
+
+	echo "[$0]: Try to load RootFS from SD/eMMC $ROOT, fs type $TYPE"
+
+	wait_dev_ready $ROOT
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	fsck -t $TYPE -a $ROOT
+	mount -o rw,noatime,nodiratime,norelatime,noauto_da_alloc,barrier=0,data=ordered -t $TYPE $ROOT /mnt
+	if [ $? -ne 0 ]; then
+		echo "[$0]: Failed to mount $ROOT"
+		return 1
+	fi
+
+	return 0
+}
+
+mount_from_ubi()
+{
+	ROOT=$1
+	TYPE=$2
+
+	echo "[$0]: Try to load RootFS from UBI $ROOT, fs type $TYPE"
+	DEV=$ROOT
+	# Check if in format like ubi0:rootfs
+	case $ROOT in
+	*":"*)
+		DEVNAME=`echo $ROOT | awk -F\: '{print $1}'`
+		DEV="/dev/$DEVNAME"
+		;;
+	esac
+
+	wait_dev_ready $DEV
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	mount -o rw,noatime,nodiratime,norelatime -t $TYPE $ROOT /mnt
+	if [ $? -ne 0 ]; then
+		echo "[$0]: Failed to mount $ROOT"
+		return 1
+	fi
+
+	return 0
+}
+
+mount_and_switch_rootfs()
+{
+	ROOT=$1
+	TYPE=$2
+
+	if [ "x$ROOT" = "x" ]; then
+		echo "[$0]: Root device is not found, stay at initramfs."
+		return 0
+	fi
+
+	case $ROOT in
+	ubi*)
+		mount_from_ubi $ROOT $TYPE
+		if [ $? -ne 0 ]; then
+			return 1
+		fi
+		;;
+	/dev/mmc*)
+		mount_from_blk $ROOT $TYPE
+		if [ $? -ne 0 ]; then
+			return 1
+		fi
+		;;
+	/dev/mtd*)
+		mount_from_mtd $ROOT $TYPE
+		if [ $? -ne 0 ]; then
+			return 1
+		fi
+		;;
+	*)
+		echo "[$0]: Unsuppoted root $ROOT"
+		return 1
+		;;
+	esac
+
+	# Swith new RootFS and release initramfs
+	mount -t devtmpfs devtmpfs /mnt/dev/
+	echo "[$0]: Switch root to $ROOT"
+	[ -x /mnt/sbin/init ] && exec switch_root /mnt /sbin/init
+
+	return 0
+}
+
+ROOT_DEVICE=
+ROOTFS_TYPE=
+DEBUG_MODE="0"
+for arg in $(cat /proc/cmdline); do
+	case $arg in
+	initramfs_dbg=*)
+		DEBUG_MODE=`echo $arg | awk -F\= '{print $2}'`
+		;;
+	rootfstype=*)
+		ROOTFS_TYPE=`echo $arg | awk -F\= '{print $2}'`
+		;;
+	root=*)
+		ROOT_DEVICE=`echo $arg | awk -F\= '{print $2}'`
+		;;
+	console=*)
+		CONSOLE_DEV=`echo $arg | awk -F '=|,' '{print $2}'`
+		CONSOLE_BR=`echo $arg | awk -F\, '{print $2}' | awk -F\n '{print $1}'`
+		;;
+	esac
+done
+
+if [ ${DEBUG_MODE} == "0" ]; then
+	mount_and_switch_rootfs $ROOT_DEVICE $ROOTFS_TYPE
+else
+	echo "[$0]: Debug mode, stay at initramfs"
+fi
+
+TODAY=`date +%Y`
+if [ $TODAY -lt 2020 ]; then
+	# Never forget why you stared
+	date -s 202005200000 > /dev/null
+fi
+
+sh /etc/init.d/S00_show_boot_time
+/sbin/getty -L $CONSOLE_DEV $CONSOLE_BR vt100 -n -l /bin/ash

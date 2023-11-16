@@ -1,0 +1,15 @@
+if ARCH_ARTINCHIP
+
+config PINCTRL_ARTINCHIP
+	bool "ArtInChip SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	help
+	  This enables pinctrl aic compatible platform.
+
+config SPL_PINCTRL_ARTINCHIP
+	bool "ArtInChip SoC pinctrl driver in SPL"
+	depends on SPL_PINCTRL_GENERIC
+	help
+	  This enables pinctrl aic compatible platform.
+
+endif

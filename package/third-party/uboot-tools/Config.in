@@ -1,0 +1,15 @@
+menuconfig BR2_PACKAGE_UBOOT_TOOLS
+	bool "u-boot tools"
+	default y
+	help
+	  Companion tools for Das U-Boot bootloader.
+
+	  http://www.denx.de/wiki/U-Boot/WebHome
+
+if BR2_PACKAGE_UBOOT_TOOLS
+
+config BR2_PACKAGE_UBOOT_TOOLS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_HOST_AUTOCONF_ARCHIVE
+	bool "host autoconf-archive"
+
+if BR2_PACKAGE_HOST_AUTOCONF_ARCHIVE
+config BR2_PACKAGE_HOST_AUTOCONF_ARCHIVE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

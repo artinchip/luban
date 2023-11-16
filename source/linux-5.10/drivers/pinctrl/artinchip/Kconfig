@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-2.0-only
+if ARCH_ARTINCHIP
+
+config PINCTRL_ARTINCHIP
+	bool
+	select PINMUX
+	select GENERIC_PINCONF
+	select GPIOLIB
+	select GENERIC_IRQ_CHIP
+
+config PINCTRL_ARTINCHIP_V0_1
+	bool "Artinchip pin controller version0.1 device driver"
+	depends on OF && ARCH_ARTINCHIP && ARM
+	select PINCTRL_ARTINCHIP
+	help
+	  Enable pinctrl version1 driver for Artinchip SoC.
+
+config PINCTRL_ARTINCHIP_V1
+	bool "Artinchip pin controller version1 device driver"
+	depends on OF && ARCH_ARTINCHIP && RISCV
+	select PINCTRL_ARTINCHIP
+	help
+	  Enable pinctrl version1 driver for Artinchip SoC.
+
+endif

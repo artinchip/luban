@@ -1,0 +1,15 @@
+menuconfig BR2_PACKAGE_BZIP2
+	bool "bzip2"
+	help
+	  Freely available, patent free, high-quality data compressor.
+	  It typically compresses files to within 10% to 15% of the best
+	  available techniques, while being around twice as fast at
+	  compression and six times faster at decompression.
+
+	  https://sourceware.org/bzip2/
+
+if BR2_PACKAGE_BZIP2
+config BR2_PACKAGE_BZIP2_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

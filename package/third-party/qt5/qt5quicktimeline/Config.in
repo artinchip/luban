@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_QT5QUICKTIMELINE
+	bool "qt5quicktimeline"
+	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE # qt5declarative
+	select BR2_PACKAGE_QT5DECLARATIVE
+	select BR2_PACKAGE_QT5DECLARATIVE_QUICK
+	help
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
+
+	  This package corresponds to the qt5quicktimeline module.
+
+	  https://doc.qt.io/qt-5/qtquicktimeline-index.html
+
+if BR2_PACKAGE_QT5QUICKTIMELINE
+config BR2_PACKAGE_QT5QUICKTIMELINE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

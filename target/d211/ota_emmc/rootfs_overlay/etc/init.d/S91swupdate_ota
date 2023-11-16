@@ -1,0 +1,18 @@
+#!/bin/sh
+# Run the swupdate daemon
+
+case "$1" in
+	start)
+		echo -n "Starting swupdate... "
+		# obtain mmc number
+
+                mkdir -p /mnt/ota
+                mount /dev/mmcblk0p12 /mnt/ota
+
+		./usr/lib/swupdate/swupdate_cmd.sh
+		;;
+	stop)
+		echo -n "Stopping swupdate... "
+		umount /mnt/ota
+		;;
+esac

@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+config VIDEO_ARTINCHIP
+	bool "Enable ArtInChip Video Support"
+	depends on DM_VIDEO && ARTINCHIP_GRAPHICS
+	select LOGO_DECODE_ARTINCHIP
+	help
+	  ArtInChip video support
+
+config VIDEO_ARTINCHIP_MAX_XRES
+	int "Maximum horizontal resolution (for memory allocation purposes)"
+	depends on VIDEO_ARTINCHIP
+	default 1920
+	help
+	  The maximum horizontal resolution to support for the framebuffer.
+	  This configuration is used for reserving/allocating memory for the
+	  framebuffer during device-model binding/probing.
+
+config VIDEO_ARTINCHIP_MAX_YRES
+	int "Maximum vertical resolution (for memory allocation purposes)"
+	depends on VIDEO_ARTINCHIP
+	default 1080
+	help
+	  The maximum vertical resolution to support for the framebuffer.
+	  This configuration is used for reserving/allocating memory for the
+	  framebuffer during device-model binding/probing.
+
+config VIDEO_ARTINCHIP_MAX_BPP
+	int "Maximum bits per pixel (for memory allocation purposes)"
+	depends on VIDEO_ARTINCHIP
+	default 32
+	help
+	  The maximum bits per pixel to support for the framebuffer.
+	  This configuration is used for reserving/allocating memory for the
+	  framebuffer during device-model binding/probing.
+
+config LOGO_IMAGE_SIZE
+	int "Boot logo image size (size in Kilo Bytes)"
+	depends on VIDEO_ARTINCHIP
+	default 36
+	help
+	  Boot logo image size.
+
+config JPEG_LOGO_IMAGE
+	bool "Support JPEG BOOT LOGO"
+	depends on VIDEO_ARTINCHIP
+	default n
+	help
+	  Enable JPEG BOOT LOGO
+
+config AIC_DISP_RGB
+	bool "ArtInChip display rgb support"
+	depends on VIDEO_ARTINCHIP
+	default n
+	help
+	  ArtInChip display rgb support
+
+config AIC_DISP_LVDS
+	bool "ArtInChip display lvds support"
+	depends on VIDEO_ARTINCHIP
+	default n
+	help
+	  ArtInChip display lvds support
+
+config AIC_DISP_MIPI_DSI
+	bool "ArtInChip display mipi-dsi support"
+	depends on VIDEO_ARTINCHIP
+	default n
+	help
+	  ArtInChip display mipi-dsi support
+
+config AIC_DISP_MIPI_DSI_V1_0
+	bool
+	default y
+	depends on AIC_DISP_MIPI_DSI && RISCV
+	help
+	  Artinchip display mipi-dsi v1.0
+
+if VIDEO_ARTINCHIP
+
+source "drivers/video/artinchip/display/panel/Kconfig"
+
+endif

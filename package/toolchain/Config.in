@@ -1,0 +1,408 @@
+menu "Toolchain"
+
+# Invisible option that makes sure the toolchain package always gets
+# built
+config BR2_TOOLCHAIN
+	bool
+	default y
+
+config BR2_USE_MMU
+	bool
+	default y
+	help
+	  If your target has a MMU, you should say Y here.  If you
+	  are unsure, just say Y.
+
+# Should be selected for glibc or eglibc
+config BR2_TOOLCHAIN_USES_GLIBC
+	bool
+	select BR2_USE_WCHAR
+	select BR2_ENABLE_LOCALE
+	select BR2_TOOLCHAIN_HAS_FULL_GETTEXT
+	select BR2_TOOLCHAIN_HAS_THREADS
+	select BR2_TOOLCHAIN_HAS_THREADS_DEBUG
+	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	select BR2_TOOLCHAIN_HAS_UCONTEXT
+	select BR2_TOOLCHAIN_SUPPORTS_PIE
+
+config BR2_TOOLCHAIN_USES_UCLIBC
+	bool
+	# ucontext is only available for a subset of the supported
+	# architectures
+	select BR2_TOOLCHAIN_HAS_UCONTEXT if BR2_ARM_CPU_HAS_ARM || BR2_i386 \
+		|| BR2_mips || BR2_mipsel || BR2_mips64 || BR2_mips64el \
+		|| BR2_sparc || BR2_x86_64
+	select BR2_TOOLCHAIN_SUPPORTS_PIE if !BR2_STATIC_LIBS
+
+config BR2_TOOLCHAIN_USES_MUSL
+	bool
+	select BR2_USE_WCHAR
+	select BR2_ENABLE_LOCALE
+	select BR2_TOOLCHAIN_HAS_THREADS
+	select BR2_TOOLCHAIN_HAS_THREADS_DEBUG
+	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	select BR2_TOOLCHAIN_HAS_UCONTEXT
+	select BR2_TOOLCHAIN_SUPPORTS_PIE if !BR2_STATIC_LIBS
+
+config BR2_TOOLCHAIN_EXTERNAL
+	bool # "External toolchain"
+	default y
+	help
+	  Select if you want to use an existing cross-compiling
+	  toolchain. Buildroot can either download automatically a
+	  toolchain, or use an already installed toolchain.
+
+source "package/toolchain/toolchain-external/Config.in"
+
+# Generic toolchain options
+
+# Atomic types can be:
+#  - never lock-free
+#  - sometimes lock-free
+#  - always lock-free
+# see https://en.cppreference.com/w/c/atomic/ATOMIC_LOCK_FREE_consts
+#
+# On most architectures, gcc provides "always lock-free" atomic types,
+# but a few architectures are limited to "sometimes lock-free"
+# types. This hidden option allows to know if the architecture
+# provides "always lock-free" atomic types.
+config BR2_TOOLCHAIN_SUPPORTS_ALWAYS_LOCKFREE_ATOMIC_INTS
+	bool
+	default y
+
+config BR2_TOOLCHAIN_HAS_NATIVE_RPC
+	bool
+
+config BR2_USE_WCHAR
+	bool
+
+config BR2_ENABLE_LOCALE
+	bool
+
+config BR2_INSTALL_LIBSTDCPP
+	bool
+
+config BR2_TOOLCHAIN_HAS_DLANG
+	bool
+
+config BR2_TOOLCHAIN_HAS_FORTRAN
+	bool
+
+config BR2_TOOLCHAIN_HAS_THREADS
+	bool
+
+config BR2_TOOLCHAIN_HAS_THREADS_DEBUG
+	bool
+
+config BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	bool
+
+config BR2_TOOLCHAIN_HAS_SSP
+	bool
+
+config BR2_TOOLCHAIN_HAS_UCONTEXT
+	bool
+
+config BR2_TOOLCHAIN_SUPPORTS_PIE
+	bool
+
+# This boolean is true if the toolchain provides a built-in full
+# featured gettext implementation (glibc), and false if only a stub
+# gettext implementation is provided (uclibc, musl)
+config BR2_TOOLCHAIN_HAS_FULL_GETTEXT
+	bool
+
+config BR2_TOOLCHAIN_HAS_SYNC_4
+	bool
+	default y
+
+# Options for packages to depend on, if they require at least a
+# specific version of the kernel headers.
+# Toolchains should choose the adequate option (ie. the highest
+# version, not all of them).
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_0
+	bool
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_1
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_0
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_2
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_1
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_3
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_2
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_4
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_3
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_5
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_4
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_6
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_5
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_7
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_6
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_8
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_7
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_9
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_8
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_10
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_9
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_11
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_10
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_12
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_11
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_13
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_12
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_14
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_13
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_15
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_14
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_16
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_15
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_16
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_18
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_19
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_18
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_0
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_19
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_1
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_0
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_2
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_1
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_3
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_2
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_4
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_3
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_5
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_4
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_6
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_5
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_7
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_6
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_8
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_7
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_9
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_8
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_10
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_9
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_11
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_10
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_12
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_11
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_13
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_12
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_14
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_13
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_15
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_14
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_16
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_15
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_17
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_16
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_18
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_17
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_19
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_18
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_20
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_19
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_0
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_20
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_1
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_0
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_2
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_1
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_3
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_2
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_4
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_3
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_5
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_4
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_6
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_5
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_7
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_6
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_8
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_7
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_9
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_8
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_10
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_9
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_11
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_10
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_12
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_11
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_13
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_12
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_14
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_13
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_15
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_14
+	select BR2_TOOLCHAIN_HEADERS_LATEST
+
+# This should be selected by the latest version, above, to indicate that
+# Buildroot does not know of more recent headers than the ones selected.
+# This allows using toolchains with headers more recent than Buildroot
+# knows about, while still enforcing strict check for older headers.
+config BR2_TOOLCHAIN_HEADERS_LATEST
+	bool
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_3
+	bool
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_4
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_3
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_5
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_4
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_6
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_5
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_7
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_6
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_8
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_7
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_8
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_5
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_6
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_5
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_7
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_6
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_8
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_7
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_9
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_8
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_10
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_9
+endmenu

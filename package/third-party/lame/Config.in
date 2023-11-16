@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_LAME
+	bool "lame"
+	help
+	  LAME is a high quality MPEG Audio Layer III (MP3) encoder.
+
+	  http://lame.sourceforge.net/
+
+if BR2_PACKAGE_LAME
+
+config BR2_PACKAGE_LAME_USE_PREBUILT
+	bool "Use prebuilt binary instead of building from source"
+	default y
+endif

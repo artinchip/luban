@@ -1,0 +1,38 @@
+
+#define DDR_TYPE   3
+/* Size unit is Byte */
+#define DDR_SIZE   0x10000000
+#define DDR_FREQ   360000000
+#define DDR_ZQ     0x003b3bfb
+#define DDR_ODT_EN 1
+
+#define DDR_PARA1  0x000030fa
+#define DDR_PARA2  0x02000000
+
+#define DDR_MR0    0x00001c70
+#define DDR_MR1    0x00000040
+#define DDR_MR2    0x00000018
+#define DDR_MR3    0x00000000
+#define DDR_MR4    0x00000000
+#define DDR_MR5    0x00000400
+#define DDR_MR6    0x00000848
+
+#define DDR_TPR0   0x0048a192
+#define DDR_TPR1   0x01b1a94b
+#define DDR_TPR2   0x00061043
+#define DDR_TPR3   0x78787896
+#define DDR_TPR4   0x00000000
+#define DDR_TPR5   0x00000000
+#define DDR_TPR6   0x09090900
+#define DDR_TPR7   0x4d462a3e
+#define DDR_TPR8   0x00000000
+#define DDR_TPR9   0x00000000
+#define DDR_TPR10  0x00000000
+#define DDR_TPR11  0x00000000
+#define DDR_TPR12  0x00000000
+#define DDR_TPR13  0x0000e001
+#define DDR_TPR14  0x00000000
+#define DDR_TPR15  0x00000000
+#define DDR_TPR16  0x00000000
+#define DDR_TPR17  0x00000000
+#define DDR_TPR18  0x00000000

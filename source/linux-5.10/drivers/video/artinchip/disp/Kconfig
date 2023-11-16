@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config ARTINCHIP_FB
+	tristate "ArtInChip Framebuffer support"
+	depends on FB
+	select VIDEOMODE_HELPERS
+	select FB_CFB_FILLRECT
+	select FB_CFB_COPYAREA
+	select FB_CFB_IMAGEBLIT
+	default n
+	help
+          This is the driver for the ArtInChip DE, the driver is based on
+	  Linux framebuffer.
+
+config AIC_DISP_RGB
+	bool "ArtInChip display rgb support"
+	depends on ARTINCHIP_FB
+	default n
+	help
+	  ArtInChip display rgb support
+
+config AIC_DISP_LVDS
+	bool "ArtInChip display lvds support"
+	depends on ARTINCHIP_FB
+	default n
+	help
+	  ArtInChip display lvds support
+
+config AIC_DISP_MIPI_DSI
+	bool "ArtInChip display mipi-dsi support"
+	depends on ARTINCHIP_FB
+	default n
+	help
+	  ArtInChip display mipi-dsi support
+
+config AIC_DISP_MIPI_DSI_V1_0
+	bool
+	default y
+	depends on AIC_DISP_MIPI_DSI && RISCV
+	help
+	  ArtInChip display mipi-dsi v1.0
+
+config AIC_DISP_MIPI_DBI
+	bool "ArtInChip display mipi-dbi support"
+	depends on ARTINCHIP_FB
+	default n
+	help
+	  ArtInChip display mipi-dbi support
+
+if ARTINCHIP_FB
+source "drivers/video/artinchip/disp/panel/Kconfig"
+endif

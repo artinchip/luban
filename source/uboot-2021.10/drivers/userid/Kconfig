@@ -1,0 +1,70 @@
+menuconfig USERID_SUPPORT
+	bool "UserID support for ArtInChip"
+	depends on ARCH_ARTINCHIP
+	default n
+	help
+	UserID is a feature that used to store
+	IDs defined by OEM or ArtInChip in flash partition.
+	ID should be written in factory, and cannot be changed anymore.
+
+if USERID_SUPPORT
+
+choice
+	prompt "Location of UserID"
+
+config USERID_IS_IN_SPINAND
+	bool "UserID is in SPINAND"
+	help
+	  Define this if you have a NAND device which you want to use for the
+	  ArtInChip UserID.
+
+	  - CONFIG_USERID_OFFSET:
+	  - CONFIG_USERID_SIZE:
+
+	  These two #defines specify the offset and size of the userid
+	  area within the first NAND device.  CONFIG_USERID_OFFSET must be
+	  aligned to an erase block boundary.
+
+config USERID_IS_IN_SPINOR
+	bool "UserID is in SPINOR"
+	help
+	  Define this if you have a SPINOR device which you want to use for the
+	  ArtInChip UserID.
+
+	  - CONFIG_USERID_OFFSET:
+	  - CONFIG_USERID_SIZE:
+
+	  These two #defines specify the offset and size of the userid
+	  area within the first SPINOR device.  CONFIG_USERID_OFFSET must be
+	  aligned to an erase block boundary.
+
+config USERID_IS_IN_MMC
+	bool "UserID is in MMC"
+	help
+	  Define this if you have a MMC device which you want to use for the
+	  ArtInChip UserID.
+
+	  - CONFIG_USERID_OFFSET:
+	  - CONFIG_USERID_SIZE:
+
+	  These two #defines specify the offset and size of the userid
+	  area within the first MMC device.  CONFIG_USERID_OFFSET must be
+	  aligned to an block boundary.
+
+endchoice
+
+config USERID_OFFSET
+	hex "UserID partition offset"
+	default 0x200000 if USERID_IS_IN_SPINAND
+	default 0xE0000  if USERID_IS_IN_SPINOR
+	default 0x44400  if USERID_IS_IN_MMC
+	help
+	  Offset from the start of the device (or partition)
+
+config USERID_SIZE
+	hex "UserID partition Size"
+	default 0x4000
+	help
+	  Size of the userid storage area
+
+endif

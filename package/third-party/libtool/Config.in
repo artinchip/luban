@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_LIBTOOL
+	bool "libtool"
+	help
+	  Library that hides the complexity of using shared/static
+	  libraries on different platforms behind a consistent, portable
+	  interface.
+
+	  http://www.gnu.org/software/libtool/
+
+if BR2_PACKAGE_LIBTOOL
+config BR2_PACKAGE_LIBTOOL_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

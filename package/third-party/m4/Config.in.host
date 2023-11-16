@@ -1,0 +1,9 @@
+config BR2_PACKAGE_HOST_M4
+	bool "host m4"
+	default y
+
+if BR2_PACKAGE_HOST_M4
+config BR2_PACKAGE_HOST_M4_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

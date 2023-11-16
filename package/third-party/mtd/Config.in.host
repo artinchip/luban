@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_HOST_MTD
+	bool "host mtd, jffs2 and ubi/ubifs tools"
+	help
+	  Build mtd, jffs2 and ubi/ubifs tools
+
+	  http://www.linux-mtd.infradead.org/
+
+if BR2_PACKAGE_HOST_MTD
+config BR2_PACKAGE_HOST_MTD_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

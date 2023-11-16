@@ -1,0 +1,48 @@
+Description: various fixes for gcc6
+ This patch solves two issues:
+ - Use the correct key for the compiler.
+ - Avoid a shift overflow.
+Origin: http://pkgs.fedoraproject.org/cgit/rpms/qt.git/tree/qt-everywhere-opensource-src-4.8.7-gcc6.patch
+Author: Rex Dieter <rdieter@math.unl.edu>
+Author: Than Ngo <than@redhat.com>
+Forwarded: not-needed
+Last-Update: 2016-05-03
+
+---
+ configure                            |    4 ++--
+ src/xmlpatterns/api/qcoloroutput_p.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/configure
++++ b/configure
+@@ -7797,7 +7797,7 @@ case "$XPLATFORM" in
+     *-g++*)
+ 	# Check gcc's version
+ 	case "$(${QMAKE_CONF_COMPILER} -dumpversion)" in
+-	    5*|4*|3.4*)
++	    9*|8*|7*|6*|5*|4*|3.4*)
+ 		;;
+             3.3*)
+                 canBuildWebKit="no"
+@@ -8113,7 +8113,7 @@ g++*)
+     3.*)
+         COMPILER_VERSION="3.*"
+         ;;
+-    5*|4.*)
++    9*|8*|7*|6*|5*|4.*)
+         COMPILER_VERSION="4"
+         ;;
+     *)
+--- a/src/xmlpatterns/api/qcoloroutput_p.h
++++ b/src/xmlpatterns/api/qcoloroutput_p.h
+@@ -70,8 +70,8 @@ namespace QPatternist
+             ForegroundShift = 10,
+             BackgroundShift = 20,
+             SpecialShift    = 20,
+-            ForegroundMask  = ((1 << ForegroundShift) - 1) << ForegroundShift,
+-            BackgroundMask  = ((1 << BackgroundShift) - 1) << BackgroundShift
++            ForegroundMask  = 0x1f << ForegroundShift,
++            BackgroundMask  = 0x7 << BackgroundShift
+         };
+ 
+     public:

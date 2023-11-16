@@ -1,0 +1,40 @@
+config CRYPTO_DEV_ARTINCHIP
+	bool "Support for artinchip cryptographic accelerator"
+	depends on OF && ARCH_ARTINCHIP
+	default y
+
+	help
+	  Select this option to enable Artinchip crypto accelerators.
+
+config CRYPTO_DEV_ARTINCHIP_CE
+	tristate "Artinchip's crypto engine driver"
+	depends on CRYPTO_DEV_ARTINCHIP
+	select CRYPTO_AES
+	select CRYPTO_LIB_DES
+	select CRYPTO_MD5
+	select CRYPTO_SHA1
+	select CRYPTO_SHA256
+	select CRYPTO_SHA384
+	select CRYPTO_SHA512
+	select CRYPTO_HMAC
+	select CRYPTO_HASH
+	select CRYPTO_SKCIPHER
+	select CRYPTO_AKCIPHER
+	select CRYPTO_RSA
+	select CRYPTO_ENGINE
+	select CRYPTO_ALGAPI
+
+	help
+	  This driver interfaces with the hardware crypto engine(CE).
+	  The CE supporting AES/DES/DES2_EDE ciphers, and ECB/CBC/CTR/XTS/CTS modes.
+	  Supporting PKC Algorithm RSA, Message Digest Algorithm MD5/SHA1/SHA256/SHA512.
+
+
+config CRYPTO_DEV_ARTINCHIP_SPIENC
+	tristate "Artinchip's SPI Bus on-the-fly encryption driver"
+	depends on CRYPTO_DEV_ARTINCHIP
+	select CRYPTO_AES
+
+	help
+	  This driver is for Artinchip's SPI Bus on-the-fly encryption and decryption.
+	  Algorithm is AES-128-CTR.

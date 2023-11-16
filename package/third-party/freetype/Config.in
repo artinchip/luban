@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_FREETYPE
+	bool "freetype"
+	help
+	  a free, high-quality and portable font engine.
+
+	  https://www.freetype.org/
+
+if BR2_PACKAGE_FREETYPE
+config BR2_PACKAGE_FREETYPE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

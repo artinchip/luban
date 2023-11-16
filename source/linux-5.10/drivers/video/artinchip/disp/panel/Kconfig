@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: GPL-2.0-only
+choice
+	prompt "ArtInChip Panel Drivers"
+
+config AIC_PANEL_RGB_GENERAL
+	tristate "ArtInChip general RGB panel"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_RGB
+	help
+	  ArtInChip general RGB panel
+
+config AIC_PANEL_LVDS_GENERAL
+	tristate "ArtInChip general LVDS panel"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_LVDS
+	help
+	  ArtInChip general LVDS panel
+
+config AIC_PANEL_DSI_B080XAN
+	tristate "ArtInChip dsi panel driver for B080XAN"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the B080XAN
+	  768x1024 MIPI DSI panel.
+
+config AIC_PANEL_SRGB_ILI8961
+	tristate "ArtInChip srgb panel driver for ILI8961"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_RGB
+	help
+	  ArtInChip SRGB ILI8961 panel
+
+config AIC_PANEL_DSI_WUXGA_7IN
+	tristate "ArtInChip panel driver for WUXGA_7IN"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the WUXGA_7IN
+	  1200x1920 MIPI DSI panel.
+
+config AIC_PANEL_DSI_HX8394_5IN
+	tristate "ArtInChip panel driver for HX8394_5IN"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the HX8394_5IN
+	  720x1280 MIPI DSI panel.
+
+config AIC_PANEL_DSI_ST7701S
+	tristate "ArtInChip dsi panel driver for st7701s"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the ST7701S
+	  2-lane 480x800 MIPI DSI panel.
+
+config AIC_PANEL_DSI_XM91080
+	tristate "ArtInChip dsi panel driver for xm91080"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the XM91080
+	  1080x1920 MIPI DSI panel.
+
+config AIC_PANEL_DSI_ILI9881C
+	tristate "ArtInChip dsi panel driver for ili9881c"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the ili9881c
+	  800x1280 MIPI DSI panel.
+
+config AIC_PANEL_DBI_ILI9486L
+	tristate "ArtInChip dbi panel driver for ILI9486L"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DBI
+	help
+	  ArtInChip MIPI DBI Type B (I8080) panel driver for ILI9486L
+
+config AIC_PANEL_DBI_ILI9488
+	tristate "ArtInChip dbi panel driver for ILI9488"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DBI
+	help
+	  ArtInChip MIPI DBI Type B (I8080) panel driver for ILI9488
+
+config AIC_PANEL_DBI_ILI9341
+	tristate "ArtInChip dbi panel driver for ILI9341"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DBI
+	help
+	  ArtInChip MIPI DBI Type C (SPI) panel driver for ILI9341
+
+config AIC_PANEL_DBI_ST77903
+	tristate "ArtInChip dbi panel driver for ST77903"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DBI
+	help
+	  ArtInChip MIPI DBI Type C (SPI) panel driver for ST77903
+
+endchoice

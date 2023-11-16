@@ -1,0 +1,175 @@
+menuconfig BR2_TARGET_USERFS2
+	bool "UserFS 2"
+	default n
+
+if BR2_TARGET_USERFS2
+config BR2_TARGET_USERFS2_NAME
+	string "Name"
+	default "userfs2"
+
+choice
+	prompt "FS Type"
+	default BR2_TARGET_USERFS2_TYPE_EXT4
+
+	config BR2_TARGET_USERFS2_TYPE_EXT4
+		bool "Ext4"
+	config BR2_TARGET_USERFS2_TYPE_UBIFS
+		bool "UBIFS"
+endchoice
+
+config BR2_TARGET_USERFS2_GZIP
+	bool
+	default n
+
+config BR2_TARGET_USERFS2_BZIP2
+	bool
+	default n
+
+config BR2_TARGET_USERFS2_LZMA
+	bool
+	default n
+
+config BR2_TARGET_USERFS2_LZO
+	bool
+	default n
+
+config BR2_TARGET_USERFS2_XZ
+	bool
+	default n
+
+if BR2_TARGET_USERFS2_TYPE_EXT4
+config BR2_TARGET_USERFS2_EXT4_TO_SPARSE
+	bool "generate sparse format filesystem"
+	default y
+	select BR2_PACKAGE_HOST_ANDROID_TOOLS
+	select BR2_PACKAGE_HOST_ANDROID_TOOLS_EXT4_UTILS
+
+config BR2_TARGET_USERFS2_EXT4_SIZE
+	string "Size"
+	default "10M"
+
+config BR2_TARGET_USERFS2_EXT4_INODES
+	int "Number of inodes (leave at 0 for auto calculation)"
+	default 0
+config BR2_TARGET_USERFS2_EXT4_RESBLKS
+	int "Reserved blocks percentage"
+	default 5
+
+config BR2_TARGET_USERFS2_EXT4_MKFS_OPTIONS
+	string "Additional mke2fs options"
+	default "-O ^64bit"
+endif # BR2_TARGET_USERFS2_TYPE_EXT4
+
+if BR2_TARGET_USERFS2_TYPE_UBIFS
+
+if BR2_UBI_PARAM_USER_CUSTOM
+config BR2_TARGET_USERFS2_UBIFS_LEBSIZE
+	hex "logical eraseblock size"
+	default 0x1f800
+	help
+	  Logical eraseblock (LEB) size. The value provided here is
+	  passed to the -e/--leb-size option of mkfs.ubifs.
+
+config BR2_TARGET_USERFS2_UBIFS_MINIOSIZE
+	hex "minimum I/O unit size"
+	default 0x800
+	help
+	  Minimum I/O unit size. The value provided here is passed
+	  to the -m/--min-io-size option of mkfs.ubifs/ubinize.
+
+config BR2_TARGET_USERFS2_UBIFS_MAXLEBCNT
+	int "maximum logical eraseblock count"
+	default 2048
+	help
+	  Maximum logical eraseblock (LEB) count. The value provided
+	  here is passed to the -c/--max-leb-cnt option of mkfs.ubifs.
+endif
+
+if !BR2_UBI_PARAM_USER_CUSTOM
+config BR2_TARGET_USERFS2_UBIFS_MAX_SIZE
+	hex "ubifs size(Should be aligned to MB)"
+	default 0x1000000
+	help
+	  Maximum size of UBIFS. The value will be used to calulate the
+	  -c/--max-leb-cnt option of mkfs.ubifs.
+endif
+
+choice
+	prompt "ubifs runtime compression"
+	default BR2_TARGET_USERFS2_UBIFS_RT_NONE
+	help
+	  Select which compression format to use at run-time within
+	  the ubifs file system. The choice made here is passed to
+	  the -x/--compr option of mkfs.ubifs
+
+config BR2_TARGET_USERFS2_UBIFS_RT_NONE
+	bool "no compression"
+	help
+	  Don't use run-time compression.
+
+config BR2_TARGET_USERFS2_UBIFS_RT_ZLIB
+	bool "gzip"
+	help
+	  Use zlib compression at run-time.
+
+config BR2_TARGET_USERFS2_UBIFS_RT_LZO
+	bool "lzo"
+	help
+	  Use lzo compression at run-time.
+
+endchoice
+
+choice
+	prompt "Compression method"
+	default BR2_TARGET_USERFS2_UBIFS_NONE
+	help
+	  Select which compression format to compress the final image
+	  into.
+
+config BR2_TARGET_USERFS2_UBIFS_NONE
+	bool "no compression"
+	help
+	  Do not compress the ubifs filesystem.
+
+config BR2_TARGET_USERFS2_UBIFS_GZIP
+	bool "gzip"
+	select BR2_TARGET_USERFS2_GZIP
+	help
+	  Do compress the ubifs filesystem with gzip.
+
+config BR2_TARGET_USERFS2_UBIFS_BZIP2
+	bool "bzip2"
+	select BR2_TARGET_USERFS2_BZIP2
+	help
+	  Do compress the ubifs filesystem with bzip2.
+
+config BR2_TARGET_USERFS2_UBIFS_LZMA
+	bool "lzma"
+	select BR2_TARGET_USERFS2_LZMA
+	help
+	  Do compress the ubifs filesystem with lzma.
+
+config BR2_TARGET_USERFS2_UBIFS_LZO
+	bool "lzo"
+	select BR2_TARGET_USERFS2_LZO
+	help
+	  Do compress the ubifs filesystem with lzop.
+
+config BR2_TARGET_USERFS2_UBIFS_XZ
+	bool "xz"
+	select BR2_TARGET_USERFS2_XZ
+	help
+	  Do compress the ubifs filesystem with xz.
+
+endchoice
+
+config BR2_TARGET_USERFS2_UBIFS_OPTS
+	string "Additional mkfs.ubifs options"
+	help
+	  Any additional mkfs.ubifs options you may want to include.
+endif # BR2_TARGET_USERFS2_TYPE_UBIFS
+
+config BR2_TARGET_USERFS2_OVERLAY
+	string "Overlay directory"
+	default ""
+endif

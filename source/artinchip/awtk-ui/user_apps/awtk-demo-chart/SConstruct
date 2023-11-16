@@ -1,0 +1,19 @@
+﻿import os
+import scripts.app_helper as app
+
+CUSTOM_WIDGET_LIBS = [{
+    "root" : './3rd/awtk-widget-chart-view',
+    'shared_libs': ['chart_view'],
+    'static_libs': []
+}]
+
+DEPENDS_LIBS = CUSTOM_WIDGET_LIBS + []
+
+helper = app.Helper(ARGUMENTS)
+helper.set_deps(DEPENDS_LIBS)
+
+app.prepare_depends_libs(ARGUMENTS, helper, DEPENDS_LIBS)
+helper.call(DefaultEnvironment)
+
+SConscriptFiles = ['src/SConscript']
+helper.SConscript(SConscriptFiles)

@@ -1,0 +1,46 @@
+{
+  "name": "chart_view",
+  "version": "1.0.0",
+  "date": "2021-07-01",
+  "team": "AWTK Develop Team",
+  "author": "Tang JunJie <tangjunjie@zlg.cn>",
+  "desc": "图表控件，包含：曲线图、柱状图和饼图。",
+  "copyright": "Guangzhou ZHIYUAN Electronics Co.,Ltd.",
+  "type": "PROJECT_CUSTOM_WIDGET",
+  "entry": "home_page",
+  "assets": {
+    "activedTheme": "default",
+    "outputDir": "res",
+    "loadFrom": "any",
+    "const": "resource_data",
+    "screenDPR": "x1",
+    "defaultLanguage": "zh",
+    "defaultCountry": "CN",
+    "themes": {
+      "default": {
+        "activedSystemBar": "system_bar",
+        "activedBottomSystemBar": "system_bar_b",
+        "packaged": true,
+        "fonts": {
+          "default": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          }
+        },
+        "lcd": {
+          "width": "800",
+          "height": "480",
+          "colorDepth": "16bit",
+          "colorFormat": "BGR(A)"
+        }
+      }
+    }
+  },
+  "creator": {
+    "name": "AWTK Designer",
+    "version": "2.0.21"
+  },
+  "awtkRoot": "${AWTK_SDK_PATH}/awtk",
+  "dependencies": {
+    "awtk": ">=2112"
+  }
+}

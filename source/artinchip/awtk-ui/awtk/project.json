@@ -1,0 +1,74 @@
+{
+  "name": "awtk",
+  "entry": "main",
+  "team": "AWTK Develop Team",
+  "author": "Li XianJing <xianjimli@hotmail.com>",
+  "desc": "全称 Toolkit AnyWhere，是 ZLG 开发的开源 GUI 引擎，旨在为嵌入式系统、WEB、各种小程序、手机和 PC 打造的通用 GUI 引擎，为用户提供一个功能强大、高效可靠、简单易用、可轻松做出炫酷效果的 GUI 引擎。",
+  "assets": {
+    "activedTheme": "default",
+    "outputDir": "res",
+    "loadFrom": "any",
+    "screenDPR": "x1",
+    "const": "all_data",
+    "defaultLanguage": "zh",
+    "defaultCountry": "CN",
+    "themes": {
+      "default": {
+        "activedSystemBar": "system_bar",
+        "activedBottomSystemBar": "system_bar_b",
+        "packaged": true,
+        "fonts": {
+          "default": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "ap": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "default_full": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "trado": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          }
+        },
+        "lcd": {
+          "width": "800",
+          "height": "480",
+          "colorDepth": "16bit",
+          "colorFormat": "BGR(A)"
+        }
+      },
+      "dark": {
+        "activedSystemBar": "system_bar",
+        "activedBottomSystemBar": "system_bar_b",
+        "packaged": true,
+        "fonts": {
+          "default": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "ap": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "default_full": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          },
+          "trado": {
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          }
+        },
+        "lcd": {
+          "width": "800",
+          "height": "480",
+          "colorDepth": "16bit",
+          "colorFormat": "BGR(A)"
+        }
+      }
+    }
+  },
+  "creator": {
+    "name": "AWTK Designer",
+    "version": "1.0.0"
+  },
+  "awtkRoot": ".",
+  "type": "PROJECT_WIDGETS_APPLICATION"
+}

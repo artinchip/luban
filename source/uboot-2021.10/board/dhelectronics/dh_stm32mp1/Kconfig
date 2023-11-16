@@ -1,0 +1,13 @@
+if TARGET_DH_STM32MP1_PDK2
+
+config SYS_BOARD
+	default "dh_stm32mp1"
+
+config SYS_VENDOR
+	default "dhelectronics"
+
+config SYS_CONFIG_NAME
+	default "dh_stm32mp1"
+
+source "board/st/common/Kconfig"
+endif

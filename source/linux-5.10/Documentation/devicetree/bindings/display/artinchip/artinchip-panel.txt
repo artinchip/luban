@@ -1,0 +1,4 @@
+Device-Tree bindings for Artinchip panel driver
+
+See files in Documentation/devicetree/bindings/display/panel/artinchip
+directory for panel binding details.

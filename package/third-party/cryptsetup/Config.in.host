@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_HOST_CRYPTSETUP
+	bool "host cryptsetup"
+	select BR2_PACKAGE_HOST_UTIL_LINUX
+	help
+	  This tool helps manipulate dm-crypt and luks partitions for
+	  on-disk encryption.
+
+	  https://gitlab.com/cryptsetup/cryptsetup
+
+if BR2_PACKAGE_HOST_CRYPTSETUP
+config BR2_PACKAGE_HOST_CRYPTSETUP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

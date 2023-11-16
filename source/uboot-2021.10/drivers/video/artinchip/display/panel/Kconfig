@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: GPL-2.0+
+choice
+	prompt "ArtInChip Panel Driver"
+
+config AIC_PANE_RGB_GENERAL
+	tristate "ArtInChip general RGB panel"
+	depends on AIC_DISP_RGB
+	help
+	  ArtInChip general RGB panel
+
+config AIC_PANEL_LVDS_GENERAL
+	tristate "ArtInChip general LVDS panel"
+	depends on AIC_DISP_LVDS
+	help
+	  ArtInChip general LVDS panel
+
+config AIC_PANEL_DSI_B080XAN
+	tristate "ArtInChip dsi panel driver for B080XAN"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the B080XAN
+	  768x1024 MIPI DSI panel.
+
+config AIC_PANEL_DSI_WUXGA_7IN
+	tristate "ArtInChip dsi panel driver for WUXGA_7IN"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the WUXGA_7IN
+	  1200x1920 MIPI DSI panel.
+
+config AIC_PANEL_DSI_HX8394_5IN
+	tristate "ArtInChip dsi panel driver for HX8394_5IN"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the HX8394_5IN
+	  720x1280 MIPI DSI panel.
+
+config AIC_PANEL_DSI_ST7701S
+	tristate "ArtInChip dsi panel driver for ST7701S"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the ST7701S
+	  2-lane 480x800 MIPI DSI panel.
+
+config AIC_PANEL_DSI_XM91080
+	tristate "ArtInChip dsi panel driver for XM91080"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the XM91080
+	  1080x1920 MIPI DSI panel.
+
+config AIC_PANEL_DSI_ILI9881C
+	tristate "ArtInChip dsi panel driver for ili9881c"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the ili9881c
+	  800x1280 MIPI DSI panel.
+
+endchoice

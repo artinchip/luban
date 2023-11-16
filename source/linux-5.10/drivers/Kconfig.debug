@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menu "Artinchip Debug"
+
+config ARTINCHIP_ADCIM_DEBUG
+	bool "ADCIM driver debug"
+
+config ARTINCHIP_AUDIO_DEBUG
+	bool "Audio Codec driver debug"
+
+config ARTINCHIP_CE_DEBUG
+	bool "CE driver debug"
+
+config ARTINCHIP_SPIENC_DEBUG
+	bool "SPI ENC driver debug"
+
+config ARTINCHIP_CIR_DEBUG
+	bool "CIR driver debug"
+
+config ARTINCHIP_CMU_DEBUG
+	bool "CMU driver debug"
+
+config ARTINCHIP_DE_DEBUG
+	bool "DE driver debug"
+
+config ARTINCHIP_DVP_DEBUG
+	bool "DVP driver debug"
+
+config ARTINCHIP_GPAI_DEBUG
+	select ARTINCHIP_ADCIM_DEBUG
+	bool "GPAI driver debug"
+
+config ARTINCHIP_GE_DEBUG
+	bool "GE driver debug"
+
+config ARTINCHIP_GMAC_DEBUG
+	bool "GMAC driver debug"
+
+config ARTINCHIP_VE_DEBUG
+	bool "VE driver debug"
+
+config ARTINCHIP_PINCTRL_DEBUG
+	bool "Pinctrl driver debug"
+
+config ARTINCHIP_PWM_DEBUG
+	bool "PWM driver debug"
+
+config ARTINCHIP_RTC_DEBUG
+	bool "RTC driver debug"
+
+config ARTINCHIP_RTP_DEBUG
+	select ARTINCHIP_ADCIM_DEBUG
+	bool "RTP driver debug"
+
+config ARTINCHIP_SDMC_DEBUG
+	bool "SD&MMC Host Controller driver debug"
+
+config ARTINCHIP_SPI_DEBUG
+	bool "SPI driver debug"
+
+config ARTINCHIP_TSEN_DEBUG
+	select ARTINCHIP_ADCIM_DEBUG
+	bool "Thermal Sensor driver debug"
+
+config ARTINCHIP_TWI_DEBUG
+	bool "TWI driver debug"
+
+config ARTINCHIP_UART_DEBUG
+	bool "UART driver debug"
+
+config ARTINCHIP_USB_DEBUG
+	bool "USB driver debug"
+
+config ARTINCHIP_WDT_DEBUG
+	bool "Watchdog driver debug"
+
+config ARTINCHIP_SID_DEBUG
+	bool "SID(eFuse) driver debug"
+
+config ARTINCHIP_BOOT_TIME_DEBUG
+	bool "Boot time debug"
+
+endmenu

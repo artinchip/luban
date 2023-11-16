@@ -1,0 +1,17 @@
+menuconfig BR2_PACKAGE_QT5COAP
+	bool "qt5coap"
+	help
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
+
+	  CoAP is a protocol for IoT devices, and machine to machine
+	  communication. The Qt CoAP module implements the client side
+	  of CoAP defined by RFC 7252.
+
+	  https://doc.qt.io/QtCoAP/qtcoap-index.html
+
+if BR2_PACKAGE_QT5COAP
+config BR2_PACKAGE_QT5COAP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

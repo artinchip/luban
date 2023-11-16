@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_LZIP
+	bool "host lzip"
+
+if BR2_PACKAGE_LZIP
+config BR2_PACKAGE_LZIP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

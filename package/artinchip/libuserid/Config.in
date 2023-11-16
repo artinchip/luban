@@ -1,0 +1,11 @@
+menuconfig BR2_PACKAGE_LIBUSERID
+	bool "userid r/w library"
+	default y
+	help
+	  ArtInChip's UserID read/write library
+
+if BR2_PACKAGE_LIBUSERID
+config BR2_PACKAGE_LIBUSERID_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+endif

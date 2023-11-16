@@ -1,0 +1,67 @@
+{
+  "name": "Chart.v2-Demo",
+  "version": "1.0.2",
+  "description": "图表演示 Demo，包含仪表、饼图、曲线图、柱状图",
+  "entry": "home_page",
+  "awtkRoot": "${AWTK_SDK_PATH}/awtk",
+  "awtkMvvmRoot": "${AWTK_SDK_PATH}/awtk-mvvm",
+  "type": "PROJECT_WIDGETS_APPLICATION",
+  "assets": {
+    "activedTheme": "default",
+    "outputDir": "res",
+    "loadFrom": "any",
+    "const": "bitmap_data",
+    "screenDPR": "x1",
+    "defaultLanguage": "zh",
+    "defaultCountry": "CN",
+    "themes": {
+      "default": {
+        "activedSystemBar": "system_bar",
+        "activedBottomSystemBar": "",
+        "packaged": true,
+        "fonts": {
+          "default": {
+            "18": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+            "text": "﻿功能演示周四五六日主柱状曲线饼图切换到仪表界面!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~，。？！ \n"
+          }
+        },
+        "lcd": {
+          "width": "800",
+          "height": "480",
+          "colorDepth": "16bit",
+          "colorFormat": "BGR(A)"
+        }
+      },
+      "res_480_272": {
+        "activedSystemBar": "system_bar",
+        "activedBottomSystemBar": "",
+        "packaged": true,
+        "fonts": {
+          "default": {
+            "18": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+            "text": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+          }
+        },
+        "lcd": {
+          "width": "480",
+          "height": "272",
+          "colorDepth": "16bit",
+          "colorFormat": "BGR(A)"
+        }
+      }
+    },
+    "lcdOrientation": "0",
+    "lcdFastRotationMode": false
+  },
+  "creator": {
+    "name": "AWTK Designer",
+    "version": "2.0.21"
+  },
+  "dependencies": {
+    "awtk": ">=2112",
+    "awtk-widget-chart-view": "^1.0.0"
+  },
+  "appTitle": "awtk",
+  "appExeName": "demo",
+  "appType": "APP_SIMULATOR"
+}

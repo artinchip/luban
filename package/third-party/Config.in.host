@@ -1,0 +1,58 @@
+menu "Host utilities"
+	comment "************************ System ******************************"
+        source package/third-party/coreutils/Config.in.host
+	source package/third-party/fakeroot/Config.in.host
+	source package/third-party/kmod/Config.in.host
+	source package/third-party/makedevs/Config.in.host
+	source package/third-party/mkpasswd/Config.in.host
+	source package/third-party/uboot-tools/Config.in.host
+	source package/third-party/util-linux/Config.in.host
+	source package/third-party/zic/Config.in.host
+	comment "************************ Storage/Memory **********************"
+	source package/third-party/e2fsprogs/Config.in.host
+	source package/third-party/mtd/Config.in.host
+	source package/third-party/squashfs/Config.in.host
+	comment "************************ Security ****************************"
+        source package/third-party/libopenssl/Config.in.host
+        source package/third-party/libressl/Config.in.host
+	source package/third-party/cryptsetup/Config.in.host
+	comment "************************ Multimedia **************************"
+        source package/third-party/libjpeg/Config.in.host
+        source package/third-party/jpeg-turbo/Config.in.host
+	comment "************************ Compression *************************"
+        source package/third-party/tar/Config.in.host
+        source package/third-party/bzip2/Config.in.host
+        source package/third-party/gzip/Config.in.host
+        source package/third-party/libzlib/Config.in.host
+        source package/third-party/lz4/Config.in.host
+	source package/third-party/lzma/Config.in.host
+        source package/third-party/lzip/Config.in.host
+        source package/third-party/lzo/Config.in.host
+        source package/third-party/lzop/Config.in.host
+        source package/third-party/xz/Config.in.host
+        source package/third-party/zlib-ng/Config.in.host
+	source package/third-party/zstd/Config.in.host
+	comment "************************ Tools *******************************"
+	source package/third-party/android-tools/Config.in.host
+        source package/third-party/acl/Config.in.host
+        source package/third-party/attr/Config.in.host
+	source package/third-party/autoconf/Config.in.host
+	source package/third-party/autoconf-archive/Config.in.host
+	source package/third-party/automake/Config.in.host
+	source package/third-party/bison/Config.in.host
+	source package/third-party/cmake/Config.in.host
+        source package/third-party/flex/Config.in.host
+        source package/third-party/gettext-gnu/Config.in.host
+        source package/third-party/gettext-tiny/Config.in.host
+        source package/third-party/libtool/Config.in.host
+        source package/third-party/make/Config.in.host
+        source package/third-party/meson/Config.in.host
+        source package/third-party/ncurses/Config.in.host
+        source package/third-party/ninja/Config.in.host
+	source package/third-party/pkgconf/Config.in.host
+	source package/third-party/patchelf/Config.in.host
+	source package/third-party/python3/Config.in.host
+	source package/third-party/python3-fdt/Config.in.host
+	source package/third-party/python3-pycryptodomex/Config.in.host
+	source package/third-party/swig/Config.in.host
+endmenu

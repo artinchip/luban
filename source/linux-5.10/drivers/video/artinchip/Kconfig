@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0
+source "drivers/video/artinchip/ge/Kconfig"
+source "drivers/video/artinchip/ve/Kconfig"
+source "drivers/video/artinchip/disp/Kconfig"

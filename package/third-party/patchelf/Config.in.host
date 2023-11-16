@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_HOST_PATCHELF
+	bool "host patchelf"
+	default y
+	help
+	  PatchELF is a small utility to modify the dynamic linker
+	  and RPATH of ELF executables.
+
+	  http://nixos.org/patchelf.html
+
+if BR2_PACKAGE_HOST_PATCHELF
+config BR2_PACKAGE_HOST_PATCHELF_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

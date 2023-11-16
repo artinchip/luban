@@ -1,0 +1,16 @@
+<window name="home_page">
+    <button x="20" y="20" w="155" h="80" name="window_line_series" text="line_series_normal"/>
+    <button x="221" y="20" w="155" h="80" name="window_line_series_vertical" text="line_series_vertical"/>
+    <button x="423" y="20" w="155" h="80" name="window_line_series_parall" text="line_series_parall"/>
+    <button x="r:20" y="20" w="155" h="80" name="window_line_series_inverse" text="line_series_inverse"/>
+    <button x="20" y="122" w="155" h="80" name="window_line_series_cover" text="line_series_cover"/>
+    <button x="221" y="122" w="155" h="80" name="window_line_series_colorful" text="line_series_colorful"/>
+    <button x="423" y="122" w="155" h="80" name="window_line_series_category" text="line_series_category"/>
+    <button x="625" y="122" w="155" h="80" name="window_line_series_more_axis" text="line_series_more_axis"/>
+    <button x="20" y="224" w="155" h="80" name="window_bar_series" text="bar_series_normal"/>
+    <button x="221" y="224" w="155" h="80" name="window_bar_series_parall" text="bar_series_parall"/>
+    <button x="423" y="224" w="155" h="80" name="window_bar_series_minmax" text="bar_series_minmax"/>
+    <button x="625" y="224" w="155" h="80" name="window_bar_series_inverse" text="bar_series_inverse"/>
+    <button x="20" y="b:20" w="155" h="80" name="window_bar_series_horizontal" text="bar_series_horizontal"/>
+    <button x="221" y="b:20" w="155" h="80" name="window_pie" text="pie"/>
+</window>

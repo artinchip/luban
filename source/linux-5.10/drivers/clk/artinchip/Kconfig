@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config CLK_ARTINCHIP
+	bool "Clock driver for Artinchip SoC"
+	depends on ARCH_ARTINCHIP
+	default y
+	help
+	  Clock driver for Artinchip SoC.
+
+if CLK_ARTINCHIP
+choice
+	prompt "Artinchip CMU Drivers"
+
+config CLK_ARTINCHIP_V10
+	bool "CMU V1.0 driver"
+	depends on MACH_D211
+	help
+	  For CMU V1.0 of Artinchip SoC.
+endchoice
+endif

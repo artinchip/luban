@@ -1,0 +1,1871 @@
+From 7f919527e312768c15468701599fdf1498a2f75c Mon Sep 17 00:00:00 2001
+From: "keliang.liu" <keliang.liu@artinchip.com>
+Date: Tue, 29 Nov 2022 17:23:12 +0800
+Subject: [PATCH 1/2] add ge support
+
+---
+ configure.in                       |  14 +-
+ gfxdrivers/Makefile.am             |   7 +
+ gfxdrivers/ge/Makefile.am          |  37 ++
+ gfxdrivers/ge/ge.c                 | 962 +++++++++++++++++++++++++++++
+ gfxdrivers/ge/ge.h                 |  55 ++
+ src/core/Makefile.am               |   6 +-
+ src/core/dmabuf_surface_pool.c     | 403 ++++++++++++
+ src/core/local_surface_pool.c      |  11 +
+ src/core/prealloc_surface_pool.c   |   7 +
+ src/core/surface_buffer.h          |   3 +
+ src/core/surface_core.c            |  10 +
+ src/gfx/Makefile.am                |   6 +-
+ systems/fbdev/fb.h                 |   1 +
+ systems/fbdev/fbdev.c              |   6 +
+ systems/fbdev/fbdev.h              |   2 +
+ systems/fbdev/fbdev_surface_pool.c |   9 +
+ 16 files changed, 1535 insertions(+), 4 deletions(-)
+ create mode 100644 gfxdrivers/ge/Makefile.am
+ create mode 100644 gfxdrivers/ge/ge.c
+ create mode 100644 gfxdrivers/ge/ge.h
+ create mode 100644 src/core/dmabuf_surface_pool.c
+
+diff --git a/configure.in b/configure.in
+index dc78d59..af1b60a 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1925,6 +1925,7 @@ sis315=no
+ tdfx=no
+ unichrome=no
+ vdpau=no
++ge=yes
+ vmware=no
+ 
+ if test "$have_linux" = "yes"; then
+@@ -1938,7 +1939,7 @@ AC_ARG_WITH(gfxdrivers,
+                            [cyber5k, davinci, ep9x, gp2d, gl, gles2, i810, i830, mach64,]
+                            [matrox, neomagic, nsc, nvidia, omap, pvr2d, pxa3xx,]
+                            [radeon, savage, sh772x, sis315, tdfx, unichrome,]
+-                           [vdpau, vmware. @<:@default=all@:>@]),
++                           [vdpau, ge, vmware. @<:@default=all@:>@]),
+             [gfxdrivers="$withval"], [gfxdrivers=all])
+ if test "$gfxdrivers" = "all"; then
+   checkfor_ati128=yes
+@@ -1966,6 +1967,7 @@ if test "$gfxdrivers" = "all"; then
+   checkfor_tdfx=yes
+   checkfor_unichrome=no
+   checkfor_vdpau=yes
++  checkfor_ge=yes
+   checkfor_vmware=no
+ 
+   AC_MSG_RESULT(all)
+@@ -2053,6 +2055,9 @@ else
+           vdpau)
+                   checkfor_vdpau=yes
+                   ;;
++          ge)
++                  checkfor_ge=yes
++                  ;;
+           *)
+                   echo "Unknown gfxdriver $gfxdriver, exiting!"
+                   exit 1
+@@ -2083,6 +2088,10 @@ if test "$checkfor_ep9x" = "yes"; then
+   ep9x=yes
+ fi
+ 
++if test "$checkfor_ge" = "yes"; then
++  ge=yes
++fi
++
+ if test "$checkfor_gp2d" = "yes"; then
+   gp2d=yes
+ fi
+@@ -2674,6 +2683,7 @@ AM_CONDITIONAL(GFX_TDFX, test "$tdfx" = "yes")
+ AM_CONDITIONAL(GFX_UNICHROME, test "$unichrome" = "yes")
+ AM_CONDITIONAL(GFX_VMWARE, test "$vmware" = "yes")
+ AM_CONDITIONAL(GFX_VDPAU, test "$vdpau" = "yes")
++AM_CONDITIONAL(GFX_GE, test "$ge" = "yes")
+ 
+ AM_CONDITIONAL(SH772X_SHJPEG, test "$sh772x_shjpeg" = "yes")
+ 
+@@ -2923,6 +2933,7 @@ gfxdrivers/sis315/Makefile
+ gfxdrivers/tdfx/Makefile
+ gfxdrivers/unichrome/Makefile
+ gfxdrivers/vdpau/Makefile
++gfxdrivers/ge/Makefile
+ gfxdrivers/vmware/Makefile
+ 
+ inputdrivers/Makefile
+@@ -3139,6 +3150,7 @@ Building Graphics Drivers:
+   VIA UniChrome             $unichrome
+   VMWare                    $vmware
+   VDPAU                     $vdpau
++  Artinchip GE              $ge
+   --
+   OpenGL                    $gl (GLX: $glx)
+   OpenGL ES 2.0             $gles2 (Mesa:  $enable_mesa, PVR2D: $enable_pvr2d)
+diff --git a/gfxdrivers/Makefile.am b/gfxdrivers/Makefile.am
+index 6e5a7e8..c585393 100644
+--- a/gfxdrivers/Makefile.am
++++ b/gfxdrivers/Makefile.am
+@@ -156,6 +156,12 @@ else
+ EP9X_DIR =
+ endif
+ 
++if GFX_GE
++GE_DIR = ge
++else
++GE_DIR =
++endif
++
+ 
+ SUBDIRS = \
+ 	$(ATI128_DIR)	\
+@@ -183,4 +189,5 @@ SUBDIRS = \
+ 	$(TDFX_DIR)	\
+ 	$(UNICHROME_DIR) \
+ 	$(VDPAU_DIR)	\
++	$(GE_DIR)	\
+ 	$(VMWARE_DIR)
+diff --git a/gfxdrivers/ge/Makefile.am b/gfxdrivers/ge/Makefile.am
+new file mode 100644
+index 0000000..defceee
+--- /dev/null
++++ b/gfxdrivers/ge/Makefile.am
+@@ -0,0 +1,37 @@
++## Makefile.am for DirectFB/src/core/gfxcards/ge
++
++INCLUDES = \
++        -I$(top_builddir)/include \
++        -I$(top_builddir)/lib   \
++        -I$(top_srcdir)/include \
++        -I$(top_srcdir)/lib     \
++        -I$(top_srcdir)/src     \
++        -I$(top_srcdir)/systems
++
++gedir = $(MODULEDIR)/gfxdrivers
++ge_LTLIBRARIES = libdirectfb_ge.la
++
++if BUILD_STATIC
++ge_DATA = $(ge_LTLIBRARIES:.la=.o)
++endif
++
++libdirectfb_ge_la_SOURCES =   \
++        ge.c  \
++        ge.h
++
++
++libdirectfb_ge_la_LDFLAGS = \
++        -module	                \
++        -avoid-version          \
++        $(DFB_LDFLAGS)
++
++
++libdirectfb_ge_la_LDFLAGS += -lmpp_decoder -lmpp_ge
++
++libdirectfb_ge_la_LIBADD = \
++        $(top_builddir)/lib/direct/libdirect.la \
++        $(top_builddir)/src/libdirectfb.la
++
++
++include $(top_srcdir)/rules/libobject.make
++
+diff --git a/gfxdrivers/ge/ge.c b/gfxdrivers/ge/ge.c
+new file mode 100644
+index 0000000..ccd49a7
+--- /dev/null
++++ b/gfxdrivers/ge/ge.c
+@@ -0,0 +1,962 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
++ * Authors:  Jun <lijun.li@artinchip.com>
++ */
++
++#include <config.h>
++
++#include <fbdev/fbdev.h>  /* FIXME: Needs to be included before dfb_types.h to work around a type clash with asm/types.h */
++#include <dfb_types.h>
++
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include <sys/mman.h>
++#include <fcntl.h>
++#include <sys/ioctl.h>
++#include <malloc.h>
++
++#include <directfb.h>
++
++#include <core/coredefs.h>
++#include <core/coretypes.h>
++#include <core/screens.h>
++
++#include <core/state.h>
++#include <core/gfxcard.h>
++#include <core/surface_buffer.h>
++
++#include <gfx/convert.h>
++#include <gfx/util.h>
++#include <misc/conf.h>
++#include <misc/util.h>
++
++#include <core/graphics_driver.h>
++
++DFB_GRAPHICS_DRIVER( ge )
++
++#include "ge.h"
++
++D_DEBUG_DOMAIN( ge, "ge", "Artinchip Graphics Engine" );
++
++
++// #define GE_SUPPORTED_DRAWINGFLAGS (DSDRAW_NOFX)
++#define GE_SUPPORTED_DRAWINGFLAGS (DSDRAW_BLEND)
++#define GE_SUPPORTED_DRAWINGFUNCTIONS (DFXL_FILLRECTANGLE)
++
++//#define GE_SUPPORTED_BLITTINGFLAGS (DSBLIT_NOFX)
++#define GE_SUPPORTED_BLITTINGFLAGS (DSBLIT_BLEND_ALPHACHANNEL | \
++                                    DSBLIT_BLEND_COLORALPHA   | \
++                                    DSBLIT_SRC_COLORKEY       | \
++                                    DSBLIT_ROTATE90           | \
++                                    DSBLIT_ROTATE180          | \
++                                    DSBLIT_ROTATE270          | \
++                                    DSBLIT_FLIP_HORIZONTAL    | \
++                                    DSBLIT_FLIP_VERTICAL)
++#define GE_SUPPORTED_BLITTINGFUNCTIONS  (DFXL_BLIT | \
++                                         DFXL_STRETCHBLIT)
++
++static void RGB565ToARGBRow(u32* src_buf, u32* dst_buf, int width) {
++     unsigned int a, r, g, b;
++     unsigned short src_pixel;
++
++     for (int x = 0; x < width; x++) {
++          src_pixel = *((unsigned short*)src_buf);
++
++          a = 0xff;
++          r = ((src_pixel & 0xf800) >> 8);
++          g = (src_pixel & 0x07e0) >> 3;
++          b = (src_pixel & 0x1f) << 3;
++
++          *((unsigned int*)dst_buf) = (a << 24) | ((r | (r >> 5)) << 16) |
++               ((g | (g >> 6)) << 8) | (b | (b >> 5));
++
++          src_buf += 2;
++          dst_buf += 4;
++     }
++}
++
++static inline void 
++ge_set_destination( GeDriverData *ge_drv,
++                      GeDeviceData *ge_dev,
++                      CardState        *state )
++{
++     CoreSurfaceBuffer *buffer = state->dst.buffer;
++
++     //D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->smf_destination)
++          return;
++
++     ge_dev->dest_addr =  state->dst.addr;
++     ge_dev->dest_phys = state->dst.phys;
++     ge_dev->dest_offset = state->dst.offset;
++     ge_dev->dest_pitch = state->dst.pitch;
++     ge_dev->dest_fd = state->dst.fd;
++     ge_dev->dest_width =  state->dst.width;
++     ge_dev->dest_height =  state->dst.height;
++
++     switch (buffer->format) {
++          case DSPF_RGB16:
++               ge_dev->dest_pixel_depth = 2;
++               ge_dev->dest_pixel_format = DSPF_RGB16;
++               break;
++          case DSPF_RGB24:
++               ge_dev->dest_pixel_depth = 3;
++               ge_dev->dest_pixel_format = DSPF_RGB24;
++               break;
++          case DSPF_RGB32:
++               ge_dev->dest_pixel_depth = 4;
++               ge_dev->dest_pixel_format = DSPF_RGB32;
++               break;
++          case DSPF_ARGB:
++               ge_dev->dest_pixel_depth = 4;
++               ge_dev->dest_pixel_format = DSPF_ARGB;
++               break;
++          default:
++               D_INFO("unexpected dest pixelformat~");
++     }
++
++     ge_dev->smf_destination = 1;
++}
++
++static inline void
++ge_set_src(GeDriverData *ge_drv,
++             GeDeviceData *ge_dev,
++             CardState      *state)
++{
++     CoreSurfaceBuffer *buffer = state->src.buffer;
++     //D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->smf_source)
++          return;
++
++     ge_dev->src_addr =  state->src.addr;
++     ge_dev->src_phys = state->src.phys;
++     ge_dev->src_offset = state->src.offset;
++     ge_dev->src_pitch = state->src.pitch;
++     ge_dev->src_fd =  state->src.fd;
++     ge_dev->src_width =  state->src.width;
++     ge_dev->src_height =  state->src.height;
++
++     switch (buffer->format) {
++          case DSPF_RGB16:
++               ge_dev->src_pixel_depth = 2;
++               ge_dev->src_pixel_format = DSPF_RGB16;
++               break;
++          case DSPF_RGB24:
++               ge_dev->src_pixel_depth = 3;
++               ge_dev->src_pixel_format = DSPF_RGB24;
++               break;
++          case DSPF_RGB32:
++               ge_dev->src_pixel_depth = 4;
++               ge_dev->src_pixel_format = DSPF_RGB32;
++               break;
++          case DSPF_ARGB:
++               ge_dev->src_pixel_depth = 4;
++               ge_dev->src_pixel_format = DSPF_ARGB;
++               break;
++          default:
++               D_INFO("unexpected src pixelformat~");
++     }
++
++     if ( state->src.phys ) {
++          D_DEBUG_AT(ge,"%s:src data is stored in framebuffer\n",__FUNCTION__);
++          ge_dev->fb_store = true;
++     }
++     else if ( state->src.fd >= 0 ) {
++          D_DEBUG_AT(ge,"%s:src data is stored in dmabuf\n",__FUNCTION__);
++          ge_dev->fb_store = true;
++     }
++     else if ( state->src.addr ) {
++          D_DEBUG_AT(ge,"%s:src data is stored in system\n",__FUNCTION__);
++          ge_dev->fb_store = false;
++     }
++     else
++          D_INFO("NOT vaild addr\n");
++
++     ge_dev->smf_source = 1;
++
++}
++
++static inline void ge_set_colorkey( GeDriverData *ge_drv,
++                                   GeDeviceData *ge_dev,
++                                   CardState        *state )
++{
++     CoreSurfaceBuffer *buffer = state->src.buffer;
++
++     //D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->smf_colorkey)
++          return;
++
++     switch (buffer->format) {
++          case DSPF_RGB16:
++               // ge_dev->src_colorkey = RGB16_TO_RGB32( state->src_colorkey );
++               RGB565ToARGBRow(&state->src_colorkey, &ge_dev->src_colorkey, state->src.width);
++               break;
++          case DSPF_RGB24:
++          case DSPF_RGB32:
++          case DSPF_ARGB:
++               ge_dev->src_colorkey = state->src_colorkey;
++               break;
++
++          default:
++               D_INFO( "unexpected pixelformat!" );
++     }
++
++     ge_dev->smf_colorkey = 1;
++}
++
++static inline void ge_set_blend_rule( GeDriverData *ge_drv,
++                                   GeDeviceData *ge_dev,
++                                   CardState        *state )
++{
++     DFBSurfaceBlendFunction src_blend = state->src_blend;
++     DFBSurfaceBlendFunction dst_blend = state->dst_blend;
++
++     //D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->smf_blend)
++          return;
++
++     if (src_blend == DSBF_SRCALPHA && dst_blend == DSBF_INVSRCALPHA) {
++          ge_dev->blend_rule = DSPD_NONE;
++     } else if (src_blend == DSBF_ZERO && dst_blend == DSBF_ZERO) {
++          ge_dev->blend_rule = DSPD_CLEAR;
++     } else if (src_blend == DSBF_ONE && dst_blend == DSBF_ZERO) {
++          ge_dev->blend_rule = DSPD_SRC;
++     } else if (src_blend == DSBF_ONE && dst_blend == DSBF_INVSRCALPHA) {
++          ge_dev->blend_rule = DSPD_SRC_OVER;
++     } else if (src_blend == DSBF_INVDESTALPHA && dst_blend == DSBF_ONE) {
++          ge_dev->blend_rule = DSPD_DST_OVER;
++     } else if (src_blend == DSBF_DESTALPHA && dst_blend == DSBF_ZERO) {
++          ge_dev->blend_rule = DSPD_SRC_IN;
++     } else if (src_blend == DSBF_ZERO && dst_blend == DSBF_SRCALPHA) {
++          ge_dev->blend_rule = DSPD_DST_IN;
++     } else if (src_blend == DSBF_INVDESTALPHA && dst_blend == DSBF_ZERO) {
++          ge_dev->blend_rule = DSPD_SRC_OUT;
++     } else if (src_blend == DSBF_ZERO && dst_blend == DSBF_INVSRCALPHA) {
++          ge_dev->blend_rule = DSPD_DST_OUT;
++     } else if (src_blend == DSBF_DESTALPHA && dst_blend == DSBF_INVSRCALPHA) {
++          ge_dev->blend_rule = DSPD_SRC_ATOP;
++     } else if (src_blend == DSBF_INVDESTALPHA && dst_blend == DSBF_SRCALPHA) {
++          ge_dev->blend_rule = DSPD_DST_ATOP;
++     } else if (src_blend == DSBF_ONE && dst_blend == DSBF_ONE) {
++          ge_dev->blend_rule = DSPD_ADD;
++     } else if (src_blend == DSBF_INVDESTALPHA && dst_blend == DSBF_INVSRCALPHA) {
++          ge_dev->blend_rule = DSPD_XOR;
++     } else if (src_blend == DSBF_ZERO && dst_blend == DSBF_ONE) {
++          ge_dev->blend_rule = DSPD_DST;
++     }
++
++     ge_dev->smf_blend = 1;
++}
++
++static inline void ge_set_color( GeDriverData *ge_drv,
++                                   GeDeviceData *ge_dev,
++                                   CardState        *state )
++{
++     CoreSurfaceBuffer *buffer = state->dst.buffer;
++
++     //D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->smf_color)
++          return;
++
++     switch (buffer->format) {
++          case DSPF_RGB16:
++               ge_dev->fill_color = PIXEL_RGB16( state->color.r,
++                                                  state->color.g,
++                                                  state->color.b );
++               break;
++          case DSPF_RGB24:
++          case DSPF_RGB32:
++               ge_dev->fill_color = PIXEL_RGB32( state->color.r,
++                                                  state->color.g,
++                                                  state->color.b );
++               break;
++          case DSPF_ARGB:
++               ge_dev->fill_color = PIXEL_ARGB( state->color.a,
++                                                  state->color.r,
++                                                  state->color.g,
++                                                  state->color.b );
++               break;
++
++          default:
++               D_INFO( "unexpected pixelformat!" );
++     }
++
++     ge_dev->smf_color = 1;
++}
++
++static inline void ge_set_clip( GeDriverData *ge_drv,
++                                  GeDeviceData *ge_dev,
++                                  DFBRegion      *clip )
++{
++     //D_INFO("%s \n",__FUNCTION__);
++     if (ge_dev->smf_clip)
++          return;
++
++     ge_dev->clip.x1 = clip->x1;
++     ge_dev->clip.y1 = clip->y1;
++     ge_dev->clip.x2 = clip->x2 + 1;
++     ge_dev->clip.y2 = clip->y2 + 1;
++
++     ge_dev->smf_clip = 1;
++}
++
++
++static void
++ge_check_state(void *drv, void *dev,
++               CardState *state, DFBAccelerationMask accel )
++{
++     //D_INFO("%s enter: ( %p, %02X )\n", __FUNCTION__, state, accel );
++
++     if (accel & ~(GE_SUPPORTED_DRAWINGFUNCTIONS | GE_SUPPORTED_BLITTINGFUNCTIONS))
++          return;
++
++     switch (state->destination->config.format) {
++          case DSPF_RGB16:
++               break;
++          case DSPF_RGB24:
++               break;
++          case DSPF_RGB32:
++               break;
++          case DSPF_ARGB:
++               break;
++          default:
++               return;
++     }
++
++     if (!(accel & ~GE_SUPPORTED_DRAWINGFUNCTIONS) &&
++         !(state->drawingflags & ~GE_SUPPORTED_DRAWINGFLAGS))
++          state->accel |= GE_SUPPORTED_DRAWINGFUNCTIONS;
++
++     if (!(accel & ~GE_SUPPORTED_BLITTINGFUNCTIONS) &&
++         !(state->blittingflags & ~GE_SUPPORTED_BLITTINGFLAGS)) {
++          state->accel |= GE_SUPPORTED_BLITTINGFUNCTIONS;
++     }
++     //D_INFO("%s exit: state->accel %02X\n",__FUNCTION__, state->accel);
++}
++
++static void
++ge_set_state( void *drv, void *dev,
++              GraphicsDeviceFuncs *funcs,
++              CardState *state, DFBAccelerationMask accel )
++{
++     GeDriverData *ge_drv = (GeDriverData *) drv;
++     GeDeviceData *ge_dev = (GeDeviceData *) dev;
++
++     //D_INFO("%s enter: ( %p, %02X ) <- modified %02X\n",
++     //            __FUNCTION__, state, accel, state->modified);
++
++     //D_DEBUG_AT(ge, "ge_set_state drawingflags %02X, blittingflags %02X", state->drawingflags, state->blittingflags);
++
++     if (state->modified & SMF_SOURCE && state->source )
++          ge_dev->smf_source = ge_dev->smf_colorkey = 0;
++
++     if (state->modified & SMF_DESTINATION)
++          ge_dev->smf_destination = ge_dev->smf_color = 0;
++
++     if (state->modified & (SMF_SRC_BLEND | SMF_DST_BLEND))
++          ge_dev->smf_blend = 0;
++
++     if (state->modified & SMF_SRC_COLORKEY)
++          ge_dev->smf_colorkey = 0;
++
++     if (state->modified & SMF_COLOR)
++          ge_dev->smf_color = 0;
++
++     if (state->modified & SMF_CLIP)
++          ge_dev->smf_clip = 0;
++
++     ge_set_destination( ge_drv, ge_dev, state);
++
++     switch (accel) {
++          case DFXL_FILLRECTANGLE:
++               if (state->drawingflags & DSDRAW_BLEND) {
++                    ge_set_blend_rule( ge_drv, ge_dev, state );
++                    ge_dev->enable_draw_blend = true;
++               } else {
++                    ge_dev->enable_draw_blend = false;
++               }
++               ge_set_color( ge_drv, ge_dev, state );
++               state->set |= DFXL_FILLRECTANGLE;
++               break;
++
++          case DFXL_BLIT:
++               if (state->blittingflags & (DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_BLEND_COLORALPHA)) {
++                    ge_set_blend_rule( ge_drv, ge_dev, state );
++                    ge_dev->enable_blend_alpha = true;
++               } else {
++                    ge_dev->enable_blend_alpha = false;
++               }
++               if (state->blittingflags & DSBLIT_SRC_COLORKEY) {
++                    ge_set_colorkey( ge_drv, ge_dev, state );
++                    ge_dev->enable_colorkey = true;
++               } else {
++                    ge_dev->enable_colorkey = false;
++               }
++               ge_set_src( ge_drv, ge_dev, state );
++               state->set |= DFXL_BLIT;
++               break;
++          case DFXL_STRETCHBLIT:
++               if (state->blittingflags & (DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_BLEND_COLORALPHA)) {
++                    ge_set_blend_rule( ge_drv, ge_dev, state );
++                    ge_dev->enable_blend_alpha = true;
++               } else {
++                    ge_dev->enable_blend_alpha = false;
++               }
++               if (state->blittingflags & DSBLIT_SRC_COLORKEY) {
++                    ge_set_colorkey( ge_drv, ge_dev, state );
++                    ge_dev->enable_colorkey = true;
++               } else {
++                    ge_dev->enable_colorkey = false;
++               }
++               ge_set_src( ge_drv, ge_dev, state );
++               state->set |= DFXL_STRETCHBLIT;
++               break;
++          default:
++               D_INFO( "unexpected drawing/blitting function" );
++               break;
++
++     }
++
++     if (state->modified & SMF_CLIP)
++          ge_set_clip( ge_drv, ge_dev, &state->clip);
++
++     ge_dev->drawingflags  = state->drawingflags;
++     ge_dev->blittingflags = state->blittingflags;
++     ge_dev->color         = state->color;
++
++     state->modified = 0;
++
++     //D_INFO("%s exit: state->set %02X\n",__FUNCTION__, state->set);
++
++}
++
++static void
++ge_flush_texture_cache(void *drv, void *dev)
++{
++     GeDeviceData *ge_dev = (GeDeviceData *) dev;
++
++     //D_INFO("%s \n",__FUNCTION__);
++
++     ge_dev->src_fd = ge_dev->dest_fd = -1;
++     ge_dev->src_addr = ge_dev->dest_addr = NULL;
++     ge_dev->src_pitch = ge_dev->dest_pitch = 0;
++     ge_dev->src_width = ge_dev->dest_width = 0;
++     ge_dev->src_height = ge_dev->dest_height = 0;
++     ge_dev->src_pixel_depth = ge_dev->dest_pixel_depth = 0;
++     ge_dev->src_pixel_format = ge_dev->dest_pixel_format = 0;
++     ge_dev->fill_color = 0;
++     ge_dev->src_colorkey = 0;
++     ge_dev->enable_draw_blend = false;
++     ge_dev->enable_blend_alpha = false;
++     ge_dev->enable_colorkey = false;
++     ge_dev->fb_store = false;
++}
++
++static DFBResult
++ge_sync(void *drv, void *dev)
++{
++     //D_INFO("%s \n",__FUNCTION__);
++     return DFB_OK;
++}
++
++static void
++ge_reset(void *drv, void *dev)
++{
++     //D_INFO("%s \n",__FUNCTION__);
++     memset((void*)dfb_system_video_memory_virtual(0),0,dfb_gfxcard_memory_length());
++}
++
++
++static bool ge_fill_rectangle( void *drv, void *dev, DFBRectangle *rect )
++{
++     GeDriverData *ge_drv = (GeDriverData *) drv;
++     GeDeviceData *ge_dev = (GeDeviceData *) dev;
++     int ret = 0;
++     struct ge_fillrect fill;
++
++     //D_INFO("%s \n",__FUNCTION__);
++     // D_INFO("ge_dev src addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->src_addr, ge_dev->src_phys, ge_dev->src_offset, ge_dev->src_pitch, ge_dev->src_width, ge_dev->src_height);
++     // D_INFO("ge_fill_rectangle dst addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->dest_addr, ge_dev->dest_phys, ge_dev->dest_offset, ge_dev->dest_pitch, ge_dev->dest_width, ge_dev->dest_height);
++
++     memset(&fill, 0, sizeof(struct ge_fillrect));
++
++     fill.type = GE_NO_GRADIENT;
++     fill.start_color = ge_dev->fill_color;
++     fill.end_color = 0;
++
++     if (ge_dev->dest_fd >= 0) {
++          // D_INFO("ge_fill_rectangle dst fd %d\n", ge_dev->dest_fd);
++          fill.dst_buf.buf_type = MPP_DMA_BUF_FD;
++          fill.dst_buf.fd[0] = ge_dev->dest_fd;
++     } else {
++          fill.dst_buf.buf_type = MPP_PHY_ADDR;
++          fill.dst_buf.phy_addr[0] = ge_dev->dest_phys;
++     }
++     fill.dst_buf.stride[0] = ge_dev->dest_pitch;
++     fill.dst_buf.size.width = ge_dev->dest_width;
++     fill.dst_buf.size.height = ge_dev->dest_height;
++     if (ge_dev->dest_pixel_format == DSPF_ARGB)
++          fill.dst_buf.format = MPP_FMT_ARGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB32)
++          fill.dst_buf.format = MPP_FMT_XRGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB24)
++          fill.dst_buf.format = MPP_FMT_RGB_888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB16)
++          fill.dst_buf.format = MPP_FMT_RGB_565;
++
++     fill.ctrl.flags = 0;
++
++     fill.dst_buf.crop_en = 1;
++     fill.dst_buf.crop.x = rect->x;
++     fill.dst_buf.crop.y = rect->y;
++     fill.dst_buf.crop.width = rect->w;
++     fill.dst_buf.crop.height = rect->h;
++
++     if (ge_dev->enable_draw_blend){
++          fill.ctrl.alpha_en = 1;
++          fill.ctrl.alpha_rules = ge_dev->blend_rule;
++     }
++
++     // D_INFO("ge_fill_rectangle format %d\n", fill.dst_buf.format);
++     //D_INFO("%s ge_fillrect x %d, y %d, w %d, h %d\n",__FUNCTION__, rect->x, rect->y, rect->w, rect->h);
++
++     ret =  mpp_ge_fillrect(ge_dev->dev, &fill);
++     // D_INFO("%s mpp_ge_fillrect ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_emit(ge_dev->dev);
++     // D_INFO("%s mpp_ge_emit ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_sync(ge_dev->dev);
++     // D_INFO("%s mpp_ge_sync ret %d\n",__FUNCTION__, ret);
++
++     return true;
++}
++
++static bool
++ge_blit( void *drv, void *dev, DFBRectangle *rect, int dx, int dy )
++{
++
++     GeDriverData *ge_drv = (GeDriverData *) drv;
++     GeDeviceData *ge_dev = (GeDeviceData *) dev;
++     struct ge_bitblt blt;
++     int ret = 0;
++
++     //D_INFO("%s \n",__FUNCTION__);
++     //D_INFO("ge_blit src addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->src_addr, ge_dev->src_phys, ge_dev->src_offset, ge_dev->src_pitch, ge_dev->src_width, ge_dev->src_height);
++     //D_INFO("ge_blit dest addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->dest_addr, ge_dev->dest_phys, ge_dev->dest_offset, ge_dev->dest_pitch, ge_dev->dest_width, ge_dev->dest_height);
++
++     memset(&blt, 0, sizeof(struct ge_bitblt));
++
++     if (!(ge_dev->clip.x1 <= dx) || !(ge_dev->clip.y1 <= dy) || 
++         !( ge_dev->clip.x2 >= (dx + rect->w - 1) ) || !( ge_dev->clip.y2 >= (dy + rect->h - 1) )) {
++          D_INFO("the blit region is not vaild\n");
++          return false;
++     }
++
++     if (!ge_dev->fb_store) {
++          D_INFO("the blit data is not vaild\n");
++          return false;
++     }
++
++     if (ge_dev->src_fd >= 0) {
++          // D_INFO("ge_blit src fd %d\n", ge_dev->src_fd);
++          blt.src_buf.buf_type = MPP_DMA_BUF_FD;
++          blt.src_buf.fd[0] = ge_dev->src_fd;
++     } else {
++          blt.src_buf.buf_type = MPP_PHY_ADDR;
++          blt.src_buf.phy_addr[0] = ge_dev->src_phys;
++     }
++     blt.src_buf.stride[0] = ge_dev->src_pitch;
++     blt.src_buf.size.width = ge_dev->src_width;
++     blt.src_buf.size.height = ge_dev->src_height;
++     if (ge_dev->src_pixel_format == DSPF_ARGB)
++          blt.src_buf.format = MPP_FMT_ARGB_8888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB32)
++          blt.src_buf.format = MPP_FMT_XRGB_8888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB24)
++          blt.src_buf.format = MPP_FMT_RGB_888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB16)
++          blt.src_buf.format = MPP_FMT_RGB_565;
++
++     if (ge_dev->dest_fd >= 0) {
++          // D_INFO("ge_blit dst fd %d\n", ge_dev->dest_fd);
++          blt.dst_buf.buf_type = MPP_DMA_BUF_FD;
++          blt.dst_buf.fd[0] = ge_dev->dest_fd;
++     } else {
++          blt.dst_buf.buf_type = MPP_PHY_ADDR;
++          blt.dst_buf.phy_addr[0] = ge_dev->dest_phys;
++     }
++     blt.dst_buf.stride[0] = ge_dev->dest_pitch;
++     blt.dst_buf.size.width = ge_dev->dest_width;
++     blt.dst_buf.size.height = ge_dev->dest_height;
++     if (ge_dev->dest_pixel_format == DSPF_ARGB)
++          blt.dst_buf.format = MPP_FMT_ARGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB32)
++          blt.dst_buf.format = MPP_FMT_XRGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB24)
++          blt.dst_buf.format = MPP_FMT_RGB_888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB16)
++          blt.dst_buf.format = MPP_FMT_RGB_565;
++
++     // D_INFO("ge_blit src format %d, dst format %d\n", blt.src_buf.format, blt.dst_buf.format);
++
++     blt.src_buf.crop_en = 1;
++     blt.src_buf.crop.x = rect->x;
++     blt.src_buf.crop.y = rect->y;
++     blt.src_buf.crop.width = rect->w;
++     blt.src_buf.crop.height = rect->h;
++   
++     blt.dst_buf.crop_en = 1;
++     blt.dst_buf.crop.x = dx;
++     blt.dst_buf.crop.y = dy;
++     blt.dst_buf.crop.width = rect->w;
++     blt.dst_buf.crop.height = rect->h;
++
++     // D_INFO("%s src x %d, y %d, w %d, h %d\n",__FUNCTION__, blt.src_rect.x, blt.src_rect.y, blt.src_rect.width, blt.src_rect.height);
++     // D_INFO("%s dst x %d, y %d, w %d, h %d\n",__FUNCTION__, blt.dst_rect.x, blt.dst_rect.y, blt.dst_rect.width, blt.dst_rect.height);
++
++     if ((rect->x == dx) && (rect->y == dy)) {
++          if (ge_dev->src_addr == ge_dev->dest_addr)
++               return true;
++     }
++
++     if (ge_dev->enable_blend_alpha){
++          blt.ctrl.alpha_en = 1;
++          blt.ctrl.alpha_rules = ge_dev->blend_rule;
++
++          if (ge_dev->blittingflags & DSBLIT_BLEND_ALPHACHANNEL) {
++               blt.ctrl.src_alpha_mode = 0;
++               // D_INFO("ge_blit src_alpha_mode 0\n");
++          }
++
++          if (ge_dev->blittingflags & DSBLIT_BLEND_COLORALPHA) {
++               blt.ctrl.src_alpha_mode = 1;
++               blt.ctrl.src_global_alpha = ge_dev->color.a;
++               // D_INFO("ge_blit src_alpha_mode 1 alpha %02X\n", blt.ctrl.src_global_alpha);
++          }
++     }
++
++     if (ge_dev->enable_colorkey) {
++          blt.ctrl.ck_en = 1;
++          blt.ctrl.ck_value = ge_dev->src_colorkey;
++          // D_INFO("ge_blit src_colorkey %02X\n", ge_dev->src_colorkey);
++     } else {
++          blt.ctrl.ck_en = 0;
++     }
++
++     //blt.ctrl.flags = GE_FLIP_H;
++     if (ge_dev->blittingflags & DSBLIT_ROTATE90) {
++          blt.ctrl.flags |= MPP_ROTATION_90;
++     } else if (ge_dev->blittingflags & DSBLIT_ROTATE180) {
++          blt.ctrl.flags |= MPP_ROTATION_180;
++     } else if (ge_dev->blittingflags & DSBLIT_ROTATE270) {
++          blt.ctrl.flags |= MPP_ROTATION_270;
++     }
++
++     if (ge_dev->blittingflags & DSBLIT_FLIP_HORIZONTAL) {
++          blt.ctrl.flags |= MPP_FLIP_H;
++     } else if (ge_dev->blittingflags & DSBLIT_FLIP_VERTICAL) {
++          blt.ctrl.flags |= MPP_FLIP_V;
++     }
++
++     ret =  mpp_ge_bitblt(ge_dev->dev, &blt);
++     // D_INFO("%s mpp_ge_bitblt ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_emit(ge_dev->dev);
++     // D_INFO("%s mpp_ge_emit ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_sync(ge_dev->dev);
++     // D_INFO("%s mpp_ge_sync ret %d\n",__FUNCTION__, ret);
++
++     return true;
++}
++
++static bool
++ge_stretch_blit( void *drv, void *dev, DFBRectangle *src_rect, DFBRectangle *dst_rect )
++{
++
++     GeDriverData *ge_drv = (GeDriverData *) drv;
++     GeDeviceData *ge_dev = (GeDeviceData *) dev;
++     struct ge_bitblt blt;
++     int ret = 0;
++
++     //D_INFO("%s \n",__FUNCTION__);
++     // D_INFO("ge_stretch_blit src addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->src_addr, ge_dev->src_phys, ge_dev->src_offset, ge_dev->src_pitch, ge_dev->src_width, ge_dev->src_height);
++     // D_INFO("ge_stretch_blit dest addr %p, phys %lx, offset %lx pitch %lx width %d, height %d\n", ge_dev->dest_addr, ge_dev->dest_phys, ge_dev->dest_offset, ge_dev->dest_pitch, ge_dev->dest_width, ge_dev->dest_height);
++
++     memset(&blt, 0, sizeof(struct ge_bitblt));
++
++     if (!ge_dev->fb_store) {
++          D_INFO("the stretch_blit src data is not vaild\n");
++          return false;
++     }
++
++     if (ge_dev->src_fd >= 0) {
++          // D_INFO("ge_stretch_blit src fd %d\n", ge_dev->src_fd);
++          blt.src_buf.buf_type = MPP_DMA_BUF_FD;
++          blt.src_buf.fd[0] = ge_dev->src_fd;
++     } else {
++          blt.src_buf.buf_type = MPP_PHY_ADDR;
++          blt.src_buf.phy_addr[0] = ge_dev->src_phys;
++     }
++     blt.src_buf.stride[0] = ge_dev->src_pitch;
++     blt.src_buf.size.width = ge_dev->src_width;
++     blt.src_buf.size.height = ge_dev->src_height;
++     if (ge_dev->src_pixel_format == DSPF_ARGB)
++          blt.src_buf.format = MPP_FMT_ARGB_8888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB32)
++          blt.src_buf.format = MPP_FMT_XRGB_8888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB24)
++          blt.src_buf.format = MPP_FMT_RGB_888;
++     else if(ge_dev->src_pixel_format == DSPF_RGB16)
++          blt.src_buf.format = MPP_FMT_RGB_565;
++
++     if (ge_dev->dest_fd >= 0) {
++          // D_INFO("ge_stretch_blit dst fd %d\n", ge_dev->dest_fd);
++          blt.dst_buf.buf_type = MPP_DMA_BUF_FD;
++          blt.dst_buf.fd[0] = ge_dev->dest_fd;
++     } else {
++          blt.dst_buf.buf_type = MPP_PHY_ADDR;
++          blt.dst_buf.phy_addr[0] = ge_dev->dest_phys;
++     }
++     blt.dst_buf.stride[0] = ge_dev->dest_pitch;
++     blt.dst_buf.size.width = ge_dev->dest_width;
++     blt.dst_buf.size.height = ge_dev->dest_height;
++     if (ge_dev->dest_pixel_format == DSPF_ARGB)
++          blt.dst_buf.format = MPP_FMT_ARGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB32)
++          blt.dst_buf.format = MPP_FMT_XRGB_8888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB24)
++          blt.dst_buf.format = MPP_FMT_RGB_888;
++     else if(ge_dev->dest_pixel_format == DSPF_RGB16)
++          blt.dst_buf.format = MPP_FMT_RGB_565;
++
++     // D_INFO("ge_stretch_blit src format %d, dst format %d\n", blt.src_buf.format, blt.dst_buf.format);
++
++     blt.src_buf.crop_en = 1;
++     blt.src_buf.crop.x = src_rect->x;
++     blt.src_buf.crop.y = src_rect->y;
++     blt.src_buf.crop.width = src_rect->w;
++     blt.src_buf.crop.height = src_rect->h;
++   
++     blt.dst_buf.crop_en = 1;
++     blt.dst_buf.crop.x = dst_rect->x;
++     blt.dst_buf.crop.y = dst_rect->y;
++     blt.dst_buf.crop.width = dst_rect->w;
++     blt.dst_buf.crop.height = dst_rect->h;
++
++     if (ge_dev->enable_blend_alpha){
++          blt.ctrl.alpha_en = 1;
++          blt.ctrl.alpha_rules = ge_dev->blend_rule;
++
++          if (ge_dev->blittingflags & DSBLIT_BLEND_ALPHACHANNEL) {
++               blt.ctrl.src_alpha_mode = 0;
++               // D_INFO("ge_stretch_blit src_alpha_mode 0\n");
++          }
++
++          if (ge_dev->blittingflags & DSBLIT_BLEND_COLORALPHA) {
++               blt.ctrl.src_alpha_mode = 1;
++               blt.ctrl.src_global_alpha = ge_dev->color.a;
++               // D_INFO("ge_stretch_blit src_alpha_mode 1 alpha %02X\n", blt.ctrl.src_global_alpha);
++          }
++     }
++
++     if (ge_dev->enable_colorkey) {
++          blt.ctrl.ck_en = 1;
++          blt.ctrl.ck_value = ge_dev->src_colorkey;
++          // D_INFO("ge_stretch_blit src_colorkey %02X\n", ge_dev->src_colorkey);
++     } else {
++          blt.ctrl.ck_en = 0;
++     }
++
++     //blt.ctrl.flags = MPP_FLIP_H;
++     if (ge_dev->blittingflags & DSBLIT_ROTATE90) {
++          blt.ctrl.flags |= MPP_ROTATION_90;
++     } else if (ge_dev->blittingflags & DSBLIT_ROTATE180) {
++          blt.ctrl.flags |= MPP_ROTATION_180;
++     } else if (ge_dev->blittingflags & DSBLIT_ROTATE270) {
++          blt.ctrl.flags |= MPP_ROTATION_270;
++     }
++
++     if (ge_dev->blittingflags & DSBLIT_FLIP_HORIZONTAL) {
++          blt.ctrl.flags |= MPP_FLIP_H;
++     } else if (ge_dev->blittingflags & DSBLIT_FLIP_VERTICAL) {
++          blt.ctrl.flags |= MPP_FLIP_V;
++     }
++
++     // D_INFO("%s src x %d, y %d, w %d, h %d\n",__FUNCTION__, blt.src_rect.x, blt.src_rect.y, blt.src_rect.width, blt.src_rect.height);
++     // D_INFO("%s dst x %d, y %d, w %d, h %d\n",__FUNCTION__, blt.dst_rect.x, blt.dst_rect.y, blt.dst_rect.width, blt.dst_rect.height);
++
++     ret =  mpp_ge_bitblt(ge_dev->dev, &blt);
++     // D_INFO("%s mpp_ge_bitblt ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_emit(ge_dev->dev);
++     // D_INFO("%s mpp_ge_emit ret %d\n",__FUNCTION__, ret);
++
++     ret = mpp_ge_sync(ge_dev->dev);
++     // D_INFO("%s mpp_ge_sync ret %d\n",__FUNCTION__, ret);
++
++     return true;
++}
++
++static int
++driver_probe( CoreGraphicsDevice *device )
++{
++     //D_INFO("%s \n",__FUNCTION__);
++     switch (dfb_gfxcard_get_accelerator( device )) {
++          case FB_ACCEL_GE:          /* Artinchip Graphics Engine */
++               return 1;
++     }
++     return 0;
++}
++
++static void
++driver_get_info( CoreGraphicsDevice *device,
++                 GraphicsDriverInfo *info )
++{
++     //D_INFO("%s \n",__FUNCTION__);
++
++     /* fill driver info structure */
++     snprintf( info->name,
++               DFB_GRAPHICS_DRIVER_INFO_NAME_LENGTH,
++               "Graphics Engine Driver" );
++
++     snprintf( info->vendor,
++               DFB_GRAPHICS_DRIVER_INFO_VENDOR_LENGTH,
++               "Artinchip" );
++
++     snprintf( info->url,
++               DFB_GRAPHICS_DRIVER_INFO_URL_LENGTH,
++               "http://artinchip.com" );
++
++     snprintf( info->license,
++               DFB_GRAPHICS_DRIVER_INFO_LICENSE_LENGTH,
++               "LGPL" );
++
++     info->version.major = 0;
++     info->version.minor = 1;
++
++     info->driver_data_size = sizeof (GeDriverData);
++     info->device_data_size = sizeof (GeDeviceData);
++
++
++}
++
++static DFBResult
++driver_init_driver( CoreGraphicsDevice  *device,
++                    GraphicsDeviceFuncs *funcs,
++                    void                *driver_data,
++                    void                *device_data,
++                    CoreDFB             *core )
++{
++
++     GeDriverData *ge_drv = (GeDriverData*) driver_data;
++     GeDeviceData *ge_dev = (GeDeviceData*) device_data;
++
++     D_INFO("%s \n",__FUNCTION__);
++
++     ge_drv->dfb_fbdev = dfb_system_data();
++
++     if (ge_drv->dfb_fbdev) {
++          ge_dev->fb_vir_addr = ge_drv->dfb_fbdev->framebuffer_base;
++          ge_dev->fb_phy_addr = ge_drv->dfb_fbdev->shared->fix.smem_start;
++          ge_dev->fb_length = ge_drv->dfb_fbdev->shared->fix.smem_len;
++     } else {
++          D_INFO("%s failed!\n",__FUNCTION__);
++          return DFB_FAILURE;
++     }
++
++     ge_dev->dev = mpp_ge_open();
++     if (!ge_dev->dev) {
++          D_INFO("%s open ge device failed!\n",__FUNCTION__);
++          ge_drv->dfb_fbdev = NULL;
++          return DFB_FAILURE;
++     }
++     ge_drv->dfb_fbdev->gfx_dev = ge_dev->dev;
++
++     funcs->CheckState    = ge_check_state;
++     funcs->SetState      = ge_set_state;
++     funcs->EngineSync    = ge_sync;
++     funcs->EngineReset   = ge_reset;
++     funcs->FlushTextureCache  = ge_flush_texture_cache;
++
++     funcs->FillRectangle = ge_fill_rectangle;
++     funcs->Blit          = ge_blit;
++     funcs->StretchBlit   = ge_stretch_blit;
++
++     return DFB_OK;
++}
++
++
++static DFBResult
++driver_init_device( CoreGraphicsDevice *device,
++                    GraphicsDeviceInfo *device_info,
++                    void               *driver_data,
++                    void               *device_data )
++{
++
++     GeDeviceData *ge_dev = (GeDeviceData*) device_data;
++
++     D_INFO("%s \n",__FUNCTION__);
++
++     /* fill device info */
++     snprintf( device_info->name,
++               DFB_GRAPHICS_DEVICE_INFO_NAME_LENGTH, "ge" );
++
++     snprintf( device_info->vendor,
++               DFB_GRAPHICS_DEVICE_INFO_VENDOR_LENGTH, "artinchip" );
++
++     /* device limitations */
++     device_info->limits.surface_byteoffset_alignment = 8;
++     device_info->limits.surface_bytepitch_alignment  = 8;
++
++     // device_info->caps.flags    = 0;
++     device_info->caps.flags    = CCF_READSYSMEM | CCF_WRITESYSMEM;
++     device_info->caps.accel    = GE_SUPPORTED_DRAWINGFUNCTIONS |
++                                  GE_SUPPORTED_BLITTINGFUNCTIONS;
++
++     device_info->caps.drawing  = GE_SUPPORTED_DRAWINGFLAGS;
++     device_info->caps.blitting = GE_SUPPORTED_BLITTINGFLAGS;
++
++     ge_dev->fb_store = false;
++
++     return DFB_OK;
++}
++
++
++static void
++driver_close_device( CoreGraphicsDevice *device,
++                     void               *driver_data,
++                     void               *device_data )
++{
++     GeDriverData *ge_drv = (GeDriverData*) driver_data;
++     GeDeviceData *ge_dev = (GeDeviceData*) device_data;
++     D_INFO("%s \n",__FUNCTION__);
++
++     if (ge_dev->dev) {
++          D_INFO("%s close ge device\n",__FUNCTION__);
++          mpp_ge_close(ge_dev->dev);
++          ge_dev->dev = NULL;
++          ge_drv->dfb_fbdev->gfx_dev = NULL;
++     }
++
++}
++
++static void
++driver_close_driver( CoreGraphicsDevice *device,
++                     void               *driver_data )
++{
++     GeDriverData *ge_drv = (GeDriverData*) driver_data;
++     D_INFO("%s \n",__FUNCTION__);
++
++     ge_drv->dfb_fbdev = NULL;
++}
+diff --git a/gfxdrivers/ge/ge.h b/gfxdrivers/ge/ge.h
+new file mode 100644
+index 0000000..6b33065
+--- /dev/null
++++ b/gfxdrivers/ge/ge.h
+@@ -0,0 +1,55 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
++ * Authors:  Jun <lijun.li@artinchip.com>
++ */
++
++#ifndef __GE_H__
++#define __GE_H__
++#include <dfb_types.h>
++#include <core/coretypes.h>
++#include <core/layers.h>
++
++#include <mpp_ge.h>
++
++typedef struct {
++     FBDev	*dfb_fbdev;
++} GeDriverData;
++
++typedef struct {
++    struct mpp_ge *dev;
++    void *fb_vir_addr;
++    unsigned int fb_phy_addr;
++    int fb_length;
++    u32 fill_color;
++    bool enable_colorkey;
++    bool enable_draw_blend;
++    bool enable_blend_alpha;
++    u32 src_colorkey;
++    u32 blend_rule;
++    u32 src_pixel_format, dest_pixel_format;
++    u8  src_pixel_depth, dest_pixel_depth;
++    bool fb_store;
++    void *src_addr;
++    void *dest_addr;
++    int src_fd, dest_fd;
++    int src_width, src_height, dest_width, dest_height;
++    unsigned long src_pitch,dest_pitch;
++    unsigned long src_phys, dest_phys;
++    int src_offset, dest_offset;
++    DFBRegion clip;
++    /* state validation */
++    int smf_drawing_flags;
++    int smf_blitting_flags;
++    int smf_source;
++    int smf_destination;
++    int smf_blend;
++    int smf_color;
++    int smf_colorkey;
++    int smf_clip;
++    DFBColor                 color;
++    DFBSurfaceDrawingFlags   drawingflags;
++    DFBSurfaceBlittingFlags  blittingflags;
++} GeDeviceData;
++
++#endif /*__GE_H__*/
+diff --git a/src/core/Makefile.am b/src/core/Makefile.am
+index cae0578..e5ef8e2 100644
+--- a/src/core/Makefile.am
++++ b/src/core/Makefile.am
+@@ -6,7 +6,8 @@ INCLUDES = \
+ 	-I$(top_builddir)/src		\
+ 	-I$(top_srcdir)/include		\
+ 	-I$(top_srcdir)/lib		\
+-	-I$(top_srcdir)/src
++	-I$(top_srcdir)/src		\
++	-I$(top_srcdir)/systems
+ 
+ AM_CPPFLAGS = \
+ 	-DDATADIR=\"${RUNTIME_SYSROOT}@DATADIR@\"		\
+@@ -169,6 +170,7 @@ libdirectfb_core_la_SOURCES = \
+ 	layer_region.c		\
+ 	layers.c		\
+ 	local_surface_pool.c	\
++	dmabuf_surface_pool.c	\
+ 	palette.c		\
+ 	prealloc_surface_pool.c	\
+ 	prealloc_surface_pool_bridge.c	\
+@@ -189,6 +191,8 @@ libdirectfb_core_la_SOURCES = \
+ 	windowstack.c		\
+ 	wm.c
+ 
++libdirectfb_core_la_LDFLAGS = -lmpp_decoder -lmpp_ge
++
+ distclean-local:
+ 	rm -f CoreDFB.cpp
+ 	rm -f CoreDFB.h
+diff --git a/src/core/dmabuf_surface_pool.c b/src/core/dmabuf_surface_pool.c
+new file mode 100644
+index 0000000..77fa967
+--- /dev/null
++++ b/src/core/dmabuf_surface_pool.c
+@@ -0,0 +1,403 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
++ * Authors:  Jun <lijun.li@artinchip.com>
++ */
++
++#include <config.h>
++
++#include <directfb_util.h>
++#include <direct/debug.h>
++#include <direct/mem.h>
++
++#include <core/core.h>
++#include <core/surface_pool.h>
++#include <core/system.h>
++#include <misc/conf.h>
++
++#include <fcntl.h>
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++
++#include <linux/dma-buf.h>
++#include <linux/dma-heap.h>
++
++#include <fbdev/fbdev.h>
++#include <mpp_ge.h>
++
++#define DMABUF_DEV  "/dev/dma_heap/reserved"
++
++static int dmabuf_fd = -1;
++
++/**********************************************************************************************************************/
++
++typedef struct {
++     int             magic;
++
++     int             dmabuf_fd;
++     FBDev          *dfb_fbdev;
++} DmabufPoolData;
++
++typedef struct {
++} DmabufPoolLocalData;
++
++typedef struct {
++     int         magic;
++
++     int         fd;
++     void       *addr;
++     int         pitch;
++     int         size;
++     int         width;
++     int         height;
++} DmabufAllocationData;
++
++/**********************************************************************************************************************/
++
++static int dmabuf_handle_open()
++{
++    if (dmabuf_fd >= 0)
++        return dmabuf_fd;
++
++    dmabuf_fd = open(DMABUF_DEV, O_RDWR);
++
++    D_INFO("dmabuf_handle_open %d\n", dmabuf_fd);
++
++    if (dmabuf_fd < 0) {
++        D_INFO("open %s failed!", DMABUF_DEV);
++        return -1;
++    }
++    return dmabuf_fd;
++}
++
++static void dmabuf_handle_close()
++{
++    if (dmabuf_fd < 0)
++        return;
++
++    D_INFO("dmabuf_handle_close %d", dmabuf_fd);
++
++    close(dmabuf_fd);
++}
++
++static void* dmabuf_alloc(int dev_fd, int *size, int *fd)
++{
++    int ret;
++    void *addr;
++    struct dma_heap_allocation_data data = {0};
++
++    if (dev_fd < 0) {
++        D_INFO("dmabuf device is not opened.");
++        return NULL;
++    }
++
++    data.fd = 0;
++    data.len = *size;
++    data.fd_flags = O_RDWR;
++    data.heap_flags = 0;
++
++    ret = ioctl(dev_fd, DMA_HEAP_IOCTL_ALLOC, &data);
++    if (ret < 0) {
++        D_INFO("DMA_HEAP_IOCTL_ALLOC failed, ret %d", ret);
++        return NULL;
++    }
++
++    addr = mmap(NULL, data.len, PROT_READ|PROT_WRITE, MAP_SHARED, data.fd, 0);
++    if (addr == MAP_FAILED) {
++        D_INFO("mmap failed!");
++        return NULL;
++    }
++
++    D_INFO("dmabuf_alloc fd %d size %d addr %p\n", data.fd, data.len, addr);
++
++    *fd  = data.fd;
++    *size = data.len;
++
++    return addr;
++}
++
++static void dmabuf_free(void* buf, int size, int fd)
++{
++
++     D_INFO("dmabuf_free fd %d size %d addr %p\n", fd, size, buf);
++
++    if (buf)
++        munmap(buf, size);
++
++    if (fd >= 0)
++        close(fd);
++
++    return;
++}
++
++static int
++dmabufPoolDataSize( void )
++{
++     return sizeof(DmabufPoolData);
++}
++
++static int
++dmabufPoolLocalDataSize( void )
++{
++     return sizeof(DmabufPoolLocalData);
++}
++
++static int
++dmabufAllocationDataSize( void )
++{
++     return sizeof(DmabufAllocationData);
++}
++
++static DFBResult
++dmabufInitPool( CoreDFB                    *core,
++               CoreSurfacePool            *pool,
++               void                       *pool_data,
++               void                       *pool_local,
++               void                       *system_data,
++               CoreSurfacePoolDescription *ret_desc )
++{
++     DmabufPoolData      *data  = pool_data;
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_ASSERT( data != NULL );
++     D_ASSERT( ret_desc != NULL );
++
++     D_INFO("dmabufInitPool\n");
++
++     ret_desc->caps              = CSPCAPS_PHYSICAL | CSPCAPS_VIRTUAL;
++     ret_desc->access[CSAID_CPU] = CSAF_READ | CSAF_WRITE | CSAF_SHARED;
++     ret_desc->access[CSAID_GPU] = CSAF_READ | CSAF_WRITE | CSAF_SHARED;
++     ret_desc->types             = CSTF_LAYER | CSTF_WINDOW | CSTF_CURSOR | CSTF_FONT | CSTF_SHARED | CSTF_INTERNAL;
++     ret_desc->priority          = CSPP_DEFAULT;
++
++     /* For hardware layers */
++     ret_desc->access[CSAID_LAYER0] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER1] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER2] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER3] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER4] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER5] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER6] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER7] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER8] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER9] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER10] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER11] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER12] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER13] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER14] = CSAF_READ;
++     ret_desc->access[CSAID_LAYER15] = CSAF_READ;
++
++     snprintf( ret_desc->name, DFB_SURFACE_POOL_DESC_NAME_LENGTH, "Dmabuf Memory" );
++
++     data->dmabuf_fd = dmabuf_handle_open();
++     data->dfb_fbdev = NULL;
++     D_MAGIC_SET( data, DmabufPoolData );
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufJoinPool( CoreDFB                    *core,
++               CoreSurfacePool            *pool,
++               void                       *pool_data,
++               void                       *pool_local,
++               void                       *system_data )
++{
++     DmabufPoolData      *data  = pool_data;
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( data, DmabufPoolData );
++     D_INFO("dmabufJoinPool\n");
++
++     (void) data;
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufDestroyPool( CoreSurfacePool *pool,
++                  void            *pool_data,
++                  void            *pool_local )
++{
++     DmabufPoolData      *data  = pool_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( data, DmabufPoolData );
++     D_INFO("dmabufDestroyPool\n");
++
++     dmabuf_handle_close();
++     data->dmabuf_fd = -1;
++     data->dfb_fbdev = NULL;
++
++     D_MAGIC_CLEAR( data );
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufLeavePool( CoreSurfacePool *pool,
++                void            *pool_data,
++                void            *pool_local )
++{
++     DmabufPoolData      *data  = pool_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( data, DmabufPoolData );
++
++     D_INFO("dmabufLeavePool\n");
++
++     (void) data;
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufAllocateBuffer( CoreSurfacePool       *pool,
++                     void                  *pool_data,
++                     void                  *pool_local,
++                     CoreSurfaceBuffer     *buffer,
++                     CoreSurfaceAllocation *allocation,
++                     void                  *alloc_data )
++{
++     CoreSurface         *surface;
++     DmabufPoolData       *data  = pool_data;
++     DmabufAllocationData *alloc = alloc_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( data, DmabufPoolData );
++     D_MAGIC_ASSERT( buffer, CoreSurfaceBuffer );
++     D_ASSERT( alloc != NULL );
++
++     D_INFO("dmabufAllocateBuffer\n" );
++
++     surface = buffer->surface;
++     D_MAGIC_ASSERT( surface, CoreSurface );
++
++     /* Create un-aligned dmabuf surface buffer. */
++     dfb_surface_calc_buffer_size( surface, 8, 0, &alloc->pitch, &alloc->size );
++
++     alloc->width = buffer->config.size.w;
++     alloc->height = buffer->config.size.h;
++     alloc->fd = -1;
++
++     if (!data->dfb_fbdev) {
++          data->dfb_fbdev = dfb_system_data();
++          D_MAGIC_SET( data, DmabufPoolData );
++     }
++
++     if (!data->dfb_fbdev || !data->dfb_fbdev->gfx_dev) {
++          return DFB_TEMPUNAVAIL;
++     }
++
++     alloc->addr = dmabuf_alloc(data->dmabuf_fd, &alloc->size, &alloc->fd);
++
++     D_INFO("DmabufAllocateBuffe alloc->addr %p fd %d, size %d, pitch %d, width %d, height %d\n", alloc->addr, alloc->fd, alloc->size, alloc->pitch, alloc->width, alloc->height);
++
++     if (!alloc->addr)
++          return DFB_TEMPUNAVAIL;
++
++     mpp_ge_add_dmabuf(data->dfb_fbdev->gfx_dev, alloc->fd);
++
++     D_MAGIC_SET( alloc, DmabufAllocationData );
++
++     allocation->flags = CSALF_VOLATILE;
++     allocation->size  = alloc->size;
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufDeallocateBuffer( CoreSurfacePool       *pool,
++                       void                  *pool_data,
++                       void                  *pool_local,
++                       CoreSurfaceBuffer     *buffer,
++                       CoreSurfaceAllocation *allocation,
++                       void                  *alloc_data )
++{
++     DmabufPoolData       *data  = pool_data;
++     DmabufAllocationData *alloc = alloc_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( alloc, DmabufAllocationData );
++     D_MAGIC_ASSERT( data, DmabufPoolData );
++
++     D_INFO("dmabufDeallocateBuffer\n" );
++
++     if (alloc->addr) {
++          if (data->dfb_fbdev && data->dfb_fbdev->gfx_dev) {
++               mpp_ge_rm_dmabuf(data->dfb_fbdev->gfx_dev, alloc->fd);
++          }
++          D_INFO("dmabufDeallocateBuffer alloc->addr %p, fd %d, size %d\n", alloc->addr, alloc->fd, alloc->size);
++          dmabuf_free(alloc->addr, alloc->size, alloc->fd);
++     }
++     alloc->addr = NULL;
++     alloc->fd = -1;
++
++     D_MAGIC_CLEAR( alloc );
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufLock( CoreSurfacePool       *pool,
++           void                  *pool_data,
++           void                  *pool_local,
++           CoreSurfaceAllocation *allocation,
++           void                  *alloc_data,
++           CoreSurfaceBufferLock *lock )
++{
++     DmabufAllocationData *alloc = alloc_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( allocation, CoreSurfaceAllocation );
++     D_MAGIC_ASSERT( lock, CoreSurfaceBufferLock );
++     D_MAGIC_ASSERT( alloc, DmabufAllocationData );
++
++     //D_INFO("dmabufLock\n" );
++
++     lock->addr  = alloc->addr;
++     lock->pitch = alloc->pitch;
++     lock->fd    = alloc->fd;
++     lock->width = alloc->width;
++     lock->height = alloc->height;
++
++     return DFB_OK;
++}
++
++static DFBResult
++dmabufUnlock( CoreSurfacePool       *pool,
++             void                  *pool_data,
++             void                  *pool_local,
++             CoreSurfaceAllocation *allocation,
++             void                  *alloc_data,
++             CoreSurfaceBufferLock *lock )
++{
++     DmabufAllocationData *alloc = alloc_data;
++
++     D_MAGIC_ASSERT( pool, CoreSurfacePool );
++     D_MAGIC_ASSERT( allocation, CoreSurfaceAllocation );
++     D_MAGIC_ASSERT( lock, CoreSurfaceBufferLock );
++     D_MAGIC_ASSERT( alloc, DmabufAllocationData );
++
++     (void) alloc;
++
++     //D_INFO("dmabufUnlock\n" );
++
++     return DFB_OK;
++}
++
++const SurfacePoolFuncs dmabufSurfacePoolFuncs = {
++     .PoolDataSize       = dmabufPoolDataSize,
++     .PoolLocalDataSize  = dmabufPoolLocalDataSize,
++     .AllocationDataSize = dmabufAllocationDataSize,
++
++     .InitPool           = dmabufInitPool,
++     .JoinPool           = dmabufJoinPool,
++     .DestroyPool        = dmabufDestroyPool,
++     .LeavePool          = dmabufLeavePool,
++
++     .AllocateBuffer     = dmabufAllocateBuffer,
++     .DeallocateBuffer   = dmabufDeallocateBuffer,
++
++     .Lock               = dmabufLock,
++     .Unlock             = dmabufUnlock,
++};
++
+diff --git a/src/core/local_surface_pool.c b/src/core/local_surface_pool.c
+index 4ff304d..410e271 100644
+--- a/src/core/local_surface_pool.c
++++ b/src/core/local_surface_pool.c
+@@ -32,6 +32,7 @@
+ 
+ #include <config.h>
+ 
++#include <directfb_util.h>
+ #include <direct/debug.h>
+ #include <direct/mem.h>
+ 
+@@ -52,6 +53,8 @@ typedef struct {
+ typedef struct {
+      int         magic;
+ 
++     int         width;
++     int         height;
+      void       *addr;
+      int         pitch;
+      int         size;
+@@ -148,6 +151,10 @@ localAllocateBuffer( CoreSurfacePool       *pool,
+      D_MAGIC_ASSERT( buffer, CoreSurfaceBuffer );
+      D_ASSERT( alloc != NULL );
+ 
++
++     alloc->width = buffer->config.size.w;
++     alloc->height = buffer->config.size.h;
++
+      surface = buffer->surface;
+      D_MAGIC_ASSERT( surface, CoreSurface );
+ #ifndef ANDROID_NDK
+@@ -231,6 +238,10 @@ localLock( CoreSurfacePool       *pool,
+      D_MAGIC_ASSERT( lock, CoreSurfaceBufferLock );
+      D_MAGIC_ASSERT( alloc, LocalAllocationData );
+ 
++ 
++     lock->fd = -1;
++     lock->width = alloc->width;
++     lock->height = alloc->height;
+      lock->addr  = alloc->addr;
+      lock->pitch = alloc->pitch;
+ 
+diff --git a/src/core/prealloc_surface_pool.c b/src/core/prealloc_surface_pool.c
+index be639ed..ecea845 100644
+--- a/src/core/prealloc_surface_pool.c
++++ b/src/core/prealloc_surface_pool.c
+@@ -44,6 +44,8 @@
+ typedef struct {
+      void *addr;
+      int   pitch;
++     int   width;
++     int   height;
+ } PreallocAllocationData;
+ 
+ D_DEBUG_DOMAIN( Core_PreAlloc, "Core/PreAlloc", "Core PreAlloc Surface Pool" );
+@@ -168,6 +170,8 @@ preallocAllocateBuffer( CoreSurfacePool       *pool,
+                                                                          surface->config.size.w))
+           return DFB_BUG;
+ 
++     alloc->width = buffer->config.size.w;
++     alloc->height = buffer->config.size.h;
+      alloc->addr  = surface->config.preallocated[index].addr;
+      alloc->pitch = surface->config.preallocated[index].pitch;
+ 
+@@ -220,6 +224,9 @@ preallocLock( CoreSurfacePool       *pool,
+           return DFB_ACCESSDENIED;
+      }
+ 
++     lock->fd = -1;
++     lock->width = alloc->width;
++     lock->height = alloc->height;
+      lock->addr  = alloc->addr;
+      lock->pitch = alloc->pitch;
+ 
+diff --git a/src/core/surface_buffer.h b/src/core/surface_buffer.h
+index 521f631..a605e7c 100644
+--- a/src/core/surface_buffer.h
++++ b/src/core/surface_buffer.h
+@@ -80,6 +80,9 @@ struct __DFB_CoreSurfaceBufferLock {
+      CoreSurfaceBuffer       *buffer;             /* Set by dfb_surface_pool_lock() */
+      CoreSurfaceAllocation   *allocation;         /* " */
+ 
++     int                      fd;
++     int                      width;
++     int                      height;
+      void                    *addr;               /* " */
+      unsigned long            phys;               /* " */
+      unsigned long            offset;             /* " */
+diff --git a/src/core/surface_core.c b/src/core/surface_core.c
+index 2b97111..fb687f1 100644
+--- a/src/core/surface_core.c
++++ b/src/core/surface_core.c
+@@ -61,6 +61,8 @@ extern SurfacePoolFuncs localSurfacePoolFuncs;
+ #endif
+ extern SurfacePoolFuncs preallocSurfacePoolFuncs;
+ 
++extern SurfacePoolFuncs dmabufSurfacePoolFuncs;
++
+ extern const SurfacePoolBridgeFuncs *preallocSurfacePoolBridgeFuncs;
+ 
+ D_DEBUG_DOMAIN( Core_Surface, "Core/SurfaceCore", "DirectFB Surface Core" );
+@@ -222,6 +224,12 @@ dfb_surface_core_initialize( CoreDFB              *core,
+      data->core   = core;
+      data->shared = shared;
+ 
++     ret = dfb_surface_pool_initialize2( core, &dmabufSurfacePoolFuncs, data, &shared->surface_pool );
++     if (ret) {
++          D_DERROR( ret, "Core/Surface: Could not register 'dmabuf' surface pool!\n" );
++          return ret;
++     }
++
+ #if FUSION_BUILD_MULTI
+      if (fusion_config->secure_fusion) {
+           ret = dfb_surface_pool_initialize2( core, &sharedSecureSurfacePoolFuncs, data, &shared->surface_pool );
+@@ -290,6 +298,8 @@ dfb_surface_core_join( CoreDFB              *core,
+      data->core   = core;
+      data->shared = shared;
+ 
++     dfb_surface_pool_join2( core, shared->surface_pool, &dmabufSurfacePoolFuncs, data );
++
+ #if FUSION_BUILD_MULTI
+      if (fusion_config->secure_fusion)
+           dfb_surface_pool_join2( core, shared->surface_pool, &sharedSecureSurfacePoolFuncs, data );
+diff --git a/src/gfx/Makefile.am b/src/gfx/Makefile.am
+index 46c01e3..e737fec 100644
+--- a/src/gfx/Makefile.am
++++ b/src/gfx/Makefile.am
+@@ -26,7 +26,7 @@ internalincludedir = $(INTERNALINCLUDEDIR)/gfx
+ internalinclude_HEADERS = \
+ 	clip.h			\
+ 	convert.h		\
+-	util.h
++	util.h			
+ 
+ 
+ noinst_LTLIBRARIES = libdirectfb_gfx.la
+@@ -42,7 +42,9 @@ endif
+ 
+ libdirectfb_gfx_la_SOURCES = \
+ 	$(NON_PURE_VOODOO_SOURCES)	\
+-	convert.c
++	convert.c			
++
++libdirectfb_gfx_la_LDFLAGS = -lmpp_decoder -lmpp_ge
+ 
+ 
+ if DIRECTFB_BUILD_PURE_VOODOO
+diff --git a/systems/fbdev/fb.h b/systems/fbdev/fb.h
+index 6cc1399..73e9339 100644
+--- a/systems/fbdev/fb.h
++++ b/systems/fbdev/fb.h
+@@ -115,6 +115,7 @@
+ #define FB_ACCEL_NEOMAGIC_NM2360 97	/* NeoMagic NM2360              */
+ #define FB_ACCEL_NEOMAGIC_NM2380 98	/* NeoMagic NM2380              */
+ #define FB_ACCEL_EP9X            99     /* CirrusLogic EP9X family      */
++#define FB_ACCEL_GE              100    /* Artinchip Graphics Engine    */
+ 
+ #define FB_ACCEL_SAVAGE4        0x80	/* S3 Savage4                   */
+ #define FB_ACCEL_SAVAGE3D       0x81	/* S3 Savage3D                  */
+diff --git a/systems/fbdev/fbdev.c b/systems/fbdev/fbdev.c
+index 5297358..a29c8b8 100644
+--- a/systems/fbdev/fbdev.c
++++ b/systems/fbdev/fbdev.c
+@@ -469,6 +469,7 @@ system_initialize( CoreDFB *core, void **data )
+           return D_OOM();
+ 
+      dfb_fbdev->fd = -1;
++     dfb_fbdev->gfx_dev = NULL;
+ 
+      shared = (FBDevShared*) SHCALLOC( pool, 1, sizeof(FBDevShared) );
+      if (!shared) {
+@@ -863,6 +864,11 @@ system_unmap_mmio( volatile void  *addr,
+ static int
+ system_get_accelerator( void )
+ {
++
++#ifdef FB_ACCEL_GE
++	  return FB_ACCEL_GE;
++#endif
++
+ #ifdef FB_ACCEL_MATROX_MGAG400
+      if (!strcmp( dfb_fbdev->shared->fix.id, "MATROX DH" ))
+           return FB_ACCEL_MATROX_MGAG400;
+diff --git a/systems/fbdev/fbdev.h b/systems/fbdev/fbdev.h
+index 9cc66e4..a2ea123 100644
+--- a/systems/fbdev/fbdev.h
++++ b/systems/fbdev/fbdev.h
+@@ -114,6 +114,8 @@ typedef struct {
+ 
+      int                      fd;            /* file descriptor for /dev/fb */
+ 
++     void                    *gfx_dev;
++
+      VirtualTerminal         *vt;
+ 
+      AGPDevice               *agp;
+diff --git a/systems/fbdev/fbdev_surface_pool.c b/systems/fbdev/fbdev_surface_pool.c
+index 06bdbb1..0248f43 100644
+--- a/systems/fbdev/fbdev_surface_pool.c
++++ b/systems/fbdev/fbdev_surface_pool.c
+@@ -66,6 +66,8 @@ typedef struct {
+ typedef struct {
+      int    magic;
+ 
++     int    width;
++     int    height;
+      Chunk *chunk;
+ } FBDevAllocationData;
+ 
+@@ -278,6 +280,9 @@ fbdevAllocateBuffer( CoreSurfacePool       *pool,
+      surface = buffer->surface;
+      D_MAGIC_ASSERT( surface, CoreSurface );
+ 
++     alloc->width = buffer->config.size.w;
++     alloc->height = buffer->config.size.h;
++
+      if (surface->type & CSTF_LAYER && surface->resource_id == DLID_PRIMARY) {
+           D_DEBUG_AT( FBDev_Surfaces, "  -> primary layer buffer (index %d)\n", dfb_surface_buffer_index( buffer ) );
+ 
+@@ -379,6 +384,10 @@ fbdevLock( CoreSurfacePool       *pool,
+           lock->offset = alloc->chunk->offset;
+      }
+ 
++     lock->fd = -1;
++     lock->width = alloc->width;
++     lock->height = alloc->height;
++
+      lock->addr = dfb_fbdev->framebuffer_base + lock->offset;
+      lock->phys = dfb_fbdev->shared->fix.smem_start + lock->offset;
+ 
+-- 
+2.29.0
+

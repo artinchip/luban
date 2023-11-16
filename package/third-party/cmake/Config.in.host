@@ -1,0 +1,17 @@
+menuconfig BR2_PACKAGE_HOST_CMAKE
+	bool "host cmake"
+	help
+	  CMake is an open-source, cross-platform family of tools
+	  designed to build, test and package software. CMake is used
+	  to control the software compilation process using simple
+	  platform and compiler independent configuration files, and
+	  generate native makefiles and workspaces that can be used in
+	  the compiler environment of your choice.
+
+	  http://www.cmake.org/
+
+if BR2_PACKAGE_HOST_CMAKE
+config BR2_PACKAGE_HOST_CMAKE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

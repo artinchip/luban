@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_BLUEZ5_UTILS_HEADERS
+	bool "bluez utils headers"
+	help
+	  Header files from bluez utils version 5.x
+
+	  http://www.bluez.org
+	  http://www.kernel.org/pub/linux/bluetooth
+
+if BR2_PACKAGE_BLUEZ5_UTILS_HEADERS
+config BR2_PACKAGE_BLUEZ5_UTILS_HEADERS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

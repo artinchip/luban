@@ -1,0 +1,27 @@
+import os
+
+env=DefaultEnvironment().Clone();
+BIN_DIR=os.environ['BIN_DIR'];
+LIB_DIR=os.environ['LIB_DIR'];
+
+env['LINKFLAGS'] = env['OS_SUBSYSTEM_WINDOWS'] + env['LINKFLAGS'];
+
+env.Library(os.path.join(LIB_DIR, 'assets'), ['assets.c']);
+env.Program(os.path.join(BIN_DIR, 'demoui'), ['demo_ui_app.c'], LIBS=['assets'] + env['LIBS']);
+
+env.Library(os.path.join(LIB_DIR, 'assets_old'), ['assets_old.c']);
+env['LIBS'] = ['assets_old'] + env['LIBS']
+
+env.Program(os.path.join(BIN_DIR, 'demo1'), ['demo1_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demovg'), ['demo_vg_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demouiold'), ['demo_ui_old_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demotr'), ['demo_tr_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_basic'), ['demo_basic.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_thread'), ['demo_thread_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_animator'), ['demo_animator_app.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_window_animator'), ['demo_window_animator.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_scroll_view'), ['demo_scroll_view.c']);
+
+env.Program(os.path.join(BIN_DIR, 'demo_desktop'), ['demo_desktop.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_file_browser'), ['demo_file_browser.c']);
+env.Program(os.path.join(BIN_DIR, 'demo_canvas_offline'), ['demo_canvas_offline.c']);

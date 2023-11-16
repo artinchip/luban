@@ -1,0 +1,57 @@
+ArtInChip LVDS Panel
+======================
+
+Required properties:
+ - compatible: value should be "artinchip,aic-general-lvds-panel".
+ - data-mapping: The color signals mapping order. See details in
+   Documentation/devicetree/bindings/display/lvds.yaml
+ - data-channel: The name of the LVDS channel, specifying which channel to use, one of
+ 	- "single-link0"
+ 	- "single-link1"
+ 	- "double-screen"
+ 	- "dual-link"
+
+ - port: the input port connected to the display interface
+
+Optional properties:
+ - backlight: phandle of the backlight device attached to the panel
+ - enable-gpios: GPIO pin to enable or disable the panel
+ - display-timings: timings for the connected panel as described by
+   Documentation/devicetree/bindings/display/panel/display-timing.txt
+ - disp-dither: This describes the output color depth.
+   Make the image smoother when the output is 6 bit or 5 bit, otherwise discard
+   the low bits directly. Allow the output color depth as RGB565, RGB666.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+
+Example:
+
+	panel_lvds {
+		compatible = "artinchip,aic-general-lvds-panel";
+		enable-gpios = <&gpio_a 4 GPIO_ACTIVE_HIGH>;
+		data-mapping = "vesa-24";
+		data-channel = "single-link1";
+		status = "okay";
+
+		port {
+			panel_lvds_in: endpoint {
+				remote-endpoint = <&lvds0_out>;
+			};
+		};
+
+		display-timings {
+			native-mode = <&timing0>;
+			timing0: 1024x600 {
+				clock-frequency = <60000000>;
+				hactive = <1024>;
+				vactive = <600>;
+				hback-porch = <140>;
+				hfront-porch = <160>;
+				hsync-len = <20>;
+				vback-porch = <20>;
+				vfront-porch = <12>;
+				vsync-len = <3>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+		};
+	};

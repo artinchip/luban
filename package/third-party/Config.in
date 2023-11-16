@@ -1,0 +1,124 @@
+menu "Third-party packages"
+
+	comment "************************ System ******************************"
+	source package/third-party/busybox/Config.in
+	source package/third-party/coreutils/Config.in
+	source package/third-party/dash/Config.in
+	source package/third-party/initscripts/Config.in
+	source package/third-party/kmod/Config.in
+	source package/third-party/procps-ng/Config.in
+	source package/third-party/skeleton/Config.in
+	source package/third-party/skeleton-init-common/Config.in
+	source package/third-party/skeleton-init-sysv/Config.in
+	source package/third-party/tz/Config.in
+	source package/third-party/tzdata/Config.in
+	source package/third-party/util-linux/Config.in
+	source package/third-party/sysvinit/Config.in
+	source package/third-party/gperf/Config.in
+	source package/third-party/udev/Config.in
+	source package/third-party/eudev/Config.in
+	source package/third-party/musl-compat-headers/Config.in
+	comment "************************ Multimedia **************************"
+	source package/third-party/alsa-lib/Config.in
+	source package/third-party/alsa-utils/Config.in
+	source package/third-party/directfb/Config.in
+	source package/third-party/directfb-examples/Config.in
+	source package/third-party/freetype/Config.in
+	source package/third-party/fontconfig/Config.in
+	source package/third-party/jpeg/Config.in
+	source package/third-party/libpng/Config.in
+	source package/third-party/libsndfile/Config.in
+	source package/third-party/qt/Config.in
+	source package/third-party/qt5/Config.in
+	source package/third-party/lvgl/Config.in
+	source package/third-party/gstreamer1/Config.in
+	source package/third-party/fbdump/Config.in
+	source package/third-party/libmad/Config.in
+	source package/third-party/sbc/Config.in
+	source package/third-party/ffmpeg/Config.in
+	source package/third-party/cairo/Config.in
+	source package/third-party/pixman/Config.in
+	source package/third-party/faad2/Config.in
+	source package/third-party/lame/Config.in
+	source package/third-party/mpg123/Config.in
+	comment "************************ Network *****************************"
+	source package/third-party/can-utils/Config.in
+	source package/third-party/ethtool/Config.in
+	source package/third-party/iproute2/Config.in
+	source package/third-party/iperf3/Config.in
+	source package/third-party/libmnl/Config.in
+	source package/third-party/libnl/Config.in
+	source package/third-party/netperf/Config.in
+	source package/third-party/wpa_supplicant/Config.in
+	source package/third-party/wireless_tools/Config.in
+	source package/third-party/pppd/Config.in
+	source package/third-party/libpcap/Config.in
+	source package/third-party/hostapd/Config.in
+	comment "************************ Security ****************************"
+	source package/third-party/libselinux/Config.in
+	source package/third-party/libsepol/Config.in
+	source package/third-party/libkcapi/Config.in
+	source package/third-party/openssl/Config.in
+	source package/third-party/cryptsetup/Config.in
+	comment "************************ Memory ******************************"
+	source package/third-party/e2fsprogs/Config.in
+	source package/third-party/iozone/Config.in
+	source package/third-party/memtester/Config.in
+	source package/third-party/mtd/Config.in
+	source package/third-party/squashfs/Config.in
+	comment "************************ Connectivity ************************"
+	source package/third-party/i2c-tools/Config.in
+	source package/third-party/tslib/Config.in
+	source package/third-party/libgpiod/Config.in
+	comment "************* Debugging, profiling and benchmark *************"
+	source package/third-party/trace-cmd/Config.in
+	comment "************************ Other Tools *************************"
+	source package/third-party/acl/Config.in
+	source package/third-party/bluez-alsa/Config.in
+	source package/third-party/bluez5_utils-headers/Config.in
+	source package/third-party/bluez5_utils/Config.in
+	source package/third-party/bluez-tools/Config.in
+	source package/third-party/ncurses/Config.in
+	source package/third-party/pkgconf/Config.in
+	source package/third-party/attr/Config.in
+	source package/third-party/dbus/Config.in
+	source package/third-party/dbus-glib/Config.in
+	source package/third-party/expat/Config.in
+	source package/third-party/flex/Config.in
+	source package/third-party/gettext/Config.in
+	source package/third-party/gettext-gnu/Config.in
+	source package/third-party/gettext-tiny/Config.in
+	source package/third-party/json-c/Config.in
+	source package/third-party/libaio/Config.in
+	source package/third-party/libargon2/Config.in
+	source package/third-party/libffi/Config.in
+	source package/third-party/libglib2/Config.in
+	source package/third-party/libtool/Config.in
+	source package/third-party/lvm2/Config.in
+	source package/third-party/android-tools/Config.in
+	source package/third-party/bzip2/Config.in
+	source package/third-party/gzip/Config.in
+	source package/third-party/lrzsz/Config.in
+	source package/third-party/lz4/Config.in
+	source package/third-party/lzip/Config.in
+	source package/third-party/lzo/Config.in
+	source package/third-party/lzop/Config.in
+	source package/third-party/pcre/Config.in
+	source package/third-party/pcre2/Config.in
+	source package/third-party/popt/Config.in
+	source package/third-party/readline/Config.in
+	source package/third-party/xz/Config.in
+	source package/third-party/zlib/Config.in
+	source package/third-party/zstd/Config.in
+	source package/third-party/tar/Config.in
+	source package/third-party/diffutils/Config.in
+	source package/third-party/python-setuptools/Config.in
+	source package/third-party/uboot-tools/Config.in
+	source package/third-party/libubootenv/Config.in
+	source package/third-party/libconfig/Config.in
+	source package/third-party/libcurl/Config.in
+	source package/third-party/swupdate/Config.in
+	source package/third-party/perl/Config.in
+	source package/third-party/openssh/Config.in
+
+endmenu

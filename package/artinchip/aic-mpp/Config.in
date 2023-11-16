@@ -1,0 +1,22 @@
+menuconfig BR2_PACKAGE_AIC_MPP
+	bool "aic-mpp"
+	default y
+
+if BR2_PACKAGE_AIC_MPP
+config BR2_PACKAGE_AIC_MPP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+
+config BR2_PACKAGE_AIC_MPP_MIDDLEWARE
+	bool "enable middle ware"
+	default y
+
+if BR2_PACKAGE_AIC_MPP_MIDDLEWARE
+config BR2_PACKAGE_AIC_MPP_AAC_DECODER
+	bool "enable aac decoder"
+	default n
+endif
+
+endif
+
+

@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_HOST_PKGCONF
+	bool "host pkgconf"
+	help
+	  pkgconf is a program which helps to configure compiler and
+	  linker flags for development frameworks. It is similar to
+	  pkg-config, but was written from scratch in the summer of
+	  2011 to replace pkg-config, which now needs itself to build
+	  itself
+
+	  https://github.com/pkgconf/pkgconf
+
+if BR2_PACKAGE_HOST_PKGCONF
+config BR2_PACKAGE_HOST_PKGCONF_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

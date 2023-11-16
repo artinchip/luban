@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_QT5CHARTS
+	bool "qt5charts"
+	select BR2_PACKAGE_QT5BASE_GUI
+	select BR2_PACKAGE_QT5BASE_WIDGETS
+	help
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
+
+	  Qt Charts module provides a set of easy to use chart
+	  components.
+
+	  https://doc.qt.io/qt-5/qtcharts-index.html
+
+if BR2_PACKAGE_QT5CHARTS
+config BR2_PACKAGE_QT5CHARTS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

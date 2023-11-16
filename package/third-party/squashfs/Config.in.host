@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_HOST_SQUASHFS
+	bool "host squashfs"
+	help
+	  Tools to generate SquashFS filesystems.
+
+	  https://github.com/plougher/squashfs-tools
+
+if BR2_PACKAGE_HOST_SQUASHFS
+config BR2_PACKAGE_HOST_SQUASHFS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

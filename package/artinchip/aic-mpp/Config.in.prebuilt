@@ -1,0 +1,3 @@
+config BR2_PACKAGE_ARTINCHIP_MPP_USE_PREBUILT
+	bool "aic-mpp"
+	default n

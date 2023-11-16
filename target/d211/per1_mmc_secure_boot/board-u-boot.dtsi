@@ -1,0 +1,111 @@
+/ {
+	aliases {
+	};
+
+	config {
+		u-boot,mmc-env-partition = "env";
+	};
+
+	cpus {
+		u-boot,dm-pre-reloc;
+		cpu0: cpu@0 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+
+	timer {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&crypto {
+	u-boot,dm-pre-reloc;
+};
+
+&cmu {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
+
+&osc24m {
+	u-boot,dm-pre-reloc;
+};
+
+&rc1m {
+	u-boot,dm-pre-reloc;
+};
+
+&osc32k {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+	gpio_a: bank-0 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_b: bank-1 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_c: bank-2 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_d: bank-3 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_e: bank-4 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_f: bank-5 {
+		u-boot,dm-pre-reloc;
+	};
+	uart1_pins_a: uart1-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	sdmc0_pins: sdmc0-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	sdmc1_pins: sdmc1-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmc0 {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&dma {
+	u-boot,dm-pre-reloc;
+};

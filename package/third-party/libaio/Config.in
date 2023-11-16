@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_LIBAIO
+	bool "libaio"
+	help
+	  Library for doing asynchronous I/O
+
+	  https://pagure.io/libaio/
+
+if BR2_PACKAGE_LIBAIO
+config BR2_PACKAGE_LIBAIO_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

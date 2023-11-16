@@ -1,0 +1,15 @@
+config CPU_C906
+	bool "T-Head C906 CPU"
+	select ARCH_EARLY_INIT_R
+	imply CPU
+	imply CPU_RISCV
+	imply SYS_CACHELINE_SIZE_64
+	imply RISCV_TIMER
+	imply SPL_RISCV_MMODE
+	imply CMD_CPU
+	imply SPL_CPU_SUPPORT
+	imply SPL_OPENSBI
+	imply SPL_LOAD_FIT
+	help
+	  Select T-Head C906
+

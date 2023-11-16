@@ -1,0 +1,174 @@
+menu "Target options"
+
+config BR2_ARCH_IS_64
+	bool
+
+config BR2_KERNEL_64_USERLAND_32
+	bool
+
+config BR2_SOFT_FLOAT
+	bool
+
+config BR2_ARCH_HAS_MMU_MANDATORY
+	bool
+
+config BR2_ARCH_HAS_MMU_OPTIONAL
+	bool
+
+config BR2_arm
+	bool # "ARM (little endian)"
+	# MMU support is set by the subarchitecture file, arch/Config.in.arm
+	help
+	  ARM is a 32-bit reduced instruction set computer (RISC)
+	  instruction set architecture (ISA) developed by ARM Holdings.
+	  Little endian.
+	  http://www.arm.com/
+	  http://en.wikipedia.org/wiki/ARM
+
+config BR2_riscv
+	bool # "RISCV"
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_7
+	help
+	  RISC-V is an open, free Instruction Set Architecture created
+	  by the UC Berkeley Architecture Research group and supported
+	  and promoted by RISC-V Foundation.
+	  https://riscv.org/
+	  https://en.wikipedia.org/wiki/RISC-V
+
+# For some architectures or specific cores, our internal toolchain
+# backend is not suitable (like, missing support in upstream gcc, or
+# no ChipCo fork exists...)
+config BR2_ARCH_HAS_NO_TOOLCHAIN_BUILDROOT
+	bool
+
+config BR2_ARCH_HAS_TOOLCHAIN_BUILDROOT
+	bool
+	default y if !BR2_ARCH_HAS_NO_TOOLCHAIN_BUILDROOT
+
+# The following symbols are selected by the individual
+# Config.in.$ARCH files
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_4_8
+	bool
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_4_9
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_4_8
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_5
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_4_9
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_6
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_5
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_7
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_6
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_8
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_7
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_9
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_8
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_10
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_9
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_11
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_10
+
+# The following string values are defined by the individual
+# Config.in.$ARCH files
+config BR2_ARCH
+	string
+
+config BR2_ENDIAN
+	string
+
+config BR2_GCC_TARGET_ARCH
+	string
+
+config BR2_GCC_TARGET_ABI
+	string
+
+config BR2_GCC_TARGET_NAN
+	string
+
+config BR2_GCC_TARGET_FP32_MODE
+	string
+
+config BR2_GCC_TARGET_CPU
+	string
+
+# The value of this option will be passed as --with-fpu=<value> when
+# building gcc (internal backend) or -mfpu=<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_FPU
+	string
+
+# The value of this option will be passed as --with-float=<value> when
+# building gcc (internal backend) or -mfloat-abi=<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_FLOAT_ABI
+	string
+
+# The value of this option will be passed as --with-mode=<value> when
+# building gcc (internal backend) or -m<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_MODE
+	string
+
+# Must be selected by binary formats that support shared libraries.
+config BR2_BINFMT_SUPPORTS_SHARED
+	bool
+
+# Must match the name of the architecture from readelf point of view,
+# i.e the "Machine:" field of readelf output. See get_machine_name()
+# in binutils/readelf.c for the list of possible values.
+config BR2_READELF_ARCH_NAME
+	string
+
+# Set up target binary format
+
+config BR2_BINFMT_ELF
+	bool # "ELF"
+	default y
+	depends on BR2_USE_MMU
+	select BR2_BINFMT_SUPPORTS_SHARED
+	help
+	  ELF (Executable and Linkable Format) is a format for libraries
+	  and executables used across different architectures and
+	  operating systems.
+
+config BR2_BINFMT_FLAT
+	bool # "FLAT"
+	depends on !BR2_USE_MMU
+	help
+	  FLAT binary is a relatively simple and lightweight executable
+	  format based on the original a.out format. It is widely used
+	  in environment where no MMU is available.
+
+
+# Set up flat binary type
+config BR2_BINFMT_FLAT_ONE
+	bool "One memory region"
+	depends on BR2_BINFMT_FLAT
+	help
+	  All segments are linked into one memory region.
+
+
+if BR2_arm || BR2_armeb || BR2_aarch64 || BR2_aarch64_be
+source "package/arch/Config.in.arm"
+endif
+
+if BR2_riscv
+source "package/arch/Config.in.riscv"
+endif
+
+source target/Config.in
+endmenu # Target options

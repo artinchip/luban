@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_ATTR
+	bool "attr"
+	help
+	  Commands for Manipulating Filesystem Extended Attributes.
+	  This package also provides libattr.
+
+	  http://savannah.nongnu.org/projects/attr
+
+if BR2_PACKAGE_ATTR
+config BR2_PACKAGE_ATTR_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

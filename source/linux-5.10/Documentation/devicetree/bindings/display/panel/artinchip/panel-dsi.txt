@@ -1,0 +1,41 @@
+ArtInChip MIPI-DSI Panel
+==========================
+
+Required properties:
+ - compatible: value should be "artinchip,aic-dsi-panel-simple".
+ - port: the input port connected to the display interface
+
+Optional properties:
+ - backlight: phandle of the backlight device attached to the panel
+ - enable-gpios: GPIO pin to enable or disable the panel
+ - display-timings: timings for the connected panel as described by
+   Documentation/devicetree/bindings/display/panel/display-timing.txt
+ - dsi,format: The MIPI-DSI display interface output format, one of
+ 	- "rgb888"
+ 	- "rgb666l"
+ 	- "rgb666"
+ 	- "rgb565"
+ - dsi,mode: The MIPI-DSI display interface mode, one of
+ 	- "video-pulse"
+ 	- "video-event"
+ 	- "video-burst"
+ 	- "command-mode"
+ - dsi,lane_num: The number of data lane
+ - disp-dither: This describes the output color depth.
+   Make the image smoother when the output is 6 bit or 5 bit, otherwise discard
+   the low bits directly. Allow the output color depth as RGB565, RGB666.
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+
+Example:
+
+	panel_dsi {
+		compatible = "artinchip,aic-dsi-panel-simple";
+		enable-gpios = <&gpio_d 3 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+
+		port {
+			panel_dsi_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};

@@ -1,0 +1,19 @@
+openssl_conf = openssl_def
+
+[openssl_def]
+engines = engine_section
+
+[engine_section]
+#huk = huk_section
+aic = aic_section
+
+[aic_section]
+engine_id = aic
+dynamic_path = /usr/lib/libengine_aic.so
+default_algorithms = CIPHERS,DIGESTS,RSA
+
+[huk_section]
+engine_id = huk
+dynamic_path = /usr/lib/libengine_huk.so
+default_algorithms = CIPHERS
+

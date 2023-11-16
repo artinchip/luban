@@ -1,0 +1,54 @@
+From 1c53fb98901fa6892daaebc143945070f88ae125 Mon Sep 17 00:00:00 2001
+From: xuqi <qi.xu@artinchip.com>
+Date: Fri, 16 Dec 2022 13:43:05 +0800
+Subject: [PATCH] support riscv
+
+---
+ configure | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 36713ab..929b20d 100755
+--- a/configure
++++ b/configure
+@@ -1985,6 +1985,7 @@ ARCH_LIST="
+     parisc
+     ppc
+     ppc64
++    riscv
+     s390
+     sh4
+     sparc
+@@ -2590,7 +2591,7 @@ for ext in $(filter_out mmx $ARCH_EXT_LIST_X86_SIMD); do
+ done
+ 
+ aligned_stack_if_any="aarch64 ppc x86"
+-fast_64bit_if_any="aarch64 alpha ia64 mips64 parisc64 ppc64 sparc64 x86_64"
++fast_64bit_if_any="aarch64 alpha ia64 mips64 parisc64 ppc64 riscv64 sparc64 x86_64"
+ fast_clz_if_any="aarch64 alpha avr32 mips ppc x86"
+ fast_unaligned_if_any="aarch64 ppc x86"
+ simd_align_16_if_any="altivec neon sse"
+@@ -4875,6 +4876,9 @@ case "$arch" in
+     "Power Macintosh"|ppc*|powerpc*)
+         arch="ppc"
+     ;;
++    riscv*)
++        arch="riscv"
++    ;;
+     s390|s390x)
+         arch="s390"
+     ;;
+@@ -5267,6 +5271,10 @@ case "$arch" in
+         check_64bit ppc ppc64
+         enabled shared && enable_weak pic
+     ;;
++    riscv)
++        check_64bit riscv32 riscv64
++        enabled shared && enable_weak pic
++    ;;
+     s390)
+         check_64bit s390 s390x
+         enabled shared && enable_weak pic
+-- 
+2.29.0
+

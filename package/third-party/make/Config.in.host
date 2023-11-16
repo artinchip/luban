@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_HOST_MAKE
+	bool "host make"
+
+if BR2_PACKAGE_HOST_MAKE
+config BR2_PACKAGE_HOST_MAKE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

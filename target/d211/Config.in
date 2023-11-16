@@ -1,0 +1,59 @@
+choice
+	prompt "Board select"
+
+config LUBAN_BOARD_D211_PER1_MMC
+	bool "per1 mmc"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_PER2_SPINOR
+	bool "per2 spinor"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_PER2_SPINAND
+	bool "per2 spinand"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_DEMO
+	bool "demo"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_DEMO88_NAND
+	bool "demo88_nand"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_PER1_MMC_SECURE_BOOT
+	bool "per1_mmc_secure_boot"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_OTA
+	bool "ota"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_DEMO100_NAND
+	bool "demo100_nand"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_DEMO128_NAND
+	bool "demo128_nand"
+	depends on LUBAN_CHIP_D211
+
+config LUBAN_BOARD_D211_OTA_EMMC
+	bool "ota_emmc"
+	depends on LUBAN_CHIP_D211
+
+endchoice
+
+config LUBAN_BOARD_OF_D211
+	string
+	default "demo" if LUBAN_BOARD_D211_DEMO
+	default "per1_mmc_secure_boot" if LUBAN_BOARD_D211_PER1_MMC_SECURE_BOOT
+	default "per1" if LUBAN_BOARD_D211_PER1_MMC
+	default "per2_spinor" if LUBAN_BOARD_D211_PER2_SPINOR
+	default "demo128_nand" if LUBAN_BOARD_D211_DEMO128_NAND
+	default "demo100_nand" if LUBAN_BOARD_D211_DEMO100_NAND
+	default "demo88_nand" if LUBAN_BOARD_D211_DEMO88_NAND
+	default "ota_emmc" if LUBAN_BOARD_D211_OTA_EMMC
+	default "ota" if LUBAN_BOARD_D211_OTA
+	default "per2_spinand" if LUBAN_BOARD_D211_PER2_SPINAND
+
+

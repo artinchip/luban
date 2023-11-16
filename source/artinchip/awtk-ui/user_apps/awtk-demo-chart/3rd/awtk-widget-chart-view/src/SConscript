@@ -1,0 +1,26 @@
+import os
+import sys
+import platform
+
+OS_NAME = platform.system();
+LIB_DIR=os.environ['LIB_DIR'];
+BIN_DIR=os.environ['BIN_DIR'];
+
+env=DefaultEnvironment().Clone()
+
+SOURCES = Glob('*.c')
+SOURCES += Glob('base/*.c')
+SOURCES += Glob('chart_view/*.c')
+SOURCES += Glob('pie_slice/*.c')
+
+EXPORT_DEF=''
+if OS_NAME == 'Windows' and os.environ['TOOLS_NAME'] == '':
+  EXPORT_DEF = ' /DEF:"src/chart_view.def" '
+
+if os.environ['BUILD_SHARED'] == 'True':
+  LIBS=['awtk'];
+  LINKFLAGS=env['LINKFLAGS'] + EXPORT_DEF 
+  env.SharedLibrary(os.path.join(BIN_DIR, 'chart_view'), SOURCES, LIBS=LIBS, LINKFLAGS=LINKFLAGS);
+else:
+  env.Library(os.path.join(LIB_DIR, 'chart_view'), SOURCES);
+

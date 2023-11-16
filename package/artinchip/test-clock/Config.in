@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_TEST_CLOCK
+	bool "test-clock"
+	default y
+
+if BR2_PACKAGE_TEST_CLOCK
+config BR2_PACKAGE_TEST_CLOCK_USE_PREBUILT
+	bool "use prebuilt clock instead of building from source"
+	default n
+endif

@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ */
+
+/* #include "d211-ddr3-2Gb.dtsi" */
+//#include "d211-ddr2-512Mb.dtsi"
+
+/ {
+	soc {
+		ddr: dramc@18400000 {
+			compatible = "artinchip,aic-dramc";
+			reg = <0x0 0x18400000 0x0 0x10000>;
+			status = "okay";
+
+			artinchip,type = <DDR_TYPE>;
+			artinchip,memsize = <DDR_SIZE>;
+			artinchip,freq = <DDR_FREQ>;
+			artinchip,zq = <DDR_ZQ>;
+			artinchip,odt = <DDR_ODT_EN>;
+			artinchip,para = <
+				DDR_PARA1
+				DDR_PARA2
+				DDR_MR0
+				DDR_MR1
+				DDR_MR2
+				DDR_MR3
+				DDR_MR4
+				DDR_MR5
+				DDR_MR6
+				DDR_TPR0
+				DDR_TPR1
+				DDR_TPR2
+				DDR_TPR3
+				DDR_TPR4
+				DDR_TPR5
+				DDR_TPR6
+				DDR_TPR7
+				DDR_TPR8
+				DDR_TPR9
+				DDR_TPR10
+				DDR_TPR11
+				DDR_TPR12
+				DDR_TPR13
+				DDR_TPR14
+				DDR_TPR15
+				DDR_TPR16
+				DDR_TPR17
+				DDR_TPR18
+				>;
+		};
+	};
+};
+

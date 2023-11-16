@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+config GZIP_DECODE_ARTINCHIP
+	bool "Enable ArtInChip GZIP decode support"
+	select ARTINCHIP_VE
+	help
+	  ArtInChip GZIP hardware decode support
+
+config LOGO_DECODE_ARTINCHIP
+	bool
+	select ARTINCHIP_VE
+	depends on VIDEO_ARTINCHIP
+	help
+	  ArtInChip hardware decode support
+
+config ARTINCHIP_VE
+	bool
+	help
+	  This driver support ArtInChip VE(Video Engine), only including
+	  gzip decode and png decode component.
+

@@ -1,0 +1,36 @@
+ArtInChip Display Engine
+==========================
+
+Required properties:
+ - port@[0-1]: Port nodes with endpoint definitions as defined in
+  Documentation/devicetree/bindings/media/video-interfaces.txt.
+  Port 0 is the input port connected to the display fb,
+  port 1 is the output port connected to the display interface.
+
+Optional properties:
+ - status: Should be "ok" or "disabled" for enabled/disabled. Default is "ok".
+ - tearing-effect: This describes the tearing effect mode,
+   The value defined by include/dt-bindings/display/artinchip,aic-disp.h
+ - te-pulse-width: The tearing effect signal pulse width in pixel clock cycle.
+
+Example:
+
+	&de0 {
+		tearing-effect = <TE_BYPASS>;
+		te-pulse-width = <300>;
+		status = "okay";
+
+		port@0 {
+			reg = <0>;
+			de0_in: endpoint {
+				remote-endpoint = <&fb0_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			de0_out: endpoint {
+				remote-endpoint = <&lvds0_in>;
+			};
+		};
+	};

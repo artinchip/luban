@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_HOST_XZ
+	bool "host xz-utils"
+
+if BR2_PACKAGE_HOST_XZ
+config BR2_PACKAGE_HOST_XZ_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

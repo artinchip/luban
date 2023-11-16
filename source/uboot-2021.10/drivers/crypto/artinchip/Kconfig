@@ -1,0 +1,11 @@
+config ARTINCHIP_CE
+	tristate "ArtInChip's crypto engine driver"
+	select SHA_HW_ACCEL
+	# hw_sha1() under drivers/crypto, and needed with SHA_HW_ACCEL
+	depends on ARCH_ARTINCHIP
+	default n
+
+	help
+	  This driver interfaces with the hardware crypto engine(CE).
+	  The CE supporting AES/DES/DES2_EDE ciphers, and ECB/CBC/CTR/XTS/CTS modes.
+	  Supporting PKC Algorithm RSA, Message Digest Algorithm MD5/SHA1/SHA256/SHA512.

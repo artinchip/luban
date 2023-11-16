@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_REG_DUMP
+	bool "reg-dump"
+	default y
+
+if BR2_PACKAGE_REG_DUMP
+config BR2_PACKAGE_REG_DUMP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+endif

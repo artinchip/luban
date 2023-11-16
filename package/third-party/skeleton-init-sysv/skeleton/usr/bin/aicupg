@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd  /sys/devices/platform/soc/*.rtc
+echo 1 > aicupg
+
+echo Will reboot after 3 seconds ...
+sleep 3
+reboot
+

@@ -1,0 +1,91 @@
+From 0936653376cc79ea246609a5c0ed24adae99bce7 Mon Sep 17 00:00:00 2001
+From: xuqi <qi.xu@artinchip.com>
+Date: Fri, 11 Aug 2023 14:00:43 +0800
+Subject: [PATCH] mpg123: fix compile error
+
+cannot find symbol 'mpg123_decode_frame_64' when compile gst1-plugins-good,
+because the FILE_OFFSET_BITS is not define when compile mpg123,
+but defined when compile gst1-plugins-good.
+so we remove the LARGENAME define in mpg123
+---
+ src/libmpg123/mpg123.h.in | 61 ---------------------------------------
+ 1 file changed, 61 deletions(-)
+ mode change 100644 => 100755 src/libmpg123/mpg123.h.in
+
+diff --git a/src/libmpg123/mpg123.h.in b/src/libmpg123/mpg123.h.in
+old mode 100644
+new mode 100755
+index 40792a3..cdad827
+--- a/src/libmpg123/mpg123.h.in
++++ b/src/libmpg123/mpg123.h.in
+@@ -48,67 +48,6 @@
+ typedef ptrdiff_t ssize_t;
+ #endif
+ 
+-#ifndef MPG123_NO_CONFIGURE /* Enable use of this file without configure. */
+-@INCLUDE_STDLIB_H@
+-@INCLUDE_SYS_TYPE_H@
+-
+-/* Simplified large file handling.
+-	I used to have a check here that prevents building for a library with conflicting large file setup
+-	(application that uses 32 bit offsets with library that uses 64 bits).
+-	While that was perfectly fine in an environment where there is one incarnation of the library,
+-	it hurt GNU/Linux and Solaris systems with multilib where the distribution fails to provide the
+-	correct header matching the 32 bit library (where large files need explicit support) or
+-	the 64 bit library (where there is no distinction).
+-
+-	New approach: When the app defines _FILE_OFFSET_BITS, it wants non-default large file support,
+-	and thus functions with added suffix (mpg123_open_64).
+-	Any mismatch will be caught at link time because of the _FILE_OFFSET_BITS setting used when
+-	building libmpg123. Plus, there's dual mode large file support in mpg123 since 1.12 now.
+-	Link failure is not the expected outcome of any half-sane usage anymore.
+-
+-	More complication: What about client code defining _LARGEFILE64_SOURCE? It might want direct access to the _64 functions, along with the ones without suffix. Well, that's possible now via defining MPG123_NO_LARGENAME and MPG123_LARGESUFFIX, respectively, for disabling or enforcing the suffix names.
+-*/
+-
+-/*
+-	Now, the renaming of large file aware functions.
+-	By default, it appends underscore _FILE_OFFSET_BITS (so, mpg123_seek_64 for mpg123_seek), if _FILE_OFFSET_BITS is defined. You can force a different suffix via MPG123_LARGESUFFIX (that must include the underscore), or you can just disable the whole mess by defining MPG123_NO_LARGENAME.
+-*/
+-#if (!defined MPG123_NO_LARGENAME) && ((defined _FILE_OFFSET_BITS) || (defined MPG123_LARGESUFFIX))
+-
+-/* Need some trickery to concatenate the value(s) of the given macro(s). */
+-#define MPG123_MACROCAT_REALLY(a, b) a ## b
+-#define MPG123_MACROCAT(a, b) MPG123_MACROCAT_REALLY(a, b)
+-#ifndef MPG123_LARGESUFFIX
+-#define MPG123_LARGESUFFIX MPG123_MACROCAT(_, _FILE_OFFSET_BITS)
+-#endif
+-#define MPG123_LARGENAME(func) MPG123_MACROCAT(func, MPG123_LARGESUFFIX)
+-
+-#define mpg123_open         MPG123_LARGENAME(mpg123_open)
+-#define mpg123_open_fd      MPG123_LARGENAME(mpg123_open_fd)
+-#define mpg123_open_handle  MPG123_LARGENAME(mpg123_open_handle)
+-#define mpg123_framebyframe_decode MPG123_LARGENAME(mpg123_framebyframe_decode)
+-#define mpg123_decode_frame MPG123_LARGENAME(mpg123_decode_frame)
+-#define mpg123_tell         MPG123_LARGENAME(mpg123_tell)
+-#define mpg123_tellframe    MPG123_LARGENAME(mpg123_tellframe)
+-#define mpg123_tell_stream  MPG123_LARGENAME(mpg123_tell_stream)
+-#define mpg123_seek         MPG123_LARGENAME(mpg123_seek)
+-#define mpg123_feedseek     MPG123_LARGENAME(mpg123_feedseek)
+-#define mpg123_seek_frame   MPG123_LARGENAME(mpg123_seek_frame)
+-#define mpg123_timeframe    MPG123_LARGENAME(mpg123_timeframe)
+-#define mpg123_index        MPG123_LARGENAME(mpg123_index)
+-#define mpg123_set_index    MPG123_LARGENAME(mpg123_set_index)
+-#define mpg123_position     MPG123_LARGENAME(mpg123_position)
+-#define mpg123_length       MPG123_LARGENAME(mpg123_length)
+-#define mpg123_framelength  MPG123_LARGENAME(mpg123_framelength)
+-#define mpg123_set_filesize MPG123_LARGENAME(mpg123_set_filesize)
+-#define mpg123_replace_reader MPG123_LARGENAME(mpg123_replace_reader)
+-#define mpg123_replace_reader_handle MPG123_LARGENAME(mpg123_replace_reader_handle)
+-#define mpg123_framepos MPG123_LARGENAME(mpg123_framepos)
+-
+-#endif /* largefile hackery */
+-
+-#endif /* MPG123_NO_CONFIGURE */
+-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+-- 
+2.29.0
+

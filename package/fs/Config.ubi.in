@@ -1,0 +1,29 @@
+
+config BR2_UBI_DEVICE_SPI_NAND_2K_128K
+	bool
+
+config BR2_UBI_DEVICE_SPI_NAND_4K_256K
+	bool
+
+choice
+	prompt "ubi parameter select"
+	default BR2_UBI_PARAM_ALL_SPI_NAND
+
+config BR2_UBI_PARAM_ALL_SPI_NAND
+	bool "spi-nand all type support"
+	select BR2_UBI_DEVICE_SPI_NAND_2K_128K
+	select BR2_UBI_DEVICE_SPI_NAND_4K_256K
+
+config BR2_UBI_PARAM_SPI_NAND_2K_128K
+	bool "spi-nand page:2k block:128k"
+	select BR2_UBI_DEVICE_SPI_NAND_2K_128K
+
+config BR2_UBI_PARAM_SPI_NAND_4K_256K
+	bool "spi-nand page:4k block:256k"
+	select BR2_UBI_DEVICE_SPI_NAND_4K_256K
+
+config BR2_UBI_PARAM_USER_CUSTOM
+	bool "user custom"
+
+endchoice
+

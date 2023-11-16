@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_HOST_AUTOMAKE
+	bool "host automake"
+	default y
+
+if BR2_PACKAGE_HOST_AUTOMAKE
+config BR2_PACKAGE_HOST_AUTOMAKE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

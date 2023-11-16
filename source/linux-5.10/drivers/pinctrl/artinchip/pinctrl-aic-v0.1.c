@@ -1,0 +1,767 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2020 Artinchip Inc.
+ */
+
+#include <linux/init.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+
+#include "pinctrl-aic.h"
+
+static struct aic_desc_pin aic_pins_v0_1[] = {
+	AIC_PIN(
+		PINCTRL_PIN(0, "PA0"),
+		AIC_FUNCTION(1, "GPIOA0"),
+		AIC_FUNCTION(2, "GPAI0"),
+		AIC_FUNCTION(3, "jtag"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(1, "PA1"),
+		AIC_FUNCTION(1, "GPIOA1"),
+		AIC_FUNCTION(2, "GPAI1"),
+		AIC_FUNCTION(3, "jtag"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(2, "PA2"),
+		AIC_FUNCTION(1, "GPIOA2"),
+		AIC_FUNCTION(2, "GPAI2"),
+		AIC_FUNCTION(3, "jtag"),
+		AIC_FUNCTION(4, "twi1"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(3, "PA3"),
+		AIC_FUNCTION(1, "GPIOA3"),
+		AIC_FUNCTION(2, "GPAI3"),
+		AIC_FUNCTION(3, "jtag"),
+		AIC_FUNCTION(4, "twi1"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(4, "PA4"),
+		AIC_FUNCTION(1, "GPIOA4"),
+		AIC_FUNCTION(2, "GPAI4"),
+		AIC_FUNCTION(4, "de_te"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(5, "PA5"),
+		AIC_FUNCTION(1, "GPIOA5"),
+		AIC_FUNCTION(2, "GPAI5"),
+		AIC_FUNCTION(4, "ir"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(6, "PA6"),
+		AIC_FUNCTION(1, "GPIOA6"),
+		AIC_FUNCTION(2, "GPAI6"),
+		AIC_FUNCTION(4, "ir"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(7, "PA7"),
+		AIC_FUNCTION(1, "GPIOA7"),
+		AIC_FUNCTION(2, "GPAI7"),
+		AIC_FUNCTION(5, "uboot")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(8, "PA8"),
+		AIC_FUNCTION(1, "GPIOA8"),
+		AIC_FUNCTION(2, "rtp"),
+		AIC_FUNCTION(4, "twi2"),
+		AIC_FUNCTION(5, "uart1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(9, "PA9"),
+		AIC_FUNCTION(1, "GPIOA9"),
+		AIC_FUNCTION(2, "rtp"),
+		AIC_FUNCTION(4, "twi2"),
+		AIC_FUNCTION(5, "uart1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(10, "PA10"),
+		AIC_FUNCTION(1, "GPIOA10"),
+		AIC_FUNCTION(2, "rtp"),
+		AIC_FUNCTION(4, "twi3"),
+		AIC_FUNCTION(5, "uart2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(11, "PA11"),
+		AIC_FUNCTION(1, "GPIOA11"),
+		AIC_FUNCTION(2, "rtp"),
+		AIC_FUNCTION(4, "twi3"),
+		AIC_FUNCTION(5, "uart2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(12, "PB0"),
+		AIC_FUNCTION(1, "GPIOB0"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(4, "twi0"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(13, "PB1"),
+		AIC_FUNCTION(1, "GPIOB1"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(4, "twi0"),
+		AIC_FUNCTION(5, "uart0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(14, "PB2"),
+		AIC_FUNCTION(1, "GPIOB2"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(15, "PB3"),
+		AIC_FUNCTION(1, "GPIOB3"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(16, "PB4"),
+		AIC_FUNCTION(1, "GPIOB4"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(17, "PB5"),
+		AIC_FUNCTION(1, "GPIOB5"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(18, "PB6"),
+		AIC_FUNCTION(1, "GPIOB6"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(19, "PB7"),
+		AIC_FUNCTION(1, "GPIOB7"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(20, "PB8"),
+		AIC_FUNCTION(1, "GPIOB8"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(21, "PB9"),
+		AIC_FUNCTION(1, "GPIOB9"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(22, "PB10"),
+		AIC_FUNCTION(1, "GPIOB10"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(23, "PB11"),
+		AIC_FUNCTION(1, "GPIOB11"),
+		AIC_FUNCTION(2, "sdc0"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "uart3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(24, "PC0"),
+		AIC_FUNCTION(1, "GPIOC0"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(25, "PC1"),
+		AIC_FUNCTION(1, "GPIOC1"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(26, "PC2"),
+		AIC_FUNCTION(1, "GPIOC2"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(5, "uart3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(27, "PC3"),
+		AIC_FUNCTION(1, "GPIOC3"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(5, "uart3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(28, "PC4"),
+		AIC_FUNCTION(1, "GPIOC4"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(29, "PC5"),
+		AIC_FUNCTION(1, "GPIOC5"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "spi0"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(30, "PC6"),
+		AIC_FUNCTION(1, "GPIOC6"),
+		AIC_FUNCTION(2, "sdc1"),
+		AIC_FUNCTION(3, "clk_out"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(31, "PD0"),
+		AIC_FUNCTION(1, "GPIOD0"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "pwm0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(32, "PD1"),
+		AIC_FUNCTION(1, "GPIOD1"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "pwm1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(33, "PD2"),
+		AIC_FUNCTION(1, "GPIOD2"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(4, "de_te"),
+		AIC_FUNCTION(5, "pwm2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(34, "PD3"),
+		AIC_FUNCTION(1, "GPIOD3"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "pwm3"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(35, "PD4"),
+		AIC_FUNCTION(1, "GPIOD4"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "pwm4"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(36, "PD5"),
+		AIC_FUNCTION(1, "GPIOD5"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "spi1"),
+		AIC_FUNCTION(5, "pwm5"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(37, "PD6"),
+		AIC_FUNCTION(1, "GPIOD6"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(38, "PD7"),
+		AIC_FUNCTION(1, "GPIOD7"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(39, "PD8"),
+		AIC_FUNCTION(1, "GPIOD8"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(40, "PD9"),
+		AIC_FUNCTION(1, "GPIOD9"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(41, "PD10"),
+		AIC_FUNCTION(1, "GPIOD10"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(42, "PD11"),
+		AIC_FUNCTION(1, "GPIOD11"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(43, "PD12"),
+		AIC_FUNCTION(1, "GPIOD12"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(44, "PD13"),
+		AIC_FUNCTION(1, "GPIOD13"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(45, "PD14"),
+		AIC_FUNCTION(1, "GPIOD14"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(46, "PD15"),
+		AIC_FUNCTION(1, "GPIOD15"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(47, "PD16"),
+		AIC_FUNCTION(1, "GPIOD16"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(48, "PD17"),
+		AIC_FUNCTION(1, "GPIOD17"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(5, "uart7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(49, "PD18"),
+		AIC_FUNCTION(1, "GPIOD18"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "uart7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(50, "PD19"),
+		AIC_FUNCTION(1, "GPIOD19"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "uart7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(51, "PD20"),
+		AIC_FUNCTION(1, "GPIOD20"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(52, "PD21"),
+		AIC_FUNCTION(1, "GPIOD21"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(53, "PD22"),
+		AIC_FUNCTION(1, "GPIOD22"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(54, "PD23"),
+		AIC_FUNCTION(1, "GPIOD23"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(55, "PD24"),
+		AIC_FUNCTION(1, "GPIOD24"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(56, "PD25"),
+		AIC_FUNCTION(1, "GPIOD25"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(57, "PD26"),
+		AIC_FUNCTION(1, "GPIOD26"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(58, "PD27"),
+		AIC_FUNCTION(1, "GPIOD27"),
+		AIC_FUNCTION(2, "lcd"),
+		AIC_FUNCTION(3, "lvds"),
+		AIC_FUNCTION(4, "dsi"),
+		AIC_FUNCTION(5, "pwm7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(59, "PE0"),
+		AIC_FUNCTION(1, "GPIOE0"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(60, "PE1"),
+		AIC_FUNCTION(1, "GPIOE1"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(61, "PE2"),
+		AIC_FUNCTION(1, "GPIOE2"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(62, "PE3"),
+		AIC_FUNCTION(1, "GPIOE3"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(63, "PE4"),
+		AIC_FUNCTION(1, "GPIOE4"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(64, "PE5"),
+		AIC_FUNCTION(1, "GPIOE5"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(65, "PE6"),
+		AIC_FUNCTION(1, "GPIOE6"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(66, "PE7"),
+		AIC_FUNCTION(1, "GPIOE7"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(67, "PE8"),
+		AIC_FUNCTION(1, "GPIOE8"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(68, "PE9"),
+		AIC_FUNCTION(1, "GPIOE9"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(69, "PE10"),
+		AIC_FUNCTION(1, "GPIOE10"),
+		AIC_FUNCTION(6, "clk_out2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(70, "PE11"),
+		AIC_FUNCTION(1, "GPIOE11"),
+		AIC_FUNCTION(2, "i2s0"),
+		AIC_FUNCTION(4, "twi2"),
+		AIC_FUNCTION(5, "uart4"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(71, "PE12"),
+		AIC_FUNCTION(1, "GPIOE12"),
+		AIC_FUNCTION(2, "i2s0"),
+		AIC_FUNCTION(4, "twi2"),
+		AIC_FUNCTION(5, "uart4"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(72, "PE13"),
+		AIC_FUNCTION(1, "GPIOE13"),
+		AIC_FUNCTION(2, "i2s0"),
+		AIC_FUNCTION(3, "clk_out1"),
+		AIC_FUNCTION(5, "uart4"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(73, "PE14"),
+		AIC_FUNCTION(1, "GPIOE14"),
+		AIC_FUNCTION(2, "i2s0"),
+		AIC_FUNCTION(4, "twi3"),
+		AIC_FUNCTION(5, "uart2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(74, "PE15"),
+		AIC_FUNCTION(1, "GPIOE15"),
+		AIC_FUNCTION(2, "i2s0"),
+		AIC_FUNCTION(4, "twi3"),
+		AIC_FUNCTION(5, "uart2"),
+		AIC_FUNCTION(6, "gmac0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(75, "PE16"),
+		AIC_FUNCTION(1, "GPIOE16"),
+		AIC_FUNCTION(2, "dmic"),
+		AIC_FUNCTION(3, "spk0"),
+		AIC_FUNCTION(5, "uart1"),
+		AIC_FUNCTION(6, "can0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(76, "PE17"),
+		AIC_FUNCTION(1, "GPIOE17"),
+		AIC_FUNCTION(2, "dmic"),
+		AIC_FUNCTION(3, "spk1"),
+		AIC_FUNCTION(5, "uart1"),
+		AIC_FUNCTION(6, "can0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(77, "PE18"),
+		AIC_FUNCTION(1, "GPIOE18"),
+		AIC_FUNCTION(5, "pwm6"),
+		AIC_FUNCTION(6, "can1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(78, "PE19"),
+		AIC_FUNCTION(1, "GPIOE19"),
+		AIC_FUNCTION(5, "pwm7"),
+		AIC_FUNCTION(6, "can1")
+	),
+
+	AIC_PIN(
+		PINCTRL_PIN(79, "PF0"),
+		AIC_FUNCTION(1, "GPIOF0"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(80, "PF1"),
+		AIC_FUNCTION(1, "GPIOF1"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(81, "PF2"),
+		AIC_FUNCTION(1, "GPIOF2"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(82, "PF3"),
+		AIC_FUNCTION(1, "GPIOF3"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(5, "uart6"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(83, "PF4"),
+		AIC_FUNCTION(1, "GPIOF4"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(84, "PF5"),
+		AIC_FUNCTION(1, "GPIOF5"),
+		AIC_FUNCTION(2, "sdc2"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(85, "PF6"),
+		AIC_FUNCTION(1, "GPIOF6"),
+		AIC_FUNCTION(5, "uart7"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(86, "PF7"),
+		AIC_FUNCTION(1, "GPIOF7"),
+		AIC_FUNCTION(5, "uart7"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(87, "PF8"),
+		AIC_FUNCTION(1, "GPIOF8"),
+		AIC_FUNCTION(5, "uart7"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(88, "PF9"),
+		AIC_FUNCTION(1, "GPIOF9"),
+		AIC_FUNCTION(5, "uart7"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(89, "PF10"),
+		AIC_FUNCTION(1, "GPIOF10"),
+		AIC_FUNCTION(6, "clk_out3"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(90, "PF11"),
+		AIC_FUNCTION(1, "GPIOF11"),
+		AIC_FUNCTION(2, "i2s1"),
+		AIC_FUNCTION(4, "twi0"),
+		AIC_FUNCTION(5, "uart5"),
+		AIC_FUNCTION(6, "gmac1"),
+		AIC_FUNCTION(7, "ulpi")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(91, "PF12"),
+		AIC_FUNCTION(1, "GPIOF12"),
+		AIC_FUNCTION(2, "i2s1"),
+		AIC_FUNCTION(3, "dmic"),
+		AIC_FUNCTION(4, "twi0"),
+		AIC_FUNCTION(5, "uart5"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(92, "PF13"),
+		AIC_FUNCTION(1, "GPIOF13"),
+		AIC_FUNCTION(2, "i2s1"),
+		AIC_FUNCTION(3, "dmic"),
+		AIC_FUNCTION(5, "uart5"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(93, "PF14"),
+		AIC_FUNCTION(1, "GPIOF14"),
+		AIC_FUNCTION(2, "i2s1"),
+		AIC_FUNCTION(3, "spk0"),
+		AIC_FUNCTION(4, "twi1"),
+		AIC_FUNCTION(5, "uart3"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(94, "PF15"),
+		AIC_FUNCTION(1, "GPIOF15"),
+		AIC_FUNCTION(2, "i2s1"),
+		AIC_FUNCTION(3, "spk1"),
+		AIC_FUNCTION(4, "twi1"),
+		AIC_FUNCTION(5, "uart3"),
+		AIC_FUNCTION(6, "gmac1")
+	),
+#if defined(CONFIG_DEBUG_ON_FPGA_BOARD_ARTINCHIP) && defined(CONFIG_RISCV)
+	AIC_PIN(
+		PINCTRL_PIN(95, "PP0"),
+		AIC_FUNCTION(1, "GPIOP0")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(96, "PP1"),
+		AIC_FUNCTION(1, "GPIOP1")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(97, "PP2"),
+		AIC_FUNCTION(1, "GPIOP2")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(98, "PP3"),
+		AIC_FUNCTION(1, "GPIOP3")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(99, "PP4"),
+		AIC_FUNCTION(1, "GPIOP4")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(100, "PP5"),
+		AIC_FUNCTION(1, "GPIOP5")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(101, "PP6"),
+		AIC_FUNCTION(1, "GPIOP6")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(102, "PP7"),
+		AIC_FUNCTION(1, "GPIOP7")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(103, "PP8"),
+		AIC_FUNCTION(1, "GPIOP8")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(104, "PP9"),
+		AIC_FUNCTION(1, "GPIOP9")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(105, "PP10"),
+		AIC_FUNCTION(1, "GPIOP10")
+	),
+	AIC_PIN(
+		PINCTRL_PIN(106, "PP11"),
+		AIC_FUNCTION(1, "GPIOP11")
+	),
+#endif
+};
+
+
+static struct aic_pinctrl_match_data aic_match_data_v0_1 = {
+	.pins = aic_pins_v0_1,
+	.npins = ARRAY_SIZE(aic_pins_v0_1),
+};
+
+static const struct of_device_id aic_pctrl_match_v0_1[] = {
+	{
+		.compatible = "artinchip,aic-pinctrl-v0.1",
+		.data = &aic_match_data_v0_1,
+	},
+	{ }
+};
+
+static struct platform_driver aic_pinctrl_driver_v0_1 = {
+	.probe = aic_pinctl_probe,
+	.driver = {
+		.name = "aic-pinctrl-v0.1",
+		.of_match_table = aic_pctrl_match_v0_1,
+	},
+};
+builtin_platform_driver(aic_pinctrl_driver_v0_1);

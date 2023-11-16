@@ -1,0 +1,1 @@
+ACTION=="add", GOTO="automountusb", KERNEL=="sd[a-z][0-9]", RUN+="/bin/mount -t vfat /dev/%k /mnt/", LABEL="automountusb"

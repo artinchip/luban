@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_EXPAT
+	bool "expat"
+	help
+	  The Expat XML Parser.
+
+	  http://expat.sourceforge.net
+
+if BR2_PACKAGE_EXPAT
+config BR2_PACKAGE_EXPAT_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

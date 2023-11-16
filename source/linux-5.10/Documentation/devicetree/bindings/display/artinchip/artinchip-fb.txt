@@ -1,0 +1,36 @@
+ArtInChip display-fb
+======================
+
+Required properties:
+ - port: the output port connected to the display engine.
+ - artinchip,uboot-logo-on: whether keep logo from uboot to kernel.
+
+Optional properties:
+ - width: Width of the screen in pixels. Just a reserved parameter, no need to set.
+ - height: Height of the screen in pixels. Just a reserved parameter, no need to set.
+ - stride: Number of bytes of a line in the framebuffer, 8 byte alignment required.
+   The driver will convert by itself. If set, it will overwrite the result of the
+   driver calculation.
+ - width-virtual: Width of the framebuffer in pixels.
+   Default is vertical panel resolution in pixels.
+ - height-virtual: Height of the framebuffer in pixels.
+   Default is horizontal panel resolution in pixels.
+ - format: The memory format. Default is ARGB8888 format. One of
+	- "a8r8g8b8"
+	- "a8b8g8r8"
+	- "x8r8g8b8"
+	- "r8g8b8"
+	- "r5g6b5"
+	- "a1r5g5b5"
+
+Example:
+
+	&fb0 {
+		artinchip,uboot-logo-on=<0>;
+
+		port {
+			fb0_out: endpoint {
+				remote-endpoint = <&de0_in>;
+			};
+		};
+	};

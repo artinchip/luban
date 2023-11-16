@@ -1,0 +1,8 @@
+add_library(mpp_ve SHARED
+	ve.c
+	ve_buffer.c
+)
+
+if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
+	install(TARGETS mpp_ve RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+endif() # CMAKE_INSTALL_FULL_LIBDIR

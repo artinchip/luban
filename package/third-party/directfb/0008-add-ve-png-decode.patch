@@ -1,0 +1,243 @@
+From e038d782c936438e8f7f363d558a1eb6498a8e61 Mon Sep 17 00:00:00 2001
+From: "keliang.liu" <keliang.liu@artinchip.com>
+Date: Tue, 29 Nov 2022 17:28:25 +0800
+Subject: [PATCH 2/2] add ve png decode
+
+---
+ interfaces/IDirectFBImageProvider/Makefile.am |   2 +-
+ .../idirectfbimageprovider_png.c              | 185 ++++++++++++++++++
+ 2 files changed, 186 insertions(+), 1 deletion(-)
+
+diff --git a/interfaces/IDirectFBImageProvider/Makefile.am b/interfaces/IDirectFBImageProvider/Makefile.am
+index 0197cd7..1899080 100644
+--- a/interfaces/IDirectFBImageProvider/Makefile.am
++++ b/interfaces/IDirectFBImageProvider/Makefile.am
+@@ -119,7 +119,7 @@ libidirectfbimageprovider_webp_la_LIBADD = $(libdirect) $(libdirectfb) $(LIBWEBP
+ libidirectfbimageprovider_webp_la_LDFLAGS = -avoid-version -module
+ 
+ libidirectfbimageprovider_png_la_SOURCES = idirectfbimageprovider_png.c
+-libidirectfbimageprovider_png_la_LIBADD = $(libdirect) $(libdirectfb) $(LIBPNG_LIBS)
++libidirectfbimageprovider_png_la_LIBADD = $(libdirect) $(libdirectfb) $(LIBPNG_LIBS) -lmpp_decoder
+ libidirectfbimageprovider_png_la_LDFLAGS = -avoid-version -module
+ 
+ libidirectfbimageprovider_dfiff_la_SOURCES = idirectfbimageprovider_dfiff.c
+diff --git a/interfaces/IDirectFBImageProvider/idirectfbimageprovider_png.c b/interfaces/IDirectFBImageProvider/idirectfbimageprovider_png.c
+index c8fd9cc..b9a9dc4 100644
+--- a/interfaces/IDirectFBImageProvider/idirectfbimageprovider_png.c
++++ b/interfaces/IDirectFBImageProvider/idirectfbimageprovider_png.c
+@@ -40,6 +40,10 @@
+ #include <string.h>
+ #include <stdarg.h>
+ 
++#include <video/mpp_types.h>
++#include <mpp_decoder.h>
++#include <dma_allocator.h>
++
+ #include <directfb.h>
+ 
+ #include <display/idirectfbsurface.h>
+@@ -121,6 +125,11 @@ typedef struct {
+      int                  pitch;
+      u32                  palette[256];
+      DFBColor             colors[256];
++
++     struct mpp_decoder *m_decoder;
++     struct mpp_frame   m_frame;
++     unsigned int        m_buf_size;
++
+ } IDirectFBImageProvider_PNG_data;
+ 
+ 
+@@ -178,6 +187,168 @@ IDirectFBImageProvider_PNG_Destruct( IDirectFBImageProvider *thiz )
+ 
+ /**********************************************************************************************************************/
+ 
++static int AIC_Convert_Format(DFBSurfacePixelFormat dfbformat)
++{
++     switch(dfbformat){
++          case DSPF_RGB24:
++               return MPP_FMT_RGB_888;
++          case DSPF_RGB32:
++               return MPP_FMT_RGBX_8888;
++          case DSPF_ARGB:
++          case DSPF_UNKNOWN:
++               return MPP_FMT_ARGB_8888;
++          case DSPF_RGB16:
++               return MPP_FMT_RGB_565;
++          default:
++               return MPP_FMT_MAX;
++     }
++}
++
++static DFBResult
++AIC_PNG_Construct(IDirectFBImageProvider *thiz, IDirectFBDataBuffer *buffer)
++{
++     DFBResult ret = DFB_OK;
++     unsigned int  len;
++     IDirectFBImageProvider_PNG_data *data = (IDirectFBImageProvider_PNG_data*)thiz->priv;
++
++     struct mpp_packet packet;
++     struct decode_config config;
++     int bufferSize;
++
++     buffer->GetLength(buffer, &bufferSize);
++     config.bitstream_buffer_size = (bufferSize + 0xFF) & (~0xFF);
++     config.extra_frame_num = 0;
++     config.packet_count = 1;
++     config.pix_fmt = AIC_Convert_Format(dfb_config->image_format);
++     data->m_decoder = NULL;
++
++     if(config.pix_fmt == MPP_FMT_MAX )
++          return DFB_FAILURE;
++
++     //* 1. create mpp_decoder
++     data->m_decoder = mpp_decoder_create(MPP_CODEC_VIDEO_DECODER_PNG);
++     //* 2. init mpp_decoder
++     mpp_decoder_init(data->m_decoder, &config);
++
++     //* 3. get an empty packet from mpp_decoder
++     memset(&packet, 0, sizeof(struct mpp_packet));
++     mpp_decoder_get_packet(data->m_decoder, &packet, bufferSize);
++
++     //* 4. copy data to packet
++     buffer->PeekData( buffer, bufferSize, 0, packet.data, &len );
++     packet.size = bufferSize;
++     packet.flag = PACKET_FLAG_EOS;
++
++     //* 5. put the packet to mpp_decoder
++     mpp_decoder_put_packet(data->m_decoder, &packet);
++
++     //* 6. decode
++     ret = mpp_decoder_decode(data->m_decoder);
++     if(ret < 0) {
++          D_ERROR( "decode error \n");
++          return DFB_FAILURE;
++     }
++
++     memset(&data->m_frame, 0, sizeof(data->m_frame));
++     mpp_decoder_get_frame(data->m_decoder, &data->m_frame);
++
++     //* 8. mmap frame buffer to
++     data->m_buf_size = data->m_frame.buf.stride[0] * data->m_frame.buf.size.height;
++     data->image = dmabuf_mmap(data->m_frame.buf.fd[0], data->m_buf_size);
++     data->width = data->m_frame.buf.size.width;
++     data->height = data->m_frame.buf.size.height;
++     data->bpp = 4;
++     data->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
++
++     return DFB_OK;
++}
++
++static void
++AIC_PNG_Destruct( IDirectFBImageProvider *thiz)
++{
++     IDirectFBImageProvider_PNG_data *data =
++               (IDirectFBImageProvider_PNG_data*)thiz->priv;
++     if (data->image){
++          dmabuf_munmap(data->image, data->m_buf_size);
++          mpp_decoder_put_frame(data->m_decoder, &data->m_frame);
++     }
++
++     if(data->m_decoder)
++          mpp_decoder_destory(data->m_decoder);
++}
++
++static DFBResult
++AIC_PNG_RenderTo( IDirectFBImageProvider *thiz,
++                                     IDirectFBSurface       *destination,
++                                     const DFBRectangle     *dest_rect )
++{
++     DFBResult              ret = DFB_OK;
++     IDirectFBSurface_data *dst_data;
++     CoreSurface           *dst_surface;
++     DFBRegion              clip;
++     DFBRectangle           rect;
++     DFBRectangle           clipped;
++
++     DIRECT_INTERFACE_GET_DATA (IDirectFBImageProvider_PNG)
++
++     D_DEBUG_AT( imageProviderPNG, "%s(%d)\n", __FUNCTION__, __LINE__ );
++
++     dst_data = (IDirectFBSurface_data*) destination->priv;
++     if (!dst_data)
++          return DFB_DEAD;
++
++     dst_surface = dst_data->surface;
++     if (!dst_surface)
++          return DFB_DESTROYED;
++
++     D_DEBUG_AT( imageProviderPNG, "  -> dst_surface %s\n", ToString_CoreSurface(dst_surface) );
++
++     dfb_region_from_rectangle( &clip, &dst_data->area.current );
++
++     if (dest_rect) {
++          D_DEBUG_AT( imageProviderPNG, "  -> dest_rect %4d,%4d-%4dx%4d\n", DFB_RECTANGLE_VALS(dest_rect) );
++
++          if (dest_rect->w < 1 || dest_rect->h < 1)
++               return DFB_INVARG;
++          rect = *dest_rect;
++
++          if (dst_data->area.wanted.x || dst_data->area.wanted.y) {
++               rect.x += dst_data->area.wanted.x;
++               rect.y += dst_data->area.wanted.y;
++
++               D_DEBUG_AT( imageProviderPNG, "  -> dest_rect %4d,%4d-%4dx%4d\n", DFB_RECTANGLE_VALS(&rect) );
++          }
++     }
++     else {
++          rect = dst_data->area.wanted;
++
++          D_DEBUG_AT( imageProviderPNG, "  -> dest_rect %4d,%4d-%4dx%4d (from dst)\n", DFB_RECTANGLE_VALS(&rect) );
++     }
++
++     clipped = rect;
++
++     D_DEBUG_AT( imageProviderPNG, "  -> clip      %4d,%4d-%4dx%4d\n", DFB_RECTANGLE_VALS_FROM_REGION(&clip) );
++
++     if (!dfb_rectangle_intersect_by_region( &clipped, &clip ))
++          return DFB_INVAREA;
++
++     D_DEBUG_AT( imageProviderPNG, "  -> clipped   %4d,%4d-%4dx%4d\n", DFB_RECTANGLE_VALS(&clipped) );
++
++     CoreSurfaceBufferLock lock;
++
++     int bit_depth = 32;
++     ret = dfb_surface_lock_buffer( dst_surface, CSBR_BACK, CSAID_CPU, CSAF_WRITE, &lock );
++     if (ret)
++          return ret;
++
++     dfb_scale_linear_32( data->image, data->width, data->height,
++                         lock.addr, lock.pitch, &rect, dst_surface, &clip );
++
++     dfb_surface_unlock_buffer( dst_surface, &lock );
++
++     return ret;
++}
++
+ static DFBResult
+ Probe( IDirectFBImageProvider_ProbeContext *ctx )
+ {
+@@ -213,6 +384,20 @@ Construct( IDirectFBImageProvider *thiz,
+      /* Increase the data buffer reference counter. */
+      buffer->AddRef( buffer );
+ 
++     ret = AIC_PNG_Construct(thiz, buffer);
++     if (ret == DFB_OK){
++          data->base.Destruct = AIC_PNG_Destruct;
++
++          thiz->RenderTo              = AIC_PNG_RenderTo;
++          thiz->GetImageDescription   = IDirectFBImageProvider_PNG_GetImageDescription;
++          thiz->GetSurfaceDescription = IDirectFBImageProvider_PNG_GetSurfaceDescription;
++
++          return DFB_OK;
++     }
++     else{
++          AIC_PNG_Destruct(thiz);
++     }
++
+      /* Create the PNG read handle. */
+      data->png_ptr = png_create_read_struct( PNG_LIBPNG_VER_STRING,
+                                              NULL, NULL, NULL );
+-- 
+2.29.0
+

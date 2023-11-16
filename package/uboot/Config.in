@@ -1,0 +1,208 @@
+menu "U-Boot"
+
+config BR2_TARGET_UBOOT
+	bool
+	default y
+	help
+	  Build "Das U-Boot" Boot Monitor
+
+	  https://www.denx.de/wiki/U-Boot
+
+if BR2_TARGET_UBOOT
+config BR2_TARGET_UBOOT_VERSION
+	string "U-Boot Version"
+	default "2021.10"
+
+config BR2_TARGET_UBOOT_USE_DEFCONFIG
+	bool # "Using an in-tree board defconfig file"
+	default y
+
+config BR2_TARGET_UBOOT_BOARD_DEFCONFIG
+	string "defconfig"
+	depends on BR2_TARGET_UBOOT_USE_DEFCONFIG
+	help
+	  Name of the board for which U-Boot should be built, without
+	  the _defconfig suffix.
+
+menu "Advance setting"
+
+config BR2_TARGET_UBOOT_PATCH
+	string # "Custom U-Boot patches"
+	help
+	  A space-separated list of patches to apply to U-Boot.
+	  Each patch can be described as an URL, a local file path,
+	  or a directory. In the case of a directory, all files
+	  matching *.patch in the directory will be applied.
+
+	  Most users may leave this empty
+
+config BR2_TARGET_UBOOT_NEEDS_DTC
+	bool # "U-Boot needs dtc"
+	default n
+	select BR2_PACKAGE_HOST_DTC
+	help
+	  Select this option if your U-Boot board configuration
+	  requires the Device Tree compiler to be available.
+
+config BR2_TARGET_UBOOT_NEEDS_PYTHON
+	bool
+
+# choice
+# 	bool "U-Boot needs host Python"
+
+# config BR2_TARGET_UBOOT_NEEDS_PYTHON_NONE
+# 	bool "no"
+# 	depends on !BR2_TARGET_UBOOT_NEEDS_PYTHON
+# 	help
+# 	  Select this option if U-Boot does not need any
+# 	  host python to build.
+# 
+# config BR2_TARGET_UBOOT_NEEDS_PYTHON2
+# 	bool "python 2.x"
+# 	help
+# 	  Select this option if U-Boot needs a host Python 2.x
+# 	  interpreter. This is the case for some U-Boot
+# 	  configurations, prior to U-Boot 2020.01.
+# 
+# config BR2_TARGET_UBOOT_NEEDS_PYTHON3
+# 	bool "python 3.x"
+# 	help
+# 	  Select this option if U-Boot needs a host Python 3.x
+# 	  interpreter. This is the case for some U-Boot
+# 	  configurations, after U-Boot 2020.01.
+
+# endchoice
+
+config BR2_TARGET_UBOOT_NEEDS_PYLIBFDT
+	bool # "U-Boot needs pylibfdt"
+	select BR2_TARGET_UBOOT_NEEDS_PYTHON
+	help
+	  Select this option if your U-Boot board configuration
+	  requires the Python libfdt library to be available.
+
+config BR2_TARGET_UBOOT_NEEDS_PYELFTOOLS
+	bool # "U-Boot needs pyelftools"
+	select BR2_TARGET_UBOOT_NEEDS_PYTHON
+	help
+	  Select this option if your U-Boot board configuration
+	  requires the Python pyelftools library to be available.
+	  This is used by some rockchip SOCs for elf parsing.
+	  For example: rk3399 soc boards.
+
+config BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	bool # "U-Boot needs OpenSSL"
+	default y
+	help
+	  Select this option if your U-Boot board configuration
+	  requires OpenSSL to be available on the host. This is
+	  typically the case when the board configuration has
+	  CONFIG_FIT_SIGNATURE enabled.
+
+config BR2_TARGET_UBOOT_NEEDS_LZOP
+	bool # "U-Boot needs lzop"
+	help
+	  Select this option if your U-Boot board configuration
+	  requires lzop to be available on the host. This is typically
+	  the case when the board configuration has CONFIG_SPL_LZO
+	  enabled.
+
+config BR2_TARGET_UBOOT_NEEDS_OPENSBI
+	bool # "U-Boot needs OpenSBI"
+	default y if BR2_PACKAGE_OPENSBI
+	help
+	  Some RISC-V platforms (such as SiFive HiFive Unleashed)
+	  encapsulate the OpenSBI firmware image inside U-Boot.
+	  This option makes sure OpenSBI gets built prior to U-Boot,
+	  and that the OpenSBI variable pointing to OpenSBI binary,
+	  is passed during the Buildroot build.
+
+menu "U-Boot binary format"
+
+config BR2_TARGET_UBOOT_FORMAT_BIN
+	bool "u-boot.bin"
+	default y
+
+config BR2_TARGET_UBOOT_FORMAT_DTB
+	bool "u-boot.dtb"
+
+config BR2_TARGET_UBOOT_FORMAT_DTB_BIN
+	bool "u-boot-dtb.bin"
+
+config BR2_TARGET_UBOOT_FORMAT_NODTB_BIN
+	bool "u-boot-nodtb.bin"
+
+config BR2_TARGET_UBOOT_FORMAT_NAND_BIN
+	bool "u-boot-nand.bin"
+
+config BR2_TARGET_UBOOT_FORMAT_ELF
+	bool "u-boot.elf"
+
+config BR2_TARGET_UBOOT_FORMAT_IMG
+	bool "u-boot.img"
+
+config BR2_TARGET_UBOOT_FORMAT_DTB_IMG
+	bool "u-boot-dtb.img"
+
+config BR2_TARGET_UBOOT_FORMAT_ITB
+	bool "u-boot.itb"
+
+config BR2_TARGET_UBOOT_FORMAT_CUSTOM
+	bool "Custom (specify below)"
+	help
+	  On some platforms, the standard U-Boot binary is not called
+	  u-boot.bin, but u-boot<something>.bin. If this is your case,
+	  you should select this option and specify the correct name(s)
+	  in BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME.
+
+config BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME
+	string "U-Boot binary format: custom names"
+	depends on BR2_TARGET_UBOOT_FORMAT_CUSTOM
+	help
+	  In case the U-Boot binary for the target platform is not among
+	  the default names, one or more custom names can be listed
+	  here.
+	  Use space to separate multiple names.
+	  Example:
+	  u-boot_magic.bin
+
+endmenu
+
+config BR2_TARGET_UBOOT_SPL
+	bool "Install U-Boot SPL binary image"
+	depends on !BR2_TARGET_XLOADER
+	help
+	  Install the U-Boot SPL binary image to the images
+	  directory.
+	  SPL is a first stage bootloader loaded into internal
+	  memory in charge of enabling and configuring the
+	  external memory (DDR), and load the u-boot program
+	  into DDR.
+
+config BR2_TARGET_UBOOT_SPL_NAME
+	string "U-Boot SPL/TPL binary image name(s)"
+	default "spl/u-boot-spl.bin"
+	depends on BR2_TARGET_UBOOT_SPL
+	help
+	  A space-separated list of SPL/TPL binaries, generated during
+	  u-boot build. For most platform SPL name is spl/u-boot-spl.bin
+	  and TPL name is tpl/u-boot-tpl.bin but not always. SPL name is
+	  MLO on OMAP and SPL on i.MX6 for example.
+
+config BR2_TARGET_UBOOT_CUSTOM_DTS_PATH
+	string # "Device Tree Source file paths"
+	help
+	  Space-separated list of paths to device tree source files
+	  that will be copied to arch/ARCH/dts/ before starting the
+	  build.
+
+	  To use this device tree source file, the U-Boot configuration
+	  file must refer to it.
+
+config BR2_TARGET_UBOOT_CUSTOM_MAKEOPTS
+	string "Custom make options"
+	help
+	  List of custom make options passed at build time. Can be
+	  used for example to pass a DEVICE_TREE= value.
+endmenu
+endif # BR2_TARGET_UBOOT
+endmenu

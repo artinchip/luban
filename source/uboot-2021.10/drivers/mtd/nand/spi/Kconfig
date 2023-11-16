@@ -1,0 +1,110 @@
+menuconfig MTD_SPI_NAND
+	bool "SPI NAND device Support"
+	depends on DM_MTD && DM_SPI
+	select MTD_NAND_CORE
+	select SPI_MEM
+	help
+	  This is the framework for the SPI NAND device drivers.
+
+config NAND_BBT_MANAGE
+	bool "Use bbt partition to manage bad blocks for fast boot in nand"
+	depends on MTD
+	help
+	  ALL nand bad block is managed uniformly in bbt partition.
+	  compared with dispersion. it can save bad block read time.
+
+config NAND_BBT_OFFSET
+	hex "Offset of bbt in nand"
+	depends on NAND_BBT_MANAGE
+	default "0xf00000"
+
+config NAND_BBT_RANGE
+	hex "Range of bbt in nand"
+	depends on NAND_BBT_MANAGE
+	default "0x40000"
+
+if MTD_SPI_NAND
+config SYS_SPI_NAND_U_BOOT_LOCATIONS
+	bool "Define U-boot binaries locations in SPI NAND"
+	depends on SPL
+	help
+	Enable CONFIG_SYS_SPI_NAND_U_BOOT_OFFS though Kconfig.
+
+config SYS_SPI_NAND_U_BOOT_OFFS
+	hex "Location in SPI NAND to read U-Boot from"
+	default 0x100000
+	depends on SYS_SPI_NAND_U_BOOT_LOCATIONS
+	help
+	Set the offset from the start of the spi nand where u-boot should be
+	loaded from.
+
+config SPI_NAND_MICRON
+	bool "Support Micron SPI NAND"
+	help
+	  Enable this driver for Micron SPI NAND flash.
+
+config SPI_NAND_MACRONIX
+	bool "Support Macronix SPI NAND"
+	help
+	  Enable this driver for Macronix SPI NAND flash.
+
+config SPI_NAND_WINBOND
+	bool "Support Winbond SPI NAND"
+	help
+	  Enable this driver for Winbond SPI NAND flash.
+
+config SPI_NAND_WINBOND_CONT_READ
+	bool "Support Winbond SPI NAND CONTINUOUS READ MODE"
+	default n
+	help
+	Enable this func for Winbond SPI NAND flash to speed up
+	the start-up.if the device supports continuous read mode
+	and the read length is greater then one page size,the device
+	will enter the continuous read mode.this mode helps avoiding
+	issuing a page read command and read from cache command again,
+	and improves the performance of reading continuous pages.
+
+config SPI_NAND_GIGADEVICE
+	bool "Support GigaDevice SPI NAND"
+	help
+	  Enable this driver for GigaDevice SPI NAND flash.
+
+config SPI_NAND_TOSHIBA
+	bool "Support Toshiba SPI NAND"
+	help
+	  Enable this driver for Toshiba/Kioxia SPI NAND flash.
+
+config SPI_NAND_FMSH
+	bool "Support FudanMicro SPI NAND"
+	help
+	  Enable this driver for FudanMicro SPI NAND flash.
+
+config SPI_NAND_FORESEE
+	bool "Support Foresee SPI NAND"
+	help
+	  Enable this driver for Foresee SPI NAND flash.
+
+config SPI_NAND_ZBIT
+	bool "Support Zbit SPI NAND"
+	default n
+	help
+	  Enable this driver for Zbit SPI NAND flash.
+
+config SPI_NAND_ELITE
+	bool "Support Elite SPI NAND"
+	default n
+	help
+	  Enable this driver for Elite SPI NAND flash.
+
+config SPI_NAND_ESMT
+	bool "Support ESMT SPI NAND"
+	default n
+	help
+	  Enable this driver for ESMT SPI NAND flash.
+
+config SPI_NAND_UMTEK
+	bool "Support UMTEK SPI NAND"
+	default n
+	help
+	  Enable this driver for UnitedMemory SPI NAND flash.
+endif

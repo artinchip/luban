@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_OPENSSL_HWENGINE
+	bool "openssl-hwengine"
+	default y
+	select BR2_PACKAGE_LIBKCAPI
+	select BR2_PACKAGE_LIBOPENSSL
+	help
+	  ArtInChip's hardware crypto engine implementation for libopenssl.
+
+if BR2_PACKAGE_OPENSSL_HWENGINE
+config BR2_PACKAGE_OPENSSL_HWENGINE_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+endif

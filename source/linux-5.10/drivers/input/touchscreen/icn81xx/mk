@@ -1,0 +1,11 @@
+obj-m := touch_icn81xx.o   
+
+touch_icn81xx-objs :=  cts_i2c_driver.o cts_core.o cts_platform.o  cts_firmware.o icnt8xxx_flash.o init-input.o
+KDIR := ../../../../linux-4.9.138/
+PWD := $(shell pwd) 
+
+default:
+	make -C $(KDIR) M=$(PWD) ARCH=arm CROSS_COMPILE=/home/sharedir/X5/arm-toolchain/ext-toolchain/bin/arm-linux-gnueabi-  modules
+		
+clean:
+	make -C $(KDIR) SUBDIRS=$(PWD) clean

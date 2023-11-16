@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_HOST_LZO
+	bool "host lzo"
+
+if BR2_PACKAGE_HOST_LZO
+config BR2_PACKAGE_HOST_LZO_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

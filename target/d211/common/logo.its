@@ -1,0 +1,56 @@
+/*
+ * Simple U-Boot uImage source file containing images and FDT blob
+ */
+
+/dts-v1/;
+
+/ {
+ description = "ArtInChip LOGO";
+ #address-cells = <1>;
+
+ images {
+  boot {
+   description = "ArtInChip boot logo";
+   type = "multi";
+   compression = "none";
+   data = /incbin/("logo/boot_logo.png");
+  };
+
+  usbburn {
+   description = "USB burn logo";
+   type = "multi";
+   compression = "none";
+   data = /incbin/("logo/usb_burn.png");
+  };
+
+  udiskburn {
+   description = "udisk burn logo";
+   type = "multi";
+   compression = "none";
+   data = /incbin/("logo/udisk_burn.png");
+  };
+
+  sdburn {
+   description = "SDCard burn logo";
+   type = "multi";
+   compression = "none";
+   data = /incbin/("logo/sd_burn.png");
+  };
+
+  burn_done {
+   description = "burn done logo";
+   type = "multi";
+   compression = "none";
+   data = /incbin/("logo/burn_done.png");
+  };
+ };
+
+ configurations {
+  default = "conf-1";
+
+  conf-1 {
+   description = "ArtInChip logo image";
+  };
+ };
+};
+

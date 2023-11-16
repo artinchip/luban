@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_HOST_SWIG
+	bool "host swig"
+	help
+	  swig is a software development tool that connects programs
+	  written in C and C++ with a variety of high-level
+	  programming languages.
+
+	  https://www.swig.org/
+
+if BR2_PACKAGE_SWIG
+
+config BR_PACKAGE_SWIG_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

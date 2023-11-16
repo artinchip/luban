@@ -1,0 +1,911 @@
+From e0e12f0fa02256522825544bc047fda773c4a1a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E5=88=98=E5=8F=AF=E4=BA=AE?= <keliang.liu@artinchip.com>
+Date: Fri, 18 Aug 2023 20:06:06 +0800
+Subject: [PATCH] update ddr parameter
+
+---
+ target/d211/common/d211.pbp                   | Bin 23072 -> 26352 bytes
+ target/d211/demo/ddr_init.json                |  54 +++++++++++++--
+ target/d211/demo100_nand/ddr_init.json        |  62 +++++++++++++++---
+ target/d211/demo128_nand/ddr_init.json        |  62 +++++++++++++++---
+ target/d211/demo88_nand/ddr_init.json         |  54 +++++++++++++--
+ target/d211/ota/ddr_init.json                 |   7 ++
+ target/d211/ota_emmc/ddr_init.json            |   7 ++
+ target/d211/per1/ddr_init.json                |   7 ++
+ .../d211/per1_mmc_secure_boot/ddr_init.json   |   7 ++
+ target/d211/per2_spinand/ddr_init.json        |   7 ++
+ target/d211/per2_spinor/ddr_init.json         |   7 ++
+ tools/scripts/mk_private_resource.py          |  48 +++++++++++---
+ 12 files changed, 282 insertions(+), 40 deletions(-)
+
+diff --git a/target/d211/common/d211.pbp b/target/d211/common/d211.pbp
+index 10a177aa72d344157f0ef0b09b5c59281beab325..23286ba46e9b22d30bdcace605d0d344b168a6c4 100644
+GIT binary patch
+delta 12135
+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
+BrjY;u
+
+delta 9472
+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
+H8*u-Bkf1hx
+
+diff --git a/target/d211/demo/ddr_init.json b/target/d211/demo/ddr_init.json
+index 454c2c4b4..50b53d47e 100644
+--- a/target/d211/demo/ddr_init.json
++++ b/target/d211/demo/ddr_init.json
+@@ -23,12 +23,47 @@
+ 			"tpr5":    "0x00000000",
+ 			"tpr6":    "0x00000000",
+ 			"tpr7":    "0x00000000",
+-			"tpr8":    "0x00000000",
+-			"tpr9":    "0x00004c4c",
+-			"tpr10":   "0x00001400",
+-			"tpr11":   "0x1d1d0000",
+-			"tpr12":   "0x28280000",
+-			"tpr13":   "0x0001F001",
++			"tpr8":    "0x09090000",
++			"tpr9":    "0x0a0a0000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
++			"tpr14":   "0x00000000",
++			"tpr15":   "0x00000000",
++			"tpr16":   "0x00000000",
++			"tpr17":   "0x00000000",
++			"tpr18":   "0x00000000",
++		},
++		"ddr3": {
++			"type":    "0x00000003",
++			"memsize": "0x8000000",
++			"freq":    "672000000",
++			"zq":      "0x80005d5d",
++			"odt":     "0x00000000",
++			"para1":   "0x000030DA",
++			"para2":   "0x02000000",
++			"mr0":     "0x00001C70",
++			"mr1":     "0x00000040",
++			"mr2":     "0x00000018",
++			"mr3":     "0x00000000",
++			"mr4":     "0x00000000",
++			"mr5":     "0x00000400",
++			"mr6":     "0x00000848",
++			"tpr0":    "0x0048A192",
++			"tpr1":    "0x01B1A94B",
++			"tpr2":    "0x00061043",
++			"tpr3":    "0x78787896",
++			"tpr4":    "0x00000000",
++			"tpr5":    "0x00000000",
++			"tpr6":    "0x00000000",
++			"tpr7":    "0x00000000",
++			"tpr8":    "0x06060000",
++			"tpr9":    "0x06060000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
+ 			"tpr14":   "0x00000000",
+ 			"tpr15":   "0x00000000",
+ 			"tpr16":   "0x00000000",
+@@ -37,6 +72,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				"uart_id": "0", // UART0 for log output
+diff --git a/target/d211/demo100_nand/ddr_init.json b/target/d211/demo100_nand/ddr_init.json
+index 1c9c1ae5c..50b53d47e 100644
+--- a/target/d211/demo100_nand/ddr_init.json
++++ b/target/d211/demo100_nand/ddr_init.json
+@@ -1,5 +1,40 @@
+ {
+ 	"dram": { // DDR init parameters
++		"ddr2": {
++			"type":    "0x00000002",
++			"memsize": "0x04000000",
++			"freq":    "504000000",
++			"zq":      "0x80004b4b",
++			"odt":     "0x00000000",
++			"para1":   "0x000020DA",
++			"para2":   "0x00400000",
++			"mr0":     "0x00000A63",
++			"mr1":     "0x00000040",
++			"mr2":     "0x00000000",
++			"mr3":     "0x00000000",
++			"mr4":     "0x00000000",
++			"mr5":     "0x00000000",
++			"mr6":     "0x00000000",
++			"tpr0":    "0x0048A192",
++			"tpr1":    "0x01C2418D",
++			"tpr2":    "0x00076051",
++			"tpr3":    "0x00000000",
++			"tpr4":    "0x00000000",
++			"tpr5":    "0x00000000",
++			"tpr6":    "0x00000000",
++			"tpr7":    "0x00000000",
++			"tpr8":    "0x09090000",
++			"tpr9":    "0x0a0a0000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
++			"tpr14":   "0x00000000",
++			"tpr15":   "0x00000000",
++			"tpr16":   "0x00000000",
++			"tpr17":   "0x00000000",
++			"tpr18":   "0x00000000",
++		},
+ 		"ddr3": {
+ 			"type":    "0x00000003",
+ 			"memsize": "0x8000000",
+@@ -23,11 +58,11 @@
+ 			"tpr5":    "0x00000000",
+ 			"tpr6":    "0x00000000",
+ 			"tpr7":    "0x00000000",
+-			"tpr8":    "0x00000000",
+-			"tpr9":    "0x00000C0C",
+-			"tpr10":   "0x00001900",
+-			"tpr11":   "0x16160A0A",
+-			"tpr12":   "0x12120000",
++			"tpr8":    "0x06060000",
++			"tpr9":    "0x06060000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
+ 			"tpr13":   "0x0001F801",
+ 			"tpr14":   "0x00000000",
+ 			"tpr15":   "0x00000000",
+@@ -37,6 +72,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				"uart_id": "0", // UART0 for log output
+@@ -51,11 +93,11 @@
+ 				// "uart_rx_pin_cfg_reg": "0x18700E8C", // PN3
+ 				// "uart_rx_pin_cfg_val": "0x324",
+ 
+-				//"uart_id": "1", // UART1 for log output
+-				//"uart_tx_pin_cfg_reg": "0x18700090", // PA4
+-				//"uart_tx_pin_cfg_val": "0x325",
+-				//"uart_rx_pin_cfg_reg": "0x18700094", // PA5
+-				//"uart_rx_pin_cfg_val": "0x325",
++				// "uart_id": "1", // UART1 for log output
++				// "uart_tx_pin_cfg_reg": "0x18700090", // PA4
++				// "uart_tx_pin_cfg_val": "0x325",
++				// "uart_rx_pin_cfg_reg": "0x18700094", // PA5
++				// "uart_rx_pin_cfg_val": "0x325",
+ 
+ 				// "uart_id": "3", // UART3 for log output
+ 				// "uart_tx_pin_cfg_reg": "0x187004B8", // PE14
+diff --git a/target/d211/demo128_nand/ddr_init.json b/target/d211/demo128_nand/ddr_init.json
+index 1c9c1ae5c..50b53d47e 100644
+--- a/target/d211/demo128_nand/ddr_init.json
++++ b/target/d211/demo128_nand/ddr_init.json
+@@ -1,5 +1,40 @@
+ {
+ 	"dram": { // DDR init parameters
++		"ddr2": {
++			"type":    "0x00000002",
++			"memsize": "0x04000000",
++			"freq":    "504000000",
++			"zq":      "0x80004b4b",
++			"odt":     "0x00000000",
++			"para1":   "0x000020DA",
++			"para2":   "0x00400000",
++			"mr0":     "0x00000A63",
++			"mr1":     "0x00000040",
++			"mr2":     "0x00000000",
++			"mr3":     "0x00000000",
++			"mr4":     "0x00000000",
++			"mr5":     "0x00000000",
++			"mr6":     "0x00000000",
++			"tpr0":    "0x0048A192",
++			"tpr1":    "0x01C2418D",
++			"tpr2":    "0x00076051",
++			"tpr3":    "0x00000000",
++			"tpr4":    "0x00000000",
++			"tpr5":    "0x00000000",
++			"tpr6":    "0x00000000",
++			"tpr7":    "0x00000000",
++			"tpr8":    "0x09090000",
++			"tpr9":    "0x0a0a0000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
++			"tpr14":   "0x00000000",
++			"tpr15":   "0x00000000",
++			"tpr16":   "0x00000000",
++			"tpr17":   "0x00000000",
++			"tpr18":   "0x00000000",
++		},
+ 		"ddr3": {
+ 			"type":    "0x00000003",
+ 			"memsize": "0x8000000",
+@@ -23,11 +58,11 @@
+ 			"tpr5":    "0x00000000",
+ 			"tpr6":    "0x00000000",
+ 			"tpr7":    "0x00000000",
+-			"tpr8":    "0x00000000",
+-			"tpr9":    "0x00000C0C",
+-			"tpr10":   "0x00001900",
+-			"tpr11":   "0x16160A0A",
+-			"tpr12":   "0x12120000",
++			"tpr8":    "0x06060000",
++			"tpr9":    "0x06060000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
+ 			"tpr13":   "0x0001F801",
+ 			"tpr14":   "0x00000000",
+ 			"tpr15":   "0x00000000",
+@@ -37,6 +72,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				"uart_id": "0", // UART0 for log output
+@@ -51,11 +93,11 @@
+ 				// "uart_rx_pin_cfg_reg": "0x18700E8C", // PN3
+ 				// "uart_rx_pin_cfg_val": "0x324",
+ 
+-				//"uart_id": "1", // UART1 for log output
+-				//"uart_tx_pin_cfg_reg": "0x18700090", // PA4
+-				//"uart_tx_pin_cfg_val": "0x325",
+-				//"uart_rx_pin_cfg_reg": "0x18700094", // PA5
+-				//"uart_rx_pin_cfg_val": "0x325",
++				// "uart_id": "1", // UART1 for log output
++				// "uart_tx_pin_cfg_reg": "0x18700090", // PA4
++				// "uart_tx_pin_cfg_val": "0x325",
++				// "uart_rx_pin_cfg_reg": "0x18700094", // PA5
++				// "uart_rx_pin_cfg_val": "0x325",
+ 
+ 				// "uart_id": "3", // UART3 for log output
+ 				// "uart_tx_pin_cfg_reg": "0x187004B8", // PE14
+diff --git a/target/d211/demo88_nand/ddr_init.json b/target/d211/demo88_nand/ddr_init.json
+index 5b6c7f141..50b53d47e 100644
+--- a/target/d211/demo88_nand/ddr_init.json
++++ b/target/d211/demo88_nand/ddr_init.json
+@@ -23,12 +23,47 @@
+ 			"tpr5":    "0x00000000",
+ 			"tpr6":    "0x00000000",
+ 			"tpr7":    "0x00000000",
+-			"tpr8":    "0x00000000",
+-			"tpr9":    "0x00004c4c",
+-			"tpr10":   "0x00001400",
+-			"tpr11":   "0x1d1d0000",
+-			"tpr12":   "0x13130000",
+-			"tpr13":   "0x0001F001",
++			"tpr8":    "0x09090000",
++			"tpr9":    "0x0a0a0000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
++			"tpr14":   "0x00000000",
++			"tpr15":   "0x00000000",
++			"tpr16":   "0x00000000",
++			"tpr17":   "0x00000000",
++			"tpr18":   "0x00000000",
++		},
++		"ddr3": {
++			"type":    "0x00000003",
++			"memsize": "0x8000000",
++			"freq":    "672000000",
++			"zq":      "0x80005d5d",
++			"odt":     "0x00000000",
++			"para1":   "0x000030DA",
++			"para2":   "0x02000000",
++			"mr0":     "0x00001C70",
++			"mr1":     "0x00000040",
++			"mr2":     "0x00000018",
++			"mr3":     "0x00000000",
++			"mr4":     "0x00000000",
++			"mr5":     "0x00000400",
++			"mr6":     "0x00000848",
++			"tpr0":    "0x0048A192",
++			"tpr1":    "0x01B1A94B",
++			"tpr2":    "0x00061043",
++			"tpr3":    "0x78787896",
++			"tpr4":    "0x00000000",
++			"tpr5":    "0x00000000",
++			"tpr6":    "0x00000000",
++			"tpr7":    "0x00000000",
++			"tpr8":    "0x06060000",
++			"tpr9":    "0x06060000",
++			"tpr10":   "0x00000000",
++			"tpr11":   "0x00000000",
++			"tpr12":   "0x00000000",
++			"tpr13":   "0x0001F801",
+ 			"tpr14":   "0x00000000",
+ 			"tpr15":   "0x00000000",
+ 			"tpr16":   "0x00000000",
+@@ -37,6 +72,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				"uart_id": "0", // UART0 for log output
+diff --git a/target/d211/ota/ddr_init.json b/target/d211/ota/ddr_init.json
+index 9b27a9594..09d867cba 100644
+--- a/target/d211/ota/ddr_init.json
++++ b/target/d211/ota/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/target/d211/ota_emmc/ddr_init.json b/target/d211/ota_emmc/ddr_init.json
+index 9b27a9594..09d867cba 100644
+--- a/target/d211/ota_emmc/ddr_init.json
++++ b/target/d211/ota_emmc/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/target/d211/per1/ddr_init.json b/target/d211/per1/ddr_init.json
+index 530700ebb..ca93ce96d 100644
+--- a/target/d211/per1/ddr_init.json
++++ b/target/d211/per1/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/target/d211/per1_mmc_secure_boot/ddr_init.json b/target/d211/per1_mmc_secure_boot/ddr_init.json
+index 530700ebb..ca93ce96d 100644
+--- a/target/d211/per1_mmc_secure_boot/ddr_init.json
++++ b/target/d211/per1_mmc_secure_boot/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/target/d211/per2_spinand/ddr_init.json b/target/d211/per2_spinand/ddr_init.json
+index 9b27a9594..09d867cba 100644
+--- a/target/d211/per2_spinand/ddr_init.json
++++ b/target/d211/per2_spinand/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/target/d211/per2_spinor/ddr_init.json b/target/d211/per2_spinor/ddr_init.json
+index 9b27a9594..09d867cba 100644
+--- a/target/d211/per2_spinor/ddr_init.json
++++ b/target/d211/per2_spinor/ddr_init.json
+@@ -37,6 +37,13 @@
+ 		},
+ 	},
+ 	"system": {
++		"upgmode": { // Set PIN to enter BROM's upgrading mode
++			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
++			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
++			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
++			"upgmode_pin_input_msk": "0x1", // Bit MSK
++			"upgmode_pin_input_val": "0x0", // Bit VAL
++		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+ 				// "uart_id": "0", // UART0 for log output
+diff --git a/tools/scripts/mk_private_resource.py b/tools/scripts/mk_private_resource.py
+index 35213ed5a..44e3cb712 100755
+--- a/tools/scripts/mk_private_resource.py
++++ b/tools/scripts/mk_private_resource.py
+@@ -16,6 +16,7 @@ VERBOSE = False
+ DATA_SECT_TYPE_DRAM = int("0x41490001",16)
+ DATA_SECT_TYPE_SYS_UART  = int("0x41490002",16)
+ DATA_SECT_TYPE_SYS_JTAG  = int("0x41490003",16)
++DATA_SECT_TYPE_SYS_UPGMODE  = int("0x41490004",16)
+ DATA_SECT_TYPE_END  = int("0x4149FFFF",16)
+ 
+ def parse_private_data_cfg(cfgfile):
+@@ -32,7 +33,7 @@ def parse_private_data_cfg(cfgfile):
+                 continue
+             slash_start = sline.find("//")
+             if slash_start > 0:
+-                jsonstr += sline[0:slash_start]
++                jsonstr += sline[0:slash_start].strip()
+             else:
+                 jsonstr += sline
+         # Use OrderedDict is important, we need to iterate FWC in order.
+@@ -92,7 +93,7 @@ struct ddr {
+ };
+ struct dram_data {
+     u32 data_type;
+-    u32 data_len;
++    u32 data_len; // length of rest of this structure
+     u32 entry_cnt;
+     struct ddr param[entry_cnt];
+ };
+@@ -100,7 +101,8 @@ struct dram_data {
+ """
+ def gen_ddr_init_data(dram):
+     data_type = int_to_u32_bytes(DATA_SECT_TYPE_DRAM)
+-    data = int_to_u32_bytes(len(dram))
++    entry_cnt = len(dram)
++    data = int_to_u32_bytes(entry_cnt)
+     for entry_name in dram.keys():
+         entry = dram[entry_name]
+         data += param_str_to_u32_bytes(entry["type"])
+@@ -149,7 +151,7 @@ struct system_uart {
+ };
+ struct system_uart_data {
+     u32 data_type;
+-    u32 data_len;
++    u32 data_len; // length of rest of this structure
+     struct system_uart param[entry_cnt];
+ };
+ 
+@@ -163,8 +165,8 @@ def gen_system_uart_data(uart):
+     return data
+ 
+ def gen_system_uart(sys_uart):
+-    data = bytes()
+     data_type = int_to_u32_bytes(DATA_SECT_TYPE_SYS_UART)
++    data = bytes()
+     for uarti in sys_uart.keys():
+         data += gen_system_uart_data(sys_uart[uarti])
+     data_len = int_to_u32_bytes(len(data))
+@@ -184,7 +186,7 @@ struct system_jtag {
+ };
+ struct system_jtag_data {
+     u32 data_type;
+-    u32 data_len;
++    u32 data_len; // length of rest of this structure
+     u32 jtag_only;
+     struct system_jtag param[entry_cnt];
+ };
+@@ -203,15 +205,43 @@ def gen_system_jtag_data(jtag):
+     return data
+ 
+ def gen_system_jtag(sys_jtag):
+-    data = bytes()
+     data_type = int_to_u32_bytes(DATA_SECT_TYPE_SYS_JTAG)
++    data = bytes()
+     jtag_only = param_str_to_u32_bytes(sys_jtag["jtag_only"])
++    data += jtag_only
+ 
+     for jtagi in sys_jtag.keys():
+         if isinstance(sys_jtag[jtagi], OrderedDict):
+             data += gen_system_jtag_data(sys_jtag[jtagi])
+     data_len = int_to_u32_bytes(len(data))
+-    return data_type + data_len + jtag_only + data
++    return data_type + data_len + data
++"""
++struct system_upgmode {
++    u32 upgmode_pin_cfg_reg;
++    u32 upgmode_pin_cfg_val;
++    u32 upgmode_pin_input_reg;
++    u32 upgmode_pin_input_msk;
++    u32 upgmode_pin_input_val;
++};
++struct system_jtag_data {
++    u32 data_type;
++    u32 data_len; // length of rest of this structure
++    struct system_upgmode;
++};
++"""
++def gen_system_upgmode_data(jtag):
++    data  = param_str_to_u32_bytes(jtag["upgmode_pin_cfg_reg"])
++    data += param_str_to_u32_bytes(jtag["upgmode_pin_cfg_val"])
++    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_reg"])
++    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_msk"])
++    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_val"])
++    return data
++def gen_system_upgmode(sys_upgmode):
++    data = bytes()
++    data_type = int_to_u32_bytes(DATA_SECT_TYPE_SYS_UPGMODE)
++    data += gen_system_upgmode_data(sys_upgmode)
++    data_len = int_to_u32_bytes(len(data))
++    return data_type + data_len + data
+ 
+ def gen_end_flag():
+     data_type = int_to_u32_bytes(DATA_SECT_TYPE_END)
+@@ -226,6 +256,8 @@ def gen_private_data(cfg):
+             data += gen_ddr_init_data(cfg[item])
+         if item == "system":
+             for sysi in cfg[item].keys():
++                if sysi == "upgmode":
++                    data += gen_system_upgmode(cfg[item][sysi])
+                 if sysi == "uart":
+                     data += gen_system_uart(cfg[item][sysi])
+                 if sysi == "jtag":
+-- 
+2.25.1
+

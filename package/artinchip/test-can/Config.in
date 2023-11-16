@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_TEST_CAN
+	bool "test-can"
+	default y
+
+if BR2_PACKAGE_TEST_CAN
+config BR2_PACKAGE_TEST_CAN_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default n
+endif

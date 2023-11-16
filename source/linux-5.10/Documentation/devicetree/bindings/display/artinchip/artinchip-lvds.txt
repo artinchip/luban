@@ -1,0 +1,41 @@
+ArtInChip LVDS interface
+==========================
+
+Required properties:
+- pinctrl-names, pinctrl-0: the pincontrol settings to configure
+   muxing properly for pins that connect to screen
+- port@[0-1]: Port nodes with endpoint definitions as defined in
+  Documentation/devicetree/bindings/media/video-interfaces.txt.
+  Port 0 is the input port connected to the display engine,
+  port 1 is the output port connected to a panel.
+
+Optional properties:
+- status: Should be "ok" or "disabled" for enabled/disabled. Default is "ok".
+- sync-ctrl: Enabled/Disabled Sync mode. Avoid enabling the lvds display interface
+  when the display engine gives field data. Default is 1.
+- pols: LVDS signal polarity control. Default is 0
+- phys: LVDS signal PHY control. Default is 0x3A
+- swap: Solve LVDS signal crossover and avoid layout winding by
+  switching channels through software control. Default is 0
+
+Example:
+
+	lvds0 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&lvds0_pins>;
+		status = "okay";
+
+		port@0 {
+			reg = <0>;
+			lvds0_in: endpoint {
+				remote-endpoint = <&de0_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			lvds0_out: endpoint {
+				remote-endpoint = <&panel_lvds_in>;
+			};
+		};
+	};

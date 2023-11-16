@@ -1,0 +1,918 @@
+# Makefile for buildroot
+#
+# Copyright (C) 1999-2005 by Erik Andersen <andersen@codepoet.org>
+# Copyright (C) 2006-2014 by the Buildroot developers <buildroot@uclibc.org>
+# Copyright (C) 2014-2020 by the Buildroot developers <buildroot@buildroot.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#
+
+#--------------------------------------------------------------
+# Just run 'make menuconfig', configure stuff, then run 'make'.
+# You shouldn't need to mess with anything beyond this point...
+#--------------------------------------------------------------
+
+# absolute path
+TOPDIR := $(CURDIR)
+CONFIG_CONFIG_IN = package/Config.in
+CONFIG = tools/support/kconfig
+DATE := $(shell date +%Y%m%d)
+
+HIDDEN_PREFIX=.hidden
+
+# List of targets and target patterns for which .config doesn't need to be read in
+noconfig_targets := menuconfig nconfig gconfig xconfig config oldconfig randconfig \
+	defconfig %_defconfig allyesconfig allnoconfig alldefconfig syncconfig release \
+	randpackageconfig allyespackageconfig allnopackageconfig \
+	print-version olddefconfig manual manual-% check-package check-flake8 add_board
+
+# Some global targets do not trigger a build, but are used to collect
+# metadata, or do various checks. When such targets are triggered,
+# some packages should not do their configuration sanity
+# checks. Provide them a BR_BUILDING variable set to 'y' when we're
+# actually building and they should do their sanity checks.
+#
+# We're building in two situations: when MAKECMDGOALS is empty
+# (default target is to build), or when MAKECMDGOALS contains
+# something else than one of the nobuild_targets.
+nobuild_targets := source %-source clean-source %-srcclean %-distclean\
+	legal-info %-legal-info external-deps _external-deps \
+	clean distclean help show-targets show-all-packages graph-depends \
+	%-graph-depends %-show-depends %-show-version \
+	graph-build graph-size list-defconfigs \
+	savedefconfig update-defconfig printvars show-vars
+
+ifeq ($(MAKECMDGOALS),)
+BR_BUILDING = y
+else ifneq ($(filter-out $(nobuild_targets),$(MAKECMDGOALS)),)
+BR_BUILDING = y
+endif
+
+# We call make recursively to build packages. The command-line overrides that
+# are passed to Buildroot don't apply to those package build systems. In
+# particular, we don't want to pass down the O=<dir> option for out-of-tree
+# builds, because the value specified on the command line will not be correct
+# for packages.
+MAKEOVERRIDES :=
+
+# Include some helper macros and variables
+include tools/support/misc/utils.mk
+
+# Set variables related to in-tree or out-of-tree build.
+# Here, both $(O) and $(CURDIR) are absolute canonical paths.
+ifeq ($(O),$(CURDIR)/output)
+CONFIG_DIR := $(CURDIR)
+NEED_WRAPPER =
+else
+CONFIG_DIR := $(O)
+NEED_WRAPPER = y
+endif
+
+# bash prints the name of the directory on 'cd <dir>' if CDPATH is
+# set, so unset it here to not cause problems. Notice that the export
+# line doesn't affect the environment of $(shell ..) calls.
+export CDPATH :=
+
+BASE_DIR := $(CANONICAL_O)
+$(if $(BASE_DIR),, $(error output directory "$(O)" does not exist))
+ifneq ("$(notdir $(BASE_DIR))", "output")
+UNIQUE_BUILD_NAME := $(notdir $(BASE_DIR))
+endif
+
+SOURCE_DIR := $(TOPDIR)/source
+BUILD_DIR := $(BASE_DIR)/build
+BINARIES_DIR := $(BASE_DIR)/images
+BASE_TARGET_DIR := $(BASE_DIR)/target
+HOST_DIR := $(BASE_DIR)/host
+GRAPHS_DIR := $(BASE_DIR)/graphs
+PREBUILT_DIR := $(TOPDIR)/prebuilt
+
+BR2_CONFIG = $(CONFIG_DIR)/.config
+
+PREBUILT_TARBALLS=$(wildcard $(PREBUILT_DIR)/*/*)
+
+# Pull in the user's configuration file
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+-include $(BR2_CONFIG)
+endif
+
+
+# To put more focus on warnings, be less verbose as default
+# Use 'make V=1' to see the full commands
+ifeq ("$(origin V)", "command line")
+  KBUILD_VERBOSE = $(V)
+endif
+ifndef KBUILD_VERBOSE
+  KBUILD_VERBOSE = 0
+endif
+
+ifeq ($(KBUILD_VERBOSE),1)
+  Q =
+ifndef VERBOSE
+  VERBOSE = 1
+endif
+export VERBOSE
+else
+  Q = @
+endif
+
+# kconfig uses CONFIG_SHELL
+CONFIG_SHELL := $(SHELL)
+
+export SHELL CONFIG_SHELL Q KBUILD_VERBOSE
+
+ifndef HOSTAR
+HOSTAR := ar
+endif
+ifndef HOSTAS
+HOSTAS := as
+endif
+ifndef HOSTCC
+HOSTCC := gcc
+HOSTCC := $(shell which $(HOSTCC) || type -p $(HOSTCC) || echo gcc)
+endif
+ifndef HOSTCC_NOCCACHE
+HOSTCC_NOCCACHE := $(HOSTCC)
+endif
+ifndef HOSTCXX
+HOSTCXX := g++
+HOSTCXX := $(shell which $(HOSTCXX) || type -p $(HOSTCXX) || echo g++)
+endif
+ifndef HOSTCXX_NOCCACHE
+HOSTCXX_NOCCACHE := $(HOSTCXX)
+endif
+ifndef HOSTCPP
+HOSTCPP := cpp
+endif
+ifndef HOSTLD
+HOSTLD := ld
+endif
+ifndef HOSTLN
+HOSTLN := ln
+endif
+ifndef HOSTNM
+HOSTNM := nm
+endif
+ifndef HOSTOBJCOPY
+HOSTOBJCOPY := objcopy
+endif
+ifndef HOSTRANLIB
+HOSTRANLIB := ranlib
+endif
+HOSTAR := $(shell which $(HOSTAR) || type -p $(HOSTAR) || echo ar)
+HOSTAS := $(shell which $(HOSTAS) || type -p $(HOSTAS) || echo as)
+HOSTCPP := $(shell which $(HOSTCPP) || type -p $(HOSTCPP) || echo cpp)
+HOSTLD := $(shell which $(HOSTLD) || type -p $(HOSTLD) || echo ld)
+HOSTLN := $(shell which $(HOSTLN) || type -p $(HOSTLN) || echo ln)
+HOSTNM := $(shell which $(HOSTNM) || type -p $(HOSTNM) || echo nm)
+HOSTOBJCOPY := $(shell which $(HOSTOBJCOPY) || type -p $(HOSTOBJCOPY) || echo objcopy)
+HOSTRANLIB := $(shell which $(HOSTRANLIB) || type -p $(HOSTRANLIB) || echo ranlib)
+SED := $(shell which sed || type -p sed) -i -e
+
+export HOSTAR HOSTAS HOSTCC HOSTCXX HOSTLD
+export HOSTCC_NOCCACHE HOSTCXX_NOCCACHE
+
+# Determine the userland we are running on.
+#
+# Note that, despite its name, we are not interested in the actual
+# architecture name. This is mostly used to determine whether some
+# of the binary tools (e.g. pre-built external toolchains) can run
+# on the current host. So we need to know if the userland we're
+# running on can actually run those toolchains.
+#
+# For example, a 64-bit prebuilt toolchain will not run on a 64-bit
+# kernel if the userland is 32-bit (e.g. in a chroot for example).
+#
+# So, we extract the first part of the tuple the host gcc was
+# configured to generate code for; we assume this is our userland.
+#
+export HOSTARCH := $(shell LC_ALL=C $(HOSTCC_NOCCACHE) -v 2>&1 | \
+	sed -e '/^Target: \([^-]*\).*/!d' \
+	    -e 's//\1/' \
+	    -e 's/i.86/x86/' \
+	    -e 's/sun4u/sparc64/' \
+	    -e 's/arm.*/arm/' \
+	    -e 's/sa110/arm/' \
+	    -e 's/ppc64/powerpc64/' \
+	    -e 's/ppc/powerpc/' \
+	    -e 's/macppc/powerpc/' \
+	    -e 's/sh.*/sh/' )
+
+# When adding a new host gcc version in Config.in,
+# update the HOSTCC_MAX_VERSION variable:
+HOSTCC_MAX_VERSION := 9
+
+HOSTCC_VERSION := $(shell V=$$($(HOSTCC_NOCCACHE) --version | \
+	sed -n -r 's/^.* ([0-9]*)\.([0-9]*)\.([0-9]*)[ ]*.*/\1 \2/p'); \
+	[ "$${V%% *}" -le $(HOSTCC_MAX_VERSION) ] || V=$(HOSTCC_MAX_VERSION); \
+	printf "%s" "$${V}")
+
+# For gcc >= 5.x, we only need the major version.
+ifneq ($(firstword $(HOSTCC_VERSION)),4)
+HOSTCC_VERSION := $(firstword $(HOSTCC_VERSION))
+endif
+
+# TODO: Need to check the pkg config setting, wudehuang
+# Make sure pkg-config doesn't look outside the buildroot tree
+HOST_PKG_CONFIG_PATH := $(PKG_CONFIG_PATH)
+unexport PKG_CONFIG_PATH
+unexport PKG_CONFIG_SYSROOT_DIR
+unexport PKG_CONFIG_LIBDIR
+
+# Having DESTDIR set in the environment confuses the installation
+# steps of some packages.
+unexport DESTDIR
+
+# Causes breakage with packages that needs host-ruby
+unexport RUBYOPT
+
+include package/utils/pkg-utils.mk
+
+ifeq ($(BR2_HAVE_DOT_CONFIG),y)
+
+################################################################################
+#
+# Hide troublesome environment variables from sub processes
+#
+################################################################################
+unexport CROSS_COMPILE
+unexport ARCH
+unexport CC
+unexport LD
+unexport AR
+unexport CXX
+unexport CPP
+unexport RANLIB
+unexport CFLAGS
+unexport CXXFLAGS
+unexport GREP_OPTIONS
+unexport TAR_OPTIONS
+unexport CONFIG_SITE
+unexport QMAKESPEC
+unexport TERMINFO
+unexport MACHINE
+unexport O
+unexport GCC_COLORS
+unexport PLATFORM
+unexport OS
+
+GNU_HOST_NAME := $(shell tools/support/gnuconfig/config.guess)
+
+PACKAGES :=
+PACKAGES_ALL :=
+# All packages invloved in compiling
+PACKAGES_BUILD :=
+
+# silent mode requested?
+QUIET := $(if $(findstring s,$(filter-out --%,$(MAKEFLAGS))),-q)
+
+# Strip off the annoying quoting
+ARCH := $(call qstrip,$(BR2_ARCH))
+
+KERNEL_ARCH := $(shell echo "$(ARCH)" | sed -e "s/-.*//" \
+	-e s/i.86/i386/ -e s/sun4u/sparc64/ \
+	-e s/arcle/arc/ \
+	-e s/arceb/arc/ \
+	-e s/arm.*/arm/ -e s/sa110/arm/ \
+	-e s/aarch64.*/arm64/ \
+	-e s/nds32.*/nds32/ \
+	-e s/or1k/openrisc/ \
+	-e s/parisc64/parisc/ \
+	-e s/powerpc64.*/powerpc/ \
+	-e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+	-e s/riscv.*/riscv/ \
+	-e s/sh.*/sh/ \
+	-e s/s390x/s390/ \
+	-e s/microblazeel/microblaze/)
+
+ZCAT := $(call qstrip,$(BR2_ZCAT))
+BZCAT := $(call qstrip,$(BR2_BZCAT))
+XZCAT := $(call qstrip,$(BR2_XZCAT))
+LZCAT := $(call qstrip,$(BR2_LZCAT))
+TAR_OPTIONS = $(call qstrip,$(BR2_TAR_OPTIONS)) -xf
+
+HOST_DIR := $(call qstrip,$(BR2_HOST_DIR))
+PREBUILT_DIR := $(call qstrip,$(BR2_PREBUILT_DIR))
+TARGET_DIR = $(if $(ROOTFS),$(ROOTFS_$(ROOTFS)_TARGET_DIR),$(BASE_TARGET_DIR))
+
+ifneq ($(HOST_DIR),$(BASE_DIR)/host)
+HOST_DIR_SYMLINK = $(BASE_DIR)/host
+$(HOST_DIR_SYMLINK): | $(BASE_DIR)
+	$(Q)ln -snf $(HOST_DIR) $(HOST_DIR_SYMLINK)
+endif
+
+STAGING_DIR_SYMLINK = $(BASE_DIR)/staging
+$(STAGING_DIR_SYMLINK): | $(BASE_DIR)
+	$(Q)ln -snf $(STAGING_DIR) $(STAGING_DIR_SYMLINK)
+
+# Quotes are needed for spaces and all in the original PATH content.
+BR_PATH = "$(HOST_DIR)/bin:$(HOST_DIR)/sbin:$(PATH)"
+
+# Location of a file giving a big fat warning that output/target
+# should not be used as the root filesystem.
+TARGET_DIR_WARNING_FILE = $(TARGET_DIR)/THIS_IS_NOT_YOUR_ROOT_FILESYSTEM
+
+CHIP_NAME := $(call qstrip,$(LUBAN_CHIP_NAME))
+BOARD_NAME := $(call qstrip,$(LUBAN_BOARD_NAME))
+TARGET_CHIP_DIR := $(TOPDIR)/target/$(CHIP_NAME)
+TARGET_BOARD_DIR := $(TOPDIR)/target/$(CHIP_NAME)/$(BOARD_NAME)
+ifneq ($(BR2_TARGET_USERFS1_NAME),)
+TARGET_USERFS1_DIR := $(BASE_DIR)/userfs/fs1.$(call qstrip,$(BR2_TARGET_USERFS1_NAME))
+endif
+ifneq ($(BR2_TARGET_USERFS2_NAME),)
+TARGET_USERFS2_DIR := $(BASE_DIR)/userfs/fs2.$(call qstrip,$(BR2_TARGET_USERFS2_NAME))
+endif
+ifneq ($(BR2_TARGET_USERFS3_NAME),)
+TARGET_USERFS3_DIR := $(BASE_DIR)/userfs/fs3.$(call qstrip,$(BR2_TARGET_USERFS3_NAME))
+endif
+
+export BR_NO_CCACHE
+
+# Scripts in support/ or post-build scripts may need to reference
+# these locations, so export them so it is easier to use
+export TOPDIR
+export BR2_CONFIG
+export BR2_REPRODUCIBLE
+export TARGET_DIR
+export STAGING_DIR
+export STAGING_SUBDIR
+export HOST_DIR
+export BINARIES_DIR
+export BASE_DIR
+export PREBUILT_DIR
+export PREBUILT_TARBALLS
+export TARGET_CHIP_DIR
+export TARGET_BOARD_DIR
+export TARGET_USERFS1_DIR
+export TARGET_USERFS2_DIR
+export TARGET_USERFS3_DIR
+export UNIQUE_BUILD_NAME
+
+################################################################################
+#
+# You should probably leave this stuff alone unless you know
+# what you are doing.
+#
+################################################################################
+
+all: world
+
+include package/utils/Makefile.in
+
+include package/arch/arch.mk
+include tools/support/dependencies/dependencies.mk
+
+include $(sort $(wildcard package/artinchip/*/*.mk))
+include $(sort $(wildcard package/firmware/*/*.mk))
+include $(sort $(wildcard package/opensbi/*.mk))
+include $(sort $(wildcard package/uboot/*.mk))
+include $(sort $(wildcard package/linux/*.mk))
+include $(sort $(wildcard package/system/*.mk))
+include $(sort $(wildcard package/fs/*.mk))
+include $(sort $(wildcard package/third-party/*/*.mk))
+include $(sort $(wildcard package/toolchain/*.mk))
+include $(sort $(wildcard package/toolchain/*/*.mk))
+
+$(BUILD_DIR)/luban-config/auto.conf: $(BR2_CONFIG)
+	$(MAKE1) $(EXTRAMAKEARGS) HOSTCC="$(HOSTCC_NOCCACHE)" HOSTCXX="$(HOSTCXX_NOCCACHE)" syncconfig
+
+
+.PHONY: prepare
+prepare: $(BUILD_DIR)/luban-config/auto.conf
+
+.PHONY: world
+world: target-post-image
+	@echo
+	@echo "Luban is built successfully!"
+	@echo
+
+# When stripping, obey to BR2_STRIP_EXCLUDE_DIRS and
+# BR2_STRIP_EXCLUDE_FILES
+STRIP_FIND_COMMON_CMD = \
+	$(Q)find $(TARGET_DIR) \
+	$(if $(call qstrip,$(BR2_STRIP_EXCLUDE_DIRS)), \
+		\( $(call finddirclauses,$(TARGET_DIR),$(call qstrip,$(BR2_STRIP_EXCLUDE_DIRS))) \) \
+		-prune -o \
+	) \
+	$(if $(call qstrip,$(BR2_STRIP_EXCLUDE_FILES)), \
+		-not \( $(call findfileclauses,$(call qstrip,$(BR2_STRIP_EXCLUDE_FILES))) \) )
+
+# Regular stripping for everything, except libpthread, ld-*.so and
+# kernel modules:
+# - libpthread.so: a non-stripped libpthread shared library is needed for
+#   proper debugging of pthread programs using gdb.
+# - ld.so: a non-stripped dynamic linker library is needed for valgrind
+# - kernel modules (*.ko): do not function properly when stripped like normal
+#   applications and libraries. Normally kernel modules are already excluded
+#   by the executable permission check, so the explicit exclusion is only
+#   done for kernel modules with incorrect permissions.
+STRIP_FIND_CMD = \
+	$(STRIP_FIND_COMMON_CMD) \
+	-type f \( -perm /111 -o -name '*.so*' \) \
+	-not \( $(call findfileclauses,libpthread*.so* ld-*.so* *.ko) \) \
+	-print0
+
+# Special stripping (only debugging symbols) for libpthread and ld-*.so.
+STRIP_FIND_SPECIAL_LIBS_CMD = \
+	$(STRIP_FIND_COMMON_CMD) \
+	\( -name 'ld-*.so*' -o -name 'libpthread*.so*' \) \
+	-print0
+
+# Generate locale data.
+ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
+GLIBC_GENERATE_LOCALES = $(call qstrip,$(BR2_GENERATE_LOCALE))
+ifneq ($(GLIBC_GENERATE_LOCALES),)
+PACKAGES += host-localedef
+
+define GENERATE_GLIBC_LOCALES
+	$(MAKE) -f tools/support/misc/gen-glibc-locales.mk \
+		ENDIAN=$(call LOWERCASE,$(BR2_ENDIAN)) \
+		LOCALES="$(GLIBC_GENERATE_LOCALES)" \
+		Q=$(Q)
+endef
+TARGET_FINALIZE_HOOKS += GENERATE_GLIBC_LOCALES
+endif
+endif
+
+ifeq ($(BR2_ENABLE_LOCALE_PURGE),y)
+LOCALE_WHITELIST = $(BUILD_DIR)/locales.nopurge
+LOCALE_NOPURGE = $(call qstrip,$(BR2_ENABLE_LOCALE_WHITELIST))
+
+# This piece of junk does the following:
+# First collect the whitelist in a file.
+# Then go over all the locale dirs and for each subdir, check if it exists
+# in the whitelist file. If it doesn't, kill it.
+# Finally, specifically for X11, regenerate locale.dir from the whitelist.
+define PURGE_LOCALES
+	$(Q)printf '%s\n' $(LOCALE_NOPURGE) locale-archive > $(LOCALE_WHITELIST)
+
+	$(Q)for dir in $(addprefix $(TARGET_DIR),/usr/share/locale /usr/share/X11/locale /usr/lib/locale); \
+	do \
+		if [ ! -d $$dir ]; then continue; fi; \
+		for langdir in $$dir/*; \
+		do \
+			if [ -e "$${langdir}" ]; \
+			then \
+				grep -qx "$${langdir##*/}" $(LOCALE_WHITELIST) || rm -rf $$langdir; \
+			fi \
+		done; \
+	done
+	$(Q)if [ -d $(TARGET_DIR)/usr/share/X11/locale ]; \
+	then \
+		for lang in $(LOCALE_NOPURGE); \
+		do \
+			if [ -f $(TARGET_DIR)/usr/share/X11/locale/$$lang/XLC_LOCALE ]; \
+			then \
+				echo "$$lang/XLC_LOCALE: $$lang"; \
+			fi \
+		done > $(TARGET_DIR)/usr/share/X11/locale/locale.dir; \
+	fi
+endef
+TARGET_FINALIZE_HOOKS += PURGE_LOCALES
+endif
+
+$(TARGETS_ROOTFS): target-finalize
+
+$(TARGETS_USERFS): target-finalize
+
+# Avoid the rootfs name leaking down the dependency chain
+target-finalize: ROOTFS=
+
+.PHONY: host-finalize
+host-finalize: $(PACKAGES) $(HOST_DIR) $(HOST_DIR_SYMLINK)
+	@$(call MESSAGE,"Finalizing host directory")
+
+.PHONY: staging-finalize
+staging-finalize: $(STAGING_DIR_SYMLINK)
+
+.PHONY: target-finalize
+target-finalize: $(PACKAGES) $(TARGET_DIR) host-finalize
+	@$(call MESSAGE,"Finalizing target directory")
+	$(call per-package-rsync,$(sort $(PACKAGES)),target,$(TARGET_DIR))
+	$(foreach hook,$(TARGET_FINALIZE_HOOKS),$($(hook))$(sep))
+	$(Q)rm -rf $(TARGET_DIR)/usr/include $(TARGET_DIR)/usr/share/aclocal \
+		$(TARGET_DIR)/usr/lib/pkgconfig $(TARGET_DIR)/usr/share/pkgconfig \
+		$(TARGET_DIR)/usr/lib/cmake $(TARGET_DIR)/usr/share/cmake \
+		$(TARGET_DIR)/usr/doc
+	$(Q)find $(TARGET_DIR)/usr/{lib,share}/ -name '*.cmake' -print0 | xargs -0 rm -f
+	$(Q)find $(TARGET_DIR)/lib/ $(TARGET_DIR)/usr/lib/ $(TARGET_DIR)/usr/libexec/ \
+		\( -name '*.a' -o -name '*.la' -o -name '*.prl' \) -print0 | xargs -0 rm -f
+ifneq ($(BR2_PACKAGE_GDB),y)
+	$(Q)rm -rf $(TARGET_DIR)/usr/share/gdb
+endif
+ifneq ($(BR2_PACKAGE_BASH),y)
+	$(Q)rm -rf $(TARGET_DIR)/usr/share/bash-completion
+	$(Q)rm -rf $(TARGET_DIR)/etc/bash_completion.d
+endif
+ifneq ($(BR2_PACKAGE_ZSH),y)
+	$(Q)rm -rf $(TARGET_DIR)/usr/share/zsh
+endif
+	$(Q)rm -rf $(TARGET_DIR)/usr/man $(TARGET_DIR)/usr/share/man
+	$(Q)rm -rf $(TARGET_DIR)/usr/info $(TARGET_DIR)/usr/share/info
+	$(Q)rm -rf $(TARGET_DIR)/usr/doc $(TARGET_DIR)/usr/share/doc
+	$(Q)rm -rf $(TARGET_DIR)/usr/share/gtk-doc
+	$(Q)rmdir $(TARGET_DIR)/usr/share 2>/dev/null || true
+ifneq ($(BR2_ENABLE_DEBUG):$(BR2_STRIP_strip),y:)
+	$(Q)rm -rf $(TARGET_DIR)/lib/debug $(TARGET_DIR)/usr/lib/debug
+endif
+	$(STRIP_FIND_CMD) | xargs -0 $(STRIPCMD) 2>/dev/null || true
+	$(STRIP_FIND_SPECIAL_LIBS_CMD) | xargs -0 -r $(STRIPCMD) $(STRIP_STRIP_DEBUG) 2>/dev/null || true
+
+	$(Q)test -f $(TARGET_DIR)/etc/ld.so.conf && \
+		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf file"; exit 1; } || true
+	$(Q)test -d $(TARGET_DIR)/etc/ld.so.conf.d && \
+		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf.d directory"; exit 1; } || true
+	$(Q)mkdir -p $(TARGET_DIR)/etc
+	( \
+		echo "NAME=ArtInChip Luban"; \
+		echo "VERSION=$(BR2_VERSION_FULL)"; \
+		echo "ID=Luban"; \
+		echo "VERSION_ID=$(BR2_VERSION)"; \
+		echo "PRETTY_NAME=\"Luban $(BR2_VERSION)\"" \
+	) >  $(TARGET_DIR)/usr/lib/os-release
+	$(Q)ln -sf ../usr/lib/os-release $(TARGET_DIR)/etc
+
+	@$(call MESSAGE,"Sanitizing RPATH in target tree")
+	$(Q)PER_PACKAGE_DIR=$(PER_PACKAGE_DIR) $(TOPDIR)/tools/support/scripts/fix-rpath target
+
+# For a merged /usr, ensure that /lib, /bin and /sbin and their /usr
+# counterparts are appropriately setup as symlinks ones to the others.
+ifeq ($(BR2_ROOTFS_MERGED_USR),y)
+
+	$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
+		@$(call MESSAGE,"Sanity check in overlay $(d)")$(sep) \
+		$(Q)not_merged_dirs="$$(tools/support/scripts/check-merged-usr.sh $(d))"; \
+		test -n "$$not_merged_dirs" && { \
+			echo "ERROR: The overlay in $(d) is not" \
+				"using a merged /usr for the following directories:" \
+				$$not_merged_dirs; \
+			exit 1; \
+		} || true$(sep))
+
+endif # merged /usr
+
+	$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
+		@$(call MESSAGE,"Copying rootfs overlay $(d)")$(sep) \
+		$(Q)$(call SYSTEM_RSYNC,$(d),$(TARGET_DIR))$(sep))
+
+	$(Q)$(if $(TARGET_DIR_FILES_LISTS), \
+		cat $(TARGET_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list.txt
+	$(Q)$(if $(HOST_DIR_FILES_LISTS), \
+		cat $(HOST_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list-host.txt
+	$(Q)$(if $(STAGING_DIR_FILES_LISTS), \
+		cat $(STAGING_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list-staging.txt
+
+	$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_BUILD_SCRIPT)), \
+		@$(call MESSAGE,"Executing post-build script $(s)")$(sep) \
+		$(Q)$(EXTRA_ENV) $(s) $(TARGET_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
+
+	$(Q)touch $(TARGET_DIR)/usr
+
+	$(Q)$(if $(BR2_TARGET_INSTALL_ETC_CONFIG), \
+		cp $(BR2_CONFIG) $(TARGET_DIR)/etc/config/luban_sdk.config)
+
+RUN_POST_IMAGE_SCRIPT=\
+	$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_IMAGE_SCRIPT)), \
+		$(call MESSAGE,"Executing post-image script $(s)"); \
+		$(EXTRA_ENV) $(s) $(BINARIES_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
+
+.PHONY: target-post-image
+target-post-image: $(TARGETS_ROOTFS) $(TARGETS_USERFS) target-finalize staging-finalize
+	@rm -f $(ROOTFS_COMMON_TAR)
+	$(Q)mkdir -p $(BINARIES_DIR)
+	@$(RUN_POST_IMAGE_SCRIPT)
+
+# make image command not generate rootfs, run post-image.sh only.
+image:
+	$(Q)mkdir -p $(BINARIES_DIR)
+	@$(RUN_POST_IMAGE_SCRIPT)
+
+.PHONY: source
+source: $(foreach p,$(PACKAGES),$(p)-all-source)
+
+.PHONY: clean-source
+clean-source: $(foreach p,$(PACKAGES),$(HIDDEN_PREFIX)-$(p)-srcclean)
+
+.PHONY: show-targets
+show-targets:
+	@echo $(sort $(PACKAGES)) $(sort $(TARGETS_ROOTFS)) $(sort $(TARGETS_USERFS))
+
+.PHONY: show-all-packages
+show-all-packages:
+	@echo $(sort $(PACKAGES_ALL))
+
+.PHONY: $(HIDDEN_PREFIX)-pkg_clean
+$(HIDDEN_PREFIX)-pkg_clean: $(foreach p,$(sort $(PACKAGES_BUILD)),$(p)-clean)
+
+.PHONY: $(HIDDEN_PREFIX)-pkg_distclean
+$(HIDDEN_PREFIX)-pkg_distclean: $(foreach p,$(sort $(PACKAGES_BUILD)),$(p)-distclean)
+
+else # ifeq ($(BR2_HAVE_DOT_CONFIG),y)
+# Dummy target to suppress error message
+.PHONY: $(HIDDEN_PREFIX)-pkg_clean
+$(HIDDEN_PREFIX)-pkg_clean:
+
+# Dummy target to suppress error message
+.PHONY: $(HIDDEN_PREFIX)-pkg_distclean
+$(HIDDEN_PREFIX)-pkg_distclean:
+
+# Some subdirectories are also package names. To avoid that "make linux"
+# on an unconfigured tree produces "Nothing to be done", add an explicit
+# rule for it.
+# Also for 'all' we error out and ask the user to configure first.
+.PHONY: linux toolchain
+linux toolchain all: outputmakefile
+	@$(call STANDOUT_MESSAGE,NO DEFCONFIG FOR PROJECT IS APPLIED!)
+	@echo ''
+	@echo 'Please  "make list" to get the defconfig list'
+	@echo 'then    "make <board>_defconfig" to apply one'
+	@echo 'finally "make all" to build image'
+	@echo ''
+	@echo '"make help" to get more information'
+	@exit 1
+
+endif # ifeq ($(BR2_HAVE_DOT_CONFIG),y)
+
+
+# configuration
+# ---------------------------------------------------------------------------
+
+HOSTCFLAGS = $(CFLAGS_FOR_BUILD)
+export HOSTCFLAGS
+
+$(BUILD_DIR)/luban-config/%onf:
+	$(Q)mkdir -p $(@D)/lxdialog
+	$(Q)PKG_CONFIG_PATH="$(HOST_PKG_CONFIG_PATH)" $(MAKE) -s CC="$(HOSTCC_NOCCACHE)" HOSTCC="$(HOSTCC_NOCCACHE)" \
+	    obj=$(@D) -C $(CONFIG) -f Makefile.br $(@F)
+
+DEFCONFIG = $(call qstrip,$(BR2_DEFCONFIG))
+
+
+# We don't want to fully expand BR2_DEFCONFIG here, so Kconfig will
+# recognize that if it's still at its default $(CONFIG_DIR)/defconfig
+COMMON_CONFIG_ENV = \
+	BR2_DEFCONFIG='$(call qstrip,$(value BR2_DEFCONFIG))' \
+	KCONFIG_AUTOCONFIG=$(BUILD_DIR)/luban-config/auto.conf \
+	KCONFIG_AUTOHEADER=$(BUILD_DIR)/luban-config/autoconf.h \
+	KCONFIG_TRISTATE=$(BUILD_DIR)/luban-config/tristate.config \
+	BR2_CONFIG=$(BR2_CONFIG) \
+	HOST_GCC_VERSION="$(HOSTCC_VERSION)" \
+	BASE_DIR=$(BASE_DIR)
+
+
+do_menuconfig: $(BUILD_DIR)/luban-config/mconf outputmakefile
+	@$(COMMON_CONFIG_ENV) $< $(CONFIG_CONFIG_IN)
+
+# For the config targets that automatically select options, we pass
+# SKIP_LEGACY=y to disable the legacy options. However, in that case
+# no values are set for the legacy options so a subsequent oldconfig
+# will query them. Therefore, run an additional olddefconfig.
+
+randconfig allyesconfig alldefconfig allnoconfig: $(BUILD_DIR)/luban-config/conf outputmakefile
+	@$(COMMON_CONFIG_ENV) SKIP_LEGACY=y $< --$@ $(CONFIG_CONFIG_IN)
+	@$(COMMON_CONFIG_ENV) $< --olddefconfig $(CONFIG_CONFIG_IN) >/dev/null
+
+randpackageconfig allyespackageconfig allnopackageconfig: $(BUILD_DIR)/luban-config/conf outputmakefile
+	@grep -v BR2_PACKAGE_ $(BR2_CONFIG) > $(CONFIG_DIR)/.config.nopkg
+	@$(COMMON_CONFIG_ENV) SKIP_LEGACY=y \
+		KCONFIG_ALLCONFIG=$(CONFIG_DIR)/.config.nopkg \
+		$< --$(subst package,,$@) $(CONFIG_CONFIG_IN)
+	@rm -f $(CONFIG_DIR)/.config.nopkg
+	@$(COMMON_CONFIG_ENV) $< --olddefconfig $(CONFIG_CONFIG_IN) >/dev/null
+
+oldconfig syncconfig olddefconfig: $(BUILD_DIR)/luban-config/conf outputmakefile
+	@$(COMMON_CONFIG_ENV) $< --$@ $(CONFIG_CONFIG_IN)
+
+defconfig: $(BUILD_DIR)/luban-config/conf outputmakefile
+	@$(COMMON_CONFIG_ENV) $< --defconfig$(if $(DEFCONFIG),=$(DEFCONFIG)) $(CONFIG_CONFIG_IN)
+
+check_defconfig_change= \
+	@if [ -f $(O)/.defconfig_file ]; then \
+		if [ "`cat $(O)/.defconfig_file`" != "$(1)" ]; then \
+			echo ; \
+			echo "WARNING: defconfig sanity check failed:"; \
+			echo ; \
+			echo "Previous defconfig: `cat $(O)/.defconfig_file`"; \
+			echo "New defconfig: $(1)"; \
+			echo "You are applying a different defconfig to an exist project, it may cause unpredictable error."; \
+			echo " 1. You can 'make distclean' to clean the project, then make again."; \
+			echo " 2. Or you can use 'make O=<build directory> <defconfig>' to build it in another directory."; \
+			echo ; \
+			false; \
+		fi; \
+	fi
+
+define percent_defconfig
+# Override the BR2_DEFCONFIG from COMMON_CONFIG_ENV with the new defconfig
+%_defconfig: $(BUILD_DIR)/luban-config/conf $(1)/target/configs/%_defconfig outputmakefile
+	$(call check_defconfig_change,$(1)/target/configs/$$@)
+	@$$(COMMON_CONFIG_ENV) BR2_DEFCONFIG=$(1)/target/configs/$$@ \
+		$(BUILD_DIR)/luban-config/conf --defconfig=$(1)/target/configs/$$@ $$(CONFIG_CONFIG_IN)
+	@echo "$(1)/target/configs/$$@" >$(O)/.defconfig_file
+	@echo "LUBAN_CURRENT_OUT=$(LUBAN_CURRENT_OUT)">$(CURDIR)/output/.current
+ifeq ($(B),1)
+	$(MAKE) O=$(O) all
+endif
+endef
+$(eval $(foreach d,$(call reverse,$(TOPDIR) $(BR2_EXTERNAL_DIRS)),$(call percent_defconfig,$(d))$(sep)))
+
+update-defconfig: savedefconfig
+
+savedefconfig: $(BUILD_DIR)/luban-config/conf outputmakefile
+	@$(COMMON_CONFIG_ENV) $< \
+		--savedefconfig=$(CONFIG_DIR)/defconfig \
+		$(CONFIG_CONFIG_IN)
+	@$(SED) '/^BR2_DEFCONFIG=/d' $(CONFIG_DIR)/defconfig
+	@if [ -f $(O)/.defconfig_file ]; then \
+		cp -f $(CONFIG_DIR)/defconfig `cat $(O)/.defconfig_file`; \
+		echo "`cat $(O)/.defconfig_file` is updated"; \
+	fi
+
+.PHONY: defconfig savedefconfig update-defconfig
+
+################################################################################
+#
+# Cleanup and misc junk
+#
+################################################################################
+
+# staging and target directories do NOT list these as
+# dependencies anywhere else
+$(BUILD_DIR) $(BASE_TARGET_DIR) $(HOST_DIR) $(BINARIES_DIR) $(LEGAL_INFO_DIR) $(REDIST_SOURCES_DIR_TARGET) $(REDIST_SOURCES_DIR_HOST) $(PER_PACKAGE_DIR):
+	@mkdir -p $@
+
+# outputmakefile generates a Makefile in the output directory, if using a
+# separate output directory. This allows convenient use of make in the
+# output directory.
+.PHONY: outputmakefile
+outputmakefile:
+ifeq ($(NEED_WRAPPER),y)
+	$(Q)$(TOPDIR)/tools/support/scripts/mkmakefile $(TOPDIR) $(O)
+endif
+
+# printvars prints all the variables currently defined in our
+# Makefiles. Alternatively, if a non-empty VARS variable is passed,
+# only the variables matching the make pattern passed in VARS are
+# displayed.
+# show-vars does the same, but as a JSON dictionnary.
+.PHONY: printvars
+printvars:
+	@:
+	$(foreach V, \
+		$(sort $(filter $(VARS),$(.VARIABLES))), \
+		$(if $(filter-out environment% default automatic, \
+				$(origin $V)), \
+		$(if $(QUOTED_VARS),\
+			$(info $V='$(subst ','\'',$(if $(RAW_VARS),$(value $V),$($V)))'), \
+			$(info $V=$(if $(RAW_VARS),$(value $V),$($V))))))
+# ')))) # Syntax colouring...
+
+.PHONY: show-vars
+show-vars: VARS?=%
+show-vars:
+	@:
+	$(info $(call clean-json, { \
+			$(foreach V, \
+				$(sort $(filter $(VARS),$(.VARIABLES))), \
+				$(if $(filter-out environment% default automatic, $(origin $V)), \
+					"$V": { \
+						"expanded": $(call mk-json-str,$($V))$(comma) \
+						"raw": $(call mk-json-str,$(value $V)) \
+					}$(comma) \
+				) \
+			) \
+	} ))
+
+.PHONY: $(HIDDEN_PREFIX)-clean
+$(HIDDEN_PREFIX)-clean: $(HIDDEN_PREFIX)-pkg_clean
+	$(Q)rm -rf $(BASE_TARGET_DIR) \
+		$(BINARIES_DIR) \
+		$(HOST_DIR) \
+		$(BUILD_DIR) \
+		$(BASE_DIR)/staging
+
+.PHONY: $(HIDDEN_PREFIX)-distclean
+$(HIDDEN_PREFIX)-distclean: $(HIDDEN_PREFIX)-pkg_distclean
+	$(Q)rm -rf $(BASE_TARGET_DIR) \
+		$(BINARIES_DIR) \
+		$(HOST_DIR) \
+		$(BUILD_DIR) \
+		$(BASE_DIR)/staging
+ifeq ($(O),$(CURDIR)/output)
+	$(Q)rm -rf $(O)
+endif
+	$(Q)rm -rf $(BR2_CONFIG) \
+		$(CONFIG_DIR)/.defconfig_file \
+		$(CONFIG_DIR)/.config.old \
+		$(CONFIG_DIR)/..config.tmp \
+		$(CONFIG_DIR)/.auto.deps
+
+.PHONY: help-full
+help-full:
+	@echo 'Cleaning:'
+	@echo '  clean                  - delete all files created by build'
+	@echo '  clean-source           - delete all source files created by build'
+	@echo '  distclean              - delete all non-source files (including .config)'
+	@echo
+	@echo 'Build:'
+	@echo '  all                    - make world'
+	@echo
+	@echo 'Configuration:'
+	@echo '  menuconfig             - interactive curses-based configurator'
+	@echo '  savedefconfig          - Save current config to BR2_DEFCONFIG (minimal config)'
+	@echo
+	@echo 'Package-specific:'
+	@echo '  <pkg>                  - Build and install <pkg> and all its dependencies'
+	@echo '  <pkg>-source           - Only download the source files for <pkg>'
+	@echo '  <pkg>-extract          - Extract <pkg> sources'
+	@echo '  <pkg>-srcclean         - Remove extracted source files for <pkg>'
+	@echo '  <pkg>-patch            - Apply patches to <pkg>'
+	@echo '  <pkg>-depends          - Build <pkg>'\''s dependencies'
+	@echo '  <pkg>-configure        - Build <pkg> up to the configure step'
+	@echo '  <pkg>-build            - Build <pkg> up to the build step'
+	@echo '  <pkg>-show-info        - generate info about <pkg>, as a JSON blurb'
+	@echo '  <pkg>-show-depends     - List packages on which <pkg> depends'
+	@echo '  <pkg>-show-rdepends    - List packages which have <pkg> as a dependency'
+	@echo '  <pkg>-show-recursive-depends'
+	@echo '                         - Recursively list packages on which <pkg> depends'
+	@echo '  <pkg>-show-recursive-rdepends'
+	@echo '                         - Recursively list packages which have <pkg> as a dependency'
+	@echo '  <pkg>-clean         - Remove <pkg> build directory'
+	@echo '  <pkg>-reconfigure      - Restart the build from the configure step'
+	@echo '  <pkg>-rebuild          - Restart the build from the build step'
+	@echo '  <pkg>-reinstall        - Restart the build from the install step'
+	$(foreach p,$(HELP_PACKAGES), \
+		@echo $(sep) \
+		@echo '$($(p)_NAME):' $(sep) \
+		$($(p)_HELP_CMDS)$(sep))
+	@echo
+	@echo 'Miscellaneous:'
+	@echo '  source                 - download all sources needed for offline-build'
+	@echo '  external-deps          - list external packages used'
+	@echo '  show-info              - generate info about packages, as a JSON blurb'
+	@echo '  printvars              - dump internal variables selected with VARS=...'
+	@echo '  show-vars              - dump all internal variables as a JSON blurb; use VARS=...'
+	@echo '                           to limit the list to variables names matching that pattern'
+	@echo
+	@echo '  make V=0|1             - 0 => quiet build (default), 1 => verbose build'
+	@echo '  make O=dir             - Locate all output files in "dir", including .config'
+	@echo
+
+# List the defconfig files
+# $(1): base directory
+# $(2): br2-external name, empty for bundled
+define list-defconfigs
+	@first=true; \
+	for defconfig in $(1)/target/configs/*_defconfig; do \
+		[ -f "$${defconfig}" ] || continue; \
+		if $${first}; then \
+			if [ "$(2)" ]; then \
+				printf 'External configs in "$(call qstrip,$(2))":\n'; \
+			else \
+				printf "Built-in configs:\n"; \
+			fi; \
+			first=false; \
+		fi; \
+		defconfig="$${defconfig##*/}"; \
+		printf "  %-35s - Build for %s\n" "$${defconfig}" "$${defconfig%_defconfig}"; \
+	done; \
+	$${first} || printf "\n"
+endef
+
+# We iterate over BR2_EXTERNAL_NAMES rather than BR2_EXTERNAL_DIRS,
+# because we want to display the name of the br2-external tree.
+.PHONY: list-defconfigs
+list-defconfigs:
+	$(call list-defconfigs,$(TOPDIR))
+	$(foreach name,$(BR2_EXTERNAL_NAMES),\
+		$(call list-defconfigs,$(BR2_EXTERNAL_$(name)_PATH),\
+			$(BR2_EXTERNAL_$(name)_DESC))$(sep))
+
+print-version:
+	@echo $(BR2_VERSION_FULL)
+
+check-flake8:
+	$(Q)git ls-tree -r --name-only HEAD \
+	| xargs file \
+	| grep 'Python script' \
+	| cut -d':' -f1 \
+	| xargs -- python3 -m flake8 --statistics
+
+check-package:
+	find $(TOPDIR) -type f \( -name '*.mk' -o -name '*.hash' -o -name 'Config.*' -o -name '*.patch' \) \
+		-exec ./utils/check-package --exclude=Sob {} +
+
+.PHONY: $(noconfig_targets)
+

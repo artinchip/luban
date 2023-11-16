@@ -1,0 +1,26 @@
+From d17eee67f35d6a35c7ba0b11bf00faeb65d77403 Mon Sep 17 00:00:00 2001
+From: matteo <duanmt@artinchip.com>
+Date: Mon, 12 Sep 2022 09:26:22 +0800
+Subject: [PATCH] leapseconds: Use 'Expires' instead of 'expires'
+
+Signed-off-by: matteo <duanmt@artinchip.com>
+---
+ leapseconds | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/leapseconds b/leapseconds
+index cf0df04..a198b6b 100644
+--- a/leapseconds
++++ b/leapseconds
+@@ -76,7 +76,7 @@ Leap	2016	Dec	31	23:59:60	+	S
+ 
+ # POSIX timestamps for the data in this file:
+ #updated 1467936000 (2016-07-08 00:00:00 UTC)
+-#expires 1640649600 (2021-12-28 00:00:00 UTC)
++#Expires 1640649600 (2021-12-28 00:00:00 UTC)
+ 
+ #	Updated through IERS Bulletin C61
+ #	File expires on:  28 December 2021
+-- 
+2.29.0
+

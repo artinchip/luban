@@ -1,0 +1,71 @@
+if BR2_TOOLCHAIN_EXTERNAL
+
+# comment "Toolchain External Options"
+
+source "package/toolchain/toolchain-external/toolchain-external-custom/Config.in"
+
+config BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
+	bool # "Toolchain to be downloaded and installed"
+	default y
+	help
+	  Select this option if you want Buildroot to download and
+	  install the toolchain. If you have selected a custom
+	  toolchain, specify the URL in BR2_TOOLCHAIN_EXTERNAL_URL.
+
+config BR2_TOOLCHAIN_EXTERNAL_PATH
+	string "Toolchain path"
+	default ""
+	depends on BR2_TOOLCHAIN_EXTERNAL_PREINSTALLED
+	help
+	  Path to where the external toolchain is installed. The
+	  compiler itself is expected to be in the "bin" subdirectory
+	  of this path.
+
+	  If empty, the compiler will be searched in $PATH.
+
+config BR2_TOOLCHAIN_EXTERNAL_GLIBC
+	bool
+	select BR2_TOOLCHAIN_USES_GLIBC
+
+config BR2_TOOLCHAIN_EXTERNAL_MUSL
+	bool
+	select BR2_TOOLCHAIN_USES_MUSL
+	# Compatibility headers: cdefs.h, queue.h
+	select BR2_PACKAGE_MUSL_COMPAT_HEADERS
+
+# Make sure the virtual-package infra checks the provider
+config BR2_PACKAGE_HAS_TOOLCHAIN_EXTERNAL
+	bool
+	default y
+
+config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
+	string
+
+config BR2_TOOLCHAIN_EXTERNAL_PREFIX
+	string
+
+# Kept toolchains sorted as in the choice above
+# The toolchain Config.in.options must define
+# BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL and BR2_TOOLCHAIN_EXTERNAL_PREFIX
+
+# Custom toolchains
+source "package/toolchain/toolchain-external/toolchain-external-custom/Config.in.options"
+
+config BR2_TARGET_OPTIMIZATION
+	string # "Target Optimizations"
+	default ""
+	help
+	  Optimizations to use when building for the target host.
+	  NOTE: gcc optimization level is defined in build options.
+
+config BR2_TARGET_LDFLAGS
+	string # "Target linker options"
+	help
+	  Extra options to pass to the linker when building for the
+	  target.
+
+	  Note that options with a '$' sign (eg.
+	  -Wl,-rpath='$ORIGIN/../lib') are not supported.
+
+source "package/toolchain/toolchain-external/toolchain-external-custom/Config.in.advance.options"
+endif # BR2_TOOLCHAIN_EXTERNAL

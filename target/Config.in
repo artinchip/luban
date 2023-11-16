@@ -1,0 +1,24 @@
+choice
+	prompt "Chip select"
+
+config LUBAN_CHIP_D211
+	bool "d211"
+	select BR2_riscv
+	select BR2_riscv64_gcxthead
+	select BR2_RISCV_64
+	select BR2_RISCV_ABI_LP64D
+
+endchoice
+
+if LUBAN_CHIP_D211 || LUBAN_CHIP_D211_QEMU
+source target/d211/Config.in
+endif
+
+config LUBAN_CHIP_NAME
+	string
+	default "d211" if LUBAN_CHIP_D211
+
+config LUBAN_BOARD_NAME
+	string
+	default LUBAN_BOARD_OF_D211 if LUBAN_CHIP_D211
+

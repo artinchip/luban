@@ -1,0 +1,13 @@
+#
+#  Touchscreen driver configuration
+#
+config TOUCHSCREEN_GSL168X
+       tristate "gsl168x based touchscreens"
+       depends on I2C
+       help 
+         Say Y here if you have a gsl168x based touchscreen.
+
+         If unsure, say N.
+
+         To compile this driver as a module, choose M here: the
+         module will be called gsl168x.

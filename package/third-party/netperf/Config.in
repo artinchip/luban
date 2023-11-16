@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_NETPERF
+	bool "netperf"
+	help
+	  Network performance benchmark tool
+
+	  https://hewlettpackard.github.io/netperf/
+
+if BR2_PACKAGE_NETPERF
+config BR2_PACKAGE_NETPERF_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

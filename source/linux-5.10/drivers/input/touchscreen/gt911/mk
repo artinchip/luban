@@ -1,0 +1,11 @@
+obj-m := gt911.o                   #要生成的模块名      
+
+gt911-objs := ts.o init-input.o
+KERNEL_DIR := ../../../../linux-4.9.138
+PWD := $(shell pwd)
+
+default:
+	make -C $(KERNEL_DIR) M=$(PWD) ARCH=arm CROSS_COMPILE=/home/sharedir/X5/arm-toolchain/ext-toolchain/bin/arm-linux-gnueabi-  modules
+		
+clean:
+	make -C $(KERNEL_DIR) SUBDIRS=$(PWD) clean

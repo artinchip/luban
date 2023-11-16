@@ -1,0 +1,10 @@
+menuconfig BR2_PACKAGE_HOST_LIBOPENSSL
+	bool "host libopenssl"
+	depends on BR2_PACKAGE_LIBOPENSSL
+
+if BR2_PACKAGE_HOST_LIBOPENSSL
+config BR2_PACKAGE_HOST_LIBOPENSSL_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif
+

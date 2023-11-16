@@ -1,0 +1,330 @@
+menu "Linux kernel"
+
+config BR2_LINUX_KERNEL
+	bool
+	default y
+	select BR2_PACKAGE_HOST_KMOD # Unconditional, even if modules not enabled
+	select BR2_PACKAGE_HOST_IMAGEMAGICK if BR2_LINUX_KERNEL_CUSTOM_LOGO_PATH != ""
+	help
+	  Enable this option if you want to build a Linux kernel for
+	  your embedded device
+
+if BR2_LINUX_KERNEL
+
+# Packages that need to have a kernel with support for loadable modules,
+# but do not use the kernel-modules infrastructure, should select that
+# option.
+config BR2_LINUX_NEEDS_MODULES
+	bool
+
+config BR2_LINUX_KERNEL_CUSTOM_VERSION
+	bool
+	default y
+	help
+	  This option allows to use a specific official version from
+	  kernel.org, like 2.6.x, 2.6.x.y, 3.x.y, ...
+
+	  Note: you cannot use this option to select a _longterm_ 2.6
+	  kernel, because these kernels are not located at the standard
+	  URL at kernel.org. Instead, select "Custom tarball" and
+	  specify the right URL directly.
+
+
+config BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE
+	string "Kernel version"
+	depends on BR2_LINUX_KERNEL_CUSTOM_VERSION
+
+config BR2_LINUX_KERNEL_VERSION
+	string
+	default "5.15.6" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "5.10.83-cip1" if BR2_LINUX_KERNEL_LATEST_CIP_VERSION
+	default "5.10.83-cip1-rt1" if BR2_LINUX_KERNEL_LATEST_CIP_RT_VERSION
+	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
+		if BR2_LINUX_KERNEL_CUSTOM_VERSION
+	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL
+	default BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION \
+		if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL_CUSTOM_SVN
+
+config BR2_LINUX_KERNEL_USE_DEFCONFIG
+	bool
+	default y
+
+config BR2_LINUX_KERNEL_DEFCONFIG
+	string "defconfig"
+	depends on BR2_LINUX_KERNEL_USE_DEFCONFIG
+	help
+	  Name of the kernel defconfig file to use, without the
+	  trailing _defconfig.  The defconfig is located in
+	  arch/<arch>/configs in the kernel tree.
+
+menu "Advance setting"
+#
+# Patch selection
+#
+
+config BR2_LINUX_KERNEL_PATCH
+	string # "Custom kernel patches"
+	help
+	  A space-separated list of patches to apply to the
+	  kernel. Each patch can be described as an URL, a local file
+	  path, or a directory. In the case of a directory, all files
+	  matching *.patch in the directory will be applied.
+
+#
+# Configuration selection
+#
+
+config BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES
+	string # "Additional configuration fragment files"
+	help
+	  A space-separated list of kernel configuration fragment files,
+	  that will be merged to the main kernel configuration file.
+
+config BR2_LINUX_KERNEL_CUSTOM_LOGO_PATH
+	string "Custom boot logo file path"
+	help
+	  Use a custom Linux framebuffer boot logo.
+	  Custom logo should be in PNG or JPEG format, it will be
+	  converted to the linux kernel format (224 colors only)
+	  and copied over the original logo file.
+
+#
+# Binary format
+#
+
+choice
+	prompt "Kernel binary format"
+	default BR2_LINUX_KERNEL_ZIMAGE if BR2_arm || BR2_armeb
+
+config BR2_LINUX_KERNEL_ZIMAGE
+	bool "zImage"
+	depends on BR2_arm || BR2_armeb || BR2_powerpc || \
+		   BR2_powerpc64 || BR2_powerpc64le || BR2_sparc || \
+		   BR2_sh || BR2_xtensa
+
+config BR2_LINUX_KERNEL_APPENDED_ZIMAGE
+	bool "zImage with appended DT"
+	depends on BR2_arm || BR2_armeb
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_APPENDED_DTB
+
+config BR2_LINUX_KERNEL_IMAGE
+	bool "Image"
+	depends on BR2_aarch64 || BR2_riscv
+
+config BR2_LINUX_KERNEL_IMAGEBZ2
+	bool "Image.bz2"
+	depends on BR2_riscv
+
+config BR2_LINUX_KERNEL_IMAGEGZ
+	bool "Image.gz"
+	depends on BR2_aarch64 || BR2_riscv
+
+config BR2_LINUX_KERNEL_IMAGELZ4
+	bool "Image.lz4"
+	depends on BR2_riscv
+
+config BR2_LINUX_KERNEL_IMAGELZMA
+	bool "Image.lzma"
+	depends on BR2_riscv
+
+config BR2_LINUX_KERNEL_IMAGELZO
+	bool "Image.lzo"
+	depends on BR2_riscv
+
+config BR2_LINUX_KERNEL_LINUX_BIN
+	bool "linux.bin"
+	depends on BR2_microblaze
+	select BR2_PACKAGE_HOST_UBOOT_TOOLS
+
+config BR2_LINUX_KERNEL_VMLINUX_BIN
+	bool "vmlinux.bin"
+	depends on BR2_mips || BR2_mipsel || BR2_sh
+
+config BR2_LINUX_KERNEL_VMLINUX
+	bool "vmlinux"
+
+config BR2_LINUX_KERNEL_VMLINUZ
+	bool "vmlinuz"
+	depends on BR2_mips || BR2_mipsel
+
+config BR2_LINUX_KERNEL_VMLINUZ_BIN
+	bool "vmlinuz.bin"
+	depends on BR2_mips || BR2_mipsel
+
+config BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM
+	bool "custom target"
+	help
+	  For certain cases a board-specific target image must be
+	  used.  For example, on powerPC where the OpenFirmware
+	  description is attached in a board-specific kernel image
+	  target like 'cuImage.mpc8379_rdb'.
+
+	  Select this option and specify the make target in "Kernel
+	  image target name".
+
+endchoice
+
+#
+# Kernel compression format
+#
+
+choice
+	prompt "Kernel compression format"
+	depends on !BR2_riscv
+	help
+	  This selection will just ensure that the correct host tools
+	  are built. The actual compression for the kernel should be
+	  selected in the kernel configuration menu.
+
+config BR2_LINUX_KERNEL_GZIP
+	bool "gzip compression"
+
+config BR2_LINUX_KERNEL_LZ4
+	bool "lz4 compression"
+
+config BR2_LINUX_KERNEL_LZMA
+	bool "lzma compression"
+
+config BR2_LINUX_KERNEL_LZO
+	bool "lzo compression"
+
+config BR2_LINUX_KERNEL_XZ
+	bool "xz compression"
+
+config BR2_LINUX_KERNEL_ZSTD
+	bool "zstd compression"
+
+config BR2_LINUX_KERNEL_UNCOMPRESSED
+	bool "uncompressed"
+	depends on BR2_s390x
+
+endchoice
+
+config BR2_LINUX_KERNEL_IMAGE_TARGET_NAME
+	string "Kernel image target name"
+	depends on BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM
+	help
+	  Specify the kernel make target to build the kernel that you
+	  need.
+
+config BR2_LINUX_KERNEL_IMAGE_NAME
+	string "Kernel image name"
+	depends on BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM
+	help
+	  The filename of the kernel image, if it is different from
+	  the make target (above). Defaults to
+	  BR2_LINUX_KERNEL_IMAGE_TARGET_NAME. If specified, the
+	  filename is relative to arch/ARCH/boot/.
+
+	  If unsure, leave it empty.
+
+config BR2_LINUX_KERNEL_DTS_SUPPORT
+	bool # "Build a Device Tree Blob (DTB)"
+	help
+	  Compile one or more device tree sources into device tree
+	  blobs.
+	  Select the dts files to compile in the options below.
+
+if BR2_LINUX_KERNEL_DTS_SUPPORT
+
+# We have mainly three cases when it comes to device tree support:
+#   1) We don't want any support at all. Then the ..DTS_SUPPORT
+#      variable won't be set
+#   2) We want device tree support, so we need the user to enter the
+#      device tree name or the path to the custom device he uses, but
+#      the kernel abstracts this from us and only build an image that
+#      looks like a regular kernel image. In this case, we only need
+#      to derive the kernel image name from the given device tree
+#      name, and all the rest is as usual
+#   3) We want device tree support, but the kernel requires us to
+#      build the device tree blob separately. In this case, some
+#      more logic will be needed.
+# The variable below address the second case, were you only want
+# limited actions from buildroot.
+config BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
+	bool "DTB is built by kernel itself"
+	help
+	  Normally, the device tree(s) to be built have to be passed
+	  explicitly to the kernel build system. For some binary
+	  formats, however, the kernel build system links in the
+	  device tree directly in the kernel binary. Select this option
+	  if you have such a kernel binary format.
+
+config BR2_LINUX_KERNEL_APPENDED_DTB
+	bool
+
+config BR2_LINUX_KERNEL_INTREE_DTS_NAME
+	string "In-tree Device Tree Source file names"
+	help
+	  Name of in-tree device tree source file, without
+	  the trailing .dts. You can provide a list of
+	  dts files to build, separated by spaces.
+
+config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
+	string "Out-of-tree Device Tree Source file paths"
+	help
+	  Path to the out-of-tree device tree source files.
+	  You can provide a list of dts paths to copy and
+	  build, separated by spaces.
+
+config BR2_LINUX_KERNEL_DTB_KEEP_DIRNAME
+	bool "Keep the directory name of the Device Tree"
+	help
+	  If enabled, the device tree blobs keep their
+	  directory prefixes when they get copied to the
+	  output image directory or the target directory.
+
+config BR2_LINUX_KERNEL_DTB_OVERLAY_SUPPORT
+	bool "Build Device Tree with overlay support"
+	help
+	  If enabled, pass the "-@" option to dtc, such that
+	  symbols are generated in the compiled Device Tree.
+	  Choose this option to support Device Tree overlays
+	  on the target system.
+
+endif
+
+config BR2_LINUX_KERNEL_INSTALL_TARGET
+	bool # "Install kernel image to /boot in target"
+	depends on !BR2_TARGET_ROOTFS_INITRAMFS
+	help
+	  Select this option to have the kernel image installed to
+	  /boot in the target root filesystem, as is typically done on
+	  x86/x86_64 systems.
+
+	  Note that this option also installs the Device Tree Blobs to
+	  /boot if DTBs have been generated by the kernel build
+	  process.
+
+config BR2_LINUX_KERNEL_NEEDS_HOST_OPENSSL
+	bool # "Needs host OpenSSL"
+	help
+	  Some Linux kernel configuration options (such as
+	  CONFIG_SYSTEM_TRUSTED_KEYRING) require building a host
+	  program called extract-cert, which itself needs
+	  OpenSSL. Enabling this option will ensure host-openssl gets
+	  built before the Linux kernel.
+
+	  Enable this option if you get a Linux kernel build failure
+	  such as "scripts/extract-cert.c:21:25: fatal error:
+	  openssl/bio.h: No such file or directory".
+
+config BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF
+	bool # "Needs host libelf"
+	help
+	  Some Linux kernel configuration options (such as
+	  CONFIG_UNWINDER_ORC) require building a host program that
+	  needs libelf. Enabling this option will ensure host-elfutils
+	  (which provides libelf) gets built before the Linux kernel.
+
+	  Enable this option if you get a Linux kernel build failure
+	  such as "Cannot generate ORC metadata for
+	  CONFIG_UNWINDER_ORC=y, please install libelf-dev,
+	  libelf-devel or elfutils-libelf-devel".
+
+# Linux tools
+source "package/third-party/linux-tools/Config.in"
+endmenu
+endif # BR2_LINUX_KERNEL
+endmenu

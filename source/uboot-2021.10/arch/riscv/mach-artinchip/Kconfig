@@ -1,0 +1,30 @@
+if ARCH_ARTINCHIP
+
+config SYS_SOC
+	default "artinchip"
+
+config SYS_VENDOR
+	default "artinchip"
+
+config SYS_CPU
+	default "c906"
+
+choice
+	prompt "ArtInChip SoC select"
+	depends on ARCH_ARTINCHIP
+
+config TARGET_D211
+	bool "ArtInChip D211 SoC"
+	select ARCH_RV64I
+	help
+	  The ArtInChip D211 is a RISC-V based SoC with T-Head C906
+
+endchoice
+
+config FPGA_BOARD_ARTINCHIP
+	bool "ArtInChip FPGA board"
+	depends on ARCH_ARTINCHIP
+
+source "board/artinchip/d211/Kconfig"
+
+endif

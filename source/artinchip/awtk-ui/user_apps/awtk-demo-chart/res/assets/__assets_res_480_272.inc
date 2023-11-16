@@ -1,0 +1,277 @@
+#include "awtk.h"
+#include "base/assets_manager.h"
+#ifndef WITH_FS_RES
+#include "res_480_272/inc/ui/home_page.data"
+#include "res_480_272/inc/ui/system_bar.data"
+#include "res_480_272/inc/ui/window_bar.data"
+#include "res_480_272/inc/ui/window_line.data"
+#include "res_480_272/inc/ui/window_meter.data"
+#include "res_480_272/inc/ui/window_pie.data"
+#include "res_480_272/inc/strings/en_US.data"
+#include "res_480_272/inc/strings/zh_CN.data"
+#include "res_480_272/inc/styles/default.data"
+#ifdef WITH_STB_IMAGE
+#else
+#include "res_480_272/inc/images/arrow_down_d.data"
+#include "res_480_272/inc/images/arrow_down_f.data"
+#include "res_480_272/inc/images/arrow_down_n.data"
+#include "res_480_272/inc/images/arrow_down_o.data"
+#include "res_480_272/inc/images/arrow_down_p.data"
+#include "res_480_272/inc/images/arrow_left_d.data"
+#include "res_480_272/inc/images/arrow_left_f.data"
+#include "res_480_272/inc/images/arrow_left_n.data"
+#include "res_480_272/inc/images/arrow_left_o.data"
+#include "res_480_272/inc/images/arrow_left_p.data"
+#include "res_480_272/inc/images/arrow_right_d.data"
+#include "res_480_272/inc/images/arrow_right_f.data"
+#include "res_480_272/inc/images/arrow_right_n.data"
+#include "res_480_272/inc/images/arrow_right_o.data"
+#include "res_480_272/inc/images/arrow_right_p.data"
+#include "res_480_272/inc/images/arrow_up_d.data"
+#include "res_480_272/inc/images/arrow_up_f.data"
+#include "res_480_272/inc/images/arrow_up_n.data"
+#include "res_480_272/inc/images/arrow_up_o.data"
+#include "res_480_272/inc/images/arrow_up_p.data"
+#include "res_480_272/inc/images/backspace.data"
+#include "res_480_272/inc/images/back_normal.data"
+#include "res_480_272/inc/images/back_pressed.data"
+#include "res_480_272/inc/images/bg_main.data"
+#include "res_480_272/inc/images/check_checked_d.data"
+#include "res_480_272/inc/images/check_checked_f.data"
+#include "res_480_272/inc/images/check_checked_n.data"
+#include "res_480_272/inc/images/check_checked_o.data"
+#include "res_480_272/inc/images/check_checked_p.data"
+#include "res_480_272/inc/images/check_d.data"
+#include "res_480_272/inc/images/check_f.data"
+#include "res_480_272/inc/images/check_n.data"
+#include "res_480_272/inc/images/check_o.data"
+#include "res_480_272/inc/images/check_p.data"
+#include "res_480_272/inc/images/clock_bg.data"
+#include "res_480_272/inc/images/clock_hour.data"
+#include "res_480_272/inc/images/clock_minute.data"
+#include "res_480_272/inc/images/clock_second.data"
+#include "res_480_272/inc/images/close_d.data"
+#include "res_480_272/inc/images/close_n.data"
+#include "res_480_272/inc/images/close_o.data"
+#include "res_480_272/inc/images/close_p.data"
+#include "res_480_272/inc/images/cross.data"
+#include "res_480_272/inc/images/earth.data"
+#include "res_480_272/inc/images/graph_normal_en.data"
+#include "res_480_272/inc/images/graph_normal_zh.data"
+#include "res_480_272/inc/images/graph_pressed_en.data"
+#include "res_480_272/inc/images/graph_pressed_zh.data"
+#include "res_480_272/inc/images/guage_bg.data"
+#include "res_480_272/inc/images/guage_bg_1.data"
+#include "res_480_272/inc/images/guage_bg_2.data"
+#include "res_480_272/inc/images/guage_pointer.data"
+#include "res_480_272/inc/images/guage_pointer_1.data"
+#include "res_480_272/inc/images/guage_pointer_2.data"
+#include "res_480_272/inc/images/histogram_normal_en.data"
+#include "res_480_272/inc/images/histogram_normal_zh.data"
+#include "res_480_272/inc/images/histogram_pressed_en.data"
+#include "res_480_272/inc/images/histogram_pressed_zh.data"
+#include "res_480_272/inc/images/icon_1_normal.data"
+#include "res_480_272/inc/images/icon_1_pressed.data"
+#include "res_480_272/inc/images/icon_2_normal.data"
+#include "res_480_272/inc/images/icon_2_pressed.data"
+#include "res_480_272/inc/images/icon_3_normal.data"
+#include "res_480_272/inc/images/icon_3_pressed.data"
+#include "res_480_272/inc/images/icon_4_normal.data"
+#include "res_480_272/inc/images/icon_4_pressed.data"
+#include "res_480_272/inc/images/icon_5_normal.data"
+#include "res_480_272/inc/images/icon_5_pressed.data"
+#include "res_480_272/inc/images/icon_6_normal.data"
+#include "res_480_272/inc/images/icon_6_pressed.data"
+#include "res_480_272/inc/images/language_en.data"
+#include "res_480_272/inc/images/language_zh.data"
+#include "res_480_272/inc/images/meter_normal_en.data"
+#include "res_480_272/inc/images/meter_normal_zh.data"
+#include "res_480_272/inc/images/meter_pressed_en.data"
+#include "res_480_272/inc/images/meter_pressed_zh.data"
+#include "res_480_272/inc/images/new_normal.data"
+#include "res_480_272/inc/images/new_pressed.data"
+#include "res_480_272/inc/images/num0.data"
+#include "res_480_272/inc/images/num1.data"
+#include "res_480_272/inc/images/num2.data"
+#include "res_480_272/inc/images/num3.data"
+#include "res_480_272/inc/images/num4.data"
+#include "res_480_272/inc/images/num5.data"
+#include "res_480_272/inc/images/num6.data"
+#include "res_480_272/inc/images/num7.data"
+#include "res_480_272/inc/images/num8.data"
+#include "res_480_272/inc/images/num9.data"
+#include "res_480_272/inc/images/numdot.data"
+#include "res_480_272/inc/images/pause_mormal.data"
+#include "res_480_272/inc/images/pause_pressed.data"
+#include "res_480_272/inc/images/pie_label_normal.data"
+#include "res_480_272/inc/images/pie_label_select.data"
+#include "res_480_272/inc/images/pie_normal_en.data"
+#include "res_480_272/inc/images/pie_normal_zh.data"
+#include "res_480_272/inc/images/pie_pressed_en.data"
+#include "res_480_272/inc/images/pie_pressed_zh.data"
+#include "res_480_272/inc/images/play_normal.data"
+#include "res_480_272/inc/images/play_pressed.data"
+#include "res_480_272/inc/images/radio_checked_d.data"
+#include "res_480_272/inc/images/radio_checked_f.data"
+#include "res_480_272/inc/images/radio_checked_n.data"
+#include "res_480_272/inc/images/radio_checked_o.data"
+#include "res_480_272/inc/images/radio_checked_p.data"
+#include "res_480_272/inc/images/radio_d.data"
+#include "res_480_272/inc/images/radio_f.data"
+#include "res_480_272/inc/images/radio_n.data"
+#include "res_480_272/inc/images/radio_o.data"
+#include "res_480_272/inc/images/radio_p.data"
+#include "res_480_272/inc/images/rounded_n.data"
+#include "res_480_272/inc/images/rounded_o.data"
+#include "res_480_272/inc/images/rounded_p.data"
+#include "res_480_272/inc/images/shift.data"
+#include "res_480_272/inc/images/shifton.data"
+#endif /*WITH_STB_IMAGE*/
+#ifdef WITH_VGCANVAS
+#endif /*WITH_VGCANVAS*/
+#ifdef WITH_TRUETYPE_FONT
+#else /*WITH_TRUETYPE_FONT*/
+#include "res_480_272/inc/fonts/default_18.data"
+#endif /*WITH_TRUETYPE_FONT*/
+#endif /*WITH_FS_RES*/
+
+ret_t assets_init_res_480_272(void) {
+  assets_manager_t* am = assets_manager();
+
+#ifdef WITH_FS_RES
+  assets_manager_preload(am, ASSET_TYPE_STYLE, "default");
+#else
+  assets_manager_add(am, ui_home_page_res_480_272);
+  assets_manager_add(am, ui_system_bar_res_480_272);
+  assets_manager_add(am, ui_window_bar_res_480_272);
+  assets_manager_add(am, ui_window_line_res_480_272);
+  assets_manager_add(am, ui_window_meter_res_480_272);
+  assets_manager_add(am, ui_window_pie_res_480_272);
+  assets_manager_add(am, strings_en_US_res_480_272);
+  assets_manager_add(am, strings_zh_CN_res_480_272);
+  assets_manager_add(am, style_default_res_480_272);
+  assets_manager_add(am, image_arrow_down_d_res_480_272);
+  assets_manager_add(am, image_arrow_down_f_res_480_272);
+  assets_manager_add(am, image_arrow_down_n_res_480_272);
+  assets_manager_add(am, image_arrow_down_o_res_480_272);
+  assets_manager_add(am, image_arrow_down_p_res_480_272);
+  assets_manager_add(am, image_arrow_left_d_res_480_272);
+  assets_manager_add(am, image_arrow_left_f_res_480_272);
+  assets_manager_add(am, image_arrow_left_n_res_480_272);
+  assets_manager_add(am, image_arrow_left_o_res_480_272);
+  assets_manager_add(am, image_arrow_left_p_res_480_272);
+  assets_manager_add(am, image_arrow_right_d_res_480_272);
+  assets_manager_add(am, image_arrow_right_f_res_480_272);
+  assets_manager_add(am, image_arrow_right_n_res_480_272);
+  assets_manager_add(am, image_arrow_right_o_res_480_272);
+  assets_manager_add(am, image_arrow_right_p_res_480_272);
+  assets_manager_add(am, image_arrow_up_d_res_480_272);
+  assets_manager_add(am, image_arrow_up_f_res_480_272);
+  assets_manager_add(am, image_arrow_up_n_res_480_272);
+  assets_manager_add(am, image_arrow_up_o_res_480_272);
+  assets_manager_add(am, image_arrow_up_p_res_480_272);
+  assets_manager_add(am, image_backspace_res_480_272);
+  assets_manager_add(am, image_back_normal_res_480_272);
+  assets_manager_add(am, image_back_pressed_res_480_272);
+  assets_manager_add(am, image_bg_main_res_480_272);
+  assets_manager_add(am, image_check_checked_d_res_480_272);
+  assets_manager_add(am, image_check_checked_f_res_480_272);
+  assets_manager_add(am, image_check_checked_n_res_480_272);
+  assets_manager_add(am, image_check_checked_o_res_480_272);
+  assets_manager_add(am, image_check_checked_p_res_480_272);
+  assets_manager_add(am, image_check_d_res_480_272);
+  assets_manager_add(am, image_check_f_res_480_272);
+  assets_manager_add(am, image_check_n_res_480_272);
+  assets_manager_add(am, image_check_o_res_480_272);
+  assets_manager_add(am, image_check_p_res_480_272);
+  assets_manager_add(am, image_clock_bg_res_480_272);
+  assets_manager_add(am, image_clock_hour_res_480_272);
+  assets_manager_add(am, image_clock_minute_res_480_272);
+  assets_manager_add(am, image_clock_second_res_480_272);
+  assets_manager_add(am, image_close_d_res_480_272);
+  assets_manager_add(am, image_close_n_res_480_272);
+  assets_manager_add(am, image_close_o_res_480_272);
+  assets_manager_add(am, image_close_p_res_480_272);
+  assets_manager_add(am, image_cross_res_480_272);
+  assets_manager_add(am, image_earth_res_480_272);
+  assets_manager_add(am, image_graph_normal_en_res_480_272);
+  assets_manager_add(am, image_graph_normal_zh_res_480_272);
+  assets_manager_add(am, image_graph_pressed_en_res_480_272);
+  assets_manager_add(am, image_graph_pressed_zh_res_480_272);
+  assets_manager_add(am, image_guage_bg_res_480_272);
+  assets_manager_add(am, image_guage_bg_1_res_480_272);
+  assets_manager_add(am, image_guage_bg_2_res_480_272);
+  assets_manager_add(am, image_guage_pointer_res_480_272);
+  assets_manager_add(am, image_guage_pointer_1_res_480_272);
+  assets_manager_add(am, image_guage_pointer_2_res_480_272);
+  assets_manager_add(am, image_histogram_normal_en_res_480_272);
+  assets_manager_add(am, image_histogram_normal_zh_res_480_272);
+  assets_manager_add(am, image_histogram_pressed_en_res_480_272);
+  assets_manager_add(am, image_histogram_pressed_zh_res_480_272);
+  assets_manager_add(am, image_icon_1_normal_res_480_272);
+  assets_manager_add(am, image_icon_1_pressed_res_480_272);
+  assets_manager_add(am, image_icon_2_normal_res_480_272);
+  assets_manager_add(am, image_icon_2_pressed_res_480_272);
+  assets_manager_add(am, image_icon_3_normal_res_480_272);
+  assets_manager_add(am, image_icon_3_pressed_res_480_272);
+  assets_manager_add(am, image_icon_4_normal_res_480_272);
+  assets_manager_add(am, image_icon_4_pressed_res_480_272);
+  assets_manager_add(am, image_icon_5_normal_res_480_272);
+  assets_manager_add(am, image_icon_5_pressed_res_480_272);
+  assets_manager_add(am, image_icon_6_normal_res_480_272);
+  assets_manager_add(am, image_icon_6_pressed_res_480_272);
+  assets_manager_add(am, image_language_en_res_480_272);
+  assets_manager_add(am, image_language_zh_res_480_272);
+  assets_manager_add(am, image_meter_normal_en_res_480_272);
+  assets_manager_add(am, image_meter_normal_zh_res_480_272);
+  assets_manager_add(am, image_meter_pressed_en_res_480_272);
+  assets_manager_add(am, image_meter_pressed_zh_res_480_272);
+  assets_manager_add(am, image_new_normal_res_480_272);
+  assets_manager_add(am, image_new_pressed_res_480_272);
+  assets_manager_add(am, image_num0_res_480_272);
+  assets_manager_add(am, image_num1_res_480_272);
+  assets_manager_add(am, image_num2_res_480_272);
+  assets_manager_add(am, image_num3_res_480_272);
+  assets_manager_add(am, image_num4_res_480_272);
+  assets_manager_add(am, image_num5_res_480_272);
+  assets_manager_add(am, image_num6_res_480_272);
+  assets_manager_add(am, image_num7_res_480_272);
+  assets_manager_add(am, image_num8_res_480_272);
+  assets_manager_add(am, image_num9_res_480_272);
+  assets_manager_add(am, image_numdot_res_480_272);
+  assets_manager_add(am, image_pause_mormal_res_480_272);
+  assets_manager_add(am, image_pause_pressed_res_480_272);
+  assets_manager_add(am, image_pie_label_normal_res_480_272);
+  assets_manager_add(am, image_pie_label_select_res_480_272);
+  assets_manager_add(am, image_pie_normal_en_res_480_272);
+  assets_manager_add(am, image_pie_normal_zh_res_480_272);
+  assets_manager_add(am, image_pie_pressed_en_res_480_272);
+  assets_manager_add(am, image_pie_pressed_zh_res_480_272);
+  assets_manager_add(am, image_play_normal_res_480_272);
+  assets_manager_add(am, image_play_pressed_res_480_272);
+  assets_manager_add(am, image_radio_checked_d_res_480_272);
+  assets_manager_add(am, image_radio_checked_f_res_480_272);
+  assets_manager_add(am, image_radio_checked_n_res_480_272);
+  assets_manager_add(am, image_radio_checked_o_res_480_272);
+  assets_manager_add(am, image_radio_checked_p_res_480_272);
+  assets_manager_add(am, image_radio_d_res_480_272);
+  assets_manager_add(am, image_radio_f_res_480_272);
+  assets_manager_add(am, image_radio_n_res_480_272);
+  assets_manager_add(am, image_radio_o_res_480_272);
+  assets_manager_add(am, image_radio_p_res_480_272);
+  assets_manager_add(am, image_rounded_n_res_480_272);
+  assets_manager_add(am, image_rounded_o_res_480_272);
+  assets_manager_add(am, image_rounded_p_res_480_272);
+  assets_manager_add(am, image_shift_res_480_272);
+  assets_manager_add(am, image_shifton_res_480_272);
+#ifdef WITH_VGCANVAS
+#endif /*WITH_VGCANVAS*/
+#ifdef WITH_TRUETYPE_FONT
+#else /*WITH_TRUETYPE_FONT*/
+  assets_manager_add(am, font_default_18_res_480_272);
+#endif /*WITH_TRUETYPE_FONT*/
+#endif
+
+  tk_init_assets();
+  return RET_OK;
+}

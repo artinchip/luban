@@ -1,0 +1,23 @@
+<window anim_hint="htranslate" name="window_bar_series_minmax" tr_text="bar_series_minmax">
+    <view x="582" y="7%" w="48" h="7%">
+        <image name="typeie" w="100%" h="100%" clickable="true">
+            <label name="typeie_icon" y="m" w="10" h="10" style="typeie"/>
+            <label x="14" y="m" w="80%" h="100%" style="series_label" text="data"/>
+        </image>
+    </view>
+    <chart_view name="chartview" x="6%" y="13%" w="82%" h="80%">
+        <x_axis name="xfrom_series" axis_type="time" min="0" max="50" line="{lengthen:15}"/>
+        <y_axis name="y" axis_type="value" min="-140" max="140" data="[-140,-105,-70,-35,0,35,70,105,140]" line="{lengthen:15}"/>
+        <bar_series_minmax name="s1" display_mode="cover" capacity="100" style="overlap_small"/>
+        <tooltip/>
+    </chart_view>
+    <view x="right" y="0" w="101" h="100%" style="seperate"/>
+    <view name="right_menu" x="right" y="0" w="100" h="100%" layout="r6 c1 m19 s18" style="function_view">
+        <button name="new_graph" style="new"/>
+        <view/>
+        <view/>
+        <view/>
+        <view/>
+        <button name="close" style="back"/>
+    </view>
+</window>

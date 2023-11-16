@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_QT5WEBCHANNEL
+	bool "qt5webchannel"
+	select BR2_PACKAGE_QT5WEBSOCKETS
+	help
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
+
+	  Qt WebChannel enables peer-to-peer communication between
+	  a server (QML/C++ application) and a client
+	  (HTML/JavaScript or QML application).
+
+	  http://doc.qt.io/qt-5/qtwebchannel-index.html
+
+if BR2_PACKAGE_QT5WEBCHANNEL
+config BR2_PACKAGE_QT5WEBCHANNEL_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

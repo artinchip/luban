@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_LIBARGON2
+	bool "libargon2"
+	depends on BR2_USE_MMU
+	depends on !BR2_STATIC_LIBS
+	help
+	  A modern password hashing algorithm
+
+	  https://password-hashing.net/#argon2
+
+if BR2_PACKAGE_LIBARGON2
+config BR2_PACKAGE_LIBARGON2_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif
+
+comment "libargon needs a toolchain w/ dynamic library"
+	depends on BR2_USE_MMU
+	depends on BR2_STATIC_LIBS

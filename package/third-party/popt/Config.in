@@ -1,0 +1,12 @@
+menuconfig BR2_PACKAGE_POPT
+	bool "popt"
+	help
+	  Popt is a C library for parsing command line parameters.
+
+	  https://github.com/rpm-software-management/popt
+
+if BR2_PACKAGE_POPT
+config BR2_PACKAGE_POPT_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

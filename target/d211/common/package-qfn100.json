@@ -1,0 +1,12 @@
+{
+	"package-type" : "QFN100",
+	"module" : {
+					"sdmc@10440000" : 4,
+					"i2s@18601000" : 0,
+					"gpai2" : 0,
+					"gpai3" : 0,
+					"gpai4" : 0,
+					"gpai5" : 0,
+					"gpai6" : 0
+			}
+}
