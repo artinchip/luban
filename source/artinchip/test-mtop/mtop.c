@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2023 ArtInChip Technology Co., Ltd.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -185,8 +190,8 @@ static void mtop_switch(int sw)
 static void mtop_set_period(int sec)
 {
 	if (sec <= 0 || sec > 100) {
-		printf("Invalid sec parameter: should be in the\
-			range of [1, 100]\n");
+		printf("Invalid sec parameter: should be in the"
+			"range of [1, 100]\n");
 		return;
 	}
 
@@ -222,7 +227,7 @@ static int get_ddr_band_width(void)
 	fp = fopen("/sys/kernel/debug/clk/ddr/clk_rate", "r");
 	if (!fp) {
 		printf("open ddr clock node error\n");
-		return 1;
+		return -1;
 	}
 	/* Get DDR controller frequency */
 	fscanf(fp, "%u", &ddr_bw);
@@ -277,14 +282,14 @@ int main(int argc, char *argv[])
 			exit(0);
 		default:
 			usage(argv[0]);
-			exit(0);
+			exit(-1);
 		}
 	}
 
 	ret = get_ddr_band_width();
 	if (ret) {
 		printf("Can't get DDR bandwidth\n");
-		return 1;
+		return -1;
 	}
 
 	mtop_set_period(delay);

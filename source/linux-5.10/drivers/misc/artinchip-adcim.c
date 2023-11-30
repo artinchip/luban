@@ -35,6 +35,8 @@
 #define ADCIM_FIFOSTS_ADC_ARBITER_IDLE	BIT(6)
 #define ADCIM_FIFOSTS_FIFO_ERR		BIT(5)
 #define ADCIM_FIFOSTS_CTR_MASK		GENMASK(4, 0)
+#define ADCDM_CAL_ADC_STANDARD_VAL      0x800
+#define ADCIM_CAL_ADC_VAL_OFFSET        0X32
 
 #ifdef CONFIG_ARTINCHIP_ADCIM_DM
 #define ADCDM_RTP_CFG	0x03F0
@@ -215,6 +217,31 @@ static ssize_t calibration_store(struct device *dev,
 	return count;
 }
 static DEVICE_ATTR_RW(calibration);
+
+u16 adcim_auto_calibration(u16 adc_val, struct device *dev)
+{
+	u32 flag = 1;
+	u32 data = 0;
+	u16 caled_adc_value;
+	int count = 0;
+	void __iomem *regs = g_adcim_dev->regs;
+
+	writel(0x083F2f03, regs + ADCIM_CALCSR);//auto cal
+	do {
+		flag = readl(regs + ADCIM_CALCSR) & 0x00000001;
+		count++;
+		if (count > 10000) {
+			dev_err(dev, "Adcim auto calibration parameter acquisition timeout");
+			return adc_val;
+		}
+	} while (flag);
+
+	data = (readl(regs + ADCIM_CALCSR) >> ADCIM_CALCSR_CALVAL_SHIFT) & 0xfff;
+	caled_adc_value = adc_val + ADCDM_CAL_ADC_STANDARD_VAL - data + ADCIM_CAL_ADC_VAL_OFFSET;
+
+	return caled_adc_value;
+}
+EXPORT_SYMBOL(adcim_auto_calibration);
 
 #ifdef CONFIG_ARTINCHIP_ADCIM_DM
 static ssize_t dm_chan_show(struct device *dev,

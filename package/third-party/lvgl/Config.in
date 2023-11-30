@@ -1,6 +1,0 @@
-menuconfig BR2_PACKAGE_LVGL
-	bool "lvgl"
-	help
-	  A light gui library for applications dealing with GUI.
-
-	  https://github.com/lvgl/lvgl.

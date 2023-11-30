@@ -28,6 +28,27 @@ enum AIC_COM_TYPE {
 	AIC_MIPI_COM = 0x03,  /* mipi component */
 };
 
+struct panel_dbi_commands {
+	const u8 *buf;
+	size_t len;
+};
+
+struct spi_cfg {
+	unsigned int qspi_mode;
+	unsigned int vbp_num;
+	unsigned int code1_cfg;
+	unsigned int code[3];
+};
+
+struct panel_dbi {
+	unsigned int type;
+	unsigned int format;
+	unsigned int first_line;
+	unsigned int other_line;
+	struct panel_dbi_commands commands;
+	struct spi_cfg *spi;
+};
+
 struct panel_rgb {
 	unsigned int mode;
 	unsigned int format;
@@ -74,6 +95,11 @@ struct panel_dsi {
 	enum dsi_mode mode;
 	enum dsi_format format;
 	unsigned int lane_num;
+};
+
+struct aic_tearing_effect {
+	unsigned int mode;
+	unsigned int pulse_width;
 };
 
 /* Processor to Peripheral Direction (Processor-Sourced) Packet Data Types */
@@ -155,8 +181,10 @@ struct panel_dsi {
 #define DSI_DCS_WRITE_MEMORY_CONTINUE	0x3c
 #define DSI_DCS_WRITE_MEMORY_START	0x2c
 
+struct aic_panel;
+
 struct de_funcs {
-	int (*set_videomode)(struct fb_videomode *vm);
+	int (*set_mode)(struct aic_panel *panel, struct fb_videomode *vm);
 	int (*clk_enable)(void);
 	int (*clk_disable)(void);
 	int (*timing_enable)(void);
@@ -164,8 +192,6 @@ struct de_funcs {
 	ulong (*pixclk_rate)(void);
 	int (*pixclk_enable)(void);
 };
-
-struct aic_panel;
 
 struct di_funcs {
 	enum AIC_COM_TYPE type;
@@ -196,12 +222,15 @@ struct aic_panel_funcs {
 struct aic_panel {
 	struct aic_panel_funcs *funcs;
 	struct aic_panel_callbacks callbacks;
+	struct aic_tearing_effect te;
+	int disp_dither;
 	struct fb_videomode *vm;
 	struct udevice *dev;
 	union {
 		struct panel_rgb *rgb;
 		struct panel_lvds *lvds;
 		struct panel_dsi *dsi;
+		struct panel_dbi *dbi;
 	};
 	void *panel_private;
 };

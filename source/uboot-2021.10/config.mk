@@ -45,7 +45,7 @@ sinclude $(srctree)/arch/$(ARCH)/config.mk	# include architecture dependend rule
 sinclude $(srctree)/$(CPUDIR)/config.mk		# include  CPU	specific rules
 
 ifdef	SOC
-sinclude $(srctree)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
+sinclude $(srctree)/$(CPUDIR)/$(VENDOR)/config.mk	# include  SoC	specific rules
 endif
 ifneq ($(BOARD),)
 ifdef	VENDOR

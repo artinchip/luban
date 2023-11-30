@@ -1,0 +1,309 @@
+From b341ff0e772d9ed2835cc164f31d03285e064f39 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E5=88=98=E5=8F=AF=E4=BA=AE?= <keliang.liu@artinchip.com>
+Date: Thu, 16 Nov 2023 13:38:52 +0800
+Subject: [PATCH] v1.2.1: add upgmode delay policy
+
+---
+ target/d211/common/d211.pbp                   | Bin 26496 -> 26576 bytes
+ target/d211/demo/ddr_init.json                |   1 +
+ target/d211/demo100_nand/ddr_init.json        |   1 +
+ target/d211/demo128_nand/ddr_init.json        |   1 +
+ target/d211/demo88_nand/ddr_init.json         |   1 +
+ target/d211/ota/ddr_init.json                 |   1 +
+ target/d211/ota_emmc/ddr_init.json            |   1 +
+ target/d211/per1/ddr_init.json                |   1 +
+ .../d211/per1_mmc_secure_boot/ddr_init.json   |   1 +
+ target/d211/per2_spinand/ddr_init.json        |   1 +
+ target/d211/per2_spinor/ddr_init.json         |   1 +
+ tools/scripts/mk_private_resource.py          |  20 ++++++++++++------
+ 12 files changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/target/d211/common/d211.pbp b/target/d211/common/d211.pbp
+index a4c72ae7e9f04c73477a38bfd7d7ee41a1f77015..5dfa2f40ee354f08b6513c9dd408dc700538e059 100644
+GIT binary patch
+delta 4176
+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
+
+delta 3993
+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
+
+diff --git a/target/d211/demo/ddr_init.json b/target/d211/demo/ddr_init.json
+index 50b53d47e..6ed805330 100644
+--- a/target/d211/demo/ddr_init.json
++++ b/target/d211/demo/ddr_init.json
+@@ -78,6 +78,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/demo100_nand/ddr_init.json b/target/d211/demo100_nand/ddr_init.json
+index 50b53d47e..6ed805330 100644
+--- a/target/d211/demo100_nand/ddr_init.json
++++ b/target/d211/demo100_nand/ddr_init.json
+@@ -78,6 +78,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/demo128_nand/ddr_init.json b/target/d211/demo128_nand/ddr_init.json
+index 50b53d47e..6ed805330 100644
+--- a/target/d211/demo128_nand/ddr_init.json
++++ b/target/d211/demo128_nand/ddr_init.json
+@@ -78,6 +78,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/demo88_nand/ddr_init.json b/target/d211/demo88_nand/ddr_init.json
+index 50b53d47e..6ed805330 100644
+--- a/target/d211/demo88_nand/ddr_init.json
++++ b/target/d211/demo88_nand/ddr_init.json
+@@ -78,6 +78,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/ota/ddr_init.json b/target/d211/ota/ddr_init.json
+index 09d867cba..459922e99 100644
+--- a/target/d211/ota/ddr_init.json
++++ b/target/d211/ota/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/ota_emmc/ddr_init.json b/target/d211/ota_emmc/ddr_init.json
+index 09d867cba..459922e99 100644
+--- a/target/d211/ota_emmc/ddr_init.json
++++ b/target/d211/ota_emmc/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/per1/ddr_init.json b/target/d211/per1/ddr_init.json
+index ca93ce96d..dbcbe2fa4 100644
+--- a/target/d211/per1/ddr_init.json
++++ b/target/d211/per1/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/per1_mmc_secure_boot/ddr_init.json b/target/d211/per1_mmc_secure_boot/ddr_init.json
+index ca93ce96d..dbcbe2fa4 100644
+--- a/target/d211/per1_mmc_secure_boot/ddr_init.json
++++ b/target/d211/per1_mmc_secure_boot/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/per2_spinand/ddr_init.json b/target/d211/per2_spinand/ddr_init.json
+index 09d867cba..459922e99 100644
+--- a/target/d211/per2_spinand/ddr_init.json
++++ b/target/d211/per2_spinand/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/target/d211/per2_spinor/ddr_init.json b/target/d211/per2_spinor/ddr_init.json
+index 09d867cba..459922e99 100644
+--- a/target/d211/per2_spinor/ddr_init.json
++++ b/target/d211/per2_spinor/ddr_init.json
+@@ -43,6 +43,7 @@
+ 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
+ 			"upgmode_pin_input_msk": "0x1", // Bit MSK
+ 			"upgmode_pin_input_val": "0x0", // Bit VAL
++			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+ 		},
+ 		"uart": { // PBP's uart setting
+ 			"main": {
+diff --git a/tools/scripts/mk_private_resource.py b/tools/scripts/mk_private_resource.py
+index 44e3cb712..e9d89b7fc 100755
+--- a/tools/scripts/mk_private_resource.py
++++ b/tools/scripts/mk_private_resource.py
+@@ -222,6 +222,7 @@ struct system_upgmode {
+     u32 upgmode_pin_input_reg;
+     u32 upgmode_pin_input_msk;
+     u32 upgmode_pin_input_val;
++    u32 upgmode_pin_pullup_dly;
+ };
+ struct system_jtag_data {
+     u32 data_type;
+@@ -229,12 +230,19 @@ struct system_jtag_data {
+     struct system_upgmode;
+ };
+ """
+-def gen_system_upgmode_data(jtag):
+-    data  = param_str_to_u32_bytes(jtag["upgmode_pin_cfg_reg"])
+-    data += param_str_to_u32_bytes(jtag["upgmode_pin_cfg_val"])
+-    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_reg"])
+-    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_msk"])
+-    data += param_str_to_u32_bytes(jtag["upgmode_pin_input_val"])
++def gen_system_upgmode_data(upgmode):
++    data  = param_str_to_u32_bytes(upgmode["upgmode_pin_cfg_reg"])
++    data += param_str_to_u32_bytes(upgmode["upgmode_pin_cfg_val"])
++    data += param_str_to_u32_bytes(upgmode["upgmode_pin_input_reg"])
++    data += param_str_to_u32_bytes(upgmode["upgmode_pin_input_msk"])
++    data += param_str_to_u32_bytes(upgmode["upgmode_pin_input_val"])
++
++    # upgmode_pin_pullup_dly is new add element, need to compatible with json
++    # without upgmode_pin_pullup_dly
++    if "upgmode_pin_pullup_dly" in upgmode:
++        data += param_str_to_u32_bytes(upgmode["upgmode_pin_pullup_dly"])
++    else:
++        data += param_str_to_u32_bytes("500")
+     return data
+ def gen_system_upgmode(sys_upgmode):
+     data = bytes()
+-- 
+2.25.1
+

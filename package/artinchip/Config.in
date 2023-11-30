@@ -7,6 +7,7 @@ source package/artinchip/aic-logo/Config.in
 source package/artinchip/libuserid/Config.in
 source package/artinchip/gst1-plugins-aic/Config.in
 source package/artinchip/awtk-ui/Config.in
+source package/artinchip/lvgl-ui/Config.in
 
 menu "Sample code"
 	source package/artinchip/test-mtop/Config.in
@@ -14,7 +15,6 @@ menu "Sample code"
 	source package/artinchip/test-dma-buf/Config.in
 	source package/artinchip/test-dvp/Config.in
 	source package/artinchip/test-fb/Config.in
-	source package/artinchip/test-lvgl/Config.in
 	source package/artinchip/test-touchscreen/Config.in
 	source package/artinchip/test-uart/Config.in
 	source package/artinchip/test-watchdog/Config.in
@@ -27,6 +27,7 @@ menu "Sample code"
 	source package/artinchip/test-eth/Config.in
 	source package/artinchip/test-audio/Config.in
 	source package/artinchip/test-blkdev/Config.in
+	source package/artinchip/test-mbox/Config.in
 endmenu
 
 menu "Launchers"

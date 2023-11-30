@@ -8,7 +8,7 @@ set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
 
 add_compile_options(-Wall)
 
-add_executable(wdt wdt.c)
+add_executable(test_wdt test_wdt.c)
 
 # Install
 # install directories
@@ -18,5 +18,5 @@ endif()
 include(GNUInstallDirs)
 
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-	install(TARGETS wdt RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+	install(TARGETS test_wdt RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR

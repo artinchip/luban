@@ -63,3 +63,17 @@ cmd_cpp_its = $(HOSTCC) -E $(aicdtc_cpp_flags) -x assembler-with-cpp -o $(depfil
 $(obj)/kernel.its: $(AIC_KERNEL_ITS) FORCE
 	$(call if_changed,cpp_its)
 
+ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+make_part = python3 $(srctree)/tools/get_part_table_config.py
+
+AIC_ENV_IMAGE := $(srctree)/include/configs/image_cfg.json
+AIC_ENV_PART_ADDR := include/generated/image_cfg_part_config.h
+AIC_ENV_PART := $(obj)/$(AIC_ENV_PART_ADDR)
+
+INPUTS-y += $(AIC_ENV_PART_ADDR)
+
+cmd_touch_part_config = $(make_part) -c $< -d $@
+
+$(AIC_ENV_PART): $(AIC_ENV_IMAGE) FORCE
+	$(call if_changed,touch_part_config)
+endif

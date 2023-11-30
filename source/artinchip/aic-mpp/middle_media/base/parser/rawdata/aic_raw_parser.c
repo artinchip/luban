@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <inttypes.h>
-
+#include <fcntl.h>
 #include "aic_raw_parser.h"
 #include "mpp_log.h"
 #include "mpp_mem.h"
@@ -57,7 +57,7 @@ static int get_data(struct aic_raw_parser* p)
 	return r_len;
 }
 
-s32 raw_peek( struct aic_parser *parser ,struct aic_parser_packet *pkt)
+s32 raw_peek(struct aic_parser *parser ,struct aic_parser_packet *pkt)
 {
 	int i = 0;
 	char tmp_buf[3];
@@ -68,7 +68,7 @@ s32 raw_peek( struct aic_parser *parser ,struct aic_parser_packet *pkt)
 	char *cur_data_ptr = NULL;
 	struct aic_raw_parser *p = (struct aic_raw_parser*)parser;
 
-	if(p->stream_end_flag){
+	if (p->stream_end_flag) {
 		return PARSER_EOS;
 	}
 
@@ -87,7 +87,7 @@ find_start_code:
 		*(cur_data_ptr+2),*(cur_data_ptr+3),
 		*(cur_data_ptr+4),*(cur_data_ptr+5),*(cur_data_ptr+6),*(cur_data_ptr+7));
 
-	//* find the first start_code
+	// find the first start_code
 	for(i = 0; i < (p->valid_size - 3); i++) {
 		tmp_buf[0] = *(cur_data_ptr + i);
 		tmp_buf[1] = *(cur_data_ptr + i + 1);
@@ -111,7 +111,7 @@ find_start_code:
 		}
 		find_start_code = 0;
 
-		//* find the next start code
+		// find the next start code
 		for(i += 3; i < (p->valid_size - 3); i++) {
 			logv("cur_data_ptr = %p, i = %d", cur_data_ptr, i);
 			tmp_buf[0] = *(cur_data_ptr + i);
@@ -146,7 +146,7 @@ find_start_code:
 		}
 	} else {
 		ret = get_data(p);
-		if(ret == -1 || ret == 0){
+		if (ret == -1 || ret == 0) {
 			return -1;
 		}
 
@@ -178,7 +178,7 @@ s32 raw_read(struct aic_parser *parser ,struct aic_parser_packet *pkt)
 	return 0;
 }
 
-s32 raw_get_media_info( struct aic_parser *parser ,struct aic_parser_av_media_info *media)
+s32 raw_get_media_info(struct aic_parser *parser ,struct aic_parser_av_media_info *media)
 {
 	media->has_audio = 0;
 	media->has_video = 1;
@@ -193,13 +193,13 @@ s32 raw_get_media_info( struct aic_parser *parser ,struct aic_parser_av_media_in
 	return 0;
 }
 
-s32 raw_seek( struct aic_parser *parser , s64 time)
+s32 raw_seek(struct aic_parser *parser , s64 time)
 {
 	// not support
 	return -1;
 }
 
-s32 raw_init( struct aic_parser *parser)
+s32 raw_init(struct aic_parser *parser)
 {
 	// do nothing
 	return 0;
@@ -236,7 +236,7 @@ s32 aic_raw_parser_create(unsigned char *uri, struct aic_parser **parser)
 	}
 	impl->buf_len = STEAM_BUF_LEN;
 
-	if (aic_stream_open((char *)uri, &impl->stream) < 0) {
+	if (aic_stream_open((char *)uri, &impl->stream, O_RDONLY) < 0) {
 		loge("stream open fail");
 		goto exit;
 	}

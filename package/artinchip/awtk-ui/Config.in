@@ -1,3 +1,4 @@
 menuconfig BR2_PACKAGE_AWTK_UI
-	bool "awtk-ui"
-	default n
+    bool "awtk-ui"
+    default n
+

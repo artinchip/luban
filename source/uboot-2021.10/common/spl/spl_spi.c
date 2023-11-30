@@ -18,6 +18,10 @@
 #include <dm.h>
 #include <asm/global_data.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,

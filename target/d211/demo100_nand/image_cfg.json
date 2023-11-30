@@ -36,7 +36,7 @@
 				"type": "spi-nand",
 				"device_id": 0,
 				"array_organization": [
-					{ "page": "4k", "block": "256k" },
+				//	{ "page": "4k", "block": "256k" },
 					{ "page": "2k", "block": "128k" },
 				],
 			}

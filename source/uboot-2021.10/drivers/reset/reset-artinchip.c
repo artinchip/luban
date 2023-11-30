@@ -155,6 +155,7 @@ static int aic_reset_probe(struct udevice *dev)
 
 static const struct udevice_id aic_clk_ids[] = {
 	{ .compatible = "artinchip,aic-reset-v1.0", },
+	{ .compatible = "artinchip,aic-reset-v1.3", },
 	{ }
 };
 
@@ -174,3 +175,13 @@ U_BOOT_DRIVER(aic_reset_v1_0) = {
 	.priv_auto                = sizeof(struct artinchip_reset_priv),
 	.plat_auto                = sizeof(struct aic_reset_plat),
 };
+
+//U_BOOT_DRIVER(aic_reset_v1_3) = {
+//	.name                     = "artinchip_aic_reset_v1_3",
+//	.id                       = UCLASS_RESET,
+//	.of_match                 = aic_clk_ids,
+//	.ops                      = &aic_reset_ops,
+//	.probe                    = aic_reset_probe,
+//	.priv_auto                = sizeof(struct artinchip_reset_priv),
+//	.plat_auto                = sizeof(struct aic_reset_plat),
+//};

@@ -36,6 +36,10 @@
 #define GE_TIMEOUT_MS 1000
 
 #define BYTE_ALIGN(x, byte) (((x) + ((byte) - 1))&(~((byte) - 1)))
+#define BIT_SHIFT(bit) (1 << (bit))
+#define INIT_PHASE(step) (((step) >= BIT_SHIFT(16)) ? \
+			(((step) >> 1) - BIT_SHIFT(15)) :\
+			((step) >> 1))
 
 #ifdef CONFIG_DMA_SHARED_BUFFER
 struct ge_dmabuf {
@@ -452,7 +456,6 @@ int set_premuliply(struct aic_ge_data *data,
 		   enum mpp_pixel_format dst_format,
 		   int src_premul,
 		   int dst_premul,
-		   int is_fill_color,
 		   struct ge_ctrl *ctrl)
 {
 	if (src_format > MPP_FMT_BGRA_4444)
@@ -467,8 +470,7 @@ int set_premuliply(struct aic_ge_data *data,
 		data->dst_de_premul_en = 0;
 		data->out_premul_en = 0;
 
-		if (is_fill_color == 0 &&
-		    ctrl->src_alpha_mode == 0 &&
+		if (ctrl->src_alpha_mode == 0 &&
 		    ctrl->alpha_en &&
 		    ctrl->ck_en == 0 &&
 		    data->src_alpha_coef == 2 &&
@@ -676,8 +678,7 @@ static void set_alpha_rules_and_premul(struct aic_ge_data *data,
 				       enum mpp_pixel_format src_format,
 				       enum mpp_pixel_format dst_format,
 				       u32 src_buf_flags,
-				       u32 dst_buf_flags,
-				       int is_fill_color)
+				       u32 dst_buf_flags)
 {
 	if (ctrl->alpha_en)
 		set_alpha_rules(data, ctrl->alpha_rules);
@@ -685,7 +686,7 @@ static void set_alpha_rules_and_premul(struct aic_ge_data *data,
 	set_premuliply(data, src_format, dst_format,
 		       MPP_BUF_PREMULTIPLY_GET(src_buf_flags),
 		       MPP_BUF_PREMULTIPLY_GET(dst_buf_flags),
-		       is_fill_color, ctrl);
+		       ctrl);
 }
 
 static int ge_config_scaler(struct aic_ge_data *data,
@@ -743,20 +744,21 @@ static int ge_config_scaler(struct aic_ge_data *data,
 	case MPP_FMT_ABGR_4444:
 	case MPP_FMT_RGBA_4444:
 	case MPP_FMT_BGRA_4444:
-		if (in_w[0] == out_w && in_h[0] == out_h)
+		if (in_w[0] == out_w && in_h[0] == out_h) {
 			scaler_en = 0;
+		}
 		else {
 			dx[0] = (in_w[0] << 16) / out_w;
 			dy[0] = (in_h[0] << 16) / out_h;
-			h_phase[0] = dx[0] >> 1;
-			v_phase[0] = dy[0] >> 1;
+			h_phase[0] = INIT_PHASE(dx[0]);
+			v_phase[0] = INIT_PHASE(dy[0]);
 		}
 		break;
 	case MPP_FMT_YUV400:
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 		break;
 	case MPP_FMT_YUV420P:
 	case MPP_FMT_NV12:
@@ -767,8 +769,8 @@ static int ge_config_scaler(struct aic_ge_data *data,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[0] = dx[0] & (~1);
 		dy[0] = dy[0] & (~1);
@@ -803,8 +805,8 @@ static int ge_config_scaler(struct aic_ge_data *data,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[0] = dx[0] & (~1);
 		h_phase[0] = h_phase[0] & (~1);
@@ -826,8 +828,8 @@ static int ge_config_scaler(struct aic_ge_data *data,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[1] = dx[0];
 		dy[1] = dy[0];
@@ -1152,6 +1154,20 @@ static int ge_config_fillrect_addr(struct aic_ge_data *data,
 	return 0;
 }
 
+static unsigned int argb_premultiply(unsigned int argb)
+{
+	unsigned int b = argb & 0x000000ff;
+	unsigned int g = (argb & 0x0000ff00) >> 8;
+	unsigned int r = (argb & 0x00ff0000) >> 16;
+	unsigned int a = (argb & 0xff000000) >> 24;
+
+	b = (b * a + 127) / 255;
+	g = (g * a + 127) / 255;
+	r = (r * a + 127) / 255;
+
+	return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
 static int ge_fillrect(struct aic_ge_data *data,
 		       struct ge_fillrect *fill)
 {
@@ -1174,11 +1190,16 @@ static int ge_fillrect(struct aic_ge_data *data,
 
 	set_alpha_rules_and_premul(data, &fill->ctrl,
 				   src_fmt, fill->dst_buf.format,
-				   0, fill->dst_buf.flags,
-				   1);
+				   0, fill->dst_buf.flags);
 
 	set_csc_flow(data, &fill->ctrl,
 		     src_fmt, fill->dst_buf.format);
+
+	if (data->src_premul_en == 1) {
+		data->src_premul_en = 0;
+		fill->start_color = argb_premultiply(fill->start_color);
+		fill->end_color = argb_premultiply(fill->end_color);
+	}
 
 	/* config dst csc1 yuvtorgb coefs */
 	if (data->csc1_en)
@@ -1310,8 +1331,7 @@ static int ge_base_bitblt(struct aic_ge_data *data, struct ge_bitblt *blt, u32 *
 
 	set_alpha_rules_and_premul(data, &blt->ctrl,
 				   blt->src_buf.format, blt->dst_buf.format,
-				   blt->src_buf.flags, blt->dst_buf.flags,
-				   0);
+				   blt->src_buf.flags, blt->dst_buf.flags);
 
 	set_csc_flow(data, &blt->ctrl,
 		     blt->src_buf.format, blt->dst_buf.format);
@@ -1590,8 +1610,7 @@ static int ge_rotate(struct aic_ge_data *data, struct ge_rotation *rot)
 
 	set_alpha_rules_and_premul(data, &rot->ctrl,
 				   rot->src_buf.format, rot->dst_buf.format,
-				   rot->src_buf.flags, rot->dst_buf.flags,
-				   0);
+				   rot->src_buf.flags, rot->dst_buf.flags);
 
 	/* rot1 only support rgb format */
 	data->csc0_en = 0;

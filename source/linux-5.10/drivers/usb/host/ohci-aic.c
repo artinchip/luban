@@ -2,7 +2,7 @@
 /*
  * Artinchip OHCI driver
  *
- * Copyright (C) 2020 ARTINCHIP – All Rights Reserved
+ * Copyright (C) 2020 ARTINCHIP - All Rights Reserved
  *
  *
  */
@@ -20,6 +20,7 @@
 #include <linux/usb/ohci_pdriver.h>
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
+#include <linux/usb/otg.h>
 
 #include "ohci.h"
 
@@ -237,6 +238,30 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 		err = PTR_ERR(hcd->regs);
 		goto err_power;
 	}
+
+#ifdef	CONFIG_USB_OTG
+	if (of_property_read_bool(dev->dev.of_node, "aic,otg-support")) {
+		struct ohci_hcd *ohci = hcd_to_ohci(hcd);
+
+		hcd->usb_phy = usb_get_phy(USB_PHY_TYPE_USB2);
+		if (!IS_ERR_OR_NULL(hcd->usb_phy)) {
+			err = otg_set_host1(hcd->usb_phy->otg,
+					    &ohci_to_hcd(ohci)->self);
+			dev_dbg(hcd->self.controller, "init %s phy, status %d\n",
+				hcd->usb_phy->label, err);
+			if (err) {
+				usb_put_phy(hcd->usb_phy);
+				goto err_power;
+			}
+		} else {
+			dev_err(&dev->dev, "can't find phy\n");
+			err = -ENODEV;
+			goto err_power;
+		}
+		hcd->skip_phy_initialization = 1;
+	}
+#endif
+
 	err = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (err)
 		goto err_power;
@@ -270,6 +295,13 @@ static int aic_ohci_platform_remove(struct platform_device *dev)
 	struct usb_ohci_pdata *pdata = dev_get_platdata(&dev->dev);
 	struct aic_ohci_platform_priv *priv = hcd_to_ohci_priv(hcd);
 	int clk;
+
+#ifdef CONFIG_USB_OTG
+	if (!IS_ERR_OR_NULL(hcd->usb_phy)) {
+		otg_set_host1(hcd->usb_phy->otg, 0);
+		usb_put_phy(hcd->usb_phy);
+	}
+#endif
 
 	usb_remove_hcd(hcd);
 

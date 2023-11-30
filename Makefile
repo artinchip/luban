@@ -166,6 +166,9 @@ endif
 add_board: $(BUILD_DIR)/luban-config/conf
 	@$(TOPDIR)/tools/scripts/add_board.py -c $^ -t $(TOPDIR) -o $(BASE_DIR)
 
+del_board: $(BUILD_DIR)/luban-config/conf
+	@$(TOPDIR)/tools/scripts/del_board.py -c $^ -t $(TOPDIR) -o $(BASE_DIR)
+
 # Some quick commands
 k:  linux-rebuild
 km: linux-menuconfig

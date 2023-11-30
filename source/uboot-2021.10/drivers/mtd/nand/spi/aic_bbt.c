@@ -24,6 +24,10 @@
 #include <dm/device-internal.h>
 #include <artinchip_spinand.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 /* check nand bad block data in spinand bbt part */
 static int check_nand_part_bad_block(struct bad_block_ctl *ctl)
 {

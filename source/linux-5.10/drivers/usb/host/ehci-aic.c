@@ -21,6 +21,7 @@
 #include <linux/reset.h>
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
+#include <linux/usb/otg.h>
 #include <linux/usb/ehci_pdriver.h>
 #include <linux/pinctrl/consumer.h>
 #include <linux/gpio.h>
@@ -36,6 +37,7 @@ struct aic_ehci_platform_priv {
 	struct reset_control *rst[USB_MAX_CLKS_RSTS];
 	struct reset_control *pwr;
 	struct phy *phy;
+	struct gpio_desc *gpio_vbus_en;
 };
 
 #define DRIVER_DESC "Artinchip EHCI driver"
@@ -97,7 +99,6 @@ static int aic_ehci_platform_power_on(struct platform_device *dev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(dev);
 	struct aic_ehci_platform_priv *priv = hcd_to_ehci_priv(hcd);
-	unsigned int gpio;
 	int i, ret;
 
 	if (of_property_read_bool(dev->dev.of_node,
@@ -105,12 +106,10 @@ static int aic_ehci_platform_power_on(struct platform_device *dev)
 		syscfg_usb_phy0_sw_host(1);
 		dev_info(&dev->dev, "switch usb_phy0 to host.");
 
-		gpio = of_get_named_gpio(dev->dev.of_node, "vbus-en-gpios", 0);
-		if (gpio_is_valid(gpio)) {
-			ret = gpio_direction_output(gpio, 1);
-			if (ret)
-				goto err_assert_power;
-		}
+#ifndef CONFIG_USB_OTG
+		if (priv->gpio_vbus_en && !IS_ERR(priv->gpio_vbus_en))
+			gpiod_set_value(priv->gpio_vbus_en, 1);
+#endif
 
 		dev_info(&dev->dev, "enable host vbus.");
 	}
@@ -173,6 +172,16 @@ static void aic_ehci_platform_power_off(struct platform_device *dev)
 	struct usb_hcd *hcd = platform_get_drvdata(dev);
 	struct aic_ehci_platform_priv *priv = hcd_to_ehci_priv(hcd);
 	int i;
+
+	if (of_property_read_bool(dev->dev.of_node,
+				  "artinchip,sw_usb_phy0")) {
+#ifndef CONFIG_USB_OTG
+		if (priv->gpio_vbus_en && !IS_ERR(priv->gpio_vbus_en))
+			gpiod_set_value(priv->gpio_vbus_en, 0);
+#endif
+
+		dev_info(&dev->dev, "disable host vbus.");
+	}
 
 	// reset_control_assert(priv->pwr);
 
@@ -291,6 +300,34 @@ static int aic_ehci_platform_probe(struct platform_device *dev)
 	aic_ehci_set_phy_type(hcd, PHY_TYPE_UTMI);
 #endif
 
+#ifdef CONFIG_USB_OTG
+	if (of_property_read_bool(dev->dev.of_node, "aic,otg-support")) {
+		struct ehci_hcd *ehci = hcd_to_ehci(hcd);
+
+		hcd->usb_phy = usb_get_phy(USB_PHY_TYPE_USB2);
+		dev_dbg(&dev->dev, "hcd=0x%p  ehci=0x%p, phy=0x%p\n",
+			hcd, ehci, hcd->usb_phy);
+
+		if (!IS_ERR_OR_NULL(hcd->usb_phy)) {
+			err = otg_set_host(hcd->usb_phy->otg,
+					   &ehci_to_hcd(ehci)->self);
+			if (err) {
+				usb_put_phy(hcd->usb_phy);
+				goto err_put_clks;
+			}
+		} else {
+			dev_err(&dev->dev, "can't find phy\n");
+			err = -ENODEV;
+			goto err_put_clks;
+		}
+
+		hcd->skip_phy_initialization = 1;
+	}
+#else
+	priv->gpio_vbus_en = devm_gpiod_get_optional(&dev->dev, "vbus-en",
+						  GPIOD_OUT_HIGH);
+#endif
+
 	err = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (err)
 		goto err_put_clks;
@@ -320,6 +357,16 @@ static int aic_ehci_platform_remove(struct platform_device *dev)
 	struct usb_ehci_pdata *pdata = dev_get_platdata(&dev->dev);
 	struct aic_ehci_platform_priv *priv = hcd_to_ehci_priv(hcd);
 	int clk;
+
+#ifdef CONFIG_USB_OTG
+	if (!IS_ERR_OR_NULL(hcd->usb_phy)) {
+		otg_set_host(hcd->usb_phy->otg, NULL);
+		usb_put_phy(hcd->usb_phy);
+	}
+#else
+	if (priv->gpio_vbus_en && !IS_ERR(priv->gpio_vbus_en))
+		devm_gpiod_put(&dev->dev, priv->gpio_vbus_en);
+#endif
 
 	usb_remove_hcd(hcd);
 

@@ -47,6 +47,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/input/linux-event-codes.h>
 
 / {
 	model = "ArtInChip DEMO QFN88 with SPI NAND";
@@ -87,6 +88,7 @@
 		de0 = &de0;
 		lvds0 = &lvds0;
 		rgb0 = &rgb0;
+		dbi0 = &dbi0;
 		dsi0 = &dsi0;
 		dvp0 = &dvp0;
 		cir = &cir;
@@ -186,6 +188,17 @@
 				vsync-len = <3>;
 				de-active = <1>;
 				pixelclk-active = <1>;
+			};
+		};
+	};
+
+	panel_dbi {
+		compatible = "artinchip,aic-dbi-panel-simple";
+		status = "disabled";
+
+		port {
+			panel_dbi_in: endpoint {
+				remote-endpoint = <&dbi0_out>;
 			};
 		};
 	};
@@ -400,10 +413,10 @@
 };
 
 /* case 1: USB0 = OTG Enable */
-#if 1
+#if 0
 &otg {
-	id-gpios = <&gpio_e 14 GPIO_ACTIVE_HIGH>;
-	otg-mode = "auto";
+	dp-sw-gpios = <&gpio_e 14 GPIO_ACTIVE_LOW>;
+	otg-mode = "device";
 	status = "okay";
 };
 
@@ -454,7 +467,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_pins_a>;
 	artinchip,sw_usb_phy0;
-	// vbus-en-gpios = <&gpio_a 3 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 &ohci0 {
@@ -582,6 +594,26 @@
 		reg = <1>;
 		rgb0_out: endpoint {
 			remote-endpoint = <&panel_rgb_in>;
+		};
+	};
+};
+
+&dbi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lcd_pins>;
+	status = "disabled";
+
+	port@0 {
+		reg = <0>;
+		dbi0_in: endpoint {
+			remote-endpoint = <&dbi0_in>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		dbi0_out: endpoint {
+			remote-endpoint = <&panel_dbi_in>;
 		};
 	};
 };

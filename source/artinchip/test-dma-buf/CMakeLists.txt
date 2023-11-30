@@ -8,7 +8,7 @@ set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
 
 add_compile_options(-Wall)
 
-add_executable(dmabuf_test dmabuf_test.c)
+add_executable(test_dmabuf test_dmabuf.c)
 
 # Install
 # install directories
@@ -18,5 +18,5 @@ endif()
 include(GNUInstallDirs)
 
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-	install(TARGETS dmabuf_test RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+	install(TARGETS test_dmabuf RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR

@@ -20,12 +20,16 @@ struct usb_otg {
 	/* old usb_phy interface */
 	struct usb_phy		*usb_phy;
 	struct usb_bus		*host;
+	struct usb_bus		*host1;
 	struct usb_gadget	*gadget;
 
 	enum usb_otg_state	state;
 
 	/* bind/unbind the host controller */
 	int	(*set_host)(struct usb_otg *otg, struct usb_bus *host);
+
+	/* bind/unbind the host1 controller */
+	int	(*set_host1)(struct usb_otg *otg, struct usb_bus *host);
 
 	/* bind/unbind the peripheral controller */
 	int	(*set_peripheral)(struct usb_otg *otg,
@@ -85,6 +89,16 @@ otg_set_host(struct usb_otg *otg, struct usb_bus *host)
 {
 	if (otg && otg->set_host)
 		return otg->set_host(otg, host);
+
+	return -ENOTSUPP;
+}
+
+/* for HCDs */
+static inline int
+otg_set_host1(struct usb_otg *otg, struct usb_bus *host)
+{
+	if (otg && otg->set_host1)
+		return otg->set_host1(otg, host);
 
 	return -ENOTSUPP;
 }

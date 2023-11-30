@@ -117,29 +117,29 @@ static void video_layer_set(int fb0_fd, struct mpp_buf *picture_buf)
 		loge("no support picture foramt %d, default argb8888", picture_buf->format);
 	}
 
-	//* add dmabuf to de driver
+	// add dmabuf to de driver
 	for(i=0; i<dmabuf_num; i++) {
 		dmabuf_fd[i].fd = picture_buf->fd[i];
 		if (ioctl(fb0_fd, AICFB_ADD_DMABUF, &dmabuf_fd[i]) < 0)
 			loge("fb ioctl() AICFB_UPDATE_LAYER_CONFIG failed!");
 	}
 
-	//* update layer config (it is async interface)
+	// update layer config (it is async interface)
 	if (ioctl(fb0_fd, AICFB_UPDATE_LAYER_CONFIG, &layer) < 0)
 		loge("fb ioctl() AICFB_UPDATE_LAYER_CONFIG failed!");
 
-	//* wait vsync (wait layer config)
+	// wait vsync (wait layer config)
 	ioctl(fb0_fd, AICFB_WAIT_FOR_VSYNC, NULL);
 
-	//* display this picture 2 seconds
+	// display this picture 2 seconds
 	usleep(2000000);
 
-	//* disable layer
+	// disable layer
 	layer.enable = 0;
 	if(ioctl(fb0_fd, AICFB_UPDATE_LAYER_CONFIG, &layer) < 0)
 		loge("fb ioctl() AICFB_UPDATE_LAYER_CONFIG failed!");
 
-	//* remove dmabuf to de driver
+	// remove dmabuf to de driver
 	for(i=0; i<dmabuf_num; i++) {
 		if (ioctl(fb0_fd, AICFB_RM_DMABUF, &dmabuf_fd[i]) < 0)
 			loge("fb ioctl() AICFB_UPDATE_LAYER_CONFIG failed!");
@@ -196,11 +196,11 @@ static int render_frame(struct mpp_frame *frame)
 	int fb_fd = fb_open();
 
 	if (frame->buf.format == MPP_FMT_ARGB_8888 || frame->buf.format == MPP_FMT_ABGR_8888 ||
-	    frame->buf.format == MPP_FMT_RGBA_8888 || frame->buf.format == MPP_FMT_BGRA_8888) {
-		//* 1. if the pixels have alpha channel, we need enable pixel alpha blending in GE.
+	    frame->buf.format == MPP_FMT_RGBA_8888 || frame->buf.format == MPP_FMT_BGRA_8888 ||
+	    frame->buf.format == MPP_FMT_YUV444P) {
+		// 1. if the pixels have alpha channel, we need enable pixel alpha blending in GE.
 		//     the data flow: VE -> GE -> DE.
 		logi("alpha channel, we need pixel alpha blending");
-
 		struct ge_bitblt blt = {0};
 		memset(&blt, 0, sizeof(struct ge_bitblt));
 		/* source buffer */
@@ -225,15 +225,19 @@ static int render_frame(struct mpp_frame *frame)
 		blt.dst_buf.crop.y = 0;
 		blt.dst_buf.crop.width = frame->buf.size.width;
 		blt.dst_buf.crop.height = frame->buf.size.height;
-		blt.ctrl.alpha_en = 1;
+
+		if (frame->buf.format == MPP_FMT_YUV444P)
+			blt.ctrl.alpha_en = 0;
+		else
+			blt.ctrl.alpha_en = 1;
 
 		ret =  mpp_ge_bitblt(ge, &blt);
-		if (ret < 0){
+		if (ret < 0) {
 			loge("ge bitblt fail\n");
 		}
 
 		ret = mpp_ge_emit(ge);
-		if (ret < 0){
+		if (ret < 0) {
 			loge("ge emit fail\n");
 		}
 
@@ -245,7 +249,7 @@ static int render_frame(struct mpp_frame *frame)
 		if (ge)
 			mpp_ge_close(ge);
 	} else {
-		//* 2. data flow: VE -> DE
+		// 2. data flow: VE -> DE
 		set_fb_layer_alpha(fb_fd, 0);
 		video_layer_set(fb_fd, &frame->buf);
 	}
@@ -300,7 +304,7 @@ int main(int argc, char **argv)
 
 	file_len = get_file_size(fp);
 
-	//* 1. create mpp_decoder
+	// 1. create mpp_decoder
 	struct mpp_decoder* dec = mpp_decoder_create(type);
 
 	struct decode_config config;
@@ -314,41 +318,40 @@ int main(int argc, char **argv)
 	else if(type == MPP_CODEC_VIDEO_DECODER_PNG)
 		config.pix_fmt = MPP_FMT_ARGB_8888;
 
-	//* 2. init mpp_decoder
+	// 2. init mpp_decoder
 	mpp_decoder_init(dec, &config);
 
-	//* 3. get an empty packet from mpp_decoder
+	// 3. get an empty packet from mpp_decoder
 	struct mpp_packet packet;
 	memset(&packet, 0, sizeof(struct mpp_packet));
 	mpp_decoder_get_packet(dec, &packet, file_len);
 
-	//* 4. copy data to packet
+	// 4. copy data to packet
 	fread(packet.data, 1, file_len, fp);
 	packet.size = file_len;
 	packet.flag = PACKET_FLAG_EOS;
 
-	//* 5. put the packet to mpp_decoder
+	// 5. put the packet to mpp_decoder
 	mpp_decoder_put_packet(dec, &packet);
 
-	//* 6. decode
+	// 6. decode
 	ret = mpp_decoder_decode(dec);
 	if(ret < 0) {
 		loge("decode error");
 		goto out;
 	}
 
-	//* 7. get a decoded frame
+	// 7. get a decoded frame
 	struct mpp_frame frame;
 	memset(&frame, 0, sizeof(struct mpp_frame));
 	mpp_decoder_get_frame(dec, &frame);
-
-	//* 8. render this frame
+	// 8. render this frame
 	render_frame(&frame);
 
-	//* 9. return this frame
+	// 9. return this frame
 	mpp_decoder_put_frame(dec, &frame);
 
-	//* 10. destroy mpp_decoder
+	// 10. destroy mpp_decoder
 	mpp_decoder_destory(dec);
 
 out:

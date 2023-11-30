@@ -20,4 +20,10 @@ config BR2_GENERATE_BURNER_IMAGE
 	bool "Generate burner format image"
 	default n
 
+config BR2_GENERATE_IMAGE_AUTO_CALCULATE_SIZE
+	bool "Auto calculate partition size to generate image"
+	default n
+	help
+	  The partition size is obtained through image_cfg.json
+
 endmenu

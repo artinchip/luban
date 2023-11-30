@@ -809,6 +809,13 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mips.git
 F:	arch/mips/
 
+EVENTS
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	common/event.c
+F:	include/event.h
+F:	test/common/event.c
+
 MIPS CORTINA ACCESS CAxxxx
 M:	Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
 S:	Supported
@@ -1010,6 +1017,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	doc/usage/sbi.rst
+F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
 F:	drivers/timer/sifive_clint_timer.c
 F:	tools/prelink-riscv.c

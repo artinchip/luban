@@ -62,6 +62,13 @@ config AIC_PANEL_DSI_ILI9881C
 	  Say Y here if you want to enable support for the ili9881c
 	  800x1280 MIPI DSI panel.
 
+config AIC_PANEL_DSI_S070WV20
+	tristate "ArtInChip dsi panel driver for s070wv20"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the s070wv20
+	  800x480 MIPI DSI panel.
+
 config AIC_PANEL_DBI_ILI9486L
 	tristate "ArtInChip dbi panel driver for ILI9486L"
 	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DBI

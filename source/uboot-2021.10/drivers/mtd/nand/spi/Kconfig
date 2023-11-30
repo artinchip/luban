@@ -107,4 +107,11 @@ config SPI_NAND_UMTEK
 	default n
 	help
 	  Enable this driver for UnitedMemory SPI NAND flash.
+
+config SPI_NAND_BYTE
+	bool "Support BYTe SPI NAND"
+	default n
+	help
+	  Enable this driver for BYTe (BOYA technology zhuhai) SPI NAND flash.
+
 endif

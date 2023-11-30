@@ -18,6 +18,9 @@ config BR2_RISCV_ISA_RVD
 config BR2_RISCV_ISA_RVC
 	bool
 
+config BR2_RISCV_ISA_RVV
+	bool
+
 config BR2_RISCV_ISA_RVXTHEAD
 	bool
 
@@ -35,7 +38,7 @@ config BR2_riscv_g
 	  General purpose (G) is equivalent to IMAFD.
 
 config BR2_riscv64_gcxthead
-	bool # "Riscv64 + General (G) + Compressed (C) + T-HEAD Xtension (X)"
+	bool "Riscv64 + General (G) + Compressed (C) + T-HEAD Xtension (X)"
 	select BR2_RISCV_ISA_RVI
 	select BR2_RISCV_ISA_RVM
 	select BR2_RISCV_ISA_RVA
@@ -46,6 +49,20 @@ config BR2_riscv64_gcxthead
 	select BR2_RISCV_64
 	help
 	  Integer Riscv64 + General (IMAFD) + Compressed (C) + T-Head Xtension (X).
+
+config BR2_riscv64_gcvxthead
+	bool "Riscv64 + General (G) + Compressed (C) + Vector (V) + T-HEAD Xtension (X)"
+	select BR2_RISCV_ISA_RVI
+	select BR2_RISCV_ISA_RVM
+	select BR2_RISCV_ISA_RVA
+	select BR2_RISCV_ISA_RVF
+	select BR2_RISCV_ISA_RVD
+	select BR2_RISCV_ISA_RVC
+	select BR2_RISCV_ISA_RVV
+	select BR2_RISCV_ISA_RVXTHEAD
+	select BR2_RISCV_64
+	help
+	  Integer Riscv64 + General (IMAFD) + Compressed (C) + Vector (V) + T-Head Xtension (X).
 
 config BR2_riscv_custom
 	bool # "Custom architecture"

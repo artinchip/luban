@@ -12,7 +12,7 @@ AIC_MPP_CONF_OPTS += -DCMAKE_INSTALL_PREFIX=/usr/local -DARCH=ARM
 endif
 
 ifeq ($(BR2_PACKAGE_AIC_MPP_MIDDLEWARE),y)
-AIC_MPP_DEPENDENCIES += libmad alsa-lib
+AIC_MPP_DEPENDENCIES += libmad alsa-lib cJSON
 AIC_MPP_CONF_OPTS += -DMIDDLEWARE=enable
 endif
 

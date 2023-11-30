@@ -27,12 +27,6 @@ enum aic_rgb_cko_phase_sel {
 #define RGB_LCD_CTL_PRGB_MODE_MASK	GENMASK(10, 8)
 #define RGB_LCD_CTL_PRGB_MODE(x)	(((x) & 0x7) << 8)
 #define RGB_LCD_CTL_SRGB_MODE		BIT(12)
-#define RGB_LCD_CTL_I8080_MODE_MASK	GENMASK(19, 16)
-#define RGB_LCD_CTL_I8080_MODE(x)	(((x) & 0xF) << 16)
-#define RGB_LCD_CTL_SPI_MODE_MASK	GENMASK(21, 20)
-#define RGB_LCD_CTL_SPI_MODE(x)		(((x) & 0x3) << 20)
-#define RGB_LCD_CTL_SPI_FORMAT_MASK	GENMASK(27, 24)
-#define RGB_LCD_CTL_SPI_FORMAT(x)	(((x) & 0xF) << 24)
 
 #define RGB_DATA_SEL_EVEN_DP2316_MASK	GENMASK(25, 24)
 #define RGB_DATA_SEL_EVEN_DP2316(x)	(((x) & 0x3) << 24)

@@ -309,7 +309,7 @@ int __mp3_decode_frame(struct aic_audio_decoder *decoder)
 			return DEC_ERR_NOT_SUPPORT;
 		} else {
 			printf("[%s:%d] pthread_create mp3_decode_thread threadId:%ld ok!"
-					,__FUNCTION__,__LINE__,mp3_decoder->decode_thread_id);
+					,__FUNCTION__,__LINE__,(unsigned long)mp3_decoder->decode_thread_id);
 		}
 	}
 

@@ -25,6 +25,7 @@
 		"spl export fdt ${knl_addr}; "				\
 		"part start mmc ${boot_devnum} falcon falcon_lba; "	\
 		"setexpr fdtargscnt ${fdtargslen} / 0x200; "		\
+		"mmc dev ${boot_devnum}; "				\
 		"mmc write ${fdtargsaddr} ${falcon_lba} ${fdtargscnt}; "\
 		"setenv boot_os yes; "					\
 		"saveenv; "						\

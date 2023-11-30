@@ -192,7 +192,7 @@ struct de_funcs {
 	int (*set_mode)(struct aic_panel *panel, struct videomode *vm);
 	int (*clk_enable)(void);
 	int (*clk_disable)(void);
-	int (*timing_enable)(void);
+	int (*timing_enable)(u32 flags);
 	int (*timing_disable)(void);
 	int (*wait_for_vsync)(void);
 	int (*shadow_reg_ctrl)(int enable);
@@ -234,7 +234,7 @@ struct aic_panel_callbacks {
 	int (*di_disable)(void);
 	int (*di_send_cmd)(u32 dt, const u8 *data, u32 len);
 	int (*di_set_videomode)(struct videomode *vm, int enable);
-	int (*timing_enable)(void);
+	int (*timing_enable)(u32 flags);
 	int (*timing_disable)(void);
 };
 

@@ -18,9 +18,12 @@ menu "Third-party packages"
 	source package/third-party/udev/Config.in
 	source package/third-party/eudev/Config.in
 	source package/third-party/musl-compat-headers/Config.in
+	source package/third-party/sqlite/Config.in
 	comment "************************ Multimedia **************************"
 	source package/third-party/alsa-lib/Config.in
 	source package/third-party/alsa-utils/Config.in
+	source package/third-party/pulseaudio/Config.in
+	source package/third-party/libsamplerate/Config.in
 	source package/third-party/directfb/Config.in
 	source package/third-party/directfb-examples/Config.in
 	source package/third-party/freetype/Config.in
@@ -30,7 +33,6 @@ menu "Third-party packages"
 	source package/third-party/libsndfile/Config.in
 	source package/third-party/qt/Config.in
 	source package/third-party/qt5/Config.in
-	source package/third-party/lvgl/Config.in
 	source package/third-party/gstreamer1/Config.in
 	source package/third-party/fbdump/Config.in
 	source package/third-party/libmad/Config.in
@@ -120,5 +122,6 @@ menu "Third-party packages"
 	source package/third-party/swupdate/Config.in
 	source package/third-party/perl/Config.in
 	source package/third-party/openssh/Config.in
+	source package/third-party/cJSON/Config.in
 
 endmenu

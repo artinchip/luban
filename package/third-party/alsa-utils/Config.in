@@ -56,10 +56,12 @@ config BR2_PACKAGE_ALSA_UTILS_AMIDI
 
 config BR2_PACKAGE_ALSA_UTILS_AMIXER
 	bool "amixer"
+	default y
 	select BR2_PACKAGE_ALSA_LIB_MIXER
 
 config BR2_PACKAGE_ALSA_UTILS_APLAY
 	bool "aplay/arecord"
+	default y
 	select BR2_PACKAGE_ALSA_LIB_PCM
 
 config BR2_PACKAGE_ALSA_UTILS_APLAYMIDI

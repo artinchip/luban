@@ -24,6 +24,7 @@
 #define AICUPG_ARGS_MAX 4
 #define WAIT_UPG_MODE_TMO_US 2000000
 
+#if defined(CONFIG_MMC) || defined(CONFIG_SPL_MMC)
 static int curr_device = -1;
 
 static int image_header_check(struct image_header_pack *header)
@@ -35,6 +36,7 @@ static int image_header_check(struct image_header_pack *header)
 	}
 	return 0;
 }
+#endif
 
 static int check_upg_mode(long start_tm, long tmo)
 {
@@ -122,6 +124,7 @@ exit:
 	return ret;
 }
 
+#if defined(CONFIG_MMC) || defined(CONFIG_SPL_MMC)
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
 	struct mmc *mmc;
@@ -144,13 +147,15 @@ static struct mmc *init_mmc_device(int dev, bool force_init)
 #endif
 	return mmc;
 }
+#endif
 
 static int do_sdcard_upg(int intf)
 {
+	s32 ret = 0;
+#if defined(CONFIG_MMC) || defined(CONFIG_SPL_MMC)
 	struct image_header_pack *hdrpack;
 	struct mmc *mmc;
 	char *mmc_type;
-	s32 ret;
 	u32 cnt, n;
 	struct disk_partition part_info;
 
@@ -232,18 +237,22 @@ static int do_sdcard_upg(int intf)
 	}
 
 	free(hdrpack);
-	return CMD_RET_SUCCESS;
+	ret = CMD_RET_SUCCESS;
+	return ret;
 err:
 	if (hdrpack)
 		free(hdrpack);
-	return CMD_RET_FAILURE;
+	ret = CMD_RET_FAILURE;
+#endif
+	return ret;
 }
 
 static int do_fat_upg(int intf, char *const blktype)
 {
+	int ret = 0;
+#if defined(CONFIG_FS_FAT) || defined(CONFIG_SPL_FS_FAT)
 	struct image_header_pack *hdrpack;
 	struct mmc *mmc;
-	int ret;
 	loff_t actread;
 	char num_dev = 0, cur_dev = 0;
 	char *file_buf;
@@ -383,13 +392,16 @@ static int do_fat_upg(int intf, char *const blktype)
 
 	free(hdrpack);
 	free(file_buf);
-	return CMD_RET_SUCCESS;
+	ret = CMD_RET_SUCCESS;
+	return ret;
 err:
 	if (hdrpack)
 		free(hdrpack);
 	if (file_buf)
 		free(file_buf);
-	return CMD_RET_FAILURE;
+	ret = CMD_RET_FAILURE;
+#endif
+	return ret;
 }
 
 static int do_aicupg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

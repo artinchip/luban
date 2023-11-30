@@ -1,5 +1,8 @@
 /*
-    add by jun.ma 2023.02.08
+* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+*
+*  author: <jun.ma@artinchip.com>
+*  Desc: OMX_CoreExt1
 */
 
 #ifndef OMX_CoreExt1_h
@@ -26,6 +29,8 @@ extern "C" {
 
 #define OMX_COMPONENT_CLOCK_NAME              "OMX.AIC.CLOCK.ALL"
 
+#define OMX_COMPONENT_MUXER_NAME              "OMX.AIC.MUXER.ALL"
+#define OMX_COMPONENT_VENC_NAME              "OMX.AIC.VENC.ALL"
 
 #define DEMUX_PORT_AUDIO_INDEX		0
 #define DEMUX_PORT_VIDEO_INDEX		1
@@ -46,6 +51,11 @@ extern "C" {
 #define CLOCK_PORT_OUT_VIDEO 0   // OMX_CLOCKPORT0 0x00000001
 #define CLOCK_PORT_OUT_AUDIO 1   // OMX_CLOCKPORT1 0x00000002
 
+#define MUX_PORT_AUDIO_INDEX		0
+#define MUX_PORT_VIDEO_INDEX		1
+#define MUX_PORT_CLOCK_INDEX		2
+#define VENC_PORT_IN_INDEX		0
+#define VENC_PORT_OUT_INDEX		1
 
 typedef struct OMX_PORT_TUNNELEDINFO
 {
@@ -78,7 +88,10 @@ typedef enum OMX_EXTEVENTTYPE
 
 	//AudioRender 0x7F002000 - 0x7F002FFF
 	OMX_EventAudioRenderPts = 0x7F002000,
-	OMX_EventAudioRenderFirstFrame = 0x7F002001
+	OMX_EventAudioRenderFirstFrame = 0x7F002001,
+
+	//Muxer
+	OMX_EventMuxerNeedNextFile = 0x7F002001
 
 }OMX_EXTEVENTTYPE;
 

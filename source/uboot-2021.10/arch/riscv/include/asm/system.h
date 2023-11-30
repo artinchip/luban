@@ -7,18 +7,21 @@
 #ifndef __ASM_RISCV_SYSTEM_H
 #define __ASM_RISCV_SYSTEM_H
 
-/*
- * Save the current interrupt enable state & disable IRQs
- */
+#include <asm/csr.h>
 
 /*
- * Save the current interrupt enable state
- * and disable IRQs/FIQs
+ * Interupt configuration macros
  */
-void __attribute__((weak)) local_irq_save(unsigned int flag)
-{
-	;
-}
+
+#define local_irq_save(__flags)                                 \
+	do {                                                           \
+		__flags = csr_read_clear(CSR_SSTATUS, SR_SIE) & SR_SIE; \
+	} while (0)
+
+#define local_irq_restore(__flags)             \
+	do {                                          \
+		csr_set(CSR_SSTATUS, __flags &SR_SIE); \
+	} while (0)
 
 /*
  * Enable IRQs
@@ -60,12 +63,4 @@ void __attribute__((weak)) local_save_flags(unsigned int flag)
 	;
 }
 
-/*
- * restore saved IRQ & FIQ state
- */
-void __attribute__((weak)) local_irq_restore(unsigned int flag)
-{
-	;
-}
-
-#endif	/* __ASM_RISCV_SYSTEM_H */
+#endif /* __ASM_RISCV_SYSTEM_H */

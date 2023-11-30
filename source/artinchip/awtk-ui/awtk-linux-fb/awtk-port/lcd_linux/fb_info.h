@@ -161,15 +161,15 @@ static inline int fb_open(fb_info_t* fb, const char* filename) {
   fb_nr = fb_number(fb);
   total_size = fb_memsize(fb);
 
-  log_info("fb_info_t: %s\n", filename);
-  log_info("xres=%d yres=%d\n", fb->var.xres, fb->var.yres);
-  log_info("xres_virtual=%d yres_virtual=%d\n", fb->var.xres_virtual, fb->var.yres_virtual);
-  log_info("bits_per_pixel=%d line_length=%d\n", fb->var.bits_per_pixel, fb->fix.line_length);
-  log_info("fb_info_t: red(%d %d) green(%d %d) blue(%d %d)\n", fb->var.red.offset,
+  log_debug("fb_info_t: %s\n", filename);
+  log_debug("xres=%d yres=%d\n", fb->var.xres, fb->var.yres);
+  log_debug("xres_virtual=%d yres_virtual=%d\n", fb->var.xres_virtual, fb->var.yres_virtual);
+  log_debug("bits_per_pixel=%d line_length=%d\n", fb->var.bits_per_pixel, fb->fix.line_length);
+  log_debug("fb_info_t: red(%d %d) green(%d %d) blue(%d %d)\n", fb->var.red.offset,
            fb->var.red.length, fb->var.green.offset, fb->var.green.length, fb->var.blue.offset,
            fb->var.blue.length);
-  log_info("xpanstep=%u ywrapstep=%u\n", fb->fix.xpanstep, fb->fix.ywrapstep);
-  log_info("fb_size=%u fb_total_size=%u fb_nr=%u smem_len=%u\n", size, total_size, fb_nr,
+  log_debug("xpanstep=%u ywrapstep=%u\n", fb->fix.xpanstep, fb->fix.ywrapstep);
+  log_debug("fb_size=%u fb_total_size=%u fb_nr=%u smem_len=%u\n", size, total_size, fb_nr,
            fb->fix.smem_len);
 
 #ifdef FTK_FB_NOMMAP
@@ -185,7 +185,6 @@ static inline int fb_open(fb_info_t* fb, const char* filename) {
     goto fail;
   }
 
-  log_info("fb_open clear\n");
   //memset(fb->fbmem0, 0xff, total_size);
 #ifndef WITH_AIC_G2D
   fb->fbmem_offline = (uint8_t*)malloc(size);

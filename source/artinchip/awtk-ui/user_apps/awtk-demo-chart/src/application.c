@@ -52,6 +52,10 @@ ret_t application_init(void) {
     navigator_to(APP_BOTTOM_SYSTEM_BAR);
   }
 
+  /* release memory according to the theme, and release unused images after switching themes for 1 second */
+  image_manager_unload_unused(image_manager(), 1);
+  /* set images buffer size */
+  image_manager_set_max_mem_size_of_cached_images(image_manager(), 3036643);
   return navigator_to(APP_START_PAGE);
 }
 

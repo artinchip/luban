@@ -11,10 +11,10 @@
 #include "aic_stream.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 
-s32 file_stream_open(const char* uri, struct aic_stream **file_stream);
+s32 file_stream_open(const char* uri, struct aic_stream **file_stream,int flags);
 
 #ifdef __cplusplus
 }

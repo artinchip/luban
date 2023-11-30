@@ -20,6 +20,14 @@ set(OPENMAX_CLOCK
     component/OMX_ClockComponent.c
 )
 
+set(OPENMAX_MUXER
+    component/OMX_MuxerComponent.c
+)
+
+set(OPENMAX_VENC
+    component/OMX_VencComponent.c
+)
+
 add_library(openmax SHARED
     ${OPENMAX_DEMUXER}
     ${OPENMAX_VDEC}
@@ -27,6 +35,8 @@ add_library(openmax SHARED
     ${OPENMAX_ADEC}
     ${OPENMAX_AUDIO_RENDER}
     ${OPENMAX_CLOCK}
+    ${OPENMAX_MUXER}
+    ${OPENMAX_VENC}
 	OMX_Core.c
 )
 

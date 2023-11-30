@@ -68,7 +68,7 @@ struct aic_de_comp {
 	wait_queue_head_t vsync_wait;
 	spinlock_t slock;
 	const struct aic_de_configs *config;
-	struct aic_tearing_effect *te;
+	struct aic_panel *panel;
 	struct aic_de_dither dither;
 	struct aicfb_layer_data layers[CONFIG_NUM];
 	struct aicfb_alpha_config alpha[MAX_LAYER_NUM];
@@ -252,10 +252,10 @@ static int aic_de_set_mode(struct aic_panel *panel, struct videomode *vm)
 {
 	struct aic_de_comp *comp = aic_de_request_drvdata();
 	int disp_dither = panel->disp_dither;
-	comp->te = &panel->te;
 
 	memcpy(&comp->vm, vm, sizeof(struct videomode));
 	comp->vm_flag = true;
+	comp->panel = panel;
 
 	switch (disp_dither) {
 	case DITHER_RGB565:
@@ -315,7 +315,7 @@ static int aic_de_clk_disable(void)
 	return 0;
 }
 
-static int aic_de_timing_enable(void)
+static int aic_de_timing_enable(u32 flags)
 {
 	struct aic_de_comp *comp = aic_de_request_drvdata();
 	u32 active_w = comp->vm.hactive;
@@ -326,6 +326,9 @@ static int aic_de_timing_enable(void)
 	u32 vbp = comp->vm.vback_porch;
 	u32 hsync = comp->vm.hsync_len;
 	u32 vsync = comp->vm.vsync_len;
+	bool h_pol = !!(comp->vm.flags & DISPLAY_FLAGS_HSYNC_HIGH);
+	bool v_pol = !!(comp->vm.flags & DISPLAY_FLAGS_VSYNC_HIGH);
+	struct aic_tearing_effect *te = &comp->panel->te;
 	int ret;
 
 	if (!comp->vm_flag) {
@@ -341,8 +344,9 @@ static int aic_de_timing_enable(void)
 		return ret;
 	}
 
-	de_config_timing(comp->regs, active_w, active_h, hfp, hbp,
-			 vfp, vbp, hsync, vsync);
+	if (flags)
+		de_config_timing(comp->regs, active_w, active_h, hfp, hbp,
+				 vfp, vbp, hsync, vsync, h_pol, v_pol);
 
 	/* set default config */
 	de_set_qos(comp->regs);
@@ -360,9 +364,9 @@ static int aic_de_timing_enable(void)
 	de_config_prefetch_line_set(comp->regs, 2);
 	de_soft_reset_ctrl(comp->regs, 1);
 
-	if (comp->te->mode)
+	if (te->mode)
 		de_config_tearing_effect(comp->regs,
-				comp->te->mode, comp->te->pulse_width);
+				te->mode, te->pulse_width);
 
 	if (comp->dither.enable)
 		de_set_dither(comp->regs,
@@ -1723,7 +1727,7 @@ static ssize_t display_show(struct device *dev,
 		comp->layers[UI_RECT(1)].buf.stride[0],
 		comp->layers[UI_RECT(2)].buf.stride[0],
 		comp->layers[UI_RECT(3)].buf.stride[0],
-		comp->te->mode, comp->te->pulse_width,
+		comp->panel->te.mode, comp->panel->te.pulse_width,
 		comp->dither.enable, comp->dither.red_bitdepth,
 		comp->dither.gleen_bitdepth, comp->dither.blue_bitdepth,
 		comp->vm.hactive, comp->vm.vactive,
@@ -1760,9 +1764,72 @@ static ssize_t color_bar_store(struct device *dev,
 }
 static DEVICE_ATTR_WO(color_bar);
 
+static ssize_t
+dither_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct aic_de_comp *comp = dev_get_drvdata(dev);
+	struct aic_de_dither *dither = &comp->dither;
+	u32 out_depth;
+
+	out_depth = dither->enable ?  dither->red_bitdepth +
+			dither->gleen_bitdepth + dither->blue_bitdepth : 24;
+
+	return sprintf(buf, "Dither: %s, Output depth: %d\n",
+			dither->enable ? "Enable" : "Disable",
+			out_depth);
+}
+
+static ssize_t dither_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct aic_de_comp *comp = dev_get_drvdata(dev);
+	struct aic_panel *panel = comp->panel;
+	u32 val;
+	int ret;
+
+	ret = kstrtou32(buf, 0, &val);
+	if (ret)
+		return ret;
+
+	switch (val) {
+	case 16:
+		comp->dither.red_bitdepth = 5;
+		comp->dither.gleen_bitdepth = 6;
+		comp->dither.blue_bitdepth = 5;
+		comp->dither.enable = 1;
+		break;
+	case 18:
+		comp->dither.red_bitdepth = 6;
+		comp->dither.gleen_bitdepth = 6;
+		comp->dither.blue_bitdepth = 6;
+		comp->dither.enable = 1;
+		break;
+	case 0:
+	case 24:
+		memset(&comp->dither, 0, sizeof(struct aic_de_dither));
+		break;
+	default:
+		pr_err("Invalid output depth, 16/18/24\n");
+		return size;
+	}
+
+	de_config_update_enable(comp->regs, 0);
+	de_set_dither(comp->regs,
+		      comp->dither.red_bitdepth,
+		      comp->dither.gleen_bitdepth,
+		      comp->dither.blue_bitdepth,
+		      comp->dither.enable);
+	de_config_update_enable(comp->regs, 1);
+
+	panel->disp_dither = val;
+	return size;
+}
+static DEVICE_ATTR_RW(dither);
+
 static struct attribute *aic_de_attrs[] = {
 	&dev_attr_display.attr,
 	&dev_attr_color_bar.attr,
+	&dev_attr_dither.attr,
 	NULL
 };
 

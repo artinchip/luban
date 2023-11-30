@@ -14,6 +14,12 @@ USERFS_$(1)_DEPENDENCIES += host-e2fsprogs
 else ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_UBIFS),y)
 USERFS_$(1)_IMAGE_NAME ?= $$(call qstrip,$$(BR2_TARGET_USERFS$(1)_NAME)).ubifs
 USERFS_$(1)_DEPENDENCIES = host-mtd
+else ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_JFFS2),y)
+USERFS_$(1)_IMAGE_NAME ?= $$(call qstrip,$$(BR2_TARGET_USERFS$(1)_NAME)).jffs2
+USERFS_$(1)_DEPENDENCIES = host-mtd
+else ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_SQUASHFS),y)
+USERFS_$(1)_IMAGE_NAME ?= $$(call qstrip,$$(BR2_TARGET_USERFS$(1)_NAME)).squashfs
+USERFS_$(1)_DEPENDENCIES = host-squashfs
 else
 USERFS_$(1)_IMAGE_NAME ?= userfs$(1).dummyimage
 endif
@@ -169,6 +175,82 @@ endif
 
 USERFS_$(1)_UBIFS_CMD = $$(foreach MKCMD, $$(MK_UBIFS_$(1)_CMD), $$(call $$(MKCMD))$$(sep))
 
+######## JFFS2 commands ########
+USERFS_$(1)_JFFS2_OPTS = -e $$(BR2_TARGET_USERFS$(1)_JFFS2_EBSIZE) --with-xattr
+USERFS_$(1)_JFFS2_SUMTOOL_OPTS = -e $$(BR2_TARGET_USERFS$(1)_JFFS2_EBSIZE)
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_JFFS2_PAD),y)
+ifneq ($$(strip $$(BR2_TARGET_USERFS$(1)_JFFS2_PADSIZE)),0x0)
+USERFS_$(1)_JFFS2_OPTS += --pad=$$(strip $$(BR2_TARGET_USERFS$(1)_JFFS2_PADSIZE))
+else
+USERFS_$(1)_JFFS2_OPTS += -p
+endif
+USERFS_$(1)_JFFS2_SUMTOOL_OPTS += -p
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_JFFS2_LE),y)
+USERFS_$(1)_JFFS2_OPTS += -l
+USERFS_$(1)_JFFS2_SUMTOOL_OPTS += -l
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_JFFS2_BE),y)
+USERFS_$(1)_JFFS2_OPTS += -b
+USERFS_$(1)_JFFS2_SUMTOOL_OPTS += -b
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_JFFS2_USE_CUSTOM_PAGESIZE),y)
+USERFS_$(1)_JFFS2_OPTS += -s $$(BR2_TARGET_USERFS$(1)_JFFS2_CUSTOM_PAGESIZE)
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_JFFS2_NOCLEANMARKER),y)
+USERFS_$(1)_JFFS2_OPTS += -n
+USERFS_$(1)_JFFS2_SUMTOOL_OPTS += -n
+endif
+
+ifneq ($$(BR2_TARGET_USERFS$(1)_JFFS2_SUMMARY),)
+USERFS_$(1)_JFFS2_CMD = \
+	$(HOST_DIR)/sbin/mkfs.jffs2 $$(USERFS_$(1)_JFFS2_OPTS) \
+	-d $$(USERFS_$(1)_TARGET_DIR) \
+	-o $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME).nosummary \
+	$$(USERFS_$(1)_JFFS2_SUMTOOL) $$(USERFS_$(1)_JFFS2_SUMTOOL_OPTS) \
+	-i $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME).nosummary \
+	-o $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME)
+	rm $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME).nosummary
+else
+USERFS_$(1)_JFFS2_CMD = \
+	$(HOST_DIR)/sbin/mkfs.jffs2 $$(USERFS_$(1)_JFFS2_OPTS) \
+	-d $$(USERFS_$(1)_TARGET_DIR) \
+	-o $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME)
+endif
+
+######## SQUASHFS commands ########
+
+USERFS_$(1)_SQUASHFS_ARGS = -noappend -processors $$(PARALLEL_JOBS)
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS_PAD),y)
+USERFS_$(1)_SQUASHFS_ARGS += -nopad
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS4_LZ4),y)
+USERFS_$(1)_SQUASHFS_ARGS += -comp lz4 -Xhc
+else ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS4_LZO),y)
+USERFS_$(1)_SQUASHFS_ARGS += -comp lzo
+else ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS4_LZMA),y)
+USERFS_$(1)_SQUASHFS_ARGS += -comp lzma
+else ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS4_XZ),y)
+USERFS_$(1)_SQUASHFS_ARGS += -comp xz
+else ifeq ($$(BR2_TARGET_USERFS$(1)_SQUASHFS4_ZSTD),y)
+USERFS_$(1)_SQUASHFS_ARGS += -comp zstd
+else
+USERFS_$(1)_SQUASHFS_ARGS += -comp gzip
+endif
+
+USERFS_$(1)_SQUASHFS_CMD = rm -rf $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME); \
+	$(HOST_DIR)/bin/mksquashfs $$(USERFS_$(1)_TARGET_DIR) \
+	$$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME) \
+	$$(USERFS_$(1)_SQUASHFS_ARGS);
+
+
 $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME): FAKEROOT_SCRIPT=$$(USERFS_$(1)_DIR)/fakeroot
 $$(BINARIES_DIR)/$$(USERFS_$(1)_FINAL_IMAGE_NAME): $$(USERFS_$(1)_DEPENDENCIES)
 	@$$(call MESSAGE,"Generating filesystem image $$(USERFS_$(1)_FINAL_IMAGE_NAME)")
@@ -200,6 +282,14 @@ endif
 
 ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_UBIFS),y)
 	$$(call PRINTF,$$(USERFS_$(1)_UBIFS_CMD)) >> $$(FAKEROOT_SCRIPT)
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_JFFS2),y)
+	$$(call PRINTF,$$(USERFS_$(1)_JFFS2_CMD)) >> $$(FAKEROOT_SCRIPT)
+endif
+
+ifeq ($$(BR2_TARGET_USERFS$(1)_TYPE_SQUASHFS),y)
+	$$(call PRINTF,$$(USERFS_$(1)_SQUASHFS_CMD)) >> $$(FAKEROOT_SCRIPT)
 endif
 	chmod a+x $$(FAKEROOT_SCRIPT)
 	PATH=$$(BR_PATH) FAKEROOTDONTTRYCHOWN=1 $$(HOST_DIR)/bin/fakeroot -- $$(FAKEROOT_SCRIPT)

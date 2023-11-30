@@ -268,10 +268,12 @@ int mjpeg_decode_sof(struct mjpeg_dec_ctx *s)
 	if (s->h_count[0] == 2 && s->v_count[0] == 2 && s->h_count[1] == 1 &&
 		s->v_count[1] == 1 && s->h_count[2] == 1 && s->v_count[2] == 1) {
 		// not support nv21
-		if (s->uv_interleave)
+		if (s->out_pix_fmt == MPP_FMT_NV12 || s->out_pix_fmt == MPP_FMT_NV21) {
+			s->uv_interleave = 1;
 			s->pix_fmt = MPP_FMT_NV12;
-		else
+		} else {
 			s->pix_fmt = MPP_FMT_YUV420P;
+		}
 		logi("pixel format: yuv420");
 	} else if (s->h_count[0] == 4 && s->v_count[0] == 1 && s->h_count[1] == 1 &&
 			   s->v_count[1] == 1 && s->h_count[2] == 1 && s->v_count[2] == 1) {
@@ -279,10 +281,12 @@ int mjpeg_decode_sof(struct mjpeg_dec_ctx *s)
 		return -1;
 	} else if (s->h_count[0] == 2 && s->v_count[0] == 1 && s->h_count[1] == 1 &&
 			   s->v_count[1] == 1 && s->h_count[2] == 1 && s->v_count[2] == 1) {
-		if (s->uv_interleave)
+		if (s->out_pix_fmt == MPP_FMT_NV16 || s->out_pix_fmt == MPP_FMT_NV61) {
+			s->uv_interleave = 1;
 			s->pix_fmt = MPP_FMT_NV16;
-		else
+		} else {
 			s->pix_fmt = MPP_FMT_YUV422P;
+		}
 		logi("pixel format: yuv422");
 	} else if (s->h_count[0] == 1 && s->v_count[0] == 1 && s->h_count[1] == 1 &&
 			   s->v_count[1] == 1 && s->h_count[2] == 1 && s->v_count[2] == 1) {
@@ -710,9 +714,6 @@ int __mjpeg_decode_init(struct mpp_decoder *ctx, struct decode_config *config)
 
 	if (s->out_pix_fmt == MPP_FMT_YUV420P)
 		logw("default pix fmt %d", MPP_FMT_YUV420P);
-
-	if (s->out_pix_fmt == MPP_FMT_NV12 || s->out_pix_fmt == MPP_FMT_NV21)
-		s->uv_interleave = 1;
 
 	s->reg_list = mpp_alloc(sizeof(jpg_reg_list));
 	if(!s->reg_list)

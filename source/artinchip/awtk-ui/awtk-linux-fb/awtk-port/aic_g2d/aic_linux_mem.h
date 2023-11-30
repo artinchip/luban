@@ -6,27 +6,27 @@
  * Authors:  Zequan Liang <zequan.liang@artinchip.com>
  */
 
-#ifndef _AIC_MEM_H_
-#define _AIC_MEM_H_
+#ifndef _AIC_LINUX_MEM_H_
+#define _AIC_LINUX_MEM_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#ifdef WITH_AIC_G2D
+#define FD_TYPE        1
+#define PHY_TYPE       2
+#define CTX_ASSET_TYPE 3
 
-#define FD_TYPE  1
-#define PHY_TYPE 2
-
-#define AIC_CMA_BUF_DEBUG
 #define AIC_CMA_BUF_DEBUG_SIZE    (1<<0)
 #define AIC_CMA_BUF_DEBUG_CONTEXT (1<<1)
 
 struct _cma_buffer {
-  int fd;
-  int size;
+  int fd; /* linux only */
   int type;
-  unsigned char *buf;
+  unsigned int size;
+  void *buf; /* addressing address */
+  void *data;
+  void *buf_head;
   unsigned int phy_addr;
 };
 
@@ -37,8 +37,9 @@ struct _cma_buffer_hash {
 
 struct _cma_buffer_hash_map {
   struct _cma_buffer_hash **buckets;
-  int size;
-  int cur_size;
+  unsigned int size;
+  unsigned int cur_size;
+  unsigned int cma_size;
 };
 
 typedef struct _cma_buffer cma_buffer;
@@ -55,11 +56,7 @@ int aic_cma_buf_add(cma_buffer *data);
 int aic_cma_buf_find(void *buf, cma_buffer *back);
 int aic_cma_buf_del(void *buf);
 
-#ifdef AIC_CMA_BUF_DEBUG
 void aic_cma_buf_debug(int flag);
-#endif
-
-#endif
 
 #ifdef __cplusplus
 }

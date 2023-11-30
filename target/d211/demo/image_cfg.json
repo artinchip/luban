@@ -38,6 +38,11 @@
 				"attr": ["required"],
 				"ram": "0x41100000"
 			},
+			"logo": {
+				"file": "logo.itb",
+				"attr": ["required"],
+				"ram": "0x42400000"
+			},
 			"spl": {
 				"file": "u-boot-spl-dtb.aic",
 				"attr": ["required", "run"],
@@ -61,7 +66,7 @@
 				"part": ["env"]
 			},
 			"logo": {
-				"file": "boot_logo.png",
+				"file": "logo.itb",
 				"attr": ["block", "required"],
 				"part": ["logo"]
 			},
@@ -76,10 +81,16 @@
 				"part": ["rootfs"]
 			},
 			"app": {
-				"file": "user.ext4",
+				"file": "userfs1.ext4",
 				"attr": ["block", "optional"],
 				"part": ["user"]
 			},
+		},
+		"extension": { // Extended file archive
+			"tar": {
+				"file": "extension.tar",
+				"attr": ["block", "optional"],
+			}
 		},
 	},
 	"temporary": { // Pre-proccess to generate image components from raw data
@@ -114,8 +125,32 @@
 			"u-boot.itb": {
 				"its": "u-boot.its"
 			},
+			"logo.itb": {
+				"its": "logo.its"
+			},
 			"kernel.itb": {
 				"its": "kernel.its"
+			},
+		},
+
+		"extension": {
+			"extension.tar": {
+				"exfiles": ["image_cfg.json",
+					    "u-boot.its",
+					    "kernel.its",
+					    "recovery.its",
+					    "u-boot.dtb",
+					    "u-boot-nodtb.bin",
+					    "u-boot-spl-nodtb.bin",
+					    "u-boot-spl-dtb.bin",
+					    "u-boot-spl.dtb",
+					    "env.txt",
+					    "ddr_init.bin",
+					    "d211.pbp",
+					    "Image",
+					    "fw_dynamic.bin",
+					    "u-boot-nodtb.bin"],
+				"exdirs": ["dts"],
 			},
 		},
 	},

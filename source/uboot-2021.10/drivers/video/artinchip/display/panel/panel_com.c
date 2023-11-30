@@ -147,6 +147,26 @@ int panel_parse_dts(struct udevice *dev)
 	else
 		dm_gpio_set_value(&priv->enable_gpio, 0);
 
+	ret = ofnode_read_u32(dev_ofnode(dev), "disp-dither",
+				&priv->panel.disp_dither);
+	if (ret)
+		priv->panel.disp_dither = 0;
+
+	ret = ofnode_read_u32(dev_ofnode(dev), "tearing-effect",
+				&priv->panel.te.mode);
+	if (ret) {
+		priv->panel.te.mode = 0;
+		priv->panel.te.pulse_width = 0;
+	} else {
+		ret = ofnode_read_u32(dev_ofnode(dev), "tearing-effect",
+					&priv->panel.te.pulse_width);
+		if (ret) {
+			debug("Can't get tearing effect signal pulse width\n");
+			return ret;
+		}
+
+	}
+
 	if (!ofnode_decode_display_timing(dev_ofnode(dev), 0, &priv->timing))
 		priv->use_dt_timing = true;
 	else

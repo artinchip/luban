@@ -48,8 +48,10 @@ static int aic_serial_probe(struct udevice *dev)
 
 	pr_info("%s\n", __func__);
 	ret = clk_get_by_index(dev, 0, &clk);
-	if (ret < 0)
+	if (ret < 0) {
+		dev_err(dev, "failed to get clk\n");
 		return ret;
+	}
 	ret = reset_get_by_index(dev, 0, &reset);
 	if (ret && ret != -ENOENT) {
 		dev_err(dev, "failed to get reset\n");

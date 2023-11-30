@@ -33,7 +33,9 @@
 #   $3: the name of the package
 
 # Compatible for C908: Support new glibc and 32bit/64bit mode
-ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),"")
+ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),)
+PREBUILT_CUSTOM_DIR = $(GNU_TARGET_NAME)
+else ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),"")
 PREBUILT_CUSTOM_DIR = $(GNU_TARGET_NAME)
 else
 PREBUILT_CUSTOM_DIR = $(ARCH)-$(TARGET_OS)-glibc$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER))-$(call qstrip,$(BR2_GCC_TARGET_ABI))

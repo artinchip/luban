@@ -3185,6 +3185,11 @@ static int aic_gg_udc_stop(struct usb_gadget *gadget)
 
 	spin_unlock_irqrestore(&gg->lock, flags);
 
+#ifdef CONFIG_USB_OTG
+	if (!IS_ERR_OR_NULL(gg->uphy))
+		otg_set_peripheral(gg->uphy->otg, NULL);
+#endif
+
 	ret = aic_low_hw_disable(gg);
 	if (ret)  {
 		dev_err(gg->dev, "%s: aic_low_hw_disable %d\n", __func__, ret);
@@ -3225,6 +3230,17 @@ static int aic_gg_udc_start(struct usb_gadget *gadget,
 	gg->gadget.dev.of_node = gg->dev->of_node;
 	gg->gadget.speed = USB_SPEED_UNKNOWN;
 
+	ret = aic_low_hw_enable(gg);
+	if (ret) {
+		dev_err(gg->dev, "%s: aic_low_hw_enable %d\n", __func__, ret);
+		goto err;
+	}
+
+#ifdef CONFIG_USB_OTG
+	if (!IS_ERR_OR_NULL(gg->uphy))
+		otg_set_peripheral(gg->uphy->otg, &gg->gadget);
+#endif
+
 	spin_lock_irqsave(&gg->lock, flags);
 
 	ret = aic_core_init(gg, false);
@@ -3260,7 +3276,6 @@ static void aic_init_ep(struct aic_usb_gadget *gg,
 			bool dir_in)
 {
 	char *dir;
-	u32 next = 0;
 
 	ep->dir_in = dir_in;
 	ep->index = epnum;
@@ -3302,13 +3317,6 @@ static void aic_init_ep(struct aic_usb_gadget *gg,
 		ep->ep.caps.dir_in = true;
 	else
 		ep->ep.caps.dir_out = true;
-
-	/* set the next-endpoint pointer */
-	next = EPCTL_NEXTEP((epnum + 1) % 15);
-	if (dir_in)
-		aic_writel(gg, next, INEPCFG(epnum));
-	else
-		aic_writel(gg, next, OUTEPCFG(epnum));
 }
 
 static int aic_gadget_core_init(struct aic_usb_gadget *gg)
@@ -3420,18 +3428,6 @@ static int aic_gadget_init(struct aic_usb_gadget *gg)
 		return ret;
 	}
 
-	ret = aic_low_hw_enable(gg);
-	if (ret) {
-		dev_err(gg->dev, "call aic_low_hw_enable fail: %d\n", ret);
-		return ret;
-	}
-
-	ret = aic_core_rst(gg);
-	if (ret) {
-		dev_err(gg->dev, "call aic_core_rst fail: %d\n", ret);
-		return ret;
-	}
-
 	ret = aic_gadget_core_init(gg);
 	if (ret) {
 		dev_err(gg->dev, "call aic_gadget_core_init fail: %d\n", ret);
@@ -3444,6 +3440,11 @@ static int aic_gadget_init(struct aic_usb_gadget *gg)
 static int aic_udc_remove(struct platform_device *dev)
 {
 	struct aic_usb_gadget *gg = platform_get_drvdata(dev);
+
+#ifdef CONFIG_USB_OTG
+	if (!IS_ERR_OR_NULL(gg->uphy))
+		usb_put_phy(gg->uphy);
+#endif
 
 	aic_udc_debugfs_exit(gg);
 
@@ -3550,7 +3551,10 @@ static int aic_udc_probe(struct platform_device *dev)
 			return ret;
 		}
 	}
-	if (!gg->phy) {
+
+#ifdef CONFIG_USB_OTG
+	if (!gg->phy &&
+	    (of_property_read_bool(dev->dev.of_node, "aic,otg-support"))) {
 		gg->uphy = devm_usb_get_phy(gg->dev, USB_PHY_TYPE_USB2);
 		if (IS_ERR(gg->uphy)) {
 			ret = PTR_ERR(gg->uphy);
@@ -3568,6 +3572,7 @@ static int aic_udc_probe(struct platform_device *dev)
 			}
 		}
 	}
+#endif
 
 	/* gadget init */
 	ret = aic_gadget_init(gg);

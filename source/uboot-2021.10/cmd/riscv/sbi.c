@@ -26,6 +26,9 @@ static struct sbi_imp implementations[] = {
 	{ 3, "KVM" },
 	{ 4, "RustSBI" },
 	{ 5, "Diosix" },
+	{ 6, "Coffer" },
+	{ 7, "Xen Project" },
+	{ 8, "PolarFire Hart Software Services" },
 };
 
 static struct sbi_ext extensions[] = {
@@ -44,6 +47,12 @@ static struct sbi_ext extensions[] = {
 	{ 0x52464E43, "RFENCE Extension" },
 	{ 0x0048534D, "Hart State Management Extension" },
 	{ 0x53525354, "System Reset Extension" },
+	{ SBI_EXT_PMU,			      "Performance Monitoring Unit Extension" },
+	{ SBI_EXT_DBCN,			      "Debug Console Extension" },
+	{ SBI_EXT_SUSP,			      "System Suspend Extension" },
+	{ SBI_EXT_CPPC,			      "Collaborative Processor Performance Control Extension" },
+	{ SBI_EXT_NACL,			      "Nested Acceleration Extension" },
+	{ SBI_EXT_STA,			      "Steal-time Accounting Extension" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,

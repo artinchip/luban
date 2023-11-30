@@ -8,14 +8,16 @@
 #include <malloc.h>
 #include <string.h>
 #include <stddef.h>
+#include <fcntl.h>
 #include "aic_mov_parser.h"
 #include "mpp_log.h"
 #include "mpp_mem.h"
 #include "mpp_dec_type.h"
 #include "aic_stream.h"
 #include "mp3.h"
+#include "aic_mp3_parser.h"
 
-s32 mp3_peek( struct aic_parser * parser, struct aic_parser_packet *pkt)
+s32 mp3_peek(struct aic_parser * parser, struct aic_parser_packet *pkt)
 {
 	struct aic_mp3_parser *mp3_parser = (struct aic_mp3_parser *)parser;
 	return mp3_peek_packet(mp3_parser,pkt);
@@ -27,7 +29,7 @@ s32 mp3_read(struct aic_parser * parser, struct aic_parser_packet *pkt)
 	return mp3_read_packet(mp3_parser,pkt);
 }
 
-s32 mp3_get_media_info( struct aic_parser *parser, struct aic_parser_av_media_info *media)
+s32 mp3_get_media_info(struct aic_parser *parser, struct aic_parser_av_media_info *media)
 {
 	struct aic_mp3_parser *mp3_parser = (struct aic_mp3_parser *)parser;
 	media->has_video = 0;
@@ -41,13 +43,13 @@ s32 mp3_get_media_info( struct aic_parser *parser, struct aic_parser_av_media_in
 	return 0;
 }
 
-s32 mp3_seek( struct aic_parser *parser, s64 time)
+s32 mp3_seek(struct aic_parser *parser, s64 time)
 {
 	struct aic_mp3_parser *mp3_parser = (struct aic_mp3_parser *)parser;
 	return mp3_seek_packet(mp3_parser,time);
 }
 
-s32 mp3_init( struct aic_parser *parser)
+s32 mp3_init(struct aic_parser *parser)
 {
 	struct aic_mp3_parser *mp3_parser = (struct aic_mp3_parser *)parser;
 
@@ -76,7 +78,7 @@ s32 aic_mp3_parser_create(unsigned char *uri, struct aic_parser **parser)
 	s32 ret = 0;
 	struct aic_mp3_parser *mp3_parser = NULL;
 
-	mp3_parser = (struct aic_mp3_parser *)mpp_alloc( sizeof(struct aic_mp3_parser));
+	mp3_parser = (struct aic_mp3_parser *)mpp_alloc(sizeof(struct aic_mp3_parser));
 	if (mp3_parser == NULL) {
 		loge("mpp_alloc aic_parser failed!!!!!\n");
 		ret = -1;
@@ -84,7 +86,7 @@ s32 aic_mp3_parser_create(unsigned char *uri, struct aic_parser **parser)
 	}
 	memset(mp3_parser, 0, sizeof(struct aic_mp3_parser));
 
-	if (aic_stream_open((char *)uri, &mp3_parser->stream) < 0) {
+	if (aic_stream_open((char *)uri, &mp3_parser->stream, O_RDONLY) < 0) {
 		loge("stream open fail");
 		ret = -1;
 		goto exit;

@@ -35,11 +35,22 @@
 #include <artinchip_spinand.h>
 #endif
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define MAX_MTDIDS 64
 #define MAX_MTDPARTS 256
 #define LOGO_OFFSET	(0x120000)
+
+#define EFUSE_CMU_REG ((void *)0x18020904)
+#define EFUSE_SHADOW_FEATURE_REG ((void *)0x19010224)
+#define DDR2_32MB 0xA
+#define DDR2_64MB 0xB
+#define DDR3_128MB 0xC
+#define DDR3_256MB 0xD
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 
@@ -250,6 +261,7 @@ static int setup_dm_verity_part(void)
 #endif
 
 #ifdef CONFIG_VIDEO_ARTINCHIP
+#ifdef CONFIG_DM_SPI_FLASH
 static int aic_logo_decode(unsigned char *dst, unsigned int size)
 {
 	if (dst[0] == 0xff || dst[1] == 0xd8) {
@@ -265,41 +277,7 @@ static int aic_logo_decode(unsigned char *dst, unsigned int size)
 	pr_err("not support logo file format, need a png/jpg image\n");
 	return 0;
 }
-
-static int mmc_load_logo(struct udevice *dev, int id)
-{
-#ifdef CONFIG_MMC
-	struct mmc *mmc = find_mmc_device(id);
-	struct disk_partition part_info;
-	unsigned char *dst;
-	int ret;
-	u32 cnt;
-
-	ret = part_get_info_by_name(mmc_get_blk_desc(mmc), "logo", &part_info);
-	if (ret < 0) {
-		pr_err("Get logo partition information failed.\n");
-		return -1;
-	}
-
-	dst = memalign(DECODE_ALIGN, LOGO_MAX_SIZE);
-	if (!dst) {
-		pr_err("Failed to malloc for logo image!\n");
-		return -ENOMEM;
-	}
-
-	cnt = LOGO_MAX_SIZE / mmc->read_bl_len;
-	ret = blk_dread(mmc_get_blk_desc(mmc), part_info.start, cnt, dst);
-	if (ret != cnt) {
-		free(dst);
-		pr_err("Failed to read logo image from MMC/SD!\n");
-		return -EIO;
-	}
-
-	aic_logo_decode(dst, LOGO_MAX_SIZE);
-	free(dst);
-#endif
-	return 0;
-}
+#endif /* CONFIG_DM_SPI_FLASH */
 
 static int spinor_load_logo(struct udevice *dev)
 {
@@ -345,10 +323,8 @@ static int board_prepare_logo(struct udevice *dev)
 	bd = aic_get_boot_device();
 	switch (bd) {
 	case BD_SDMC0:
-		ret = mmc_load_logo(dev, 0);
-		break;
 	case BD_SDMC1:
-		ret = mmc_load_logo(dev, 1);
+		ret = aic_disp_logo("boot", bd);
 		break;
 	case BD_SDFAT32:
 		ret = aic_disp_logo("sdburn", bd);
@@ -390,6 +366,56 @@ static int board_show_logo(void)
 }
 #endif /* CONFIG_VIDEO_ARTINCHIP  */
 
+static u32 efuse_get_ddr_size(void)
+{
+	u32 val, mem, size = 0;
+
+	writel(0x1100, EFUSE_CMU_REG);
+	val = readl(EFUSE_SHADOW_FEATURE_REG);
+
+	mem = (val >> 20) & 0xF;
+	switch (mem) {
+	case DDR2_32MB:
+		pr_info("DDR2 32MB\n");
+		size = 0x2000000;
+		break;
+	case DDR2_64MB:
+		pr_info("DDR2 64MB\n");
+		size = 0x4000000;
+		break;
+	case DDR3_128MB:
+		pr_info("DDR3 128MB\n");
+		size = 0x8000000;
+		break;
+	case DDR3_256MB:
+		pr_info("DDR3 256MB\n");
+		size = 0x10000000;
+		break;
+	default:
+		pr_info("No DDR info\n");
+	}
+	return size;
+}
+
+void fdt_fix_mem_size(void *blob)
+{
+	int len, nodeoffset;
+	const u64 *reg;
+	u64 start[1], size[1];
+	char *node = "/memory@40000000";
+
+	nodeoffset = fdt_path_offset(blob, node);
+	reg = fdt_getprop(blob, nodeoffset, "reg", &len);
+	if (reg) {
+		start[0] = fdt64_to_cpu(reg[0]);
+		size[0] = efuse_get_ddr_size();
+		if (size[0]) {
+			fdt_fix_memory(blob, start, size, node);
+		}
+	}
+
+}
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -420,6 +446,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return err;
 	}
 #endif
+	fdt_fix_mem_size(blob);
+
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

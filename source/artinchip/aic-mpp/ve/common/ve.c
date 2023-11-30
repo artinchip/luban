@@ -45,7 +45,7 @@ int ve_open_device(void)
 	if(g_ve_ref == 0) {
 		// 1. open /dev/aic_ve
 		g_ve_info.ve_fd = open(VE_DEV, O_RDWR);
-		if(g_ve_ref < 0) {
+		if(g_ve_info.ve_fd < 0) {
 			loge("open %s failed!", VE_DEV);
 			pthread_mutex_unlock(&g_ve_mutex);
 			return -1;

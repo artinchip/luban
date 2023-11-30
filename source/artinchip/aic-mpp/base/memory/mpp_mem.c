@@ -84,3 +84,8 @@ void mpp_free(void *ptr)
 	pthread_mutex_unlock(&g_mem_mutex);
 #endif
 }
+
+void *mpp_realloc(void *ptr,size_t size)
+{
+	return realloc(ptr,size);
+}

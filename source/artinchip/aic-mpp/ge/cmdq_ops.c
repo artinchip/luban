@@ -32,6 +32,10 @@ extern "C" {
 
 #define ALIGN_8B(x) (((x) + (7)) & ~(7))
 #define ALIGN_2B(x) (((x) + (1)) & ~(1))
+#define BIT_SHIFT(bit) (1 << (bit))
+#define INIT_PHASE(step) (((step) >= BIT_SHIFT(16)) ? \
+			(((step) >> 1) - BIT_SHIFT(15)) :\
+			((step) >> 1))
 
 struct ge_dmabuf_head {
 	struct mpp_list list;
@@ -818,20 +822,20 @@ static int update_scaler_cmd(struct mpp_ge *ge,
 	case MPP_FMT_ABGR_4444:
 	case MPP_FMT_RGBA_4444:
 	case MPP_FMT_BGRA_4444:
-		if (in_w[0] == out_w && in_h[0] == out_h)
+		if (in_w[0] == out_w && in_h[0] == out_h) {
 			scaler_en = 0;
-		else {
+		} else {
 			dx[0] = (in_w[0] << 16) / out_w;
 			dy[0] = (in_h[0] << 16) / out_h;
-			h_phase[0] = dx[0] >> 1;
-			v_phase[0] = dy[0] >> 1;
+			h_phase[0] = INIT_PHASE(dx[0]);
+			v_phase[0] = INIT_PHASE(dy[0]);
 		}
 		break;
 	case MPP_FMT_YUV400:
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 		break;
 	case MPP_FMT_YUV420P:
 	case MPP_FMT_NV12:
@@ -842,8 +846,8 @@ static int update_scaler_cmd(struct mpp_ge *ge,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[0] = dx[0] & (~1);
 		dy[0] = dy[0] & (~1);
@@ -878,8 +882,8 @@ static int update_scaler_cmd(struct mpp_ge *ge,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[0] = dx[0] & (~1);
 		h_phase[0] = h_phase[0] & (~1);
@@ -901,8 +905,8 @@ static int update_scaler_cmd(struct mpp_ge *ge,
 
 		dx[0] = (in_w[0] << 16) / out_w;
 		dy[0] = (in_h[0] << 16) / out_h;
-		h_phase[0] = dx[0] >> 1;
-		v_phase[0] = dy[0] >> 1;
+		h_phase[0] = INIT_PHASE(dx[0]);
+		v_phase[0] = INIT_PHASE(dy[0]);
 
 		dx[1] = dx[0];
 		dy[1] = dy[0];
@@ -952,7 +956,7 @@ static int flush_cmd(struct cmd_queue *cmdq, int dev_fd)
 	int ret;
 
 	if (cmdq->write_offset) {
-		ret = write(dev_fd, cmdq->cmd_buf, cmdq->write_offset * 4 );
+		ret = write(dev_fd, cmdq->cmd_buf, cmdq->write_offset * 4);
 		if (ret < 0) {
 			printf( "flush_cmd: write() failed!\n" );
 			return -1;

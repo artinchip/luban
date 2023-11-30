@@ -1164,7 +1164,8 @@ static OMX_ERRORTYPE OMX_VideoRenderSetConfig(
 		break;
 	case OMX_IndexConfigCommonRotate: {
 		OMX_CONFIG_ROTATIONTYPE *pRotation = (OMX_CONFIG_ROTATIONTYPE *)pComponentConfigStructure;
-		if (pVideoRenderDataType->nRotationAngle != pRotation->nRotation ) {//MPP_ROTATION_0 MPP_ROTATION_90 MPP_ROTATION_180 MPP_ROTATION_270
+		if (pVideoRenderDataType->nRotationAngle != pRotation->nRotation) {
+			//MPP_ROTATION_0 MPP_ROTATION_90 MPP_ROTATION_180 MPP_ROTATION_270
 			pVideoRenderDataType->nRotationAngle = pRotation->nRotation;
 			pVideoRenderDataType->nRotationAngleChange = 1;
 		}
@@ -2017,6 +2018,13 @@ static void* OMX_VideoRenderComponentThread(void* pThreadData)
 	OMX_PORT_TUNNELEDINFO *pTunneldClock;
 	pTunneldClock = &pVideoRenderDataType->sInPortTunneledInfo[VIDEO_RENDER_PORT_IN_CLOCK_INDEX];
 
+	int frame_num = 0;
+#ifdef PRINT_FPS
+	OMX_S64 start = OMX_ClockGetSystemTime();
+	OMX_S64 end;
+	double fps;
+#endif
+
 	while(1) {
 _AIC_MSG_GET_:
 		if  (aic_msg_get(&pVideoRenderDataType->sMsgQue, &message) == 0) {
@@ -2187,6 +2195,8 @@ _AIC_MSG_GET_:
 			#endif
 				ret = pVideoRenderDataType->render->rend(pVideoRenderDataType->render,pVideoRenderDataType->pCurDisplayFrame);
 
+				frame_num ++;
+
 				//ret = pVideoRenderDataType->render->rend(pVideoRenderDataType->render,&pFrameNode->sFrameInfo);
 				//pVideoRenderDataType->render->set_on_off(pVideoRenderDataType->render,1);
 				aic_pthread_mutex_lock(&pVideoRenderDataType->sInFrameLock);
@@ -2255,10 +2265,21 @@ _AIC_MSG_GET_:
 						OMX_VideoRenderDumpPic(&pVideoRenderDataType->pCurDisplayFrame->buf,pVideoRenderDataType->nDumpIndex++);
 					}
 				#endif
+
 					ret = pVideoRenderDataType->render->rend(pVideoRenderDataType->render,pVideoRenderDataType->pCurDisplayFrame);
 
 					//ret = pVideoRenderDataType->render->rend(pVideoRenderDataType->render,&pFrameNode->sFrameInfo);
+					frame_num ++;
+#ifdef PRINT_FPS
+					if (frame_num == 60) {
+						end = OMX_ClockGetSystemTime();
+						fps =  (double) frame_num * 1000000 / (double)(end-start);
+						logi("fps: %0.2f\n", fps);
 
+						start = end;
+						frame_num = 0;
+					}
+#endif
 					aic_pthread_mutex_lock(&pVideoRenderDataType->sInFrameLock);
 					if (ret == 0) {
 						mpp_list_del(&pFrameNode->sList);

@@ -200,6 +200,7 @@ define UBOOT_PREPARE_DTS
 	$(Q)ln -sf $(TARGET_CHIP_DIR)/common/*.dtsi $(UBOOT_SRCDIR)/arch/$(KERNEL_ARCH)/dts/
 	$(Q)ln -sf $(TARGET_BOARD_DIR)/board.dts $(UBOOT_SRCDIR)/arch/$(KERNEL_ARCH)/dts/artinchip-board.dts
 	$(Q)ln -sf $(TARGET_BOARD_DIR)/board-u-boot.dtsi $(UBOOT_SRCDIR)/arch/$(KERNEL_ARCH)/dts/artinchip-board-u-boot.dtsi
+	$(Q)ln -sf $(TARGET_BOARD_DIR)/image_cfg.json $(UBOOT_SRCDIR)/include/configs/image_cfg.json
 	$(Q)ln -sf $(LINUX_SRCDIR)/include/dt-bindings/clock/artinchip*.h $(UBOOT_SRCDIR)/include/dt-bindings/clock/
 	$(Q)ln -sf $(LINUX_SRCDIR)/include/dt-bindings/reset/artinchip*.h $(UBOOT_SRCDIR)/include/dt-bindings/reset/
 	$(Q)ln -sf $(LINUX_SRCDIR)/include/dt-bindings/display/artinchip*.h $(UBOOT_SRCDIR)/include/dt-bindings/display/

@@ -340,7 +340,7 @@ static int fdt_get_cmdline(void *fdt, char *cmdline)
 
 int fdt_chosen(void *fdt)
 {
-	int  nodeoffset;
+	int nodeoffset;
 	int  err;
 	char *str;	/* used to set string properties */
 
@@ -587,6 +587,34 @@ int fdt_set_usable_memory(void *blob, u64 start[], u64 size[], int areas)
 	len = fdt_pack_reg(blob, tmp, start, size, areas);
 
 	err = fdt_setprop(blob, nodeoffset, "linux,usable-memory", tmp, len);
+	if (err < 0) {
+		printf("WARNING: could not set %s %s.\n",
+		       "reg", fdt_strerror(err));
+		return err;
+	}
+
+	return 0;
+}
+
+int fdt_fix_memory(void *blob, u64 start[], u64 size[], char *node)
+{
+	int err, nodeoffset;
+	int len;
+	u8 tmp[MEMORY_BANKS_MAX * 16]; /* Up to 64-bit address + 64-bit size */
+
+	err = fdt_check_header(blob);
+	if (err < 0) {
+		printf("%s: %s\n", __func__, fdt_strerror(err));
+		return err;
+	}
+
+	/* find or create "/memory" node. */
+	nodeoffset = fdt_path_offset(blob, node);
+	if (nodeoffset < 0)
+		return nodeoffset;
+
+	len = fdt_pack_reg(blob, tmp, start, size, 1);
+	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
 	if (err < 0) {
 		printf("WARNING: could not set %s %s.\n",
 		       "reg", fdt_strerror(err));

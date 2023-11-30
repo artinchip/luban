@@ -44,8 +44,12 @@ add_definitions(-DWITH_LINUX_FB)
 add_definitions(-DWITH_FAST_LCD_PORTRAIT)
 add_definitions(-DHAS_PTHREAD)
 add_definitions(-DWITH_DATA_READER_WRITER)
+add_definitions(-DWITH_BITMAP_BGRA)
 add_definitions(-DWITH_G2D)
+add_definitions(-DWITH_DEC_IMAGE)
 add_definitions(-DWITH_AIC_G2D)
+#add_definitions(-DTK_DEBUG)
+#add_definitions(-DAPP_RES_ROOT = /sdcard/)
 
 if (INPUT_ENGINE STREQUAL "pinyin")
     add_definitions(-DWITH_IME_PINYIN)
@@ -100,7 +104,8 @@ set(AIC_G2D ${CMAKE_CURRENT_SOURCE_DIR}/awtk-linux-fb/awtk-port/aic_g2d)
 set(SOURCE_FILES ${SOURCE_FILES}
     ${AIC_G2D}/aic_g2d.c
     ${AIC_G2D}/aic_linux_mem.c
-    ${AIC_G2D}/aic_decode_asset.c
+    ${AIC_G2D}/aic_dec_asset.c
+    ${AIC_G2D}/aic_dec_asset_frame.c
     ${AIC_G2D}/aic_graphic_buffer.c
 )
 
@@ -347,12 +352,24 @@ find_library(LIBMPP_BASE libmpp_base.so)
 find_library(LIBMPP_VE libmpp_ve.so)
 find_library(LIBMPP_DEC libmpp_decoder.so)
 
-set(PRJ_APP demo_chart)
+# Do not modify the app name
+set(PRJ_APP test_awtk)
 add_executable(${PRJ_APP} ${DEMO_SOURCE_FILES})
 target_include_directories(${PRJ_APP} PRIVATE ${CPPPATH})
 target_link_libraries(${PRJ_APP} PUBLIC awtk ${LIBMPP_GE} ${LIBMPP_DEC} ${LIBMPP_BASE} ${LIBMPP_VE})
 set_target_properties(${PRJ_APP} PROPERTIES INSTALL_RPATH "/usr/local/lib")
 
+# install app
 if(DEFINED CMAKE_INSTALL_FULL_BINDIR)
     install(TARGETS ${PRJ_APP} RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_BINDIR
+
+include(GNUInstallDirs)
+
+add_definitions(-DAWTK_DIR="L:${CMAKE_INSTALL_FULL_DATAROOTDIR}")
+
+# Do not modify the installation path, you can modify the installation content
+if(DEFINED CMAKE_INSTALL_FULL_DATAROOTDIR)
+    install(DIRECTORY user_apps/awtk-demo-chart/res/assets/default/raw
+    DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/awtk_data/res/assets/default)
+endif() # CMAKE_INSTALL_FULL_DATAROOTDIR

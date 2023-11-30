@@ -97,7 +97,7 @@ KBUILD_IMAGE := $(boot)/loader.bin
 else
 KBUILD_IMAGE := $(boot)/Image.gz
 endif
-BOOT_TARGETS := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo loader loader.bin uImage
+BOOT_TARGETS := Image Image.bz2 Image.gz Image.lz4 Image.xz Image.lzma Image.lzo loader loader.bin uImage
 
 all:	$(notdir $(KBUILD_IMAGE))
 

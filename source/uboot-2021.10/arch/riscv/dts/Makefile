@@ -15,6 +15,8 @@ AIC_DTS := $(notdir $(wildcard $(srctree)/arch/riscv/dts/artinchip*.dts))
 AIC_DTB := $(AIC_DTS:%.dts=%.dtb)
 dtb-$(CONFIG_ARCH_ARTINCHIP) += $(AIC_DTB)
 
+include $(srctree)/scripts/Makefile.dts
+
 targets += $(dtb-y)
 
 DTC_FLAGS += -R 4 -p 0x1000

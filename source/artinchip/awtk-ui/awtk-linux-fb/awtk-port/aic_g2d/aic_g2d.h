@@ -13,8 +13,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifdef WITH_AIC_G2D
-
 #include "aic_linux_mem.h"
 #include "base/image_loader.h"
 
@@ -26,9 +24,7 @@ int aic_cma_buf_add_ge(cma_buffer *data);
 int aic_cma_buf_find_ge(void *buf, cma_buffer *back);
 int aic_cma_buf_del_ge(void *buf);
 
-#endif
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* _QC_OPS_H_ */
+#endif /* _TK_AIC_G2D_H */

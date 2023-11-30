@@ -9,6 +9,10 @@
 #include <part.h>
 #include <asm/arch/boot_param.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int mmc_get_env_dev(void)

@@ -231,7 +231,7 @@
 		};
 
 		otg: usb-otg {
-			compatible = "artinchip,aic-otg-v1.0";
+			compatible = "artinchip,aic-otg-v2.0";
 		};
 
 		aicudc: udc@10200000 {
@@ -244,6 +244,7 @@
 			reset-names = "aicudc", "aicudc-ecc";
 			// phys = <&usbphy0>;
 			// phy-names = "usb2-phy";
+			aic,otg-support;
 		};
 
 		usbh0: usb@10210000 {
@@ -257,6 +258,7 @@
 			dr_mode = "host";
 			// phys = <&usbphy0>;
 			// phy-names = "usb2-phy";
+			aic,otg-support;
 			status = "disabled";
 		};
 
@@ -265,6 +267,7 @@
 			reg = <0x0 0x10210400 0x0 0x100>;
 			interrupts-extended = <&plic0 36 IRQ_TYPE_LEVEL_HIGH>;
 			//num-ports = <1>;
+			aic,otg-support;
 			status = "disabled";
 		};
 
@@ -802,6 +805,18 @@
 			clock-names = "rgb0", "sclk";
 			resets = <&rst RESET_RGB>;
 			reset-names = "rgb0";
+			status = "disabled";
+		};
+
+		dbi0: dbi@18800004 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "artinchip,aic-dbi-v1.0";
+			reg = <0x0 0x18800000 0x0 0x1000>;
+			clocks = <&cmu CLK_DBI>, <&cmu CLK_SCLK>;
+			clock-names = "dbi0", "sclk";
+			resets = <&rst RESET_DBI>;
+			reset-names = "dbi0";
 			status = "disabled";
 		};
 

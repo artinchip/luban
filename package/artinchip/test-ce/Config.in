@@ -1,7 +1,7 @@
 menuconfig BR2_PACKAGE_TEST_CE
 	bool "test-ce"
 	default y
-	select BR2_PACKAGE_LIBKCAPI
+	select BR2_PACKAGE_LIBKCAPI_ASYM
 	select BR2_PACKAGE_LIBOPENSSL
 
 if BR2_PACKAGE_TEST_CE

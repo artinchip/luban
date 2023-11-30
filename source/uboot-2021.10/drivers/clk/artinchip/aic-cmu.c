@@ -550,11 +550,13 @@ static int aic_clk_probe(struct udevice *dev)
 
 static const struct udevice_id aic_clk_ids[] = {
 	{ .compatible = "artinchip,aic-cmu-v1.0", },
+	{ .compatible = "artinchip,aic-cmu-v1.3", },
 	{ }
 };
 
 U_BOOT_DRIVER(artinchip_cmu) = {
 	.name                     = "artinchip_aic_cmu_v1_0",
+	//.name                     = "artinchip_aic_cmu_v1_3",
 	.id                       = UCLASS_CLK,
 	.of_match                 = aic_clk_ids,
 	.probe                    = aic_clk_probe,

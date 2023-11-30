@@ -141,6 +141,8 @@ static const int aic_gpai_adc_raw_available[] = {
 	GPAI_ADC_DATA_MIN, GPAI_ADC_DATA_STEP, GPAI_INVALID_DATA,
 };
 
+extern u16 adcim_auto_calibration(u16 adc_val, struct device *dev);
+
 // TODO: Add the transform algorithm, offered by SD later
 static s32 gpai_data2vol(u16 data)
 {
@@ -318,6 +320,7 @@ static int aic_gpai_read_dat(struct aic_gpai_dev *gpai, u32 ch)
 	/* Just record the last data as to now */
 	for (i = 0; i < cnt; i++) {
 		chan->latest_data = readl(regs + GPAI_CHnDATA(ch));
+		adcim_auto_calibration(chan->latest_data, dev);
 		// dev_dbg(dev, "ch%d data%d %d\n", ch, i, chan->latest_data);
 	}
 	dev_dbg(dev, "There are %d data ready in ch%d, last %d\n", cnt,

@@ -124,6 +124,10 @@ config BR2_LINUX_KERNEL_IMAGELZ4
 	bool "Image.lz4"
 	depends on BR2_riscv
 
+config BR2_LINUX_KERNEL_IMAGEXZ
+	bool "Image.xz"
+	depends on BR2_riscv
+
 config BR2_LINUX_KERNEL_IMAGELZMA
 	bool "Image.lzma"
 	depends on BR2_riscv

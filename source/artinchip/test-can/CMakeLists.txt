@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(can-loopback LANGUAGES C)
+project(test_can LANGUAGES C)
 
 # Suppress cmake unused warning
 set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
@@ -8,9 +8,9 @@ set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
 
 add_compile_options(-Wall)
 
-add_executable(can-loopback test_can.c)
+add_executable(test_can test_can.c)
 
-target_link_libraries(can-loopback pthread)
+target_link_libraries(test_can pthread)
 
 # Install
 # install directories
@@ -20,5 +20,5 @@ endif()
 include(GNUInstallDirs)
 
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-	install(TARGETS can-loopback RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+	install(TARGETS test_can RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR

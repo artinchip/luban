@@ -20,6 +20,10 @@
 #include <search.h>
 #include <errno.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 #define __STR(X) #X
 #define STR(X) __STR(X)
 

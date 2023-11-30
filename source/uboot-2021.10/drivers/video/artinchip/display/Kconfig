@@ -76,6 +76,13 @@ config AIC_DISP_MIPI_DSI_V1_0
 	help
 	  Artinchip display mipi-dsi v1.0
 
+config AIC_DISP_MIPI_DBI
+	bool "ArtInChip display mipi-dbi support"
+	depends on VIDEO_ARTINCHIP
+	default n
+	help
+	  ArtInChip display mipi-dbi support
+
 if VIDEO_ARTINCHIP
 
 source "drivers/video/artinchip/display/panel/Kconfig"

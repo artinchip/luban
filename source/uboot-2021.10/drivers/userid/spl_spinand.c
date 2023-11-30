@@ -18,6 +18,10 @@
 #include <artinchip_spinand.h>
 #include "userid_internal.h"
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SPI_NAND_TINY)
 
 static bool aligned_with_block_size(u64 erasesize, u64 size)

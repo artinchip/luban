@@ -1,0 +1,86 @@
+独立编译 Linux、U-Boot
+======================
+
+build_linux.sh
+build_uboot.sh
+build_dtb.sh
+
+提供了三个参考脚本，可以根据实际情况，修改脚本中的内容：
+
+ - TOOLCHAIN
+ - DEFCONFIG
+ - CHIP
+ - BOARD
+
+在使用下面的命令之前，请先确认脚本中的配置正确，
+并且将在 SDK 目录下建立目录，如 BUILD
+然后将相关脚本复制到 SDK/BUILD 目录下运行。
+
+Linux
+-----
+
+准备代码：只需要执行一次
+
+./build_linux.sh prepare
+
+
+然后根据需要，使用下列命令
+
+./build_linux.sh config     # 应用配置
+./build_linux.sh build      # 编译内核
+./build_linux.sh install    # 安装
+
+或者
+./build_linux.sh            # 一次执行上述几条命令
+
+修改配置：
+./build_linux.sh menuconfig # 修改配置
+
+清理编译目录：
+./build_linux.sh clean      # distclean
+
+编译结果输出到 install 目录
+
+U-Boot
+------------
+
+DTB 是与 U-Boot 一起编译的
+
+准备代码：只需执行一次
+
+./build_uboot.sh prepare
+
+然后根据需要，使用下列命令
+
+./build_uboot.sh config     # 应用配置
+./build_uboot.sh build      # 编译UBOOT
+./build_uboot.sh install    # 安装
+
+或者
+./build_uboot.sh            # 一次执行上述几条命令
+
+修改配置：
+./build_uboot.sh menuconfig # 修改配置
+
+清理编译目录：
+./build_uboot.sh clean      # distclean
+
+编译结果输出到 install 目录
+
+
+DTB
+--------
+
+准备代码：只需执行一次
+
+./build_dtb.sh prepare
+
+然后根据需要，使用下列命令
+
+然后根据需要，使用下列命令
+./build_dtb.sh build      # 编译 DTB
+./build_dtb.sh install    # 安装
+
+或者
+./build_dtb.sh            # 一次执行上述几条命令
+

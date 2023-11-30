@@ -46,6 +46,7 @@
 
 #include <bzlib.h>
 #include <linux/lzo.h>
+#include <linux/decompress/unxz.h>
 #include <lzma/LzmaTypes.h>
 #include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
@@ -214,6 +215,7 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
 #if defined(CONFIG_ARCH_ARTINCHIP) && !defined(CONFIG_SPL_BUILD)
 	{	IH_COMP_BZIP2,	"bzip2",	"bzip2 compressed",	},
+	{	IH_COMP_XZ,	"xz",		"xz compressed",	},
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
 	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
@@ -232,6 +234,7 @@ static const struct comp_magic_map image_comp[] = {
 	{	IH_COMP_GZIP,	"gzip",		{0x1f, 0x8b},},
 #if defined(CONFIG_ARCH_ARTINCHIP) && !defined(CONFIG_SPL_BUILD)
 	{	IH_COMP_BZIP2,	"bzip2",	{0x42, 0x5a},},
+	{	IH_COMP_XZ,	"xz",		{0xfd, 0x37},},
 	{	IH_COMP_LZMA,	"lzma",		{0x5d, 0x00},},
 	{	IH_COMP_LZO,	"lzo",		{0x89, 0x4c},},
 #endif
@@ -517,6 +520,17 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_BZIP2 */
+#endif
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(XZ)
+	case IH_COMP_XZ: {
+		uint xz_len = unc_len;
+
+		ret = unxz(image_buf, image_len, NULL, NULL, load_buf, &xz_len, NULL);
+		image_len = xz_len;
+		break;
+	}
+#endif /* CONFIG_XZ */
 #endif
 #ifndef USE_HOSTCC
 #if CONFIG_IS_ENABLED(LZMA)

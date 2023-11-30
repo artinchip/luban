@@ -1,0 +1,9 @@
+menuconfig BR2_PACKAGE_LVGL_UI
+	bool "lvgl-ui"
+	default n
+
+if BR2_PACKAGE_LVGL_UI
+config BR2_TEST_LVGL_USE_RTP
+	bool "use RTP"
+	default n
+endif

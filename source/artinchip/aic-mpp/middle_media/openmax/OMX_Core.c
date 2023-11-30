@@ -16,6 +16,8 @@
 #include "OMX_AdecComponent.h"
 #include "OMX_AudioRenderComponent.h"
 #include "OMX_ClockComponent.h"
+#include "OMX_MuxerComponent.h"
+#include "OMX_VencComponent.h"
 
 OMX_COMPONENTREGISTERTYPE OMX_ComponentRegistered[] = {
 	{OMX_COMPONENT_DEMUXER_NAME,OMX_DemuxerComponentInit},
@@ -23,7 +25,9 @@ OMX_COMPONENTREGISTERTYPE OMX_ComponentRegistered[] = {
 	{OMX_COMPONENT_VIDEO_RENDER_NAME,OMX_VideoRenderComponentInit},
 	{OMX_COMPONENT_ADEC_NAME,OMX_AdecComponentInit},
 	{OMX_COMPONENT_AUDIO_RENDER_NAME,OMX_AudioRenderComponentInit},
-	{OMX_COMPONENT_CLOCK_NAME,OMX_ClockComponentInit}
+	{OMX_COMPONENT_CLOCK_NAME,OMX_ClockComponentInit},
+	{OMX_COMPONENT_MUXER_NAME,OMX_MuxerComponentInit},
+	{OMX_COMPONENT_VENC_NAME,OMX_VencComponentInit}
 };
 
 OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_Init(void)
@@ -51,25 +55,25 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_GetHandle(
 	OMX_S32 i,index;
 	OMX_S32 nCompNum = sizeof(OMX_ComponentRegistered) / sizeof(OMX_COMPONENTREGISTERTYPE);
 
-	for( i = 0; i < nCompNum; i++){
-		if(!strcmp(cComponentName, OMX_ComponentRegistered[i].pName)){
+	for (i = 0; i < nCompNum; i++) {
+		if (!strcmp(cComponentName, OMX_ComponentRegistered[i].pName)) {
 			bFind = OMX_TRUE;
 			index = i;
 			break;
 		}
 	}
 
-	if(bFind == OMX_TRUE){
+	if (bFind == OMX_TRUE) {
 		*pHandle = (OMX_HANDLETYPE)malloc(sizeof(OMX_COMPONENTTYPE));
 		eError = OMX_ComponentRegistered[index].pInitialize(*pHandle);
-		if(eError == OMX_ErrorNone){
+		if (eError == OMX_ErrorNone) {
 			((OMX_COMPONENTTYPE *)(*pHandle))->SetCallbacks(*pHandle,pCallBacks,pAppData);
 			logd("get handle ok,component name:%s\n",OMX_ComponentRegistered[index].pName);
-		}else {
+		} else {
 			loge("find compoent but init fail:0x%x!!\n",eError);
 			free(*pHandle);
 		}
-	}else{
+	} else {
 		eError = OMX_ErrorComponentNotFound;
 	}
 
@@ -101,29 +105,28 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_SetupTunnel(
     comp_in = (OMX_COMPONENTTYPE *)hInput;
     comp_out = (OMX_COMPONENTTYPE *)hOutput;
 
-    if (NULL != hOutput &&  NULL != hInput){// setup
+    if (NULL != hOutput &&  NULL != hInput) {// setup
         tunnel_setup.eSupplier = OMX_BufferSupplyMax;
 		//step1 output
 		ret = comp_out->ComponentTunnelRequest(hOutput, nPortOutput,
 												hInput, nPortInput,
 													&tunnel_setup);
 		//step2 input
-		if (OMX_ErrorNone == ret){
+		if (OMX_ErrorNone == ret) {
 			ret = comp_in->ComponentTunnelRequest(hInput, nPortInput,
 								hOutput, nPortOutput,&tunnel_setup);
-			if (OMX_ErrorNone != ret){
+			if (OMX_ErrorNone != ret) {
 				logd("unable to setup tunnel on input component.\n");
 				comp_out->ComponentTunnelRequest(hOutput, nPortOutput,NULL, 0, NULL);
 			}
-		} else{
+		} else {
 			logd("unable to setup tunnel on output component.\n");
 		}
-	}
-	else if(NULL == hOutput && NULL != hInput){//cancel input
+	} else if (NULL == hOutput && NULL != hInput) {//cancel input
 		comp_in->ComponentTunnelRequest(hInput, nPortInput,NULL, 0, NULL);
-	}else if(NULL == hInput && NULL != hOutput){//cancel output
+	} else if (NULL == hInput && NULL != hOutput) {//cancel output
 		comp_out->ComponentTunnelRequest(hOutput, nPortOutput,NULL, 0, NULL);
-	}else{
+	} else {
 		return OMX_ErrorBadParameter;
 	}
     return ret;

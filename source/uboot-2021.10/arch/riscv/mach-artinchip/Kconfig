@@ -1,12 +1,15 @@
 if ARCH_ARTINCHIP
 
 config SYS_SOC
-	default "artinchip"
+	string "Set SoC"
+	default "d211"
 
 config SYS_VENDOR
+	string "Set Vendor"
 	default "artinchip"
 
 config SYS_CPU
+	string "Set CPU"
 	default "c906"
 
 choice
@@ -25,6 +28,8 @@ config FPGA_BOARD_ARTINCHIP
 	bool "ArtInChip FPGA board"
 	depends on ARCH_ARTINCHIP
 
+if TARGET_D211
 source "board/artinchip/d211/Kconfig"
+endif
 
 endif

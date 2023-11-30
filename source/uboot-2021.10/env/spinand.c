@@ -19,6 +19,10 @@
 #include <mtd.h>
 #include <env.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_SPL_BUILD)
 #define CMD_SAVEENV
 #endif

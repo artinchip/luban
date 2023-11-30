@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <event_internal.h>
 #include <fdtdec.h>
 #include <membuff.h>
 #include <linux/list.h>
@@ -465,6 +466,12 @@ struct global_data {
 	 */
 	char *smbios_version;
 #endif
+#if CONFIG_IS_ENABLED(EVENT)
+	/**
+	 * @event_state: Points to the current state of events
+	 */
+	struct event_state event_state;
+#endif
 };
 #ifndef DO_DEPS_ONLY
 static_assert(sizeof(struct global_data) == GD_SIZE);
@@ -516,6 +523,12 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_acpi_ctx()		gd->acpi_ctx
 #else
 #define gd_acpi_ctx()		NULL
+#endif
+
+#if CONFIG_IS_ENABLED(EVENT_DYNAMIC)
+#define gd_event_state()	((struct event_state *)&gd->event_state)
+#else
+#define gd_event_state()	NULL
 #endif
 
 /**

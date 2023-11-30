@@ -142,7 +142,7 @@ s32 aicupg_fat_write(char *image_name, char *protection,
 		write_len += ret;
 	}
 
-	printf("All firmaware components programming done.\n");
+	printf("All firmware components programming done.\n");
 	free(pmeta);
 	return write_len;
 err:

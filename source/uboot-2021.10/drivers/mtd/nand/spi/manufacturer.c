@@ -57,6 +57,9 @@ static const struct spinand_manufacturer *spinand_manufacturers[] = {
 #ifdef CONFIG_SPI_NAND_UMTEK
 	&umtek_spinand_manufacturer,
 #endif
+#ifdef CONFIG_SPI_NAND_BYTE
+	&byte_spinand_manufacturer,
+#endif
 };
 
 int spinand_manufacturer_detect(struct spinand_device *spinand)

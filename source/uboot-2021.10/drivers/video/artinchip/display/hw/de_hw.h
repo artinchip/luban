@@ -14,18 +14,21 @@
 #define DE_CTRL_DITHER_EN                     BIT(0)
 #define DE_MODE_SELECT_COLOR_BAR              BIT(0)
 #define DE_CONFIG_UPDATE_EN                   BIT(0)
-#define OUTPUT_COLOR_DEPTH_SET(r, g, b)       ((((r) & 0x3) << 16) \
-	| (((g) & 0x3) << 8) \
-	| ((b) & 0x3))
+#define DE_SOFT_RESET_EN		      BIT(16)
+#define DE_RAND_DITHER_EN                     BIT(31)
+#define OUTPUT_COLOR_DEPTH_SET(r, g, b)       ((((~r) & 0x3) << 16) \
+	| (((~g) & 0x3) << 8) \
+	| ((~b) & 0x3))
 
 #define UI_LAYER_CTRL_G_ALPHA_MASK            GENMASK(31, 24)
 #define UI_LAYER_CTRL_G_ALPHA(x)              (((x) & 0xff) << 24)
 
-#define UI_LAYER_CTRL_ALPHA_MODE_MASK         GENMASK(22, 22)
-#define UI_LAYER_CTRL_ALPHA_MODE(x)           (((x) & 0x01) << 22)
+#define UI_LAYER_CTRL_ALPHA_MODE_MASK         GENMASK(23, 22)
+#define UI_LAYER_CTRL_ALPHA_MODE(x)           (((x) & 0x03) << 22)
 
 #define UI_LAYER_CTRL_INPUT_FORMAT_MASK       GENMASK(14, 8)
 #define UI_LAYER_CTRL_INPUT_FORMAT(x)         (((x) & 0x07f) << 8)
+#define UI_LAYER_CTRL_BG_BLEND_EN             BIT(21)
 #define UI_LAYER_CTRL_ALPHA_EN                BIT(2)
 #define UI_LAYER_CTRL_COLOR_KEY_EN            BIT(1)
 #define UI_LAYER_CTRL_EN                      BIT(0)
@@ -61,6 +64,11 @@
 #define WB_INT_FINISH_FLAG                    BIT(0)
 #define WB_STRIDE_SET(x)                      ((x) & 0x1fff)
 
+#define TIMING_TE_PULSE_WIDTH(x)	      (((x) & 0xffff) << 8)
+#define TIMING_TE_PULSE_WIDTH_MASK	      GENMASK(23, 8)
+#define TIMING_TE_MODE(x)		      (((x) & 0x03) << 4)
+#define TIMING_TE_MODE_MASK		      GENMASK(5, 4)
+
 #define TIMING_CTRL_EN                        BIT(0)
 
 #define TIMING_INIT_UNDERFLOW                 BIT(2)
@@ -71,6 +79,7 @@
 #define TIMING_INIT_LINE_FLAG                 BIT(1)
 #define TIMING_INIT_V_BLANK_FLAG              BIT(0)
 
+#define TIMING_LINE_SET_PREFETCH_LINE_MASK    GENMASK(28, 16)
 #define TIMING_LINE_SET_PREFETCH_LINE(x)      (((x) & 0x1fff) << 16)
 #define TIMING_LINE_SET_INT_LINE(x)           (((x) & 0x1fff))
 
@@ -91,19 +100,24 @@
 
 /* base offset */
 #define G_BASE                       0x000
+#define DITHER_BASE                  0x00c
 #define VIDEO_BASE                   0x020
 #define UI_BASE                      0x0a0
 #define BLENDING_BASE                0x100
 #define SCALER0_BASE                 0x120
 #define WB_BASE                      0x170
 #define TIMING_BASE                  0x1d0
+#define QOS_BASE		     0x880
 
 /* global control */
 #define DE_CTRL                      (G_BASE + 0x000)
 #define DE_MODE_SELECT               (G_BASE + 0x004)
 #define DE_CONFIG_UPDATE             (G_BASE + 0x008)
 #define DE_VERSION_ID                (G_BASE + 0x010)
-#define OUTPUT_COLOR_DEPTH           (G_BASE + 0x00c)
+/* dither control */
+#define OUTPUT_COLOR_DEPTH           (DITHER_BASE + 0x000)
+#define DITHER_RAND_SEED	     (DITHER_BASE + 0x008)
+#define DITHER_RAND_MASK_BITS	     (DITHER_BASE + 0x00c)
 
 /* ui layer control */
 #define UI_LAYER_CTRL                (UI_BASE + 0x000)
@@ -143,6 +157,24 @@
 #define TIMING_POL_SET               (TIMING_BASE + 0x020)
 #define TIMING_DEBUG                 (TIMING_BASE + 0x024)
 
+/* n = 0, 1, 2, 3 */
+#define QOS_CONFIG(n)		     (QOS_BASE + 4 * (n))
+#define QOS_URGENT		     (QOS_BASE + 0x010)
+
+#define DMAR_QOS_GREEN(x)	     (((x) & 0xf) << 28)
+#define DMAR_QOS_HIGH(x)	     (((x) & 0x3ff) << 16)
+#define DMAR_QOS_RED(x)		     (((x) & 0xf) << 12)
+#define DMAR_QOS_LOW(x)		     (((x) & 0x3ff) << 0)
+
+#define QOS_SET(x0, x1, x2, x3)	     (DMAR_QOS_GREEN(x0)   | DMAR_QOS_HIGH(x1) \
+					| DMAR_QOS_RED(x2) | DMAR_QOS_LOW(x3))
+
+#define OUTSTANDING(x)		     (((x) & 0x1f) << 16)
+#define DMAR_URGENT_EN(x)	     (((x) & 0x1) << 15)
+#define DMAR_URGENT_TH(x)	     (((x) & 0x3ff) << 0)
+
+#define QOS_URGENT_SET(x0, x1, x2)   (OUTSTANDING(x0) | DMAR_URGENT_EN(x1)     \
+					| DMAR_URGENT_TH(x2))
 /**
  *@ enable
  * 0: disable update config
@@ -162,6 +194,13 @@ void de_config_update_enable(void __iomem *base_addr, u32 enable);
  */
 void de_set_dither(void __iomem *base_addr, u32 r_depth,
 		   u32 g_depth, u32 b_depth, u32 enable);
+
+void de_set_qos(void __iomem *base_addr);
+
+void de_soft_reset_ctrl(void __iomem *base_addr, u32 enable);
+
+void de_config_tearing_effect(void __iomem *base_addr,
+			u32 mode, u32 pulse_width);
 
 void de_set_ui_layer_size(void __iomem *base_addr, u32 w, u32 h,
 			  u32 x_offset, u32 y_offset);
@@ -214,9 +253,11 @@ void de_config_timing(void __iomem *base_addr,
 		      u32 active_w, u32 active_h,
 		      u32 hfp, u32 hbp,
 		      u32 vfp, u32 vbp,
-		      u32 hsync, u32 vsync);
+		      u32 hsync, u32 vsync,
+		      bool h_pol, bool v_pol);
 
 void de_set_blending_size(void __iomem *base_addr,
 			  u32 active_w, u32 active_h);
 
+void de_config_prefetch_line_set(void __iomem *base_addr, u32 line);
 #endif /*_DE_HW_H_ */

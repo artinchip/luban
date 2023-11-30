@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.34.1
-# Mon Jun 19 16:48:02 2023
+# Tue Nov 21 10:41:15 2023
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -18,7 +18,7 @@ CONFIG_FEATURE_VERBOSE_USAGE=y
 CONFIG_FEATURE_COMPRESS_USAGE=y
 # CONFIG_LFS is not set
 # CONFIG_PAM is not set
-# CONFIG_FEATURE_DEVPTS is not set
+CONFIG_FEATURE_DEVPTS=y
 # CONFIG_FEATURE_UTMP is not set
 # CONFIG_FEATURE_WTMP is not set
 # CONFIG_FEATURE_PIDFILE is not set

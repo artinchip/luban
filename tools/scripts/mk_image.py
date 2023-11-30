@@ -16,6 +16,7 @@ from Cryptodome.Hash import SHA256
 from Cryptodome.Cipher import AES
 from Cryptodome.Signature import PKCS1_v1_5
 
+
 DATA_ALIGNED_SIZE = 2048
 META_ALIGNED_SIZE = 512
 SIGN = False
@@ -66,7 +67,7 @@ def aic_boot_get_resource_file_size(cfg, keydir, datadir):
                 sys.exit(1)
             statinfo = os.stat(filepath)
             files["resource/private"] = statinfo.st_size
-            files["round(resource/private)"] = round_up(statinfo.st_size, 4)
+            files["round(resource/private)"] = round_up(statinfo.st_size, 32)
 
         if "pubkey" in cfg["resource"]:
             filepath = get_file_path(cfg["resource"]["pubkey"], keydir)
@@ -77,7 +78,7 @@ def aic_boot_get_resource_file_size(cfg, keydir, datadir):
                 sys.exit(1)
             statinfo = os.stat(filepath)
             files["resource/pubkey"] = statinfo.st_size
-            files["round(resource/pubkey)"] = round_up(statinfo.st_size, 4)
+            files["round(resource/pubkey)"] = round_up(statinfo.st_size, 32)
         if "pbp" in cfg["resource"]:
             filepath = get_file_path(cfg["resource"]["pbp"], datadir)
             if filepath == None:
@@ -85,7 +86,7 @@ def aic_boot_get_resource_file_size(cfg, keydir, datadir):
                 sys.exit(1)
             statinfo = os.stat(filepath)
             files["resource/pbp"] = statinfo.st_size
-            files["round(resource/pbp)"] = round_up(statinfo.st_size, 16)
+            files["round(resource/pbp)"] = round_up(statinfo.st_size, 32)
     if "encryption" in cfg:
         if "iv" in cfg["encryption"]:
             filepath = get_file_path(cfg["encryption"]["iv"], keydir)
@@ -96,7 +97,7 @@ def aic_boot_get_resource_file_size(cfg, keydir, datadir):
                 sys.exit(1)
             statinfo = os.stat(filepath)
             files["encryption/iv"] = statinfo.st_size
-            files["round(encryption/iv)"] = round_up(statinfo.st_size, 4)
+            files["round(encryption/iv)"] = round_up(statinfo.st_size, 32)
     if "loader" in cfg:
         if "file" in cfg["loader"]:
             filepath = get_file_path(cfg["loader"]["file"], datadir)
@@ -248,6 +249,16 @@ def aic_boot_get_resource_bytes(cfg, filesizes):
     """ Pack all resource data into boot image's resource section
     """
     resbytes = bytearray(0)
+    if "resource/pbp" in filesizes:
+        pbp_size = filesizes["round(resource/pbp)"]
+        try:
+            fpath = get_file_path(cfg["resource"]["pbp"], cfg["datadir"])
+            with open(fpath, "rb") as f:
+                pbp_data = f.read(pbp_size)
+        except IOError:
+            print('Failed to open pbp file')
+            sys.exit(1)
+        resbytes = resbytes + pbp_data + bytearray(pbp_size - len(pbp_data))
     if "resource/private" in filesizes:
         priv_size = filesizes["round(resource/private)"]
         try:
@@ -283,16 +294,6 @@ def aic_boot_get_resource_bytes(cfg, filesizes):
             print('Failed to open iv file')
             sys.exit(1)
         resbytes = resbytes + ivdata + bytearray(iv_size - len(ivdata))
-    if "resource/pbp" in filesizes:
-        pbp_size = filesizes["round(resource/pbp)"]
-        try:
-            fpath = get_file_path(cfg["resource"]["pbp"], cfg["datadir"])
-            with open(fpath, "rb") as f:
-                pbp_data = f.read(pbp_size)
-        except IOError:
-            print('Failed to open pbp file')
-            sys.exit(1)
-        resbytes = resbytes + pbp_data + bytearray(pbp_size - len(pbp_data))
     if len(resbytes) > 0:
         res_size = round_up(len(resbytes), 256)
         if len(resbytes) != res_size:
@@ -391,6 +392,12 @@ def aic_boot_gen_header_bytes(cfg, filesizes):
     sign_key_offset = 0
     sign_key_length = 0
     next_res_offset = filesizes["resource_start"]
+    pbp_data_offset = 0
+    pbp_data_length = 0
+    if "resource" in cfg and "pbp" in cfg["resource"]:
+        pbp_data_offset = next_res_offset
+        pbp_data_length = filesizes["resource/pbp"]
+        next_res_offset = pbp_data_offset + filesizes["round(resource/pbp)"]
     priv_data_offset = 0
     priv_data_length = 0
     if "resource" in cfg and "private" in cfg["resource"]:
@@ -421,12 +428,6 @@ def aic_boot_gen_header_bytes(cfg, filesizes):
         iv_data_offset = next_res_offset
         iv_data_length = 16
         next_res_offset = iv_data_offset + filesizes["round(encryption/iv)"]
-    pbp_data_offset = 0
-    pbp_data_length = 0
-    if "resource" in cfg and "pbp" in cfg["resource"]:
-        pbp_data_offset = next_res_offset
-        pbp_data_length = filesizes["resource/pbp"]
-        next_res_offset = pbp_data_offset + filesizes["round(resource/pbp)"]
     # Generate header bytes
     header_bytes = magic.encode(encoding="utf-8")
     header_bytes = aic_boot_add_header(header_bytes, checksum)
@@ -474,8 +475,14 @@ def aic_boot_gen_header_for_ext(cfg, filesizes):
     load_address = 0
     entry_point = 0
     if "loader" in cfg:
-        load_address = int(cfg["loader"]["load address"], 16)
-        entry_point = int(cfg["loader"]["entry point"], 16)
+        if "load address ext" in cfg["loader"]:
+            load_address = int(cfg["loader"]["load address ext"], 16)
+        else:
+            load_address = int(cfg["loader"]["load address"], 16)
+        if "entry point ext" in cfg["loader"]:
+            entry_point = int(cfg["loader"]["entry point ext"], 16)
+        else:
+            entry_point = int(cfg["loader"]["entry point"], 16)
     sign_algo = 0
     sign_offset = 0
     sign_length = 0
@@ -1942,6 +1949,12 @@ def build_firmware_image(cfg, datadir):
     with open(bootcfg_fn, 'w') as bcfgfile:
         generate_bootcfg(bcfgfile, cfg)
         bcfgfile.flush()
+    # Always set page_2k_block_128k nand image as default
+    if "page_2k_block_128k" in bootcfg_fn:
+        default_bootcfg_fn = bootcfg_fn.replace('(page_2k_block_128k)', '')
+        with open(default_bootcfg_fn, 'w') as bcfgfile:
+            generate_bootcfg(bcfgfile, cfg)
+            bcfgfile.flush()
 
     return 0
 

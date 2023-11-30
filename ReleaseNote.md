@@ -1,4 +1,35 @@
 
+# V1.2.2 #
+
+## 新增 ##
+- Display：支持在线调屏
+- MPP：支持mp4封装格式
+- U-Boot：支持MIPI驱动；支持xz压缩格式；支持DDR Size自适应处理
+- FS：用户态支持jffs2、squashfs
+- 提供独立编译 linux/uboot/dtb 的示例脚本
+- 新增器件支持：
+
+  - NAND：BYTe BY5F1GQ5UAYIG
+  - NOR：gd25q256
+  - panel：sw070wv20
+- 新增第三方包：sqlite、cJSON、freetype、libkcapi-1.4、pulseaudio、libsamplerate、预编译4个常用的Benchmark、
+- 新增方案：demo88 NOR
+- OneStep新增命令：del_board
+
+## 优化 ##
+- USB：支持OTG的动态切换
+- PBP：支持Boot pin功能
+
+## 修改 ##
+- SPL：提升size限制为128KB
+- AWTK：修正若干Bug，并进行多处优化
+- LVGL：重构目录结构，支持freetype字体
+- Falcon：修正SD卡启动时的处理流程
+- 编译：NAND方案默认不再生成4K block版本的镜像；打包原始DTS文件
+- SPINAND分区 Image 大小默认从image_cfg.json 中获取，
+- 测试示例规范命名格式为：test_*
+
+
 # V1.2.1 #
 
 ## 新增 ##

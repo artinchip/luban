@@ -3868,9 +3868,13 @@ int encode_test()
 
 int main(int argc, char **argv)
 {
-	if (decode_test() < 0) {
-		printf("=============> decode test fail\n");
-	}
+	int ret = 0;
 
-	return 0;
+	ret = decode_test();
+	if (ret < 0)
+		printf("\n==> JPEG decode test fail\n");
+	else
+		printf("\n==> JPEG decode test OK\n");
+
+	return ret;
 }

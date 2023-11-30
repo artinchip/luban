@@ -2116,5 +2116,11 @@ int main(int argc, char **argv)
 
 	ve_close_device();
 
+	if (ret < 0)
+		printf("\n==> JPEG encode test fail\n");
+	else
+		printf("\n==> JPEG encode test OK\n");
+
+
 	return ret;
 }

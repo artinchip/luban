@@ -24,6 +24,10 @@
 #include <dm/device-internal.h>
 #include <u-boot/crc.h>
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 #define INITENV
 #endif

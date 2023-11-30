@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stddef.h>
+#include <fcntl.h>
 #include "aic_mov_parser.h"
 #include "mpp_log.h"
 #include "mpp_mem.h"
@@ -139,7 +140,7 @@ s32 aic_mov_parser_create(unsigned char *uri, struct aic_parser **parser)
 	}
 	memset(mov_parser, 0, sizeof(struct aic_mov_parser));
 
-	if (aic_stream_open((char *)uri, &mov_parser->stream) < 0) {
+	if (aic_stream_open((char *)uri, &mov_parser->stream, O_RDONLY) < 0) {
 		loge("stream open fail");
 		ret = -1;
 		goto exit;

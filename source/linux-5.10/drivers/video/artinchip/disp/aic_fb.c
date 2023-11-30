@@ -1273,7 +1273,7 @@ static void aicfb_de_timing_enable(struct aicfb_info *fbi)
 {
 	struct de_funcs *de = fbi->de;
 
-	de->timing_enable();
+	de->timing_enable(false);
 }
 
 static inline int aicfb_calc_fb_size(struct aicfb_info *fbi,

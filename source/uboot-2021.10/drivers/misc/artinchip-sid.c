@@ -15,7 +15,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 
-#define SID_MAX_SIZE 256
+#define SID_MAX_SIZE 64
 #define SID_REG_CTL 0x0
 #define SID_REG_ADDR 0x4
 #define SID_REG_WDATA 0x8

@@ -278,13 +278,84 @@ static ssize_t reg_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RW(reg);
 
+#define DSI_LINE_CFG(field)						\
+static ssize_t								\
+field##_show(struct device *dev, struct device_attribute *devattr, char *buf) \
+{									\
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();		\
+	return sprintf(buf, "%#x\n", comp->field);			\
+}									\
+static ssize_t								\
+field##_store(struct device *dev, struct device_attribute *attr,	\
+			 const char *buf, size_t count)			\
+{									\
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();		\
+	unsigned long val;						\
+	int err;							\
+									\
+	err = kstrtoul(buf, 0, &val);					\
+	if (err)							\
+		return err;						\
+									\
+	comp->field = val;						\
+									\
+	aic_dsi_release_drvdata();					\
+	return count;							\
+}									\
+static DEVICE_ATTR_RW(field);						\
+
+#define DSI_CFG(field)							\
+static ssize_t								\
+field##_show(struct device *dev, struct device_attribute *devattr, char *buf) \
+{									\
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();		\
+	struct panel_dsi *dsi = comp->dsi;				\
+	return sprintf(buf, "%#x\n", dsi->field);			\
+}									\
+static ssize_t								\
+field##_store(struct device *dev, struct device_attribute *attr,	\
+			 const char *buf, size_t count)			\
+{									\
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();		\
+	struct panel_dsi *dsi = comp->dsi;				\
+	unsigned long val;						\
+	int err;							\
+									\
+	err = kstrtoul(buf, 0, &val);					\
+	if (err)							\
+		return err;						\
+									\
+	dsi->field = val;						\
+									\
+	aic_dsi_release_drvdata();					\
+	return count;							\
+}									\
+static DEVICE_ATTR_RW(field);						\
+
+DSI_LINE_CFG(ln_assign);
+DSI_LINE_CFG(ln_polrs);
+DSI_LINE_CFG(dc_inv);
+DSI_LINE_CFG(vc_num);
+
+DSI_CFG(mode);
+DSI_CFG(format);
+DSI_CFG(lane_num);
+
 static struct attribute *aic_dsi_attrs[] = {
 	&dev_attr_reg.attr,
+	&dev_attr_mode.attr,
+	&dev_attr_format.attr,
+	&dev_attr_lane_num.attr,
+	&dev_attr_ln_assign.attr,
+	&dev_attr_ln_polrs.attr,
+	&dev_attr_dc_inv.attr,
+	&dev_attr_vc_num.attr,
 	NULL
 };
 
 static const struct attribute_group aic_dsi_attr_group = {
 	.attrs = aic_dsi_attrs,
+	.name = "debug",
 };
 
 static int aic_dsi_bind(struct device *dev, struct device *master,

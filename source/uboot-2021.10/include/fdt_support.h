@@ -92,6 +92,7 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
  * @return 0 if ok, or -1 or -FDT_ERR_... on error
  */
 int fdt_fixup_memory(void *blob, u64 start, u64 size);
+int fdt_fix_memory(void *blob, u64 start[], u64 size[], char *node);
 
 /**
  * Fill the DT memory node with multiple memory banks.

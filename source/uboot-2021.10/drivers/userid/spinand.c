@@ -17,6 +17,10 @@
 #include <userid.h>
 #include "userid_internal.h"
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 
 static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)

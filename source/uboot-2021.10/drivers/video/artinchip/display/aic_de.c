@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <reset.h>
 #include <linux/ioport.h>
+#include <dt-bindings/display/artinchip,aic-disp.h>
 
 #include "aic_com.h"
 #include "hw/de_hw.h"
@@ -18,6 +19,13 @@
 #define MAX_RECT_NUM 4
 #define RECT_NUM_SHIFT 2
 #define CONFIG_NUM   (MAX_LAYER_NUM * MAX_RECT_NUM)
+
+struct aic_de_dither {
+	unsigned int enable;
+	unsigned int red_bitdepth;
+	unsigned int gleen_bitdepth;
+	unsigned int blue_bitdepth;
+};
 
 struct aic_de_configs {
 	const struct aicfb_layer_num *layer_num;
@@ -31,6 +39,8 @@ struct aic_de_priv {
 	struct fb_videomode vm;
 	bool vm_flag;
 	const struct aic_de_configs *config;
+	struct aic_panel *panel;
+	struct aic_de_dither dither;
 	void __iomem *regs;
 	struct reset_ctl reset;
 	struct clk mclk;
@@ -49,12 +59,33 @@ static void aic_de_release_drvdata(void)
 
 }
 
-static int aic_de_set_videomode(struct fb_videomode *vm)
+static int aic_de_set_mode(struct aic_panel *panel, struct fb_videomode *vm)
 {
 	struct aic_de_priv *priv = aic_de_request_drvdata();
+	int disp_dither = panel->disp_dither;
 
 	memcpy(&priv->vm, vm, sizeof(struct fb_videomode));
 	priv->vm_flag = true;
+	priv->panel = panel;
+
+	switch (disp_dither) {
+	case DITHER_RGB565:
+		priv->dither.red_bitdepth = 5;
+		priv->dither.gleen_bitdepth = 6;
+		priv->dither.blue_bitdepth = 5;
+		priv->dither.enable = 1;
+		break;
+	case DITHER_RGB666:
+		priv->dither.red_bitdepth = 6;
+		priv->dither.gleen_bitdepth = 6;
+		priv->dither.blue_bitdepth = 6;
+		priv->dither.enable = 1;
+		break;
+	default:
+		memset(&priv->dither, 0, sizeof(struct aic_de_dither));
+		break;
+	}
+
 	aic_de_release_drvdata();
 	return 0;
 }
@@ -105,6 +136,9 @@ static int aic_de_timing_enable(void)
 	u32 vbp = priv->vm.upper_margin;
 	u32 hsync = priv->vm.hsync_len;
 	u32 vsync = priv->vm.vsync_len;
+	bool h_pol = !!(priv->vm.flag & DISPLAY_FLAGS_HSYNC_HIGH);
+	bool v_pol = !!(priv->vm.flag & DISPLAY_FLAGS_VSYNC_HIGH);
+	struct aic_tearing_effect *te = &priv->panel->te;
 	int ret;
 
 	if (!priv->vm_flag) {
@@ -121,11 +155,26 @@ static int aic_de_timing_enable(void)
 	}
 
 	de_config_timing(priv->regs, active_w, active_h, hfp, hbp,
-			 vfp, vbp, hsync, vsync);
+			 vfp, vbp, hsync, vsync, h_pol, v_pol);
 
 	/* set default config */
+	de_set_qos(priv->regs);
 	de_set_blending_size(priv->regs, active_w, active_h);
 	de_set_ui_layer_size(priv->regs, active_w, active_h, 0, 0);
+
+	de_config_prefetch_line_set(priv->regs, 2);
+	de_soft_reset_ctrl(priv->regs, 1);
+
+	if (te->mode)
+		de_config_tearing_effect(priv->regs,
+				te->mode, te->pulse_width);
+
+	if (priv->dither.enable)
+		de_set_dither(priv->regs,
+			      priv->dither.red_bitdepth,
+			      priv->dither.gleen_bitdepth,
+			      priv->dither.blue_bitdepth,
+			      priv->dither.enable);
 
 	/* global alpha */
 	de_ui_alpha_blending_enable(priv->regs, 0xff, 0, 1);
@@ -273,7 +322,7 @@ static int aic_de_parse_dt(struct udevice *dev)
 
 static int aic_de_register_funcs(struct aic_de_priv *priv)
 {
-	priv->funcs.set_videomode = aic_de_set_videomode;
+	priv->funcs.set_mode = aic_de_set_mode;
 	priv->funcs.clk_enable = aic_de_clk_enable;
 	priv->funcs.clk_disable = aic_de_clk_disable;
 	priv->funcs.timing_enable = aic_de_timing_enable;

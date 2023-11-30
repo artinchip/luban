@@ -137,13 +137,13 @@ static int aic_dsi_enable(void)
 static int aic_dsi_pixclk2mclk(ulong pixclk)
 {
 	s32 ret = 0;
-	s32 div[DSI_MAX_LANE_NUM] = {24, 12, 8, 6};
+	s32 div[DSI_MAX_LANE_NUM] = {24, 24, 18, 16};
 	struct aic_dsi_priv *priv = aic_dsi_request_drvdata();
 	struct panel_dsi *dsi = priv->dsi;
 
 	dev_dbg(priv->dev, "Current pix-clk is %ld\n", pixclk);
 	if (dsi->lane_num <= DSI_MAX_LANE_NUM)
-		priv->sclk_rate = pixclk * div[dsi->lane_num - 1];
+		priv->sclk_rate = pixclk * div[dsi->format] / dsi->lane_num;
 	else {
 		debug("Invalid lane number %d\n", dsi->lane_num);
 		ret = -EINVAL;

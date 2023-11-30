@@ -27,6 +27,9 @@
 #define AIC_RTP_MAX_VAL			0xFFF
 #define AIC_RTP_VAL_RANGE		(AIC_RTP_MAX_VAL + 1)
 #define AIC_RTP_INVALID_VAL		(AIC_RTP_MAX_VAL + 1)
+#define AIC_RTP_MAX_PDEB_VAL		0xFFFFFFFF
+#define AIC_RTP_MAX_DELAY_VAL		0xFFFFFFFF
+#define AIC_RTP_DEFALUT_DELAY_VAL	0x4f00004f
 
 /* Register definition for RTP */
 #define RTP_MCR			0x000
@@ -205,6 +208,8 @@ struct aic_rtp_dev {
 	u32 x_plate;
 	u32 y_plate;
 	u32 fuzz;
+	u32 pdeb;
+	u32 delay;
 
 	struct workqueue_struct *workq;
 	struct work_struct event_work;
@@ -389,7 +394,7 @@ static void rtp_enable(struct aic_rtp_dev *rtp, int en)
 #else
 		if (of_device_is_compatible(rtp->dev->of_node,
 						"artinchip,aic-rtp-v0.1")) {
-			writel(0xFFFFFFFF, regs + RTP_PDEB);
+			writel(rtp->pdeb, regs + RTP_PDEB);
 		}
 #endif
 	}
@@ -399,7 +404,7 @@ static void rtp_enable(struct aic_rtp_dev *rtp, int en)
 						"artinchip,aic-rtp-v0.1")) {
 			rtp_reg_enable(regs, RTP_PCTL, RTP_PCTL_PRES_DET_BYPASS, en);
 		} else {
-			writel(0x1f000021, regs + RTP_DLY);
+			writel(rtp->delay, regs + RTP_DLY);
 			rtp_reg_enable(regs, RTP_MCR, RTP_MCR_PRES_DET_BYPASS, en);
 		}
 	}
@@ -1055,6 +1060,18 @@ static int aic_rtp_parse_dt(struct device *dev)
 		rtp->smp_period = 0;
 	else
 		rtp->smp_period = rtp_ms2itv(rtp, val);
+
+	ret = of_property_read_u32(np, "aic,pdeb", &val);
+	if (ret || val == 0 || val > AIC_RTP_MAX_PDEB_VAL)
+		rtp->pdeb = AIC_RTP_MAX_PDEB_VAL;
+	else
+		rtp->pdeb = val;
+
+	ret = of_property_read_u32(np, "aic,delay", &val);
+	if (ret || val == 0 || val > AIC_RTP_MAX_DELAY_VAL)
+		rtp->delay = AIC_RTP_DEFALUT_DELAY_VAL;
+	else
+		rtp->delay = val;
 
 	dev_dbg(dev, "RTP mode: %d\n", rtp->mode);
 	return 0;

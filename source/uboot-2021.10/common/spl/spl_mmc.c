@@ -20,6 +20,17 @@
 #if CONFIG_SPL_FS_FAT_ARTINCHIP
 #include <artinchip_spl_fat.h>
 #endif
+
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+#ifdef CONFIG_VIDEO_ARTINCHIP
+#include <memalign.h>
+#include <cpu_func.h>
+#include <artinchip_ve.h>
+#include <artinchip/artinchip_fb.h>
+#endif
+
 static int mmc_load_legacy(struct spl_image_info *spl_image, struct mmc *mmc,
 			   ulong sector, struct image_header *header)
 {
@@ -235,6 +246,110 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT
+#ifdef CONFIG_VIDEO_ARTINCHIP
+#define CONFIG_LOGO_OFFSET	 (4096)
+#define CONFIG_IMAGE_HEADER_SIZE (4 << 10)
+static int mmc_load_logo(struct mmc *mmc)
+{
+	unsigned int header_len, first_block, other_block;
+	const struct fdt_property *fdt_prop;
+	unsigned char *fit, *dst;
+	int i, offset, next_offset;
+	int tag = FDT_PROP;
+	fdt32_t image_len;
+	struct udevice *dev;
+	int ret = -EINVAL;
+	u32 cnt;
+
+	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	if (ret) {
+		pr_err("Failed to find display udevice\n");
+		return ret;
+	}
+
+	fit = memalign(DECODE_ALIGN, CONFIG_IMAGE_HEADER_SIZE);
+	if (!fit) {
+		puts("Failed to malloc for fit image!\n");
+		return -ENOMEM;
+	}
+
+	cnt = CONFIG_IMAGE_HEADER_SIZE / mmc->read_bl_len;
+	ret = blk_dread(mmc_get_blk_desc(mmc), CONFIG_LOGO_OFFSET, cnt, fit);
+	if (ret != cnt) {
+		puts("Failed to read logo image from MMC/SD!\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	offset = fit_image_get_node(fit, "boot");
+	if (offset < 0) {
+		puts("Failed to find boot node in logo itb\n");
+		goto out;
+	}
+
+	/* Find data property */
+	for (i = 0; i < 4; i++) {
+		tag = fdt_next_tag(fit, offset, &next_offset);
+		if (tag == FDT_END)
+			goto out;
+
+		offset = next_offset;
+	}
+	fdt_prop = fdt_get_property_by_offset(fit, offset, NULL);
+	image_len = fdt32_to_cpu(fdt_prop->len);
+
+	header_len = (phys_addr_t)fdt_prop - (phys_addr_t)fit
+					+ sizeof(struct fdt_property);
+
+	dst = memalign(DECODE_ALIGN, ALIGN(image_len, CONFIG_IMAGE_HEADER_SIZE));
+	if (!dst) {
+		puts("Failed to malloc for boot logo image\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	if (image_len < CONFIG_IMAGE_HEADER_SIZE) {
+		first_block = image_len;
+		other_block = 0;
+	} else {
+		first_block = CONFIG_IMAGE_HEADER_SIZE - header_len;
+		other_block = ALIGN(image_len - first_block,
+				CONFIG_IMAGE_HEADER_SIZE);
+	}
+	memcpy(dst, fit + header_len, first_block);
+
+	if (other_block) {
+		cnt = other_block / mmc->read_bl_len;
+		ret = blk_dread(mmc_get_blk_desc(mmc), CONFIG_LOGO_OFFSET +
+				(CONFIG_IMAGE_HEADER_SIZE / MMC_MAX_BLOCK_LEN),
+				cnt, dst + first_block);
+		if (ret != cnt) {
+			puts("Failed to read boot logo other block\n");
+			goto out;
+		}
+	}
+	flush_dcache_range((uintptr_t)dst, (uintptr_t)dst + image_len);
+
+	if (dst[1] == 'P' || dst[2] == 'N' || dst[3] == 'G')
+		aic_png_decode(dst, image_len);
+	else if (dst[0] == 0xff || dst[1] == 0xd8)
+		aic_jpeg_decode(dst, image_len);
+	else
+		puts("Invaild logo file format, need a png/jpeg image\n");
+
+	aicfb_update_ui_layer(dev);
+	aicfb_startup_panel(dev);
+	return 0;
+
+out:
+	if (fit)
+		free(fit);
+	if (dst)
+		free(dst);
+
+	return ret;
+}
+#endif
 static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 				 struct mmc *mmc)
 {
@@ -259,6 +374,10 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
 	if (ret)
 		return ret;
+
+#ifdef CONFIG_VIDEO_ARTINCHIP
+	mmc_load_logo(mmc);
+#endif
 
 	if (spl_image->os != IH_OS_LINUX && spl_image->os != IH_OS_TEE
 	    && spl_image->os != IH_OS_OPENSBI) {

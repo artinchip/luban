@@ -194,15 +194,6 @@ config USB_EHCI_HCD_AIC
 	  Enable support for the on-chip EHCI controller found on
 	  Artinchip Family SoC's.
 
-if USB_EHCI_HCD_AIC
-config USB_AIC_OTG
-	tristate "Support for Artinchip on-chip OTG Switch"
-	depends on USB_EHCI_HCD_AIC && (USB_AIC_UDC || USB_DWC2)
-	default y
-	help
-	  Support auto switch USB Host or USB Device by ID pin.
-endif
-
 config USB_EHCI_HCD_PMC_MSP
 	tristate "EHCI support for on-chip PMC MSP71xx USB controller"
 	depends on MSP_HAS_USB

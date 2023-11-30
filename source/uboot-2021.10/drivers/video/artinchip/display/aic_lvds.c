@@ -41,20 +41,14 @@ static void aic_lvds_release_drvdata(void)
 
 }
 
-int lvds_0_swap(struct udevice *dev, u32 value)
+static void lvds_0_lines(struct aic_lvds_priv *priv, u32 value)
 {
-	struct aic_lvds_priv *priv = dev_get_priv(dev);
-
 	reg_write(priv->regs + LVDS_0_SWAP, value);
-	return 0;
 }
 
-int lvds_1_swap(struct udevice *dev, u32 value)
+static void lvds_1_lines(struct aic_lvds_priv *priv, u32 value)
 {
-	struct aic_lvds_priv *priv = dev_get_priv(dev);
-
 	reg_write(priv->regs + LVDS_1_SWAP, value);
-	return 0;
 }
 
 static void lvds_0_pol(struct aic_lvds_priv *priv, u32 value)
@@ -94,8 +88,10 @@ static int lvds_parse_dt(struct udevice *dev)
 	if (ofnode_read_u32(np, "phys", &priv->info.phys))
 		priv->info.phys = 0xFA;
 
-	if (ofnode_read_u32(np, "swap", &priv->info.swap))
-		priv->info.swap = 0;
+	if (ofnode_read_u32(np, "lines", &priv->info.lines) &&
+			/* swap property, compatible with older version */
+			ofnode_read_u32(np, "swap", &priv->info.lines))
+		priv->info.lines = 0x43210;
 
 	if (ofnode_read_u32(np, "link-swap", &priv->info.link_swap))
 		priv->info.link_swap = 0;
@@ -137,9 +133,9 @@ static int lvds_enable(void)
 	struct aic_lvds_priv *priv = aic_lvds_request_drvdata();
 	struct panel_lvds *lvds = priv->lvds;
 
-	if (priv->info.swap) {
-		lvds_0_swap(priv->dev, priv->info.swap);
-		lvds_1_swap(priv->dev, priv->info.swap);
+	if (priv->info.lines) {
+		lvds_0_lines(priv, priv->info.lines);
+		lvds_1_lines(priv, priv->info.lines);
 	}
 	if (priv->info.pols) {
 		lvds_0_pol(priv, priv->info.pols);

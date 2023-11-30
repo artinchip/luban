@@ -61,9 +61,17 @@ void dsi_pkg_init(void __iomem *base)
 	reg_set_bits(base + DSI_DPI_LPTX_TIME,
 		DSI_DPI_LPTX_TIME_OUTVACT_MASK | DSI_DPI_LPTX_TIME_INVACT_MASK,
 		DSI_DPI_LPTX_TIME_OUTVACT(64) | DSI_DPI_LPTX_TIME_INVACT(64));
+	reg_write(base + DSI_PHY_RD_TIME, 50);
+	reg_set_bits(base + DSI_PHY_CLK_TIME,
+		DSI_PHY_CLK_TIME_HS2LP_MASK | DSI_PHY_CLK_TIME_LP2HS_MASK,
+		DSI_PHY_CLK_TIME_HS2LP(20) | DSI_PHY_CLK_TIME_LP2HS(20));
+	reg_set_bits(base + DSI_PHY_DATA_TIME,
+		DSI_PHY_DATA_TIME_HS2LP_MASK | DSI_PHY_DATA_TIME_LP2HS_MASK,
+		DSI_PHY_DATA_TIME_HS2LP(20) | DSI_PHY_DATA_TIME_LP2HS(20));
 	reg_set_bits(base + DSI_TO_CNT_CFG,
 		DSI_TO_CNT_CFG_HSTX_MASK | DSI_TO_CNT_CFG_LPRX_MASK,
 		DSI_TO_CNT_CFG_HSTX(0) | DSI_TO_CNT_CFG_LPRX(0));
+	reg_clr_bit(base + DSI_PHY_CFG, DSI_PHY_CFG_HSCLK_REQ);
 	reg_write(base + DSI_CMD_MODE_CFG,
 		DSI_CMD_MODE_CFG_MAX_RD_PKG_SIZE |
 		DSI_CMD_MODE_CFG_DCS_LW | DSI_CMD_MODE_CFG_DCS_SR_0P |
@@ -163,15 +171,6 @@ void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane)
 	void __iomem *TST1 = base + DSI_PHY_TEST1;
 	int ret;
 	u32 val;
-
-	reg_write(base + DSI_PHY_RD_TIME, 50);
-
-	reg_set_bits(base + DSI_PHY_CLK_TIME,
-		DSI_PHY_CLK_TIME_HS2LP_MASK | DSI_PHY_CLK_TIME_LP2HS_MASK,
-		DSI_PHY_CLK_TIME_HS2LP(20) | DSI_PHY_CLK_TIME_LP2HS(20));
-	reg_set_bits(base + DSI_PHY_DATA_TIME,
-		DSI_PHY_DATA_TIME_HS2LP_MASK | DSI_PHY_DATA_TIME_LP2HS_MASK,
-		DSI_PHY_DATA_TIME_HS2LP(20) | DSI_PHY_DATA_TIME_LP2HS(20));
 
 	reg_set_bit(ANA2, DSI_ANA_CFG2_EN_BIAS);
 	aic_delay_us(5);
@@ -298,7 +297,7 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	else
 		reg_clr_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HFP);
 	reg_clr_bit(VIDCFG, DSI_VID_MODE_CFG_FRAME_BTA_ACK_EN);
-	reg_clr_bit(VIDCFG, DSI_VID_MODE_CFG_CMD_LPTX_FORCE);
+	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_CMD_LPTX_FORCE);
 
 	reg_write(base + DSI_VID_PKG_SIZE, vm->hactive);
 	reg_write(base + DSI_VID_CHK_NUM, 1);

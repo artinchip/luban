@@ -134,6 +134,7 @@ s32 mmc_fwc_sparse_write(struct fwc_info *fwc, u8 *buf, s32 len)
 	u32 chunk;
 	u64 chunk_data_sz, chunk_blkcnt, remain_blkcnt;
 	u32 total_blocks = 0, blks;
+	u32 remain_blks, redund_blks, erase_group;
 	u32 *fill_buf, fill_val, fill_buf_num_blks;
 	int i, j, break_flag = 0;
 
@@ -293,27 +294,57 @@ s32 mmc_fwc_sparse_write(struct fwc_info *fwc, u8 *buf, s32 len)
 			clen += sizeof(uint32_t);
 			remain -= sizeof(uint32_t);
 
-			for (i = 0; i < (SPARSE_FILLBUF_SIZE / sizeof(fill_val)); i++)
-				fill_buf[i] = fill_val;
-
 			if (priv->blkstart + chunk_blkcnt > part_info->size) {
 				pr_err("Request would exceed partition size!\n");
 				goto out;
 			}
 
-			fill_buf_num_blks = SPARSE_FILLBUF_SIZE / MMC_BLOCK_SIZE;
-			for (i = 0; i < chunk_blkcnt;) {
-				j = chunk_blkcnt - i;
-				if (j > fill_buf_num_blks)
-					j = fill_buf_num_blks;
-				blks = blk_dwrite(desc, part_info->start + priv->blkstart, j, fill_buf);
-				if (blks < j) { /* blks might be > j (eg. NAND bad-blocks) */
-					pr_err("Write failed, block %lu[%d]\n", part_info->start + priv->blkstart, j);
+			for (i = 0; i < (SPARSE_FILLBUF_SIZE / sizeof(fill_val)); i++)
+				fill_buf[i] = fill_val;
+
+			remain_blks = ROUNDUP(part_info->start + priv->blkstart, 0x400) - (part_info->start + priv->blkstart);
+			if (chunk_blkcnt >= (remain_blks + 0x400) && fill_val == 0x0) { // 512K
+				blks = blk_dwrite(desc, part_info->start + priv->blkstart, remain_blks, fill_buf);
+				if (blks < remain_blks) { /* blks might be > j (eg. NAND bad-blocks) */
+					pr_err("Write failed, block %lu[%d]\n", part_info->start + priv->blkstart, remain_blks);
 					free(fill_buf);
 					goto out;
 				}
 				priv->blkstart += blks;
-				i += j;
+
+				erase_group = (chunk_blkcnt - remain_blks) / 0x400;
+				blks = blk_derase(desc, part_info->start + priv->blkstart, erase_group * 0x400);
+				if (blks != (erase_group * 0x400)) { /* blks might be > j (eg. NAND bad-blocks) */
+					pr_err("Erase failed, block %lu[%d]\n", part_info->start + priv->blkstart, erase_group * 0x400);
+					free(fill_buf);
+					goto out;
+				}
+				priv->blkstart += blks;
+
+				redund_blks = chunk_blkcnt - remain_blks - (erase_group * 0x400);
+				blks = blk_dwrite(desc, part_info->start + priv->blkstart, redund_blks, fill_buf);
+				if (blks < redund_blks) { /* blks might be > j (eg. NAND bad-blocks) */
+					pr_err("Write failed, block %lu[%d]\n", part_info->start + priv->blkstart, redund_blks);
+					free(fill_buf);
+					goto out;
+				}
+				priv->blkstart += blks;
+			} else {
+				fill_buf_num_blks = SPARSE_FILLBUF_SIZE / MMC_BLOCK_SIZE;
+				for (i = 0; i < chunk_blkcnt;) {
+					j = chunk_blkcnt - i;
+					if (j > fill_buf_num_blks)
+						j = fill_buf_num_blks;
+
+					blks = blk_dwrite(desc, part_info->start + priv->blkstart, j, fill_buf);
+					if (blks < j) { /* blks might be > j (eg. NAND bad-blocks) */
+						pr_err("Write failed, block %lu[%d]\n", part_info->start + priv->blkstart, j);
+						free(fill_buf);
+						goto out;
+					}
+					priv->blkstart += blks;
+					i += j;
+				}
 			}
 			total_blocks += DIV_ROUND_UP_ULL(chunk_data_sz, sheader->blk_sz);
 

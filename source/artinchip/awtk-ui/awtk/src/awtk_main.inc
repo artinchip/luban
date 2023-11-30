@@ -224,11 +224,11 @@ int main(int argc, char* argv[]) {
   tk_ext_widgets_init();
 #endif /*WITHOUT_EXT_WIDGETS*/
 
-#ifdef NDEBUG
+#ifdef TK_NDEBUG
   log_set_log_level(LOG_LEVEL_INFO);
 #else
   log_set_log_level(LOG_LEVEL_DEBUG);
-#endif /*NDEBUG*/
+#endif /*TK_NDEBUG*/
   log_info("Build at: %s %s\n", __DATE__, __TIME__);
 
 #ifdef ENABLE_CURSOR
@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
   tk_run();
   application_exit();
   custom_keys_deinit(TRUE);
-  
+
   GLOBAL_EXIT();
   tk_exit();
 

@@ -277,6 +277,7 @@ enum {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
 	IH_COMP_GZIP,			/* gzip	 Compression Used	*/
 	IH_COMP_BZIP2,			/* bzip2 Compression Used	*/
+	IH_COMP_XZ,			/* xz    Compression Used	*/
 	IH_COMP_LZMA,			/* lzma  Compression Used	*/
 	IH_COMP_LZO,			/* lzo   Compression Used	*/
 	IH_COMP_LZ4,			/* lz4   Compression Used	*/

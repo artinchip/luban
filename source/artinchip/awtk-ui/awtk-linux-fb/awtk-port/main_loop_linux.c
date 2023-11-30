@@ -179,7 +179,6 @@ main_loop_t* main_loop_init(int w, int h) {
   LCD_T* lcd = NULL;
 
   if (RET_OK != devices_load()) {
-    log_warn("Devices load fail! Used default.\r\n");
     devices_set(s_devices_default, ARRAY_SIZE(s_devices_default));
   }
   devices_foreach(lcd_create_on_devices_visit, &lcd);

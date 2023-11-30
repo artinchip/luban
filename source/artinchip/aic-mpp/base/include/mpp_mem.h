@@ -19,6 +19,8 @@ extern "C" {
 
 void *mpp_alloc(size_t size);
 
+void *mpp_realloc(void *ptr,size_t size);
+
 void mpp_free(void *ptr);
 
 #ifdef __cplusplus

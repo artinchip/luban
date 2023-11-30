@@ -158,7 +158,7 @@ static void aicfb_get_panel_info(struct aicfb_info *priv,
 	struct aic_panel *panel = priv->panel;
 
 	panel->funcs->get_video_mode(panel, vm);
-	de->set_videomode(vm);
+	de->set_mode(panel, vm);
 	di->attach_panel(panel);
 }
 

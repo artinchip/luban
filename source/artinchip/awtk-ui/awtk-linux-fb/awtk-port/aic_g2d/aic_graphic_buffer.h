@@ -13,12 +13,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifdef WITH_AIC_G2D
 #include "base/bitmap.h"
 
-ret_t aic_graphic_buffer_create_for_bitmap(bitmap_t* bitmap);
-
-#endif
+ret_t aic_graphic_buffer_create_for_bitmap(bitmap_t* bitmap, void *data);
 
 #ifdef __cplusplus
 }

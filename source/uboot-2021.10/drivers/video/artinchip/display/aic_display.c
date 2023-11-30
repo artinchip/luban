@@ -15,6 +15,7 @@
 #include <artinchip_ve.h>
 #include <asm/arch/boot_param.h>
 #include <image.h>
+#include <mmc.h>
 #include <mtd.h>
 #include <fat.h>
 #include <cpu_func.h>
@@ -380,6 +381,69 @@ out:
 	return ret;
 }
 
+static int mmc_load_logo(const char *name, int id)
+{
+#ifdef CONFIG_MMC
+	struct mmc *mmc = find_mmc_device(id);
+	struct disk_partition part_info;
+	struct udevice *dev;
+	unsigned char *fit, *dst;
+	size_t data_size;
+	const void *data;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	if (ret) {
+		pr_err("Failed to find aicfb udevice\n");
+		return ret;
+	}
+
+	ret = part_get_info_by_name(mmc_get_blk_desc(mmc), "logo", &part_info);
+	if (ret < 0) {
+		pr_err("Get logo partition information failed.\n");
+		return -EINVAL;
+	}
+
+	fit = memalign(DECODE_ALIGN, part_info.blksz * part_info.size);
+	if (!fit) {
+		pr_err("Failed to malloc for fit image!\n");
+		return -ENOMEM;
+	}
+
+	ret = blk_dread(mmc_get_blk_desc(mmc), part_info.start,
+						part_info.size, fit);
+	if (ret != part_info.size) {
+		pr_err("Failed to read logo image from MMC/SD!\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = fit_image_get_node_prop(fit, name, &data, &data_size);
+	if (ret) {
+		pr_err("Failed to get fit image prop\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	dst = memalign(DECODE_ALIGN, data_size);
+	if (!dst) {
+		pr_err("Failed to malloc dst buffer\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+	memcpy(dst, data, data_size);
+	flush_dcache_range((uintptr_t)dst, (uintptr_t)dst + data_size);
+
+	aic_logo_decode(dst, data_size);
+out:
+	if (fit)
+		free(fit);
+	if (dst)
+		free(dst);
+#endif
+	return ret;
+}
+
 static int bootrom_load_logo(const char *name)
 {
 	const void *fit = (void *)CONFIG_LOGO_ITB_ADDRESS;
@@ -410,6 +474,12 @@ int aic_disp_logo(const char *name, int boot_param)
 	int ret = 0;
 
 	switch (boot_param) {
+	case BD_SDMC0:
+		ret = mmc_load_logo(name, 0);
+		break;
+	case BD_SDMC1:
+		ret = mmc_load_logo(name, 1);
+		break;
 	case BD_SPINAND:
 		ret = spinand_load_logo(name);
 		break;

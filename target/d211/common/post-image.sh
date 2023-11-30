@@ -6,6 +6,8 @@ MKENVIMAGE=${HOST_DIR}/bin/mkenvimage
 PINMUXCHECKPY=tools/scripts/pinmux_check.py
 DTBDIR=${BINARIES_DIR}/u-boot.dtb
 PACKAGECHECKPY=tools/scripts/package_check.py
+KERNEL_HEADER_DIR=${TOPDIR}/source/linux-5.10/include
+UBOOT_HEADER_DIR=${TOPDIR}/source/uboot-2021.10/include
 
 COLOR_BEGIN="\033["
 COLOR_RED="${COLOR_BEGIN}41;37m"
@@ -106,6 +108,66 @@ function install_pbp()
 		run_cmd "ln -sf ${pbp} ${BINARIES_DIR}/"
 	done
 }
+
+function install_dts()
+{
+	local DTSDIR="${BINARIES_DIR}/dts"
+
+	if [ ! -d ${DTSDIR} ]; then
+		mkdir -p ${DTSDIR}
+	fi
+
+	mk_info "Install dts file ..."
+	for dtsi in $(find ${TARGET_CHIP_DIR}/common/ ${TARGET_BOARD_DIR}/ -maxdepth 1 -name "*.dtsi")
+	do
+		rm -rf ${DTSDIR}/`basename ${dtsi}`
+		run_cmd "ln -sf ${dtsi} ${DTSDIR}/"
+		HEADER_FILES=`awk -F "[<>]" '/#include/ {print $2}' ${dtsi}`
+		for HEADER_FILE in ${HEADER_FILES[@]}; do
+			UBOOT_HEADER_FILE="${UBOOT_HEADER_DIR}/${HEADER_FILE}"
+			KERNEL_HEADER_FILE="${KERNEL_HEADER_DIR}/${HEADER_FILE}"
+			BINARIES_HEADER_DIR=`dirname ${DTSDIR}/${HEADER_FILE}`
+			if [ ! -d ${BINARIES_HEADER_DIR} ]; then
+				mkdir -p ${BINARIES_HEADER_DIR}
+			fi
+
+			rm -rf "${DTSDIR}/${HEADER_FILE}"
+			if [ -f ${UBOOT_HEADER_FILE} ]; then
+				# run_cmd "ln -sf ${UBOOT_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+				run_cmd "cp ${UBOOT_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+			fi
+			if [ -f ${KERNEL_HEADER_FILE} ]; then
+				# run_cmd "ln -sf ${KERNEL_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+				run_cmd "cp ${KERNEL_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+			fi
+		done
+	done
+	for dts in $(find ${TARGET_CHIP_DIR}/common/ ${TARGET_BOARD_DIR}/ -maxdepth 1 -name "*.dts")
+	do
+		rm -rf ${DTSDIR}/`basename ${dts}`
+		run_cmd "ln -sf ${dts} ${DTSDIR}/"
+		HEADER_FILES=`awk -F "[<>]" '/#include/ {print $2}' ${dts}`
+		for HEADER_FILE in ${HEADER_FILES[@]}; do
+			UBOOT_HEADER_FILE="${UBOOT_HEADER_DIR}/${HEADER_FILE}"
+			KERNEL_HEADER_FILE="${KERNEL_HEADER_DIR}/${HEADER_FILE}"
+			BINARIES_HEADER_DIR=`dirname ${DTSDIR}/${HEADER_FILE}`
+			if [ ! -d ${BINARIES_HEADER_DIR} ]; then
+				mkdir -p ${BINARIES_HEADER_DIR}
+			fi
+
+			rm -rf ${DTSDIR}/${HEADER_FILE}
+			if [ -f ${UBOOT_HEADER_FILE} ]; then
+				# run_cmd "ln -sf ${UBOOT_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+				run_cmd "cp ${UBOOT_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+			fi
+			if [ -f ${KERNEL_HEADER_FILE} ]; then
+				# run_cmd "ln -sf ${KERNEL_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+				run_cmd "cp ${KERNEL_HEADER_FILE} ${BINARIES_HEADER_DIR}/"
+			fi
+		done
+	done
+}
+
 
 function install_ota_image()
 {
@@ -256,6 +318,7 @@ function main()
 	mk_uboot_env
 	mk_boot_logo
 	mk_resource_private
+	install_dts
 	install_pbp
 	pinmux_check
 	package_check

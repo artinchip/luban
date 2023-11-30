@@ -19,6 +19,10 @@
 #include <userid.h>
 #include "userid_internal.h"
 
+#ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
+#include <generated/image_cfg_part_config.h>
+#endif
+
 static int mmc_userid_load(void)
 {
 	struct userid_storage_header head;

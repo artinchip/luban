@@ -119,6 +119,21 @@ static int aic_sdmc_idma_stop(struct aic_sdmc *host,
 	return 0;
 }
 
+void aic_sdmc_idma_disable(struct aic_sdmc *host)
+{
+	u32 temp;
+
+	temp = sdmc_readl(host, SDMC_HCTRL1);
+	temp &= ~SDMC_HCTRL1_USE_IDMAC;
+	temp |= SDMC_HCTRL1_DMA_RESET;
+	sdmc_writel(host, SDMC_HCTRL1, temp);
+
+	temp = sdmc_readl(host, SDMC_PBUSCFG);
+	temp &= ~(SDMC_PBUSCFG_IDMAC_EN | SDMC_PBUSCFG_IDMAC_FB);
+	temp |= SDMC_PBUSCFG_IDMAC_SWR;
+	sdmc_writel(host, SDMC_PBUSCFG, temp);
+}
+
 static void aic_sdmc_idma_prepare_desc(struct aic_sdmc_idma_desc *idmac,
 				       u32 flags, u32 cnt, u32 addr)
 {
@@ -380,6 +395,9 @@ static int aic_sdmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 			aic_sdmc_idma_prepare(host, data, cur_idma,
 					      bbstate.bounce_buffer);
+		} else {
+			if (sdmc_readl(host, SDMC_PBUSCFG) & SDMC_PBUSCFG_IDMAC_EN)
+				aic_sdmc_idma_disable(host);
 		}
 	}
 

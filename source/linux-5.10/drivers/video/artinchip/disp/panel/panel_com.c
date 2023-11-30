@@ -47,7 +47,7 @@ void panel_di_disable(struct aic_panel *panel, u32 ms)
 void panel_de_timing_enable(struct aic_panel *panel, u32 ms)
 {
 	if (panel && panel->callbacks.timing_enable)
-		panel->callbacks.timing_enable();
+		panel->callbacks.timing_enable(true);
 
 	if (ms)
 		aic_delay_ms(ms);
@@ -73,9 +73,6 @@ void panel_backlight_enable(struct aic_panel *panel, u32 ms)
 	if (p->enable_gpio)
 		gpiod_direction_output(p->enable_gpio, 1);
 
-	if (p->sleep_gpio)
-		gpiod_direction_output(p->sleep_gpio, 1);
-
 	if (ms)
 		aic_delay_ms(ms);
 }
@@ -91,9 +88,6 @@ void panel_backlight_disable(struct aic_panel *panel, u32 ms)
 	if (p->enable_gpio)
 		gpiod_direction_output(p->enable_gpio, 0);
 
-	if (p->sleep_gpio)
-		gpiod_direction_output(p->sleep_gpio, 0);
-
 	if (ms)
 		aic_delay_ms(ms);
 }
@@ -101,9 +95,6 @@ void panel_backlight_disable(struct aic_panel *panel, u32 ms)
 int panel_default_unprepare(struct aic_panel *panel)
 {
 	struct panel_comp *p = to_panel_comp(panel);
-
-	if (p->enable_gpio)
-		gpiod_set_value_cansleep(p->enable_gpio, 0);
 
 	if (p->sleep_gpio)
 		gpiod_set_value_cansleep(p->sleep_gpio, 0);
@@ -127,6 +118,9 @@ int panel_default_prepare(struct aic_panel *panel)
 			return ret;
 		}
 	}
+
+	if (p->sleep_gpio)
+		gpiod_direction_output(p->sleep_gpio, 1);
 
 	// TODO: delay prepare
 	return ret;

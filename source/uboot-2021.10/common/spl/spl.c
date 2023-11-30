@@ -87,7 +87,6 @@ __weak int dram_init_banksize(void)
  * 0 to not start u-boot
  * positive if u-boot should start
  */
-#ifdef CONFIG_SPL_OS_BOOT
 __weak int spl_start_uboot(void)
 {
 	puts(SPL_TPL_PROMPT
@@ -104,7 +103,6 @@ int __weak bootz_setup(ulong image, ulong *start, ulong *end)
 {
 	 return 1;
 }
-#endif
 
 /* Weak default function for arch/board-specific fixups to the spl_image_info */
 void __weak spl_perform_fixups(struct spl_image_info *spl_image)

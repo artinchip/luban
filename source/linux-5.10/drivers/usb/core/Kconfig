@@ -69,6 +69,14 @@ config USB_OTG
 	  Select this only if your board has Mini-AB/Micro-AB
 	  connector.
 
+config USB_AIC_OTG
+	bool "Support for ArtInChip on-chip OTG Switch"
+	depends on USB_OTG
+	select USB_PHY
+	default n
+	help
+	  Support auto switch USB Host or USB Device by ID pin.
+
 config USB_OTG_PRODUCTLIST
 	bool "Rely on OTG and EH Targeted Peripherals List"
 	depends on USB

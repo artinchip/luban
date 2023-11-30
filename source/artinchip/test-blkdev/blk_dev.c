@@ -106,94 +106,49 @@ CLOSE:
 int obtain_block_dev(char *dev, int type)
 {
 	FILE *fp = NULL;
-	char buffer[256] = {0};
-	char block_dev[5][100] = {0};
-	int block_num = 0;
-	int find_dev = NO_FIND_BLOCK_DEV;
-	int i = 0;
+	char line[256] = {0};
+	char device[512] = {0};
 	int ret = 0;
-	int err = 0;
-	int len = 0;
-	char *ptr;
-
+	int back_status = -1;
 	/*
-	 * fdisk -l format:
-	 * Disk /dev/mmcblk0: 30 GB, 31927042048 bytes, 62357504 sectors
-	 * 3881 cylinders, 255 heads, 63 sectors/track
-         * Units: sectors of 1 * 512 = 512 bytes
-         * Device       Boot StartCHS    EndCHS        StartLBA     EndLBA    Sectors  Size Id Type
-	 * /dev/mmcblk0p1    0,2,3       1023,254,63        128   62357503   62357376 29.7G  c Win95 FAT32 (LBA)
-	 * Disk /dev/sda: 7680 MB, 8053063680 bytes, 15728640 sectors
-	 * 1022 cylinders, 248 heads, 62 sectors/track
-	 *
-	 * Units: sectors of 1 * 512 = 512 bytes
-	 * Device  Boot StartCHS    EndCHS        StartLBA     EndLBA    Sectors  Size Id Type
-	 * /dev/sda1 73 97,115,32   107,121,32  1948285285 3650263507 1701978223  811G 6e Unknown
+	 * ls /sys/class/block/
+	 * mmcblk0    mmcblk0p1  sda        sda1
 	 */
-	fp = popen("fdisk -l", "r");
+	fp = popen("ls /sys/class/block/", "r");
 	if (fp == NULL) {
 		printf("Failed to open subprocess\n");
-		err = -1;
 		goto CLOSE;
 	}
 
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		/* locate next line */
-		if (strstr(buffer, "Device")) {
-			find_dev = FIND_BLOCK_DEV;
-			continue;
-		} else if (strstr(buffer, "Disk")) {
-			find_dev = FIND_BLOCK_DEV;
-		}
-
-		/* save dev name example: /dev/mmcblk0p1 and Disk /dev/sda 7680 MB, 8053063680 bytes, 15728640 sectors ... */
-		if (find_dev == FIND_BLOCK_DEV) {
-			strncpy(block_dev[block_num], buffer, 20);
-			block_num++;
-			find_dev = NO_FIND_BLOCK_DEV;
-			if (block_num >= 5)
-				break;
-		}
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		strcat(device, line);
 	}
 
-	/* roughly determine the type of storage block device */
-	for (i = 0; i < block_num; i++) {
-		if (type == SDCARD_DEV) {
-			if (strstr(block_dev[i], "Disk /dev/mmcblk")) {
-				continue;
+	if (type == SDCARD_DEV) {
+		char *mmc = strstr(device, "mmcblk0");
+		if (mmc) {
+			char *partition = strstr(mmc + 7, "mmcblk0p1");
+			if (partition) {
+				snprintf(dev, strlen("dev/mmcblk0p1") + 1, "dev/%s", partition);
+			} else {
+				snprintf(dev, strlen("dev/mmcblk0") + 1, "dev/%s", mmc);
 			}
-
-			if (strstr(block_dev[i], "/dev/mmcblk")) {
-				find_dev = FIND_SDCARD_DEV;
-				len = strlen("/dev/mmcblk") + 3;
-				strncpy(dev, block_dev[i], len);
-			}
-		} else {
-			if (strstr(block_dev[i], "Disk /dev/sda")) {
-				find_dev = FIND_USB_DEV;
-				len = strlen("/dev/sda") + 1;
-				ptr = strchr(block_dev[i], ' ');
-				strncpy(dev, ptr + 1, len);
-				if (dev[len - 1] == ':')
-					dev[len - 1] = '\0';
-			} else if (strstr(block_dev[i], "/dev/sda")) {
-				find_dev = FIND_USB_DEV;
-				len = strlen("/dev/sda") + 1;
-				strncpy(dev, block_dev[i], len);
-			}
+			back_status = 0;
+			goto CLOSE;
 		}
-
-		if (find_dev == FIND_SDCARD_DEV || find_dev == FIND_USB_DEV) {
-			break;
+	}  else if (type == USB_DEV) {
+		char *usb = strstr(device, "sda");
+		if (usb) {
+			char *partition = strstr(usb + 3, "sda1");
+			if (partition) {
+				snprintf(dev, strlen("dev/sda1") + 1, "dev/%s", partition);
+			} else {
+				snprintf(dev, strlen("dev/sda") + 1, "dev/%s", usb);
+			}
+			back_status = 0;
+			goto CLOSE;
 		}
 	}
-
-	if (find_dev == NO_FIND_BLOCK_DEV) {
-		printf("Can't find block dev\n");
-		err = -1;
-		goto CLOSE;
-	}
-
 CLOSE:
 	ret = pclose(fp);
 	switch (ret) {
@@ -210,7 +165,7 @@ CLOSE:
 		break;
 	}
 
-	return err;
+	return back_status;
 }
 
 static void usage(char *app)
@@ -228,7 +183,7 @@ int main(int argc, char **argv) {
 	int ret = 0;
 	int i = 0;
 	int success_num = 0;
-	char dev_block[40] = {0};
+	char dev_block[50] = {0};
 	char command[256] = {0};
 	char filenames[3][50] = {0};
 	char contents[3][200] = {
@@ -295,10 +250,12 @@ int main(int argc, char **argv) {
 	}
 
 	ret = obtain_block_dev(dev_block, type);
-	if (ret < 0 || strlen(dev_block) == 0) {
+	if (ret < 0) {
+		printf("can't find block dev, dev_block = %s\n", dev_block);
 		return 0;
 	}
 
+	printf("dev_block name is = %s\n", dev_block);
 	/* example: mount -t vfat /dev/mmcblk1 /mnt/sdcard */
 	memset(command, 0, sizeof(command));
 	strcpy(command, "mount -t vfat ");
@@ -345,14 +302,11 @@ int main(int argc, char **argv) {
 				return 0;
 			}
 
-			printf("Content of %s:\n", filenames[i]);
 			while (fgets(content, sizeof(content), file) != NULL) {
 				if (strncmp(contents[i], content, strlen(content)) == 0)
 					success_num++;
-				printf("%s", content);
 			}
 
-			printf("\n");
 			fclose(file);
 		}
 
@@ -363,7 +317,6 @@ int main(int argc, char **argv) {
 				fseek(file, 0, SEEK_END);
 				long size = ftell(file);
 				if (size > 0) {
-					printf("%s is not empty. Size: %ld bytes.\n", filenames[i], size);
 					success_num++;
 				} else {
 					printf("%s is empty.\n", filenames[i]);
@@ -375,7 +328,6 @@ int main(int argc, char **argv) {
 		/* Delete files */
 		for (i = 0; i < 3; i++) {
 			if (remove(filenames[i]) == 0) {
-				printf("File deleted %s\n", filenames[i]);
 				success_num++;
 			} else {
 				printf("Unable to delete the file: %s\n", filenames[i]);
