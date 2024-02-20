@@ -27,6 +27,11 @@
 #define LANES_MAX_NUM	4
 #define LN_ASSIGN_WIDTH	4
 
+struct dsi_command {
+	u8 *buf;
+	size_t len;
+};
+
 struct aic_dsi_comp {
 	/* di_funcs must be the first member */
 	struct di_funcs funcs;
@@ -36,9 +41,12 @@ struct aic_dsi_comp {
 	struct clk *mclk;
 	struct clk *sclk;
 	struct panel_dsi *dsi;
+	struct videomode *vm;
+	struct dsi_command commands;
 	u32 ln_assign;
 	u32 ln_polrs;
 	bool dc_inv;
+	bool command_on;
 	ulong sclk_rate;
 	s32 irq;
 	u32 vc_num;
@@ -208,9 +216,38 @@ static int aic_dsi_set_vm(struct videomode *vm, int enable)
 	return 0;
 }
 
+static void aic_dsi_send_debug_cmd(struct aic_dsi_comp *comp)
+{
+	struct dsi_command *commands = &comp->commands;
+	unsigned int i = 0;
+
+	if (!comp->command_on || !commands->buf)
+		return;
+
+	aic_dsi_set_vm(comp->vm, false);
+	while (i < commands->len) {
+		u8 command = commands->buf[i++];
+		u8 num_parameters = commands->buf[i++];
+		const u8 *parameters = &commands->buf[i];
+
+		if (command == 0x00 && num_parameters == 1)
+			aic_delay_ms(parameters[0]);
+		else
+			dsi_cmd_wr(comp->regs, command, comp->vc_num, parameters, num_parameters);
+
+		i += num_parameters;
+	}
+	aic_dsi_set_vm(comp->vm, true);
+}
+
 static int aic_dsi_send_cmd(u32 dt, const u8 *data, u32 len)
 {
 	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();
+
+	if (comp->command_on) {
+		aic_dsi_send_debug_cmd(comp);
+		return 0;
+	}
 
 	dsi_cmd_wr(comp->regs, dt, comp->vc_num, data, len);
 	aic_dsi_release_drvdata();
@@ -231,6 +268,7 @@ static int aic_dsi_attach_panel(struct aic_panel *panel)
 	}
 
 	comp->dsi = panel->dsi;
+	comp->vm = panel->vm;
 	return 0;
 }
 
@@ -277,6 +315,49 @@ static ssize_t reg_store(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 static DEVICE_ATTR_RW(reg);
+
+static ssize_t
+command_on_show(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();
+	return sprintf(buf, "command on: %d\n", comp->command_on);
+}
+static ssize_t command_on_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+{
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();
+	bool enable;
+	int err;
+
+	err = kstrtobool(buf, &enable);
+	if (err)
+		return err;
+
+	comp->command_on = enable;
+	return count;
+}
+static DEVICE_ATTR_RW(command_on);
+
+static ssize_t commands_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+{
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();
+	struct dsi_command *commands = &comp->commands;
+
+	if (commands->buf)
+		kfree(commands->buf);
+
+	commands->buf = kmalloc(count, GFP_KERNEL);
+	if (!commands->buf) {
+		pr_err("field to malloc commands buf\n");
+		return count;
+	}
+	memcpy(commands->buf, buf, count);
+	commands->len = count;
+
+	return count;
+}
+static DEVICE_ATTR_WO(commands);
 
 #define DSI_LINE_CFG(field)						\
 static ssize_t								\
@@ -350,6 +431,8 @@ static struct attribute *aic_dsi_attrs[] = {
 	&dev_attr_ln_polrs.attr,
 	&dev_attr_dc_inv.attr,
 	&dev_attr_vc_num.attr,
+	&dev_attr_commands.attr,
+	&dev_attr_command_on.attr,
 	NULL
 };
 

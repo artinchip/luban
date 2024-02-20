@@ -74,6 +74,8 @@ int hw_sha(const unsigned char *pbuf, unsigned int buf_len,
 		return ret;
 	}
 
+	sha_exit(dev);
+
 	return ret;
 }
 
@@ -153,6 +155,8 @@ int hw_sha_finish(struct hash_algo *algo, void *ctx, void *dest_buf,
 		printf("SHA finish data failed.\n");
 		return ret;
 	}
+
+	sha_exit(dev);
 
 	free(ctx);
 	return ret;

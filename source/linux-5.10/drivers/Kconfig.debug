@@ -22,6 +22,9 @@ config ARTINCHIP_CMU_DEBUG
 config ARTINCHIP_DE_DEBUG
 	bool "DE driver debug"
 
+config ARTINCHIP_MIPI_DBI_DEBUG
+	bool "MIPI-DBI driver debug"
+
 config ARTINCHIP_DVP_DEBUG
 	bool "DVP driver debug"
 

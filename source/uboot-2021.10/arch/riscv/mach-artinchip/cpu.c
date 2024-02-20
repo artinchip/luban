@@ -25,25 +25,6 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	const fdt64_t *val;
-	int offset;
-	int len;
-
-	offset = fdt_path_offset(gd->fdt_blob, "/memory");
-	if (offset < 0)
-		return -EINVAL;
-
-	val = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
-	if (len < sizeof(*val) * 2)
-		return -EINVAL;
-
-	gd->ram_size = get_unaligned_be64(&val[1]);
-
-	return 0;
-}
-
 void enable_caches(void)
 {
 	if (!icache_status())

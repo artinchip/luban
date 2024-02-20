@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -e /dev/$MDEV ] ; then
+	mkdir /mnt/udisk  -p
+	mount /dev/$MDEV /mnt/udisk/
+fi
+
+echo "Mount /dev/${MDEV} to /mnt/udisk"  > /dev/console

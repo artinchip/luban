@@ -15,7 +15,7 @@
 #include <linux/reset.h>
 #include <linux/slab.h>
 #include <linux/types.h>
-
+#include <dt-bindings/dma/aic_dma_v10.h>
 #include "virt-dma.h"
 
 #define dma_dbg			pr_debug
@@ -88,6 +88,17 @@
 
 #define DMA_LINK_END_FLAG	0xfffff800
 
+#define DMA_SLAVE_DEF(_id, _burst, _width) \
+	static const struct dma_slave_table aic_dma_cfg_##_id = {	\
+		.id = _id,				\
+		.burst = _burst,			\
+		.burst_num = ARRAY_SIZE(_burst),	\
+		.width = _width,			\
+		.width_num = ARRAY_SIZE(_width),	\
+	}
+
+#define AIC_DMA_CFG(_id)	[_id] = &(aic_dma_cfg_##_id)
+
 /*
  * The description structure for one DMA task node
  */
@@ -139,6 +150,14 @@ struct aic_vchan {
 	enum dma_status status;
 };
 
+struct dma_slave_table {
+	u32 id;
+	u32 burst_num;
+	u32 width_num;
+	const u32 *burst;
+	const u32 *width;
+};
+
 /*
  * DMA controller description for SoC serial
  */
@@ -149,6 +168,7 @@ struct aic_dma_inf {
 
 	u32 burst_length; /* burst length capacity */
 	u32 addr_widths; /* address width support capacity */
+	const struct dma_slave_table **slave_table;
 };
 
 struct aic_dma_dev {
@@ -167,6 +187,52 @@ struct aic_dma_dev {
 	struct aic_vchan *vchans;
 	const struct aic_dma_inf *dma_inf;
 	struct dma_device slave;
+};
+
+static const u32 dma_width_1_byte[] = {DMA_SLAVE_BUSWIDTH_1_BYTE};
+static const u32 dma_width_4_bytes[] = {DMA_SLAVE_BUSWIDTH_4_BYTES};
+static const u32 dma_width_2_4_bytes[] = {DMA_SLAVE_BUSWIDTH_2_BYTES, DMA_SLAVE_BUSWIDTH_4_BYTES};
+static const u32 dma_width_1_4_bytes[] = {DMA_SLAVE_BUSWIDTH_1_BYTE, DMA_SLAVE_BUSWIDTH_4_BYTES};
+
+static const u32 dma_burst_1[] = {1};
+static const u32 dma_burst_8[] = {8};
+static const u32 dma_burst_1_8[] = {1, 8};
+
+/*		  ID		    burst            witdh(byte) */
+DMA_SLAVE_DEF(DMA_SPI2,		dma_burst_1_8,	dma_width_1_4_bytes);
+DMA_SLAVE_DEF(DMA_SPI3,		dma_burst_1_8,	dma_width_1_4_bytes);
+DMA_SLAVE_DEF(DMA_SPI0,		dma_burst_1_8,	dma_width_1_4_bytes);
+DMA_SLAVE_DEF(DMA_SPI1,		dma_burst_1_8,	dma_width_1_4_bytes);
+DMA_SLAVE_DEF(DMA_I2S0,		dma_burst_1,	dma_width_2_4_bytes);
+DMA_SLAVE_DEF(DMA_I2S1,		dma_burst_1,	dma_width_2_4_bytes);
+DMA_SLAVE_DEF(DMA_CODEC,	dma_burst_1,	dma_width_2_4_bytes);
+DMA_SLAVE_DEF(DMA_CODEC_AMIC,	dma_burst_1,	dma_width_2_4_bytes);
+DMA_SLAVE_DEF(DMA_UART0,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART1,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART2,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART3,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART4,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART5,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART6,	dma_burst_1,	dma_width_1_byte);
+DMA_SLAVE_DEF(DMA_UART7,	dma_burst_1,	dma_width_1_byte);
+
+static const struct dma_slave_table *aic_dma_slave_table[AIC_DMA_PORTS] = {
+	AIC_DMA_CFG(DMA_SPI2),
+	AIC_DMA_CFG(DMA_SPI3),
+	AIC_DMA_CFG(DMA_SPI0),
+	AIC_DMA_CFG(DMA_SPI1),
+	AIC_DMA_CFG(DMA_I2S0),
+	AIC_DMA_CFG(DMA_I2S1),
+	AIC_DMA_CFG(DMA_CODEC),
+	AIC_DMA_CFG(DMA_CODEC_AMIC),
+	AIC_DMA_CFG(DMA_UART0),
+	AIC_DMA_CFG(DMA_UART1),
+	AIC_DMA_CFG(DMA_UART2),
+	AIC_DMA_CFG(DMA_UART3),
+	AIC_DMA_CFG(DMA_UART4),
+	AIC_DMA_CFG(DMA_UART5),
+	AIC_DMA_CFG(DMA_UART6),
+	AIC_DMA_CFG(DMA_UART7),
 };
 
 #ifdef CONFIG_ARTINCHIP_DDMA
@@ -267,13 +333,48 @@ static inline s8 convert_buswidth(enum dma_slave_buswidth addr_width)
 	}
 }
 
+int aic_set_param(const struct dma_slave_table *slave_table,
+		  u32 *dev_maxburst, u32 *mem_maxburst,
+		  enum dma_slave_buswidth *dev_addr_width,
+		  enum dma_slave_buswidth *mem_addr_width)
+{
+	u8 j, temp_burst;
+	enum dma_slave_buswidth temp_addr_width;
+
+	if (*mem_addr_width == DMA_SLAVE_BUSWIDTH_UNDEFINED)
+		*mem_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+	*mem_maxburst = *mem_maxburst ? *mem_maxburst : 8;
+	temp_addr_width = slave_table->width[0];
+	for (j = 0; j < slave_table->width_num; j++) {
+		if (slave_table->width[j] == *dev_addr_width)
+			temp_addr_width = slave_table->width[j];
+	}
+	temp_burst = slave_table->burst[0];
+	for (j = 0; j < slave_table->burst_num; j++) {
+		if (slave_table->burst[j] == *dev_maxburst)
+			temp_burst = slave_table->burst[j];
+	}
+	*dev_maxburst = temp_burst;
+	*dev_addr_width = temp_addr_width;
+
+	return 0;
+}
+
 static int aic_set_burst(struct aic_dma_dev *sdev,
 			 struct dma_slave_config *sconfig,
 			 enum dma_transfer_direction direction, u32 *p_cfg)
 {
+	struct aic_vchan *vchan;
+	const struct dma_slave_table *slave_table;
 	enum dma_slave_buswidth src_addr_width, dst_addr_width;
 	u32 src_maxburst, dst_maxburst;
 	s8 src_width, dst_width, src_burst, dst_burst;
+
+	vchan = container_of(sconfig, struct aic_vchan, cfg);
+	slave_table = sdev->dma_inf->slave_table[vchan->port];
+
+	if (slave_table->id != vchan->port)
+		return -EINVAL;
 
 	src_addr_width = sconfig->src_addr_width;
 	dst_addr_width = sconfig->dst_addr_width;
@@ -282,14 +383,12 @@ static int aic_set_burst(struct aic_dma_dev *sdev,
 
 	switch (direction) {
 	case DMA_MEM_TO_DEV:
-		if (src_addr_width == DMA_SLAVE_BUSWIDTH_UNDEFINED)
-			src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-		src_maxburst = src_maxburst ? src_maxburst : 8;
+		aic_set_param(slave_table, &dst_maxburst, &src_maxburst,
+			      &dst_addr_width, &src_addr_width);
 		break;
 	case DMA_DEV_TO_MEM:
-		if (dst_addr_width == DMA_SLAVE_BUSWIDTH_UNDEFINED)
-			dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-		dst_maxburst = dst_maxburst ? dst_maxburst : 8;
+		aic_set_param(slave_table, &src_maxburst, &dst_maxburst,
+			      &src_addr_width, &dst_addr_width);
 		break;
 	default:
 		return -EINVAL;
@@ -1165,6 +1264,7 @@ const struct aic_dma_inf aic_dma_interface = {
 	.nr_ports = 24,
 	.nr_vchans = 24,
 	.burst_length = BIT(1) | BIT(4) | BIT(8) | BIT(16),
+	.slave_table = aic_dma_slave_table,
 };
 
 static const struct of_device_id aic_dma_match[] = {

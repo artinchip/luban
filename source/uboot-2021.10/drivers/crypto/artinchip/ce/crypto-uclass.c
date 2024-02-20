@@ -49,6 +49,20 @@ static int crypto_init(struct udevice *dev)
 	return ret;
 }
 
+static int crypto_exit(struct udevice *dev)
+{
+	const struct dm_crypto_ops *ops;
+	int ret = 0;
+
+	ops = device_get_ops(dev);
+	if (ops->release)
+		ops->release(dev);
+	else
+		return -EINVAL;
+
+	return ret;
+}
+
 static int crypto_start(struct udevice *dev, struct task_desc *task)
 {
 	const struct dm_crypto_ops *ops;
@@ -146,6 +160,11 @@ static int crypto_bignum_be2le(u8 *src, u32 slen, u8 *dst, u32 dlen)
 int aes_init(struct udevice *dev)
 {
 	return crypto_init(dev);
+}
+
+void aes_exit(struct udevice *dev)
+{
+	crypto_exit(dev);
 }
 
 int aes_set_encrypt_key(struct udevice *dev, void *key, u32 key_len)
@@ -523,6 +542,11 @@ int rsa_init(struct udevice *dev)
 	return crypto_init(dev);
 }
 
+void rsa_exit(struct udevice *dev)
+{
+	crypto_exit(dev);
+}
+
 static int rsa_calc(struct udevice *dev, u32 keybits, void *mod,
 	void *prime, void *src, u32 src_size, void *out, int is_pubkey)
 {
@@ -683,6 +707,11 @@ int rsa_public_decrypt(struct udevice *dev, rsa_context_t *context, void *src,
 int sha_init(struct udevice *dev)
 {
 	return crypto_init(dev);
+}
+
+void sha_exit(struct udevice *dev)
+{
+	crypto_exit(dev);
 }
 
 int sha_start(struct udevice *dev, sha_context_t *context, sha_mode_t mode)

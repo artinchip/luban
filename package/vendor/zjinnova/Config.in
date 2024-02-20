@@ -1,0 +1,7 @@
+config BR2_PACKAGE_ZJINNOVA
+	bool "zjinnova"
+	default n
+	select BR2_PACKAGE_AIC_MPP
+	help
+	  Carplay solution from beijing zjinnova.
+

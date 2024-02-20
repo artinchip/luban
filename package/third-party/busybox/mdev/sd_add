@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ -e "/dev/${MDEV}" ]; then
+	MFLAG="NO"
+	if [ -e "/bin/lsblk" ]; then
+		DEVINFO=`lsblk -o NAME,FSTYPE,MOUNTPOINT /dev/${MDEV} |grep ${MDEV}`
+		FSTYPE=`echo ${DEVINFO} | awk '{print $2}'`
+		if [ "x${FSTYPE}" == "x" ]; then
+			# No FS in partition
+			return 0
+		fi
+
+		MPOINT=`echo ${DEVINFO} | awk '{print $3}'`
+		if [ "x${MPOINT}" == "x" ]; then
+			# Not mount yet
+			MFLAG="YES"
+		fi
+	else
+		# Can't check device, always try to mount
+		MFLAG="YES"
+	fi
+	if [ "${MFLAG}" == "YES" ]; then
+		echo "Mount /dev/${MDEV} to /mnt/sdcard"  > /dev/console
+		mkdir -p /mnt/sdcard
+		mount -rw /dev/${MDEV}  /mnt/sdcard
+	fi
+fi

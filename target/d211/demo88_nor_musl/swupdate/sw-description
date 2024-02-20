@@ -1,0 +1,123 @@
+software =
+{
+	version = "1.0.0.0";
+	description = "Firmware update for Luban Project";
+
+	stable = {
+		/*
+		 * upgrade_recovery stage:
+		 * Running in main system, and upgrade the "recovery" partition,
+		 * then reboot to the new recovery system
+		 * Step1: Download image and upgrade the "recovery" partition
+		 * Step2: Setup bootenv "swu_entry, boot_partition, boot_os, swu_status"
+		 * Step3: Reboot to the new recovery system to run "upgrade_kernel"
+		 */
+		upgrade_recovery = {
+			images: (
+				{
+					filename = "recovery";
+					device = "/dev/mtd9";
+					type = "flash";
+					sha256 = "@recovery";
+				}
+			);
+
+			/*
+			 * Some key env variables:
+			 * swu_boardname: The selected board name. Here is "stable"
+			 * swu_entry: The upgrade entry selection. Value can be
+			 * "upgrade_recovery" and "upgrade_kernel"
+			 * boot_os: SPL Falcon mode flag. Should be set to "no"
+			 * during OTA
+			 * swu_status: OTA status flag, Value can be "progress",
+			 * "finish"
+			 * swu_reboot: When this flag is set to "yes", the
+			 * system will be reboot when all works done for current
+			 * stage.
+			 */
+			bootenv: (
+				{
+					name = "swu_entry";
+					value = "upgrade_kernel";
+				},
+				{
+					name = "boot_partition";
+					value = "recovery";
+				},
+				{
+					name = "boot_os";
+					value = "no";
+				},
+				{
+					name = "swu_status";
+					value = "progress";
+				},
+				{
+					name = "swu_reboot";
+					value = "yes";
+				}
+			);
+		};
+
+		 /*
+		  * upgrade_kernel stage:
+		  * Running in Recovery system, it will upgrade some key
+		  * partitions, then reboot to main system.
+		  * Step1: Download and upgrade partitons
+		  * Step2: Setup ENV variables, and mark OTA "finish"
+		  * Step3: Reboot to main system
+		  */
+		upgrade_kernel = {
+			images: (
+				{
+					filename = "logo";
+					device = "/dev/mtd7";
+					type = "flash";
+					sha256 = "@logo";
+				},
+				{
+					filename = "kernel";
+					device = "/dev/mtd8";
+					type = "flash";
+					sha256 = "@kernel";
+				},
+				{
+					filename = "rootfs";
+					volume = "rootfs";
+					installed-directly = true;
+					sha256 = "@rootfs";
+				}
+			);
+
+			bootenv: (
+				{
+                    			name = "boot_partition";
+                    			value = "kernel";
+                		},
+                		{
+                    			name = "swu_param";
+                    			value = "";
+                		},
+                		{
+					name = "swu_boardname";
+                    			value = "";
+                		},
+                		{
+					name = "swu_entry";
+                    			value = "";
+                		},
+				{
+					name = "swu_status";
+					value = "finish";
+				},
+                		{
+					name = "swu_reboot";
+					value = "yes";
+                		}
+            		);
+		};
+
+	};
+
+}
+

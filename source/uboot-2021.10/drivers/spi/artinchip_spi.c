@@ -59,11 +59,18 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TCR_BIT_DHB             BIT(8)
 #define TCR_BIT_DDB             BIT(9)
 #define TCR_BIT_RPSM            BIT(10)
-#define TCR_BIT_SDC             BIT(11)
+#define TCR_BIT_RXINDLY_EN      BIT(11)
 #define TCR_BIT_FBS             BIT(12)
+#define TCR_BIT_RXDLY_DIS       BIT(13)
+#define TCR_BIT_TXDLY_EN        BIT(14)
 #define TCR_BIT_XCH             BIT(31)
 #define TCR_BIT_SS_SEL_OFF      (4)
 #define TCR_BIT_SS_SEL_MSK      GENMASK(5, 4)
+
+#define TCR_RX_SAMPDLY_MSK      (TCR_BIT_RXINDLY_EN | TCR_BIT_RXDLY_DIS)
+#define TCR_RX_SAMPDLY_NONE     (TCR_BIT_RXDLY_DIS)
+#define TCR_RX_SAMPDLY_HALF     (0)
+#define TCR_RX_SAMPDLY_ONE      (TCR_BIT_RXINDLY_EN)
 
 #define FCR_BIT_RX_LEVEL_MSK    GENMASK(7, 0)
 #define FCR_BIT_RX_DMA_EN       BIT(8)
@@ -142,6 +149,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define AIC_SPI_DEFAULT_RATE    24000000
 #define AIC_SPI_TIMEOUT_US      1000000
 
+#define RX_SAMP_DLY_AUTO        0
+#define RX_SAMP_DLY_NONE        1
+#define RX_SAMP_DLY_HALF_CYCLE  2
+#define RX_SAMP_DLY_ONE_CYCLE   3
+
 #define SPI_DUAL_MODE           1
 #define SPI_QUAD_MODE           2
 #define SPI_SINGLE_MODE         4
@@ -162,6 +174,7 @@ struct aic_spi_platdata {
 	struct aic_spi_data *spi_data;
 	void __iomem *base;
 	u32 max_hz;
+	u32 rx_samp_dly;
 };
 
 struct aic_spi_priv {
@@ -171,6 +184,7 @@ struct aic_spi_priv {
 	void __iomem *base;
 	u32 freq;
 	u32 mode;
+	u32 rx_samp_dly;
 
 #ifdef CONFIG_ARTINCHIP_DMA
 	/* DMA */
@@ -764,6 +778,26 @@ static int aic_spi_set_mode(struct udevice *dev, uint mode)
 	 * data will full fill RXFIFO when sending data.
 	 */
 	reg |= TCR_BIT_DHB;
+	reg |= TCR_BIT_TXDLY_EN;
+	reg &= ~TCR_RX_SAMPDLY_MSK;
+	if (priv->rx_samp_dly == RX_SAMP_DLY_AUTO) {
+		if (priv->freq <= 24000000) {
+			/* Normal mode */
+			reg |= TCR_RX_SAMPDLY_NONE;
+		} else if (priv->freq <= 60000000) {
+			/* Delay half cycle to sample input */
+			reg |= TCR_RX_SAMPDLY_HALF;
+		} else {
+			/* Delay 1 cycle to sample input */
+			reg |= TCR_RX_SAMPDLY_ONE;
+		}
+	} else if (priv->rx_samp_dly == RX_SAMP_DLY_NONE) {
+		reg |= TCR_RX_SAMPDLY_NONE;
+	} else if (priv->rx_samp_dly == RX_SAMP_DLY_HALF_CYCLE) {
+		reg |= TCR_RX_SAMPDLY_HALF;
+	} else {
+		reg |= TCR_RX_SAMPDLY_ONE;
+	}
 	writel(reg, SPI_REG_TCR(priv));
 
 	val = (mode & (SPI_TX_DUAL | SPI_RX_DUAL));
@@ -987,6 +1021,7 @@ static int aic_spi_probe(struct udevice *bus)
 	priv->spi_data = plat->spi_data;
 	priv->base = plat->base;
 	priv->freq = plat->max_hz;
+	priv->rx_samp_dly = plat->rx_samp_dly;
 
 	ret = aic_spi_set_clock(bus, true);
 	if (ret) {
@@ -1005,14 +1040,24 @@ static int aic_spi_probe(struct udevice *bus)
 static int aic_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct aic_spi_platdata *plat = dev_get_plat(bus);
+
+	plat->rx_samp_dly = RX_SAMP_DLY_AUTO;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int node = dev_of_offset(bus);
+	const char *dly = NULL;
 
 	plat->base = (void *)devfdt_get_addr(bus);
 	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node, "spi-max-frequency",
 				      AIC_SPI_DEFAULT_RATE);
 	if (plat->max_hz > AIC_SPI_MAX_RATE)
 		plat->max_hz = AIC_SPI_MAX_RATE;
+	dly = fdt_getprop(gd->fdt_blob, node, "aic,rx-samp-dly", NULL);
+	if (dly  && !strcmp(dly, "none"))
+		plat->rx_samp_dly = RX_SAMP_DLY_NONE;
+	if (dly  && !strcmp(dly, "half"))
+		plat->rx_samp_dly = RX_SAMP_DLY_HALF_CYCLE;
+	if (dly  && !strcmp(dly, "one"))
+		plat->rx_samp_dly = RX_SAMP_DLY_ONE_CYCLE;
 #endif
 	plat->spi_data = (struct aic_spi_data *)dev_get_driver_data(bus);
 

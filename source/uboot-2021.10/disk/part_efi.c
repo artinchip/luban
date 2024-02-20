@@ -597,7 +597,7 @@ int gpt_fill_header(struct blk_desc *dev_desc, gpt_header *gpt_h,
 		cpu_to_le64(partition_entries_offset(dev_desc));
 	gpt_h->first_usable_lba =
 		cpu_to_le64(le64_to_cpu(gpt_h->partition_entry_lba) + 32);
-	gpt_h->num_partition_entries = cpu_to_le32(GPT_ENTRY_NUMBERS);
+	gpt_h->num_partition_entries = cpu_to_le32(parts_count);
 	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));
 	gpt_h->header_crc32 = 0;
 	gpt_h->partition_entry_array_crc32 = 0;

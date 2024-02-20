@@ -169,6 +169,8 @@ static const struct aic_reset_signal aic_reset_signals[RESET_NUMBER] = {
 	[RESET_CIR]	= { CIR_CLK_CTRL_REG, BIT(13) },
 	[RESET_DVP]     = { DVP_CLK_CTRL_REG, BIT(13)},
 	[RESET_MTOP]	= { MTOP_CLK_CTRL_REG, BIT(13)},
+	[RESET_PSADC]	= { PSADC_CLK_CTRL_REG, BIT(13)},
+	[RESET_PWMCS]	= { PWMCS_CLK_CTRL_REG, BIT(13)},
 };
 
 static struct aic_reset *to_aic_reset(struct reset_controller_dev *rcdev)

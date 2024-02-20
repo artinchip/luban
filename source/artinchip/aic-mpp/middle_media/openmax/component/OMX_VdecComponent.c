@@ -527,10 +527,6 @@ static OMX_ERRORTYPE OMX_VdecEmptyThisBuffer(
 			//mpp_decoder_get_packet is ok then mpp_decoder_put_packet is also ok
 			mpp_decoder_put_packet(pVdecDataType->pDecoder, &pkt);
 
-			if (pkt.flag & PACKET_FLAG_EOS) {
-				loge("StreamEndFlag!!!\n");
-			}
-
 			rate += pkt.size;
 			if (pev.tv_sec == 0) {
 				clock_gettime(CLOCK_REALTIME,&pev);
@@ -554,14 +550,20 @@ static OMX_ERRORTYPE OMX_VdecEmptyThisBuffer(
 			pktNode->sBuff.nFlags = pBuffer->nFlags;
 			mpp_list_del(&pktNode->sList);
 			mpp_list_add_tail(&pktNode->sList, &pVdecDataType->sInProcessedPkt);
-			aic_pthread_mutex_unlock(&pVdecDataType->sInPktLock);
-
-			sMsg.message_id = OMX_CommandNops;
-			sMsg.data_size = 0;
-			aic_msg_put(&pVdecDataType->sMsgQue, &sMsg);
-
+			if (pVdecDataType->nWaitForReadyPkt == 1) {
+				sMsg.message_id = OMX_CommandNops;
+				sMsg.data_size = 0;
+				aic_msg_put(&pVdecDataType->sMsgQue, &sMsg);
+				pVdecDataType->nWaitForReadyPkt = 0;
+			}
+			if (pktNode->sBuff.nFlags & PACKET_FLAG_EOS) {
+				pVdecDataType->nFlags |= VDEC_INPORT_STREAM_END_FLAG;
+				//pVdecDataType->nStreamEndFlag = OMX_TRUE;
+					printf("[%s:%d]:StreamEndFlag\n",__FUNCTION__,__LINE__);
+			}
 			pVdecDataType->nReceivePacktOkNum++;
 			logd("pVdecDataType->nReceivePacktOkNum:%d\n",pVdecDataType->nReceivePacktOkNum);
+			aic_pthread_mutex_unlock(&pVdecDataType->sInPktLock);
 		} else if (pVdecDataType->sInBufSupplier.eBufferSupplier == OMX_BufferSupplyInput) {
 			eError = OMX_ErrorNotImplemented;
 			logw("OMX_ErrorNotImplemented\n");
@@ -645,10 +647,12 @@ static OMX_ERRORTYPE OMX_VdecFillThisBuffer(
 			pVdecDataType->nSendBackFrameOkNum++;
 			mpp_list_del(&pFrameNode1->sList);
 			mpp_list_add_tail(&pFrameNode1->sList, &pVdecDataType->sOutEmptyFrame);
-
-			sMsg.message_id = OMX_CommandNops;
-			sMsg.data_size = 0;
-			aic_msg_put(&pVdecDataType->sMsgQue, &sMsg);
+			if (pVdecDataType->nWaitForEmptyFrame == 1) {
+				sMsg.message_id = OMX_CommandNops;
+				sMsg.data_size = 0;
+				aic_msg_put(&pVdecDataType->sMsgQue, &sMsg);
+				pVdecDataType->nWaitForEmptyFrame = 0;
+			}
 		} else {
 			loge("frame not match!!!\n");
 			eError =  OMX_ErrorBadParameter;
@@ -1168,6 +1172,7 @@ static void* OMX_VdecComponentThread(void* pThreadData)
 	OMX_S32 nCmdData;	//OMX_STATETYPE
 	VDEC_DATA_TYPE* pVdecDataType = (VDEC_DATA_TYPE*)pThreadData;
 	OMX_S32 ret;
+	OMX_S32 dec_ret;
 	OMX_S32 bNotifyFrameEnd = 0;
 	VDEC_OUT_FRAME *pFrameNode;
 	struct mpp_frame   sFrame;
@@ -1277,135 +1282,119 @@ _AIC_MSG_GET_:
 				}
 			}
 		}
-		// decode
-		if (!(pVdecDataType->nFlags & VDEC_OUTPORT_SEND_ALL_FRAME_FLAG)) {
-			ret = mpp_decoder_decode(pVdecDataType->pDecoder);
-			if (ret == DEC_OK) {
-				logi("mpp_decoder_decode ok!!!\n");
-				if (OMX_VdecListEmpty(&pVdecDataType->sOutEmptyFrame,pVdecDataType->sOutFrameLock)) {
-					VDEC_OUT_FRAME *pFrameNode = (VDEC_OUT_FRAME*)mpp_alloc(sizeof(VDEC_OUT_FRAME));
-					if (NULL == pFrameNode) {
-						loge("mpp_alloc error \n");
-						goto _AIC_MSG_GET_;
-					}
-					memset(pFrameNode,0x00,sizeof(VDEC_OUT_FRAME));
-					aic_pthread_mutex_lock(&pVdecDataType->sOutFrameLock);
-					mpp_list_add_tail(&pFrameNode->sList, &pVdecDataType->sOutEmptyFrame);
-					aic_pthread_mutex_unlock(&pVdecDataType->sOutFrameLock);
-					pVdecDataType->nOutFrameNodeNum++;
+
+        //decode
+        aic_pthread_mutex_lock(&pVdecDataType->sInPktLock);
+        aic_pthread_mutex_lock(&pVdecDataType->sOutFrameLock);
+        dec_ret = mpp_decoder_decode(pVdecDataType->pDecoder);
+        if (dec_ret == DEC_OK) {
+            logd("mpp_decoder_decode ok!!!\n");
+        } else if (dec_ret == DEC_NO_READY_PACKET) {
+            pVdecDataType->nWaitForReadyPkt = 1;
+        } else if (dec_ret == DEC_NO_EMPTY_FRAME) {
+            pVdecDataType->nWaitForEmptyFrame = 1;
+        } else if (dec_ret == DEC_NO_RENDER_FRAME) {
+            loge("mpp_decoder_decode ret:%d !!!\n",dec_ret);
+        } else {
+            //ASSERT();
+            loge("mpp_decoder_decode error serious,do not keep decoding ret:%d !!!\n",dec_ret);
+            OMX_VdecEventNotify(pVdecDataType,OMX_EventError,OMX_ErrorMbErrorsInFrame,0,NULL);
+            pVdecDataType->nFlags |= VDEC_OUTPORT_SEND_ALL_FRAME_FLAG;
+            goto _AIC_MSG_GET_;
+        }
+		aic_pthread_mutex_unlock(&pVdecDataType->sOutFrameLock);
+        aic_pthread_mutex_unlock(&pVdecDataType->sInPktLock);
+
+
+
+		// get frame from decoder
+		do {
+			OMX_S32 result = 0;
+			OMX_BUFFERHEADERTYPE sBuffHead;
+
+			ret = mpp_decoder_get_frame(pVdecDataType->pDecoder, &sFrame);
+			if (ret != DEC_OK) {
+				logd("mpp_decoder_get_frame other error ret:%d \n",ret);
+				break;
+			}
+			pVdecDataType->nGetFrameFromDecoderNum++;
+			if (OMX_VdecListEmpty(&pVdecDataType->sOutEmptyFrame,pVdecDataType->sOutFrameLock)) {
+				VDEC_OUT_FRAME *pFrameNode = (VDEC_OUT_FRAME*)mpp_alloc(sizeof(VDEC_OUT_FRAME));
+				if (NULL == pFrameNode) {
+					loge("mpp_alloc error \n");
+					mpp_decoder_put_frame(pVdecDataType->pDecoder, &sFrame);
+					goto _AIC_MSG_GET_;
 				}
-				ret = mpp_decoder_get_frame(pVdecDataType->pDecoder, &sFrame);
-				if (ret == DEC_OK) {
-					logd("mpp_decoder_get_frame ok\n");
-					OMX_S32 result = 0;
-					OMX_BUFFERHEADERTYPE sBuffHead;
-					sBuffHead.nOutputPortIndex = ADEC_PORT_OUT_INDEX;
-					sBuffHead.pBuffer = (OMX_U8 *)&sFrame;
-					if (pVdecDataType->sOutPortTunneledInfo.nTunneledFlag) {
-						sBuffHead.nInputPortIndex = pVdecDataType->sOutPortTunneledInfo.nTunnelPortIndex;
-						result = OMX_EmptyThisBuffer(pVdecDataType->sOutPortTunneledInfo.pTunneledComp,&sBuffHead);
-					} else {
-						if (pVdecDataType->pCallbacks != NULL && pVdecDataType->pCallbacks->FillBufferDone != NULL) {
-							result = pVdecDataType->pCallbacks->FillBufferDone(pVdecDataType->hSelf,pVdecDataType->pAppData,&sBuffHead);
-						}
+				memset(pFrameNode,0x00,sizeof(VDEC_OUT_FRAME));
+				aic_pthread_mutex_lock(&pVdecDataType->sOutFrameLock);
+				mpp_list_add_tail(&pFrameNode->sList, &pVdecDataType->sOutEmptyFrame);
+				aic_pthread_mutex_unlock(&pVdecDataType->sOutFrameLock);
+				pVdecDataType->nOutFrameNodeNum++;
+			}
+			sBuffHead.nOutputPortIndex = VDEC_PORT_OUT_INDEX;
+			sBuffHead.pBuffer = (OMX_U8 *)&sFrame;
+			if (pVdecDataType->sOutPortTunneledInfo.nTunneledFlag) {
+				sBuffHead.nInputPortIndex = pVdecDataType->sOutPortTunneledInfo.nTunnelPortIndex;
+				result = OMX_EmptyThisBuffer(pVdecDataType->sOutPortTunneledInfo.pTunneledComp,&sBuffHead);
+			} else {
+				if (pVdecDataType->pCallbacks != NULL && pVdecDataType->pCallbacks->FillBufferDone != NULL) {
+					result = pVdecDataType->pCallbacks->FillBufferDone(pVdecDataType->hSelf,pVdecDataType->pAppData,&sBuffHead);
+				}
+			}
+			if (result == 0) {
+				aic_pthread_mutex_lock(&pVdecDataType->sOutFrameLock);
+				pFrameNode = mpp_list_first_entry(&pVdecDataType->sOutEmptyFrame, VDEC_OUT_FRAME, sList);
+				pFrameNode->sFrameInfo = sFrame;
+				mpp_list_del(&pFrameNode->sList);
+				mpp_list_add_tail(&pFrameNode->sList, &pVdecDataType->sOutProcessingFrame);
+				aic_pthread_mutex_unlock(&pVdecDataType->sOutFrameLock);
+				pVdecDataType->nSendFrameOkNum++;
+				if (pFrameNode->sFrameInfo.flags & FRAME_FLAG_EOS) {
+					printf("[%s:%d] nFrameEndFlag",__FUNCTION__,__LINE__);
+					pVdecDataType->nFlags |= VDEC_OUTPORT_SEND_ALL_FRAME_FLAG;
+					if (pVdecDataType->pCallbacks && pVdecDataType->pCallbacks->EventHandler)  {
+						pVdecDataType->pCallbacks->EventHandler(pVdecDataType->hSelf,pVdecDataType->pAppData,OMX_EventBufferFlag,0, 0,NULL);
 					}
-
-					if (result == 0) {
-						static struct timespec pev =  {0,0} ,cur =  {0,0};
-						static int frame_rate = 0;
-						aic_pthread_mutex_lock(&pVdecDataType->sOutFrameLock);
-						pFrameNode = mpp_list_first_entry(&pVdecDataType->sOutEmptyFrame, VDEC_OUT_FRAME, sList);
-						pFrameNode->sFrameInfo = sFrame;
-						mpp_list_del(&pFrameNode->sList);
-						mpp_list_add_tail(&pFrameNode->sList, &pVdecDataType->sOutProcessingFrame);
-						aic_pthread_mutex_unlock(&pVdecDataType->sOutFrameLock);
-
-						pVdecDataType->nGetFrameFromDecoderNum++;
-						//loge("pVdecDataType->nGetFrameFromDecoderNum:%d\n",pVdecDataType->nGetFrameFromDecoderNum);
-						frame_rate++;
-						if (pev.tv_sec == 0) {
-							clock_gettime(CLOCK_REALTIME,&pev);
-						} else {
-							long diff;
-							clock_gettime(CLOCK_REALTIME,&cur);
-							diff = (cur.tv_sec - pev.tv_sec)*1000*1000 + (cur.tv_nsec - pev.tv_nsec)/1000;
-							if (diff > 1*1000*1000) {
-								//loge("v_fr:%d,diff:%ld \n",frame_rate,diff);
-								frame_rate = 0;
-								pev = cur;
-							}
-						}
-
-						if (pFrameNode->sFrameInfo.flags & FRAME_FLAG_EOS) {
-							pVdecDataType->nFlags |= VDEC_OUTPORT_SEND_ALL_FRAME_FLAG;
-							if (pVdecDataType->pCallbacks && pVdecDataType->pCallbacks->EventHandler)  {
-								pVdecDataType->pCallbacks->EventHandler(pVdecDataType->hSelf,pVdecDataType->pAppData,OMX_EventBufferFlag,0, 0,NULL);
-							}
-							printf("[%s:%d]"\
-								"in port:nReceivePacktOkNum:%d,nReceivePacktFailNum:%d,nPutPacktToDecoderOkNum:%d,"\
-								"nPutPacktToDecoderFailNum:%d,nGiveBackPacktOkNum:%d,nGiveBackPacktFailNum:%d\n"
-								,__FUNCTION__,__LINE__
-								,pVdecDataType->nReceivePacktOkNum,pVdecDataType->nReceivePacktFailNum,pVdecDataType->nPutPacktToDecoderOkNum
-								,pVdecDataType->nPutPacktToDecoderFailNum,pVdecDataType->nGiveBackPacktOkNum,pVdecDataType->nGiveBackPacktFailNum);
-
-							printf("[%s:%d]"\
-								"out port:nGetFrameFromDecoderNum:%d,nDropFrameFromDecoderNum:%d,nSendFrameOkNum:%d,"\
-								"nSendFrameErrorNum:%d,nLeftReadyFrameWhenCompoentExitNum:%d\n"
-								,__FUNCTION__,__LINE__
-								,pVdecDataType->nGetFrameFromDecoderNum,pVdecDataType->nDropFrameFromDecoderNum,pVdecDataType->nSendFrameOkNum
-								,pVdecDataType->nSendFrameErrorNum,pVdecDataType->nLeftReadyFrameWhenCompoentExitNum);
-						}
-
-						pVdecDataType->nSendFrameOkNum++;
-						//loge("pVdecDataType->nSendFrameOkNum:%d\n",pVdecDataType->nSendFrameOkNum);
-					} else {
-						//this may drop last frame,so it must deal with this case
-						ret = mpp_decoder_put_frame(pVdecDataType->pDecoder, &sFrame);
-						if (sFrame.flags & FRAME_FLAG_EOS) {
-							printf("[%s:%d]frame end\n",__FUNCTION__,__LINE__);
-						}
-						if (ret != 0) {// how to do
-							loge("mpp_decoder_put_frame error!!!!\n");
-							//ASSERT();
-						}
-						logw("OMX_EmptyThisBuffer or FillBufferDone fail!\n");
-						pVdecDataType->nSendFrameErrorNum++;
+				}
+				//loge("pVdecDataType->nGetFrameFromDecoderNum:%d\n",pVdecDataType->nGetFrameFromDecoderNum);
+				//loge("pVdecDataType->nSendFrameOkNum:%d\n",pVdecDataType->nSendFrameOkNum);
+			} else {
+				//this may drop last frame,so it must deal with this case
+				result = mpp_decoder_put_frame(pVdecDataType->pDecoder, &sFrame);
+				if (sFrame.flags & FRAME_FLAG_EOS) {
+					printf("[%s:%d]frame end\n",__FUNCTION__,__LINE__);
+					pVdecDataType->nFlags |= VDEC_OUTPORT_SEND_ALL_FRAME_FLAG;
+					if (pVdecDataType->pCallbacks && pVdecDataType->pCallbacks->EventHandler)  {
+						pVdecDataType->pCallbacks->EventHandler(pVdecDataType->hSelf,pVdecDataType->pAppData,OMX_EventBufferFlag,0, 0,NULL);
 					}
-				} else if (ret == DEC_NO_RENDER_FRAME) {
-					logw("mpp_decoder_get_frame error DEC_NO_RENDER_FRAME !!!\n");
-					//usleep(1000);
-				} else if (ret == DEC_ERR_FM_NOT_CREATE) {
-					logw("mpp_decoder_get_frame error DEC_ERR_FM_NOT_CREATE !!!\n");
-					//usleep(10*1000);
-				} else if (ret == DEC_NO_EMPTY_FRAME) {
-					logw("mpp_decoder_get_frame error DEC_NO_EMPTY_FRAME !!!\n");
-					//usleep(1000);
-				} else {
-					loge("mpp_decoder_get_frame other error \n");
+				}
+				if (result != 0) {// how to do
+					loge("mpp_decoder_put_frame error!!!!\n");
 					//ASSERT();
 				}
-			} else if (ret == DEC_NO_READY_PACKET) {
-				struct timespec before =  {0} ,after =  {0};
-				long diff;
-				clock_gettime(CLOCK_REALTIME,&before);
-				aic_msg_wait_new_msg(&pVdecDataType->sMsgQue, 0);
-				clock_gettime(CLOCK_REALTIME,&after);
-				diff = (after.tv_sec - before.tv_sec)*1000*1000 + (after.tv_nsec - before.tv_nsec)/1000;
-				if (diff > 50*1000) {
-					printf("[%s:%d]:%ld\n",__FUNCTION__,__LINE__,diff);
-				}
-			} else if (ret == DEC_NO_EMPTY_FRAME) {
-				aic_msg_wait_new_msg(&pVdecDataType->sMsgQue, 0);
-			} else {
-				//ASSERT();
-				loge("mpp_decoder_decode error serious,do not keep decoding ret:%d !!!\n",ret);
+				logw("OMX_EmptyThisBuffer or FillBufferDone fail!\n");
+				pVdecDataType->nSendFrameErrorNum++;
 			}
-		}
+		} while(1);
 
+        if (dec_ret == DEC_NO_READY_PACKET) {
+            aic_pthread_mutex_lock(&pVdecDataType->sInPktLock);
+            if (!(pVdecDataType->nFlags & VDEC_INPORT_STREAM_END_FLAG)) {
+                aic_pthread_mutex_unlock(&pVdecDataType->sInPktLock);
+                aic_msg_wait_new_msg(&pVdecDataType->sMsgQue,0);
+            } else {
+                aic_pthread_mutex_unlock(&pVdecDataType->sInPktLock);
+                aic_msg_wait_new_msg(&pVdecDataType->sMsgQue, 5*1000);
+            }
+        } else if (dec_ret == DEC_NO_EMPTY_FRAME) {
+            if (!(pVdecDataType->nFlags & VDEC_OUTPORT_SEND_ALL_FRAME_FLAG)) {
+                aic_msg_wait_new_msg(&pVdecDataType->sMsgQue, 0);
+            }
+        }
 		// send frame back to decoder in OMX_VdecFillThisBuffer
 	}
-_EXIT:
 
+_EXIT:
 	logd("in port:nReceivePacktOkNum:%d,"\
 		"nReceivePacktFailNum:%d,"\
 		"nPutPacktToDecoderOkNum:%d,"\

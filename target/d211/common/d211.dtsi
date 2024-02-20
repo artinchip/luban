@@ -357,6 +357,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			spi-max-frequency = <100000000>;
+			aic,rx-samp-dly = "auto"; //dly clock: "auto", "none", "half", "one"
 			status = "disabled";
 		};
 
@@ -371,6 +372,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			spi-max-frequency = <24000000>;
+			aic,rx-samp-dly = "auto"; //dly clock: "auto", "none", "half", "one"
 			status = "disabled";
 		};
 
@@ -385,6 +387,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			spi-max-frequency = <24000000>;
+			aic,rx-samp-dly = "auto"; //dly clock: "auto", "none", "half", "one"
 			status = "disabled";
 		};
 
@@ -399,6 +402,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			spi-max-frequency = <24000000>;
+			aic,rx-samp-dly = "auto"; //dly clock: "auto", "none", "half", "one"
 			status = "disabled";
 		};
 
@@ -459,6 +463,7 @@
 			clocks = <&osc24m>, <&rc1m>, <&osc32k>;
 			clock-names = "osc24m", "rc1m", "osc32k";
 			#clock-cells = <1>;
+			aic,xtal_driver = <3>;
 			status = "okay";
 		};
 
@@ -672,6 +677,8 @@
 			reg = <0x0 0x19010000 0x0 0x100>;
 			clocks = <&cmu CLK_SID>;
 			resets = <&rst RESET_SID>;
+			aic,timing = <0x0402ffd8>;
+			aic,max-words = <64>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			status = "okay";
@@ -783,6 +790,18 @@
 			clocks = <&cmu CLK_PWM>, <&cmu CLK_PLL_INT1>;
 			clock-names = "pwm", "sysclk";
 			resets = <&rst RESET_PWM>;
+			clock-rate = <48000000>;
+			status = "disabled";
+		};
+
+		epwm: epwm@18200000 {
+			compatible = "artinchip,aic-epwm-v1.0";
+			reg = <0x0 0x18200000 0x0 0x600>, <0 0x1820F000 0x0 0x1000>;
+			interrupts-extended = <&plic0 25 IRQ_TYPE_LEVEL_HIGH>;
+			#pwm-cells = <3>;
+			clocks = <&cmu CLK_PWMCS>, <&cmu CLK_PLL_INT1>;
+			clock-names = "pwmcs", "sysclk";
+			resets = <&rst RESET_PWMCS>;
 			clock-rate = <48000000>;
 			status = "disabled";
 		};
@@ -1022,6 +1041,17 @@
 			compatible = "artinchip,aic-wri-v1.0";
 			reg = <0x0 0x1900f000 0x0 0x1000>;
 			status = "okay";
+		};
+
+		psadc: psadc@18210000 {
+			compatible = "artinchip,aic-psadc-v1.0";
+			reg = <0x0 0x18210000 0x0 0x1000>;
+			interrupts-extended = <&plic0 28 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_PSADC>, <&cmu CLK_APB0>;
+			clock-names = "psadc", "pclk";
+			resets = <&rst RESET_PSADC>;
+			#io-channel-cells = <1>;
+			status = "disabled";
 		};
 	};
 };

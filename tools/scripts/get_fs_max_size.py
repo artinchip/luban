@@ -136,6 +136,8 @@ def aic_auto_calculate_part_config(cfg, data):
                     pt_name = part + ":" + vol
                     load_fs_max_size(media_type, data, pt_name, vol_size)
                     pt_off += vol_size
+                    if userfs_num > len(br2_target_userfs_ubifs_max_size) - 1:
+                        sys.exit(1)
             else:
                 pt_off += pt_size
     elif media_type == "mmc":
@@ -162,6 +164,8 @@ def aic_auto_calculate_part_config(cfg, data):
                 load_fs_max_size(media_type, data, pt_name, pt_size)
                 rootfs_num = 1
             pt_off += pt_size
+            if userfs_num > len(br2_target_userfs_ext4_max_size) - 1:
+                sys.exit(1)
     else:
         print("Not supported media type: {}".format(media_type))
         sys.exit(1)

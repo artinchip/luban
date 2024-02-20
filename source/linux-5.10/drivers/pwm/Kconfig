@@ -60,6 +60,15 @@ config PWM_ARTINCHIP
 	  To compile this driver as a module, choose M here: the module
 	  will be called aic-pwm.
 
+config EPWM_ARTINCHIP
+	tristate "ArtInChip EPWM support"
+	depends on ARCH_ARTINCHIP
+	help
+	  EPWM controller driver for ArtInChip SoC.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called aic-epwm.
+
 config PWM_ATMEL
 	tristate "Atmel PWM support"
 	depends on OF

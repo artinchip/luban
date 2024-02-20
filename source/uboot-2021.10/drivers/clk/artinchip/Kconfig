@@ -8,13 +8,19 @@ menuconfig SPL_CLK_ARTINCHIP
 	  This enables SPL DM/DTS support for clock driver in ArtInChip platforms.
 
 if SPL_CLK_ARTINCHIP
+	choice
+		prompt "Select SPL clock driver"
+		default SPL_CLK_ARTINCHIP_CMU_V1_0
+		config SPL_CLK_ARTINCHIP_CMU_V1_0
+			bool "aic-cmu-v1.0"
+			help
+			SPL clock driver for aic-cmu-v1.0
 
-config SPL_CLK_ARTINCHIP_CMU
-	bool "SPL clock driver for aic-cmu"
-	default n
-	help
-	  SPL clock driver for aic-cmu
-
+		config SPL_CLK_ARTINCHIP_CMU_V1_3
+			bool "aic-cmu-v1.3"
+			help
+			SPL clock driver for aic-cmu-v1.3
+	endchoice
 endif
 
 menuconfig CLK_ARTINCHIP
@@ -24,22 +30,24 @@ menuconfig CLK_ARTINCHIP
 	default y
 
 if CLK_ARTINCHIP
+	choice
+		prompt "Select clock driver"
+		default CLK_ARTINCHIP_CMU_V1_0
+		config CLK_ARTINCHIP_CMU_V1_0
+			bool "aic-cmu-v1.0"
+			help
+			SPL clock driver for aic-cmu
 
-config CLK_ARTINCHIP_CMU
-	bool "Clock driver for aic-cmu"
-	default n
-	help
-	  Clock driver for aic-cmu
+		config CLK_ARTINCHIP_CMU_V1_3
+			bool "aic-cmu-v1.3"
+			help
+			SPL clock driver for aic-cmu
+	endchoice
 
 config CLK_ARTINCHIP_V0_1
 	bool
 	default y
-	depends on ARM
-
-config CLK_ARTINCHIP_V1
-	bool
-	default y
-	depends on RISCV
+	depends on ARM && CLK_ARTINCHIP_V1_0
 
 endif
 

@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 	config->attrs[0].attr.debounce_period_us = 10000; /* unit is us */
 	config->attrs[0].mask = 1;
 
+	setvbuf(stdout, NULL, _IONBF, 0);
 	/* open GPIO group device, get the fd */
 	gfd = open(gpio_dev, 0);
 	if (gfd == -1) {

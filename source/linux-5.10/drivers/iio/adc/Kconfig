@@ -290,6 +290,13 @@ config ARTINCHIP_GPAI
 	help
 	  Enable Artinchip's GPAI driver.
 
+config ARTINCHIP_PSADC
+	tristate "Artinchip PSADC driver"
+	depends on ARCH_ARTINCHIP && ARTINCHIP_ADCIM
+	depends on OF
+	help
+	  Enable Artinchip's PSADC driver.
+
 config ASPEED_ADC
 	tristate "Aspeed ADC"
 	depends on ARCH_ASPEED || COMPILE_TEST

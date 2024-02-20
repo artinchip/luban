@@ -1313,6 +1313,69 @@ static ssize_t reset_store(struct device *dev,
 }
 static DEVICE_ATTR_WO(reset);
 
+static void aicfb_disable_de_di(struct aicfb_info *fbi)
+{
+	struct aicfb_layer_data layer = {0};
+	struct de_funcs *de = fbi->de;
+	struct di_funcs *di = fbi->di;
+
+	layer.layer_id = AICFB_LAYER_TYPE_UI;
+	layer.rect_id = 0;
+	de->get_layer_config(&layer);
+	layer.enable = 0;
+	de->update_layer_config(&layer);
+
+	di->disable();
+	de->timing_disable();
+	aicfb_enable_clk(fbi, AICFB_OFF);
+}
+
+static void aicfb_enable_de_di(struct aicfb_info *fbi)
+{
+	struct aicfb_layer_data layer = {0};
+	struct de_funcs *de = fbi->de;
+	struct di_funcs *di = fbi->di;
+
+	aicfb_enable_clk(fbi, AICFB_ON);
+
+	layer.layer_id = AICFB_LAYER_TYPE_UI;
+	layer.rect_id = 0;
+	de->get_layer_config(&layer);
+	layer.enable = 1;
+	de->update_layer_config(&layer);
+
+	di->enable();
+	if (di->send_cmd)
+		di->send_cmd(0, NULL, 0);
+	de->timing_enable(true);
+}
+
+static ssize_t reset_de_di_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct aicfb_data *fbd = dev_get_drvdata(dev);
+	struct aicfb_info *fbi = (struct aicfb_info *)fbd->info[0]->par;
+	bool enable;
+	int ret;
+
+	ret = kstrtobool(buf, &enable);
+	if (ret)
+		return ret;
+
+	if (!enable)
+		return size;
+
+	mutex_lock(&fbi->mutex);
+
+	aicfb_disable_de_di(fbi);
+	aic_delay_ms(20);
+	aicfb_enable_de_di(fbi);
+
+	mutex_unlock(&fbi->mutex);
+	return size;
+}
+static DEVICE_ATTR_WO(reset_de_di);
+
 #define timing_config_attr(field)					\
 static ssize_t								\
 field##_show(struct device *dev, struct device_attribute *attr,		\
@@ -1358,6 +1421,7 @@ timing_config_attr(vsync_len);
 
 static struct attribute *aic_fb_attrs[] = {
 	&dev_attr_reset.attr,
+	&dev_attr_reset_de_di.attr,
 	&dev_attr_pixelclock.attr,
 	&dev_attr_hactive.attr,
 	&dev_attr_hfront_porch.attr,
@@ -1372,7 +1436,7 @@ static struct attribute *aic_fb_attrs[] = {
 
 static const struct attribute_group aic_fb_attr_group = {
 	.attrs = aic_fb_attrs,
-	.name = "timing_config",
+	.name = "debug",
 };
 
 static int aicfb_bind(struct device *dev)

@@ -12,11 +12,12 @@ menuconfig BR2_PACKAGE_LRZSZ
 
 	  http://www.ohse.de/uwe/software/lrzsz.html
 
-comment "lrzsz needs a toolchain w/ dynamic library"
-	depends on BR2_STATIC_LIBS
-
 if BR2_PACKAGE_LRZSZ
 config BR2_PACKAGE_LRZSZ_USE_PREBUILT
 	bool "use prebuilt binary instead of building from source"
 	default y
 endif
+
+comment "lrzsz needs a toolchain w/ dynamic library"
+	depends on BR2_STATIC_LIBS
+

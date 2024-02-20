@@ -319,7 +319,7 @@ define $(2)_INSTALL_TARGET_CMDS
 endef
 endif
 
-$(2)_SUPPORTS_OUT_SOURCE_BUILD = YES
+$(2)_SUPPORTS_OUT_SOURCE_BUILD ?= YES
 
 # Call the generic package infrastructure to generate the necessary
 # make targets

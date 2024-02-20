@@ -19,3 +19,11 @@ config ARTINCHIP_GE_NORMAL
 	  Disable CMD Queue
 
 endchoice
+
+if ARTINCHIP_GE
+config CTRL_GE_CLK_IN_FRAME
+	bool "ArtInChip GE Clock Ctrl In Frames"
+	default n
+	help
+	  This is a GE Clock Ctrl in frames
+endif

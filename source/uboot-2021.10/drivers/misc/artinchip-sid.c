@@ -15,16 +15,18 @@
 
 #ifndef CONFIG_SPL_BUILD
 
-#define SID_MAX_SIZE 64
+#define SID_MAX_WORDS 64
 #define SID_REG_CTL 0x0
 #define SID_REG_ADDR 0x4
 #define SID_REG_WDATA 0x8
 #define SID_REG_RDATA 0xC
+#define SID_REG_TIMING 0x10
 
 struct aic_sid_platdata {
 	void __iomem *base;
 	struct clk clk;
 	struct reset_ctl reset;
+	u32 max_words;
 };
 
 #define SID_OPCODE_OFS 16
@@ -58,41 +60,47 @@ static int wait_sid_ready(struct aic_sid_platdata *plat)
 
 static u32 aic_sid_read_word(struct aic_sid_platdata *plat, u32 wid)
 {
-	u32 addr, val = 0;
+	u32 addr, rval = 0, val = 0;
 
-	addr = wid << 2;
-	writel(addr, plat->base + SID_REG_ADDR);
+	for (int i = 0; i < 2; i++) {
+		addr = (wid + plat->max_words * i) << 2;
+		writel(addr, plat->base + SID_REG_ADDR);
 
-	val = readl(plat->base + SID_REG_CTL);
-	val &= ~(SID_OPCODE_MSK | SID_READ_START_MSK);
-	val |= ((SID_OPCODE << SID_OPCODE_OFS) | (SID_READ_START_MSK));
-	writel(val, plat->base + SID_REG_CTL);
+		val = readl(plat->base + SID_REG_CTL);
+		val &= ~(SID_OPCODE_MSK | SID_READ_START_MSK);
+		val |= ((SID_OPCODE << SID_OPCODE_OFS) | (SID_READ_START_MSK));
+		writel(val, plat->base + SID_REG_CTL);
 
-	/* Wait read finish */
-	while ((readl(plat->base + SID_REG_CTL) & SID_READ_START_MSK))
-		;
+		/* Wait read finish */
+		while ((readl(plat->base + SID_REG_CTL) & SID_READ_START_MSK))
+			;
 
-	val = readl(plat->base + SID_REG_RDATA);
-	return val;
+		rval |= readl(plat->base + SID_REG_RDATA);
+	}
+
+	return rval;
 }
 
 static int aic_sid_write_word(struct aic_sid_platdata *plat, u32 wid, u32 wval)
 {
 	u32 addr, val;
 
-	addr = wid << 2;
-	writel(addr, plat->base + SID_REG_ADDR);
-	writel(wval, plat->base + SID_REG_WDATA);
+	for (int i = 0; i < 2; i++) {
+		addr = (wid + plat->max_words * i) << 2;
+		writel(addr, plat->base + SID_REG_ADDR);
+		writel(wval, plat->base + SID_REG_WDATA);
 
-	val = readl(plat->base + SID_REG_CTL);
-	val &= ~(SID_OPCODE_MSK);
-	val &= ~(SID_WRITE_START_MSK);
-	val |= ((SID_OPCODE << SID_OPCODE_OFS) | (SID_WRITE_START_MSK));
-	writel(val, plat->base + SID_REG_CTL);
+		val = readl(plat->base + SID_REG_CTL);
+		val &= ~(SID_OPCODE_MSK);
+		val &= ~(SID_WRITE_START_MSK);
+		val |= ((SID_OPCODE << SID_OPCODE_OFS) | (SID_WRITE_START_MSK));
+		writel(val, plat->base + SID_REG_CTL);
 
-	/* Wait write done */
-	while ((readl(plat->base + SID_REG_CTL) & SID_WRITE_START_MSK))
-		;
+		/* Wait write done */
+		while ((readl(plat->base + SID_REG_CTL) & SID_WRITE_START_MSK))
+			;
+	}
+
 	return 0;
 }
 
@@ -102,7 +110,7 @@ static int aic_sid_read(struct udevice *dev, int offset, void *buf, int size)
 	u32 val, wid, ofs, end, end_siz;
 	u8 *p;
 
-	if (offset < 0 || (offset + size) > SID_MAX_SIZE) {
+	if (offset < 0 || (offset + size) > plat->max_words) {
 		pr_err("Invalid offset %d.\n", offset);
 		return -EINVAL;
 	}
@@ -140,7 +148,7 @@ static int aic_sid_write(struct udevice *dev, int offset, const void *buf,
 	u32 val, wid, ofs, end, end_siz, cpsiz;
 	const u8 *p;
 
-	if (offset < 0 || (offset + size) > SID_MAX_SIZE) {
+	if (offset < 0 || (offset + size) > plat->max_words) {
 		pr_err("Invalid offset %d.\n", offset);
 		return -EINVAL;
 	}
@@ -216,7 +224,9 @@ err:
 static int aic_sid_probe(struct udevice *dev)
 {
 	struct aic_sid_platdata *plat = dev_get_plat(dev);
+	ofnode node = dev_ofnode(dev);
 	int ret = 0;
+	u32 timing = 0;
 
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_CLK_ARTINCHIP)
 	ret = clk_get_by_index(dev, 0, &plat->clk);
@@ -233,6 +243,17 @@ static int aic_sid_probe(struct udevice *dev)
 	plat->base = (void *)devfdt_get_addr(dev);
 
 	ret = aic_sid_set_clock(dev, true);
+
+	if (ofnode_read_u32(node, "aic,timing", &timing)) {
+		dev_info(dev, "Can't parse timing value\n");
+	} else {
+		writel(timing, plat->base + SID_REG_TIMING);
+	}
+
+	if (ofnode_read_u32(node, "aic,max-words", &(plat->max_words))) {
+		dev_info(dev, "Can't parse max-words value\n");
+		plat->max_words = SID_MAX_WORDS;
+	}
 
 	return ret;
 }

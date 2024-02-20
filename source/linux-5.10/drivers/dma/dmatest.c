@@ -89,6 +89,10 @@ static bool polled;
 module_param(polled, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(polled, "Use polling for completion instead of interrupts");
 
+static unsigned int failures;
+module_param(failures, uint, 0444);
+MODULE_PARM_DESC(failures, "the number of failures testcase");
+
 /**
  * struct dmatest_params - test parameters.
  * @buf_size:		size of the memcpy test buffer
@@ -918,6 +922,7 @@ err_thread_type:
 		current->comm, total_tests, failed_tests,
 		FIXPT_TO_INT(iops), FIXPT_GET_FRAC(iops),
 		dmatest_KBs(runtime, total_len), ret);
+	failures += failed_tests;
 
 	/* terminate all transfers on specified channels */
 	if (ret || failed_tests)
@@ -1179,6 +1184,7 @@ static int dmatest_run_set(const char *val, const struct kernel_param *kp)
 	struct dmatest_info *info = &test_info;
 	int ret;
 
+	failures = 0;
 	mutex_lock(&info->lock);
 	ret = param_set_bool(val, kp);
 	if (ret) {

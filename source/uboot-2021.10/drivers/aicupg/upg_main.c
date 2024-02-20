@@ -545,23 +545,22 @@ s32 aicupg_mmc_create_gpt_part(u32 mmc_id, bool is_sdupg)
 		ret = -1;
 		goto out;
 	}
-	limit = 2048;
+	limit = GPT_CMD_BUF_SIZE;
 	p = cmdbuf;
 	snprintf(p, limit, "gpt write mmc %d \"", mmc_id);
 	p = cmdbuf + strlen(cmdbuf);
-	limit = 2048 - strlen(cmdbuf);
 	item = parts;
 	while (item) {
 		if (item->size > 0)
 			snprintf(p, limit, "name=%s,start=%lld,size=%lld;",
 				 item->name, item->start, item->size);
 		else
-			snprintf(p, limit, "name=%s,start=%lld,size=-;\"",
+			snprintf(p, limit, "name=%s,start=%lld,size=-;",
 				 item->name, item->start);
 		p = cmdbuf + strlen(cmdbuf);
-		limit = GPT_CMD_BUF_SIZE - strlen(cmdbuf);
 		item = item->next;
 	}
+	snprintf(p, limit, "\"");
 
 	/*
 	 * Step3: Create GPT partitions

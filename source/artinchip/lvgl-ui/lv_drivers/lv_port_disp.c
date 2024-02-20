@@ -304,6 +304,7 @@ static void fbdev_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t 
             LV_LOG_WARN("pan display err");
         }
 
+#ifndef USE_DRAW_BUF
         if (drv->direct_mode == 1) {
             for (int i = 0; i < disp->inv_p; i++) {
                 if (disp->inv_area_joined[i] == 0) {
@@ -311,6 +312,7 @@ static void fbdev_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t 
                 }
             }
         }
+#endif
 
         cal_frame_rate();
         lv_disp_flush_ready(drv);
@@ -387,11 +389,6 @@ void lv_port_disp_init(void)
         buf_next = g_frame_buf[2];
         g_triple_fb = 1;
     }
-#endif
-
-#ifdef USE_DRAW_BUF
-    disp_drv.full_refresh = 1;
-    disp_drv.direct_mode = 0;
 #endif
 
     /*Finally register the driver*/

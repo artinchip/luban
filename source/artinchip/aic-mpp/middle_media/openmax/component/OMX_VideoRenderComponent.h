@@ -64,6 +64,8 @@ typedef struct VIDEO_RENDER_DMA_FD {
 
 #define VIDEO_RENDER_INPORT_SEND_ALL_FRAME_FLAG  0x02 // consume all frame in readylist
 
+#define VIDEO_RENDER_WAIT_FRAME_INTERVAL (10*1000*1000)
+#define VIDEO_RENDER_WAIT_FRAME_MAX_TIME (8*1000*1000)
 
 typedef struct VIDEO_RENDER_DATA_TYPE {
 	OMX_STATETYPE state;
@@ -112,12 +114,10 @@ typedef struct VIDEO_RENDER_DATA_TYPE {
 
 	OMX_TICKS sPreFramePts;
 
-
 	OMX_S32 nDumpIndex;
 
 	OMX_TIME_CLOCKSTATE eClockState;
 
-	pthread_mutex_t sWaitReayFrameLock;
 	OMX_S32 nWaitReayFrameFlag;
 
 	//rotation

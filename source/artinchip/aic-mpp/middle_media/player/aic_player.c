@@ -631,7 +631,7 @@ s32 aic_player_pause(struct aic_player *player)
 	if (player->state == AIC_PLAYER_STATE_PAUSED) {
 		logi("it is already in AIC_PLAYER_STATE_PAUSED\n");
 		return aic_player_play(player);
-	} else if (player->state != AIC_PLAYER_STATE_PLAYING) {
+	} else if (player->state != AIC_PLAYER_STATE_PLAYING && player->state != AIC_PLAYER_STATE_PLAYBACK_COMPLETED) {
 		loge("player->state:[%d] in AIC_PLAYER_STATE_STARTED or AIC_PLAYER_STATE_PAUSED ,it can not do this opt\n",player->state);
 		return -1;
 	}
@@ -680,6 +680,7 @@ static int do_seek(struct aic_player *player,u64 seek_time)
 			goto _exit;
 		}
 		player->video_audio_seek_mask |= AIC_VIDEO;
+		player->video_audio_end_mask |= AIC_VIDEO;
 	}
 
 	if (player->media_info.has_audio && player->audio_render_handle && player->adecoder_handle) {
@@ -690,6 +691,7 @@ static int do_seek(struct aic_player *player,u64 seek_time)
 			goto _exit;
 		}
 		player->video_audio_seek_mask |= AIC_AUDIO;
+		player->video_audio_end_mask |= AIC_AUDIO;
 	}
 
 	if (player->media_info.has_video && player->media_info.has_audio && player->clock_handle) {

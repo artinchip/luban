@@ -4,6 +4,8 @@
 #
 ccflags-$(CONFIG_ARTINCHIP_GPAI_DEBUG) = -O0
 ccflags-$(CONFIG_ARTINCHIP_GPAI_DEBUG) += -DDEBUG
+ccflags-$(CONFIG_ARTINCHIP_PSADC_DEBUG) = -O0
+ccflags-$(CONFIG_ARTINCHIP_PSADC_DEBUG) += -DDEBUG
 
 # When adding new entries keep the list in alphabetical order
 obj-$(CONFIG_AB8500_GPADC) += ab8500-gpadc.o
@@ -31,6 +33,7 @@ obj-$(CONFIG_AD799X) += ad799x.o
 obj-$(CONFIG_AD9467) += ad9467.o
 obj-$(CONFIG_ADI_AXI_ADC) += adi-axi-adc.o
 obj-$(CONFIG_ARTINCHIP_GPAI) += artinchip_adc.o
+obj-$(CONFIG_ARTINCHIP_PSADC) += artinchip_psadc.o
 obj-$(CONFIG_ASPEED_ADC) += aspeed_adc.o
 obj-$(CONFIG_AT91_ADC) += at91_adc.o
 obj-$(CONFIG_AT91_SAMA5D2_ADC) += at91-sama5d2_adc.o

@@ -6,7 +6,6 @@
 #define __DRV_CLK_AIC_H
 
 #include <clk.h>
-#include <dt-bindings/clock/artinchip,aic-cmu.h>
 
 #define AIC_CLK_PERIPH(_id, _parent, _reg)                                     \
 	CLK_PERIPH(_id, _parent, _reg, 12, 8, 0, 5)
@@ -31,6 +30,11 @@ enum aic_pll_type {
 	AIC_PLL_INT,	/* integer pll */
 	AIC_PLL_FRA,	/* fractional pll */
 	AIC_PLL_SDM,	/* spread spectrum pll */
+};
+
+enum aic_sys_type {
+	AIC_CPU_CLK = 0,
+	AIC_BUS_CLK = 1,
 };
 
 enum aic_clk_type {
@@ -101,10 +105,20 @@ struct aic_sys_clk {
 	u32 reg;
 	u32 *parent;
 	u8  parent_cnt;
+	enum aic_sys_type type;
 	u8  mux_shift;
 	u8  mux_mask;
 	s8  div_shift;
 	u8  div_mask;
+	void *clk_attr;
+};
+
+struct aic_cpu_attr {
+	u32 key_val;
+	s8 key_bit;
+	u8 key_mask;
+	s8 mod_gate;
+	s8 rst_bit;
 };
 
 /**
@@ -265,17 +279,37 @@ struct aic_clk_priv {
 		.max_rate = _max_rate,					       \
 	}
 
-#define CLK_SYS(_id, _reg, _parent, _parent_cnt, _mux_shift, _mux_width, \
-		_div_shift, _div_width)       \
+#define CLK_SYS(_id, _reg, _parent, _parent_cnt, _type, _mux_shift, _mux_width, \
+		_div_shift, _div_width, _clk_attr)       \
 	{                                                                  \
 		.id = _id,                                                     \
 		.reg = _reg,                                                   \
 		.parent = _parent,                                             \
 		.parent_cnt = _parent_cnt,                                     \
+		.type = _type,							\
 		.mux_shift = _mux_shift,                                       \
 		.mux_mask = BIT(_mux_width) - 1,                               \
 		.div_shift = _div_shift,                                       \
 		.div_mask = BIT(_div_width) - 1,                               \
+		.clk_attr = _clk_attr,						\
+	}
+#define CLK_SYS_BUS(_id, _reg, _parent, _parent_cnt, _mux_shift, _mux_width,	\
+		_div_shift, _div_width)						\
+	CLK_SYS(_id, _reg, _parent, _parent_cnt, AIC_BUS_CLK, _mux_shift, _mux_width, \
+		_div_shift, _div_width, NULL)
+
+#define CLK_SYS_CPU(_id, _reg, _parent, _parent_cnt, _mux_shift, _mux_width,	\
+		_div_shift, _div_width, _clk_attr)				\
+	CLK_SYS(_id, _reg, _parent, _parent_cnt, AIC_CPU_CLK, _mux_shift, _mux_width, \
+		_div_shift, _div_width, _clk_attr)
+
+#define CLK_CPU_ATTR(_name, _key_val, _key_bit, _key_mask, _rst_bit, _mod_gate)	\
+	static struct aic_cpu_attr _name = {						\
+		.key_val = _key_val,						\
+		.key_bit = _key_bit,						\
+		.key_mask = _key_mask,					\
+		.rst_bit = _rst_bit,						\
+		.mod_gate = _mod_gate,						\
 	}
 
 #define CLK_PERIPH(_id, _parent, _reg, _bus_gate, _mod_gate, _div_shift,       \

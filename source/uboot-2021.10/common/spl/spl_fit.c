@@ -17,6 +17,7 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
+#include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +43,11 @@ __weak void board_spl_fit_post_load(const void *fit)
 __weak ulong board_spl_fit_size_align(ulong size)
 {
 	return size;
+}
+
+__weak int board_load_opensbi_to_ram_top(void)
+{
+	return 0;
 }
 
 static int find_node_from_desc(const void *fit, int node, const char *str)
@@ -340,7 +346,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 
 		if (!fit_image_get_entry(fit, node, &entry_point))
 			image_info->entry_point = entry_point;
-		else
+		else if (!image_info->entry_point)
 			image_info->entry_point = FDT_ERROR;
 	}
 
@@ -712,8 +718,18 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 *   - fall back 'kernel' (e.g. a Falcon-mode OS boot
 	 *   - fall back to using the first 'loadables' entry
 	 */
-	if (node < 0)
+	if (node < 0) {
 		node = spl_fit_get_image_node(&ctx, FIT_FIRMWARE_PROP, 0);
+
+		if (board_load_opensbi_to_ram_top()) {
+			/* For RISCV, the first image is OpenSBI,
+			 * if it is needed to move OpenSBI to the RAM top,
+			 * then set the load address and entry point to RAM top
+			 */
+			spl_image->load_addr = board_get_usable_ram_top(0);
+			spl_image->entry_point = spl_image->load_addr;
+		}
+	}
 
 	if (node < 0 && IS_ENABLED(CONFIG_SPL_OS_BOOT))
 		node = spl_fit_get_image_node(&ctx, FIT_KERNEL_PROP, 0);

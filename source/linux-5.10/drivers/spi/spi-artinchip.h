@@ -51,13 +51,19 @@
 #define TCR_BIT_DHB		BIT(8)
 #define TCR_BIT_DDB		BIT(9)
 #define TCR_BIT_RPSM		BIT(10)
-#define TCR_BIT_SDC		BIT(11)
+#define TCR_BIT_RXINDLY_EN      BIT(11)
 #define TCR_BIT_FBS		BIT(12)
+#define TCR_BIT_RXDLY_DIS       BIT(13)
 #define TCR_BIT_SDDM		BIT(14)
 #define TCR_BIT_3WIRE		BIT(25)
 #define TCR_BIT_XCH		BIT(31)
 #define TCR_BIT_SS_SEL_OFF	(4)
 #define TCR_BIT_SS_SEL_MSK	GENMASK(5, 4)
+
+#define TCR_RX_SAMPDLY_MSK      (TCR_BIT_RXINDLY_EN | TCR_BIT_RXDLY_DIS)
+#define TCR_RX_SAMPDLY_NONE     (TCR_BIT_RXDLY_DIS)
+#define TCR_RX_SAMPDLY_HALF     (0)
+#define TCR_RX_SAMPDLY_ONE      (TCR_BIT_RXINDLY_EN)
 
 /* SPI Interrupt Control Register Bit Fields & Masks */
 #define ICR_BIT_RX_RDY		BIT(0)

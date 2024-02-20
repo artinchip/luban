@@ -1,0 +1,5 @@
+menu "Example"
+
+source "$BR2_EXTERNAL_EXAMPLE_TREE_PATH/package/example_mod/Config.in"
+
+endmenu

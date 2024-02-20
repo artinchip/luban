@@ -103,7 +103,7 @@ CLOSE:
 	return err;
 }
 
-int obtain_block_dev(char *dev, int type)
+int obtain_block_dev(char *dev, int type, int usb_num)
 {
 	FILE *fp = NULL;
 	char line[256] = {0};
@@ -112,7 +112,7 @@ int obtain_block_dev(char *dev, int type)
 	int back_status = -1;
 	/*
 	 * ls /sys/class/block/
-	 * mmcblk0    mmcblk0p1  sda        sda1
+	 * mmcblk0    mmcblk0p1  sda        sda1    sdb        sdb1
 	 */
 	fp = popen("ls /sys/class/block/", "r");
 	if (fp == NULL) {
@@ -137,13 +137,22 @@ int obtain_block_dev(char *dev, int type)
 			goto CLOSE;
 		}
 	}  else if (type == USB_DEV) {
-		char *usb = strstr(device, "sda");
+		char *usb_blk = NULL;
+		char *usb_blk_num = NULL;
+		if (usb_num == 0) {
+			usb_blk = "sda";
+			usb_blk_num = "sda1";
+		} else if (usb_num == 1) {
+			usb_blk = "sdb";
+			usb_blk_num = "sdb1";
+		}
+		char *usb = strstr(device, usb_blk);
 		if (usb) {
-			char *partition = strstr(usb + 3, "sda1");
+			char *partition = strstr(usb + 3, usb_blk_num);
 			if (partition) {
-				snprintf(dev, strlen("dev/sda1") + 1, "dev/%s", partition);
+				snprintf(dev, strlen("dev/sdx1") + 1, "dev/%s", partition);
 			} else {
-				snprintf(dev, strlen("dev/sda") + 1, "dev/%s", usb);
+				snprintf(dev, strlen("dev/sdx") + 1, "dev/%s", usb);
 			}
 			back_status = 0;
 			goto CLOSE;
@@ -171,11 +180,12 @@ CLOSE:
 static void usage(char *app)
 {
 	printf("Usage: %s [Options], built on %s %s\n", app, __DATE__, __TIME__);
-	printf("\t-t, --type, select storage block device types, types can use usb or sdcard (default type is sdcard)\n");
-	printf("\t-c, --circle, loop test\n\n");
-
-	printf("\texample: test_blkdev -t sdcard -c\n");
+	printf("\t-t, --type,    select storage block device types, types can use usb or sdcard (default type is sdcard)\n");
+	printf("\t-c, --circle,  loop test\n");
+	printf("\t-n, --blk_num, block num, (default 0)\n");
 	printf("\t-u, --usage\n\n");
+
+	printf("\texample: test_blkdev -t sdcard -c -n 0\n");
 }
 
 int main(int argc, char **argv) {
@@ -195,11 +205,13 @@ int main(int argc, char **argv) {
 
 	int type = SDCARD_DEV;
 	int circle = 0;
-	const char sopts[] = "uct:";
+	int usb_num = 0;
+	const char sopts[] = "uct:n:";
 	static const struct option lopts[] = {
 		{"usage",   no_argument, 	NULL, 'u'},
 		{"circle",  no_argument, 	NULL, 'c'},
 		{"type",    required_argument,  NULL, 't'},
+		{"num",     required_argument,  NULL, 'n'},
 		{NULL, 0, 0, 0},
 	};
 
@@ -222,6 +234,9 @@ int main(int argc, char **argv) {
 			return 0;
 		case 'c':
 			circle = 1;
+			break;
+		case 'n':
+			usb_num = str2int(optarg);
 			break;
 		default:
 			printf("Invalid parameter: %#x\n", ret);
@@ -249,7 +264,7 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	ret = obtain_block_dev(dev_block, type);
+	ret = obtain_block_dev(dev_block, type, usb_num);
 	if (ret < 0) {
 		printf("can't find block dev, dev_block = %s\n", dev_block);
 		return 0;
@@ -334,10 +349,17 @@ int main(int argc, char **argv) {
 			}
 		}
 
+		long long failed_time = 0;
 		if (success_num == 9) {
 			printf("storage block dev test success\n");
+		} else {
+			failed_time++;
+			printf("storage block dev test failed, times = %lld\n", failed_time);
 		}
-
+		if (circle) {
+			usleep(100000);
+			success_num = 0;
+		}
 	} while (circle);
 
 	memset(command, 0, sizeof(command));

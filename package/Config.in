@@ -20,6 +20,9 @@ config BR2_BASE_DIR
 	string
 	option env="BASE_DIR"
 
+# br2-external paths definitions
+source "$BR2_BASE_DIR/.br2-external.in.paths"
+
 config BR2_DEFCONFIG_FROM_ENV
 	string
 	option env="BR2_DEFCONFIG"
@@ -376,6 +379,10 @@ source package/uboot/Config.in
 endmenu
 source package/linux/Config.in
 source package/artinchip/Config.in
+source package/vendor/Config.in
 source package/third-party/Config.in
 source package/third-party/Config.in.host
 source package/firmware/Config.in
+
+# br2-external menus definitions
+source "$BR2_BASE_DIR/.br2-external.in.menus"

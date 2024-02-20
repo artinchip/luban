@@ -177,7 +177,11 @@ int pm_dequeue_empty_packet(struct packet_manager *pm, struct mpp_packet *packet
 	pkt_impl->pos_offset = 0;
 
 	if (pm->write_offset >= pm->read_offset) {
-		if ((left_size - (int)size) >= 8) {
+		int reserve_space = 8;
+		if (pm->packet_count == 1) {//decode pic
+			reserve_space = 0;
+		}
+		if ((left_size - (int)size) >= reserve_space) {
 			// if left_size is enough to store this packet
 			// (careful, we must reserve 8 bytes, or read_bits maybe extend the buffer)
 			pm->write_offset += size;

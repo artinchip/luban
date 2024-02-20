@@ -1,0 +1,6 @@
+# Please replace the "EXAMPLE_MOD" and "example module" name to your package name
+
+config BR2_MOD_EXAMPLE_MOD
+	bool "example module"
+	default y
+

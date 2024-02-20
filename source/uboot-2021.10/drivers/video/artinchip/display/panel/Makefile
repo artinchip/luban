@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-obj-$(CONFIG_AIC_PANE_RGB_GENERAL) += panel_rgb_general.o
+obj-$(CONFIG_AIC_PANE_RGB_GENERAL)	+= panel_rgb_general.o
 obj-$(CONFIG_AIC_PANEL_LVDS_GENERAL)	+= panel_lvds_general.o
+obj-$(CONFIG_AIC_PANEL_DSI_SIMPLE)	+= panel_dsi_simple.o
 obj-$(CONFIG_AIC_PANEL_DSI_B080XAN)	+= panel_dsi_b080xan.o
 obj-$(CONFIG_AIC_PANEL_DSI_WUXGA_7IN)	+= panel_dsi_wuxga_7in.o
 obj-$(CONFIG_AIC_PANEL_DSI_HX8394_5IN)	+= panel_dsi_hx8394_5in.o

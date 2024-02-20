@@ -32,21 +32,21 @@ static struct sbi_imp implementations[] = {
 };
 
 static struct sbi_ext extensions[] = {
-	{ 0x00000000, "sbi_set_timer" },
-	{ 0x00000001, "sbi_console_putchar" },
-	{ 0x00000002, "sbi_console_getchar" },
-	{ 0x00000003, "sbi_clear_ipi" },
-	{ 0x00000004, "sbi_send_ipi" },
-	{ 0x00000005, "sbi_remote_fence_i" },
-	{ 0x00000006, "sbi_remote_sfence_vma" },
-	{ 0x00000007, "sbi_remote_sfence_vma_asid" },
-	{ 0x00000008, "sbi_shutdown" },
-	{ 0x00000010, "SBI Base Functionality" },
-	{ 0x54494D45, "Timer Extension" },
-	{ 0x00735049, "IPI Extension" },
-	{ 0x52464E43, "RFENCE Extension" },
-	{ 0x0048534D, "Hart State Management Extension" },
-	{ 0x53525354, "System Reset Extension" },
+	{ SBI_EXT_0_1_SET_TIMER,	      "Set Timer" },
+	{ SBI_EXT_0_1_CONSOLE_PUTCHAR,	      "Console Putchar" },
+	{ SBI_EXT_0_1_CONSOLE_GETCHAR,	      "Console Getchar" },
+	{ SBI_EXT_0_1_CLEAR_IPI,	      "Clear IPI" },
+	{ SBI_EXT_0_1_SEND_IPI,		      "Send IPI" },
+	{ SBI_EXT_0_1_REMOTE_FENCE_I,	      "Remote FENCE.I" },
+	{ SBI_EXT_0_1_REMOTE_SFENCE_VMA,      "Remote SFENCE.VMA" },
+	{ SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID, "Remote SFENCE.VMA with ASID" },
+	{ SBI_EXT_0_1_SHUTDOWN,		      "System Shutdown" },
+	{ SBI_EXT_BASE,			      "SBI Base Functionality" },
+	{ SBI_EXT_TIME,			      "Timer Extension" },
+	{ SBI_EXT_IPI,			      "IPI Extension" },
+	{ SBI_EXT_RFENCE,		      "RFENCE Extension" },
+	{ SBI_EXT_HSM,			      "Hart State Management Extension" },
+	{ SBI_EXT_SRST,			      "System Reset Extension" },
 	{ SBI_EXT_PMU,			      "Performance Monitoring Unit Extension" },
 	{ SBI_EXT_DBCN,			      "Debug Console Extension" },
 	{ SBI_EXT_SUSP,			      "System Suspend Extension" },
@@ -58,23 +58,58 @@ static struct sbi_ext extensions[] = {
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
-	int i;
+	int i, impl_id;
 	long ret;
+	long mvendorid, marchid, mimpid;
 
 	ret = sbi_get_spec_version();
-	if (ret >= 0)
-		printf("SBI %ld.%ld\n", ret >> 24, ret & 0xffffff);
-	ret = sbi_get_impl_id();
-	if (ret >= 0) {
+	if (ret < 0) {
+		printf("No SBI 0.2+\n");
+		return CMD_RET_FAILURE;
+	}
+	printf("SBI %ld.%ld", ret >> 24, ret & 0xffffff);
+	impl_id = sbi_get_impl_id();
+	if (impl_id >= 0) {
 		for (i = 0; i < ARRAY_SIZE(implementations); ++i) {
-			if (ret == implementations[i].id) {
-				printf("%s\n", implementations[i].name);
+			if (impl_id == implementations[i].id) {
+				long vers;
+
+				printf("\n%s ", implementations[i].name);
+				ret = sbi_get_impl_version(&vers);
+				if (ret < 0)
+					break;
+				switch (impl_id) {
+				case 1: /* OpenSBI */
+					printf("%ld.%ld",
+					       vers >> 16, vers & 0xffff);
+					break;
+				case 3: /* KVM */
+				case 4: /* RustSBI */
+					printf("%ld.%ld.%ld",
+					       vers >> 16,
+					       (vers >> 8) & 0xff,
+					       vers & 0xff);
+					break;
+				default:
+					printf("0x%lx", vers);
+					break;
+				}
 				break;
 			}
 		}
 		if (i == ARRAY_SIZE(implementations))
-			printf("Unknown implementation ID %ld\n", ret);
+			printf("Unknown implementation ID %ld", ret);
 	}
+	printf("\nMachine:\n");
+	ret = sbi_get_mvendorid(&mvendorid);
+	if (!ret)
+		printf("  Vendor ID %lx\n", mvendorid);
+	ret = sbi_get_marchid(&marchid);
+	if (!ret)
+		printf("  Architecture ID %lx\n", marchid);
+	ret = sbi_get_mimpid(&mimpid);
+	if (!ret)
+		printf("  Implementation ID %lx\n", mimpid);
 	printf("Extensions:\n");
 	for (i = 0; i < ARRAY_SIZE(extensions); ++i) {
 		ret = sbi_probe_extension(extensions[i].id);

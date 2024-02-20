@@ -18,7 +18,11 @@ menu "Third-party packages"
 	source package/third-party/udev/Config.in
 	source package/third-party/eudev/Config.in
 	source package/third-party/musl-compat-headers/Config.in
+	source package/third-party/gmp/Config.in
+	source package/third-party/gdb/Config.in
+	source package/third-party/binutils/Config.in
 	source package/third-party/sqlite/Config.in
+	source package/third-party/libatomic_ops/Config.in
 	comment "************************ Multimedia **************************"
 	source package/third-party/alsa-lib/Config.in
 	source package/third-party/alsa-utils/Config.in
@@ -43,6 +47,7 @@ menu "Third-party packages"
 	source package/third-party/faad2/Config.in
 	source package/third-party/lame/Config.in
 	source package/third-party/mpg123/Config.in
+	source package/third-party/libpjsip/Config.in
 	comment "************************ Network *****************************"
 	source package/third-party/can-utils/Config.in
 	source package/third-party/ethtool/Config.in
@@ -59,6 +64,7 @@ menu "Third-party packages"
 	comment "************************ Security ****************************"
 	source package/third-party/libselinux/Config.in
 	source package/third-party/libsepol/Config.in
+	source package/third-party/libsrtp/Config.in
 	source package/third-party/libkcapi/Config.in
 	source package/third-party/openssl/Config.in
 	source package/third-party/cryptsetup/Config.in

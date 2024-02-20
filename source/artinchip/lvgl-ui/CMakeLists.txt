@@ -6,6 +6,7 @@ project(lvgl-ui)
 # set app folder
 set(APP_FOLDER base_ui)
 #set(APP_FOLDER qc_test) # qc-test is only used for AIC chip testing
+#set(APP_FOLDER aic_demo)
 
 # set app out put name
 set(APP_OUT_NAME test_lvgl)
@@ -36,21 +37,24 @@ set(DRIVER_SOURCE_FILES
     ${LVGL_HAL}/lv_port_disp.c
 )
 
-# app base_ui source file
-if (APP_FOLDER STREQUAL base_ui)
-    file(GLOB APP_SOURCE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/${APP_FOLDER}/*.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/${APP_FOLDER}/font/*.c
+# obtain app source file
+if (NOT APP_FOLDER STREQUAL qc_test)
+    file(GLOB_RECURSE APP_SOURCE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/${APP_FOLDER}/*.c)
+
+    file(GLOB APP_SOURCE_FILES_MAIN
         ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+
+    string(APPEND ${APP_SOURCE_FILES} ${APP_SOURCE_FILES_MAIN})
 endif()
 
-# app qc_test source file
+# obtain qc_test source file  --> only used for AIC chip testing, please ignore
 if (APP_FOLDER STREQUAL qc_test)
     file(GLOB APP_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/${APP_FOLDER}/*.c)
 endif()
 
-set(APP_SOURCE_FILES ${APP_SOURCE_FILES} ${DRIVER_SOURCE_FILES})
+set(APP_SOURCE_FILES ${APP_SOURCE_FILES} ${APP_SOURCE_FILES_MAIN} ${DRIVER_SOURCE_FILES})
 
 # set include path
 set(INCLUDE_PATH
@@ -67,8 +71,19 @@ target_link_libraries(${APP_OUT_NAME} media_player)
 target_link_libraries(${APP_OUT_NAME} m)
 target_link_libraries(${APP_OUT_NAME} mpp_base mpp_ve mpp_ge mpp_decoder)
 
-if (APP_FOLDER STREQUAL qc_test)
+if (APP_FOLDER STREQUAL qc_test OR APP_FOLDER STREQUAL aic_demo)
     target_link_libraries(${APP_OUT_NAME} pthread)
+
+    # using screen mirroring
+    if (APP_FOLDER STREQUAL aic_demo)
+        #set(use_mirror "use_screen_mirror")
+        add_definitions(-DLV_USE_AIC_DEMO=1)
+    endif()
+
+    if(use_mirror STREQUAL "use_screen_mirror")
+        target_link_libraries(${APP_OUT_NAME} LinkSupport LinkUtils MSNUtils mpp_decoder asound)
+        add_definitions(-DUSE_MSNLINK)
+    endif()
 endif()
 
 # use freetype font
@@ -98,6 +113,6 @@ if(DEFINED CMAKE_INSTALL_FULL_BINDIR)
 endif() # CMAKE_INSTALL_FULL_BINDIR
 
 if(DEFINED CMAKE_INSTALL_FULL_DATAROOTDIR)
-    install(DIRECTORY ${APP_FOLDER}/asserts/
+    install(DIRECTORY ${APP_FOLDER}/assets/
         DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/lvgl_data)
 endif() # CMAKE_INSTALL_FULL_DATAROOTDIR

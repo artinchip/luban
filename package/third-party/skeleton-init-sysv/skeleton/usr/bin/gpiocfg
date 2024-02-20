@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ $# -ne 3 ]; then
+	echo Please input as follow:
+	echo "  $0 PhyAddress PinId Value"
+	exit 100
+fi
+
+GPIO_OUTPUT=`devmem $1 32`
+MASK=$((0x1 << $2))
+
+if [ $3 == 1 ]; then
+	VAL=$(($GPIO_OUTPUT | $MASK))
+else
+	VAL=$(($GPIO_OUTPUT & ~($MASK)))
+fi
+
+devmem $1 32 $VAL
+

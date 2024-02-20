@@ -26,6 +26,8 @@
 #include "artinchip_ce.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+static inline int aic_crypto_set_clock(struct udevice *dev, bool enable);
+
 struct aic_crypto_data {
 	u32 fifo_depth;
 	bool has_soft_reset;
@@ -54,6 +56,13 @@ struct aic_crypto_priv {
 static int aic_crypto_init(struct udevice *dev)
 {
 	struct aic_crypto_priv *priv = dev_get_priv(dev);
+	int ret = 0;
+
+	ret = aic_crypto_set_clock(dev, true);
+	if (ret) {
+		dev_err(dev, "failed to set clock\n");
+		return ret;
+	}
 
 	writel(0x7, CE_REG_ICR(priv));
 	/* Clear interrupt status  */
@@ -198,12 +207,24 @@ static int aic_crypto_probe(struct udevice *dev)
 	return ret;
 }
 
+static void aic_crypto_release(struct udevice *dev)
+{
+	struct aic_crypto_priv *priv = dev_get_priv(dev);
+
+	if (clk_valid(&priv->clk))
+		clk_disable(&priv->clk);
+
+	if (reset_valid(&priv->reset))
+		reset_assert(&priv->reset);
+}
+
 static const struct dm_crypto_ops aic_crypto_ops = {
 	.init   = aic_crypto_init,
 	.start	= aic_crypto_start,
 	.poll_finish   = aic_crypto_poll_finish,
 	.pending_clear = aic_crypto_pending_clear,
 	.get_err    = &aic_crypto_get_err,
+	.release = aic_crypto_release,
 };
 
 static const struct udevice_id aic_crypto_ids[] = {

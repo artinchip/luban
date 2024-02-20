@@ -15,19 +15,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define MTOP_VERSION "0.1"
-#define MTOP_DIR	"/sys/devices/platform/soc/184ff000.mtop/mtop"
 #define ENABLE 	1
 #define DISABLE 0
 
-struct NodeInfo {
+struct node_info {
 	int id;
 	char *name;
 	FILE *fp;
 	unsigned int count;
 };
 
-struct NodeCtrl {
+struct node_ctrl {
 	int id;
 	char *name;
 	FILE *fp;
@@ -38,9 +36,21 @@ enum mtop_ctrl {
 	MTOP_PERIOD,
 };
 
-const char *groupName[] = {"cpu", "dma", "de", "gvd", "ahb"};
+struct mtop_info {
+	char *version;
+	const char **group_name;
+	struct node_info *node_info_aic;
+	int node_num;
+};
 
-struct NodeInfo nodeInfo_aic[] = {
+const char *group_name_v10[] = {"cpu", "dma", "de", "gvd", "ahb"};
+
+const char *group_name_v13[] = {"cpu", \
+			"usb", "gmac", "sdmc0", "sdmc1", "qspi", "usb_h0", "usb_h1", \
+			"dvp", "de", "dma0", "dma1", "dma2", \
+			"img", "print", "scan", "ahb"};
+
+struct node_info node_info_aic_v10[] = {
 	{ 1, "cpu_rd", NULL, 0 },
 	{ 2, "cpu_wr", NULL, 0 },
 	{ 3, "dma_rd", NULL, 0 },
@@ -53,16 +63,57 @@ struct NodeInfo nodeInfo_aic[] = {
 	{ 10, "ahb_wr", NULL, 0 },
 };
 
-struct NodeCtrl nodeCtrl_aic[] = {
+struct node_info node_info_aic_v13[] = {
+	{ 1, "cpu_rd", NULL, 0 },
+	{ 2, "cpu_wr", NULL, 0 },
+	{ 3, "axi1_rd", NULL, 0 },
+	{ 4, "axi1_wr", NULL, 0 },
+	{ 5, "dvp_rd", NULL, 0 },
+	{ 6 , "dvp_wr", NULL, 0 },
+	{ 7, "de_rd", NULL, 0 },
+	{ 8, "de_wr", NULL, 0 },
+	{ 9, "dma0_rd", NULL, 0 },
+	{ 10, "dma0_wr", NULL, 0 },
+	{ 11, "dma1_rd", NULL, 0 },
+	{ 12, "dma1_wr", NULL, 0 },
+	{ 13, "dma2_rd", NULL, 0 },
+	{ 14, "dma2_wr", NULL, 0 },
+	{ 15, "img_rd", NULL, 0 },
+	{ 16, "img_wr", NULL, 0 },
+	{ 17, "print_rd", NULL, 0 },
+	{ 18, "print_wr", NULL, 0 },
+	{ 19, "scan_rd", NULL, 0 },
+	{ 20, "scan_wr", NULL, 0 },
+	{ 21, "ahb_rd", NULL, 0 },
+	{ 22, "ahb_wr", NULL, 0 },
+};
+
+struct node_ctrl node_ctrl_aic[] = {
 	{ 0, "enable", NULL },
 	{ 1, "set_period", NULL },
 };
 
-int nodeInfoCnt;
+static struct mtop_info mtop_data[] = {
+	{ .version = "0.0",
+	  .node_num = 10,
+	  .group_name = group_name_v10,
+	  .node_info_aic = node_info_aic_v10,},
+	{ .version = "3.0",
+	  .node_num = 22,
+	  .group_name = group_name_v13,
+	  .node_info_aic = node_info_aic_v13, },
+	{},
+};
+
+static struct mtop_info *mtop = NULL;
+char mtop_dir[128];
+int node_info_cnt;
 int delay = 1;
 int iter;
 char output_fn[256];
 FILE *output_fp = NULL;
+
+
 char path_prefix[128];
 unsigned int ddr_bw;
 
@@ -81,36 +132,86 @@ static void usage(char *program)
 static void version(void)
 {
 	printf("\n");
-	printf("mtop version: %s\n", MTOP_VERSION);
+	printf("mtop version: %s\n", mtop->version);
 	printf("\n");
+}
+
+static int get_version_data()
+{
+	int ret = -1;
+	FILE *file;
+	char buffer[16] = " ";
+	char path[64] = "ln -sf /sys/devices/platform/soc/*.mtop/mtop";
+
+	system(path);
+	chdir("/mtop");
+	getcwd(path, 64);
+
+	snprintf(mtop_dir, sizeof(mtop_dir), "%s/%s", path, "version");
+
+	file = fopen(mtop_dir, "r");
+	if (!file) {
+		fprintf(stderr, "Failed to open %s errno: %d[%s]\n",
+			mtop_dir, errno, strerror(errno));
+		return -1;
+	}
+
+	ret = fread(buffer, sizeof(char), 16, file);
+	if (ret <= 0) {
+		fprintf(stderr, "fread() return %d, errno: %d[%s]\n",
+			ret, errno, strerror(errno));
+		fclose(file);
+		return -1;
+	}
+	fclose(file);
+
+	for (int i = 0; i < 2; i++) {
+		if (strlen(mtop_data[i].version) != (strlen(buffer) - 1))
+			continue;
+		ret = strncmp(mtop_data[i].version, buffer,
+				strlen(mtop_data[i].version));
+		if (ret == 0) {
+			mtop = &mtop_data[i];
+			node_info_cnt = mtop->node_num;
+			break;
+		}
+	}
+
+	if (ret == -1) {
+		printf("Error! no version !");
+		return -1;
+	}
+	snprintf(mtop_dir, sizeof(mtop_dir), path);
+	return 0;
 }
 
 static int mtop_read(void)
 {
 	int i;
 	char path[256];
+	struct node_info *node_info_aic = mtop->node_info_aic;
 
-	for (i = 0; i < nodeInfoCnt; i++) {
+	for (i = 0; i < node_info_cnt; i++) {
 		snprintf(path, sizeof(path), "%s/%s", path_prefix,
-			 nodeInfo_aic[i].name);
-		nodeInfo_aic[i].fp = fopen(path, "r");
-		if (NULL == nodeInfo_aic[i].fp) {
+			 node_info_aic[i].name);
+		node_info_aic[i].fp = fopen(path, "r");
+		if (NULL == node_info_aic[i].fp) {
 			fprintf(stderr, "Could not open file %s: %s\n",
 				path, strerror(errno));
 			goto open_error;
 		}
 
-		fscanf(nodeInfo_aic[i].fp, "%u", &nodeInfo_aic[i].count);
-		fclose(nodeInfo_aic[i].fp);
-		nodeInfo_aic[i].fp = NULL;
+		fscanf(node_info_aic[i].fp, "%u", &node_info_aic[i].count);
+		fclose(node_info_aic[i].fp);
+		node_info_aic[i].fp = NULL;
 	}
 	return 0;
 
 open_error:
-	for (i = 0; i < nodeInfoCnt; i++) {
-		if (nodeInfo_aic[i].fp) {
-			fclose(nodeInfo_aic[i].fp);
-			nodeInfo_aic[i].fp = NULL;
+	for (i = 0; i < node_info_cnt; i++) {
+		if (node_info_aic[i].fp) {
+			fclose(node_info_aic[i].fp);
+			node_info_aic[i].fp = NULL;
 		}
 	}
 	return -1;
@@ -119,9 +220,11 @@ open_error:
 static void mtop_update(void)
 {
 	int i;
+	const char **group_name = mtop->group_name;
+	struct node_info *node_info_aic = mtop->node_info_aic;
 
-	for (i = 0; i < nodeInfoCnt; i++)
-		nodeInfo_aic[i].count /= delay;
+	for (i = 0; i < node_info_cnt; i++)
+		node_info_aic[i].count /= delay;
 
 	/* save the cursor position */
 	printf("\033[s");
@@ -129,15 +232,15 @@ static void mtop_update(void)
 	printf("\033[K");
 	fprintf(output_fp, "\n\n%12s %16s %16s %16s %16s\n", "name",
 		"read", "write", "total", "%percent");
-	for (i = 0; i < nodeInfoCnt; i += 2) {
+	for (i = 0; i < node_info_cnt; i += 2) {
 		fprintf(output_fp, "%12s %12.2fMB/s %12.2fMB/s %12.2fMB/s %12.2f\n",
-			groupName[i / 2],
-			(float)nodeInfo_aic[i].count / 1000000,
-			(float)nodeInfo_aic[i + 1].count / 1000000,
-			(float)(nodeInfo_aic[i].count +
-			nodeInfo_aic[i + 1].count) /1000000,
-			(float)(nodeInfo_aic[i].count +
-			nodeInfo_aic[i + 1].count) / 1000000 / ddr_bw * 100);
+			group_name[i / 2],
+			(float)node_info_aic[i].count / 1000000,
+			(float)node_info_aic[i + 1].count / 1000000,
+			(float)(node_info_aic[i].count +
+			node_info_aic[i + 1].count) /1000000,
+			(float)(node_info_aic[i].count +
+			node_info_aic[i + 1].count) / 1000000 / ddr_bw * 100);
 	}
 	fprintf(output_fp, "\n");
 	/* restore cursor position */
@@ -161,20 +264,20 @@ static void mtop_ctrl(int val, enum mtop_ctrl ctrl_type)
 
 	snprintf(buf, sizeof(buf), "%d", val);
 
-	snprintf(path, sizeof(path), "%s/%s", MTOP_DIR,
-		 nodeCtrl_aic[ctrl_type].name);
-	nodeCtrl_aic[ctrl_type].fp = fopen(path, "w");
-	if (NULL == nodeCtrl_aic[ctrl_type].fp) {
+	snprintf(path, sizeof(path), "%s/%s", mtop_dir,
+		 node_ctrl_aic[ctrl_type].name);
+	node_ctrl_aic[ctrl_type].fp = fopen(path, "w");
+	if (NULL == node_ctrl_aic[ctrl_type].fp) {
 		fprintf(stderr, "Could not open file %s: %s\n",
 			path, strerror(errno));
 		return;
 	}
 
 	fwrite(buf, sizeof(buf[0]), sizeof(buf) / sizeof(buf[0]),
-	       nodeCtrl_aic[ctrl_type].fp);
-	fflush(nodeCtrl_aic[ctrl_type].fp);
-	fclose(nodeCtrl_aic[ctrl_type].fp);
-	nodeCtrl_aic[ctrl_type].fp = NULL;
+	       node_ctrl_aic[ctrl_type].fp);
+	fflush(node_ctrl_aic[ctrl_type].fp);
+	fclose(node_ctrl_aic[ctrl_type].fp);
+	node_ctrl_aic[ctrl_type].fp = NULL;
 }
 
 static void mtop_switch(int sw)
@@ -201,6 +304,8 @@ static void mtop_set_period(int sec)
 static void sigterm(int signo)
 {
 	int i;
+	struct node_info *node_info_aic = mtop->node_info_aic;
+
 	/* Disable MTOP */
 	mtop_switch(DISABLE);
 	/* Default period setting is 1 seconds */
@@ -210,9 +315,9 @@ static void sigterm(int signo)
 		printf("\033[9B");
 	/* Display the cursor */
 	printf("\033[?25h");
-	for (i = 0; i < nodeInfoCnt; i++)
-		if (nodeInfo_aic[i].fp)
-			fclose(nodeInfo_aic[i].fp);
+	for (i = 0; i < node_info_cnt; i++)
+		if (node_info_aic[i].fp)
+			fclose(node_info_aic[i].fp);
 
 	if (output_fp)
 		fclose(output_fp);
@@ -243,9 +348,14 @@ int main(int argc, char *argv[])
 	int opt, ret;
 	extern int optind, opterr, optopt;
 	extern char *optarg;
-	/* nodeInfo_aic[6] is to set period, so node index is from 1 to 5*/
-	nodeInfoCnt = sizeof(nodeInfo_aic) / sizeof(nodeInfo_aic[0]);
-	strncpy(path_prefix, MTOP_DIR, sizeof(path_prefix));
+
+	ret = get_version_data();
+	if (ret) {
+		printf("Can't get mtop version data\n");
+		return -1;
+	}
+	/* node_info_aic[6] is to set period, so node index is from 1 to 5*/
+	strncpy(path_prefix, mtop_dir, sizeof(path_prefix));
 
 	memset(output_fn, 0, sizeof(output_fn));
 	output_fp = stdout;
@@ -310,14 +420,13 @@ int main(int argc, char *argv[])
 
 	if (!output_fn[0])
 		system("clear");
-	fprintf(output_fp, "mtop version: %s\n", MTOP_VERSION);
+	fprintf(output_fp, "mtop version: %s\n", mtop->version);
 	fprintf(output_fp, "mtop is used to show DDR bandwidth.\n");
 	fprintf(output_fp, "DDR total band width: %uMB/s\n", ddr_bw);
 	if (output_fn[0])
 		fprintf(output_fp, "output: %s\n", output_fn);
 	/* Hide the cursor */
 	printf("\033[?25l");
-
 	while (iter == -1 || iter-- > 0) {
 		mtop_read();
 		mtop_update();

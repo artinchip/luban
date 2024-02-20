@@ -17,7 +17,12 @@
 #include "clk-aic.h"
 #include "ctype.h"
 
+
+#define CLK_NAME(name) { name, #name }
+
 #if CONFIG_IS_ENABLED(CMD_CLK)
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V1_0
+#include <dt-bindings/clock/artinchip,aic-cmu.h>
 struct aic_clks aic_clk_names[] = {
 	/* Fixed rate clock */
 	{ CLK_DUMMY,    "CLK_DUMMY" },
@@ -104,8 +109,75 @@ struct aic_clks aic_clk_names[] = {
 	{ CLK_OUT1,     "CLK_OUT1" },
 	{ CLK_OUT2,     "CLK_OUT2" },
 	{ CLK_OUT3,     "CLK_OUT3" },
-	{ AIC_CLK_END,  "AIC_CLK_END" },
 };
+#endif /* CLK_ARTINCHIP_V1_0 */
+
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V1_3
+#include <dt-bindings/clock/artinchip,aic-cmu-v13.h>
+struct aic_clks aic_clk_names[] = {
+	/* Fixed rate clock */
+	CLK_NAME(CLK_24M),
+	CLK_NAME(CLK_32K),
+	CLK_NAME(CLK_AXI_AHB),
+	/* PLL clock */
+	CLK_NAME(CLK_PLL_FRA0),
+	CLK_NAME(CLK_PLL_FRA1),
+	CLK_NAME(CLK_PLL_FRA2),
+	CLK_NAME(CLK_PLL_FRA3),
+	CLK_NAME(CLK_PLL_FRA4),
+	CLK_NAME(CLK_PLL_FRA5),
+	CLK_NAME(CLK_PLL_FRA6),
+	CLK_NAME(CLK_PLL_FRA7),
+	/* system clock */
+	CLK_NAME(CLK_CORE_CPU),
+	CLK_NAME(CLK_APB0),
+	CLK_NAME(CLK_APB2),
+	/* Peripheral clock */
+	CLK_NAME(CLK_SYSCFG),
+	CLK_NAME(CLK_DMA0),
+	CLK_NAME(CLK_CORE_WDOG),
+	CLK_NAME(CLK_USBH0),
+	CLK_NAME(CLK_USBH1),
+	CLK_NAME(CLK_USB_PHY0),
+	CLK_NAME(CLK_USB_PHY1),
+	CLK_NAME(CLK_SPI0),
+	CLK_NAME(CLK_SPI1),
+	CLK_NAME(CLK_SPI2),
+	CLK_NAME(CLK_SPI3),
+	CLK_NAME(CLK_SPI4),
+	CLK_NAME(CLK_SDMC0),
+	CLK_NAME(CLK_SDMC1),
+	CLK_NAME(CLK_SPIENC),
+	CLK_NAME(CLK_I2S0),
+	CLK_NAME(CLK_AUDIO),
+	CLK_NAME(CLK_UART0),
+	CLK_NAME(CLK_UART1),
+	CLK_NAME(CLK_UART2),
+	CLK_NAME(CLK_UART3),
+	CLK_NAME(CLK_UART4),
+	CLK_NAME(CLK_UART5),
+	CLK_NAME(CLK_LCD),
+	CLK_NAME(CLK_LVDS),
+	CLK_NAME(CLK_DE),
+	CLK_NAME(CLK_SID),
+	CLK_NAME(CLK_I2C0),
+	CLK_NAME(CLK_I2C1),
+	CLK_NAME(CLK_I2C2),
+	CLK_NAME(CLK_I2C3),
+	CLK_NAME(CLK_I2C4),
+	CLK_NAME(CLK_ADCIM),
+	CLK_NAME(CLK_GPAI),
+	CLK_NAME(CLK_THS),
+	/* Display clock */
+	CLK_NAME(CLK_PIX),
+	CLK_NAME(CLK_SCLK),
+	/* Output clock */
+	CLK_NAME(CLK_OUT0),
+	CLK_NAME(CLK_OUT1),
+	CLK_NAME(CLK_OUT2),
+	CLK_NAME(CLK_OUT3),
+};
+#endif	/*CLK_ARTINCHIP_V1_3*/
 
 #define GET_NUM 4
 
@@ -126,23 +198,39 @@ int soc_clk_dump(void)
 
 	printf("------------------------------------\n");
 	printf("Clk-ID\t|      NAME      |    Hz\n");
-	for (i = 0; i < AIC_CLK_END; i++) {
+	for (i = 0; i < sizeof(aic_clk_names) / sizeof(aic_clk_names[0]); i++) {
 		clk.id = aic_clk_names[i].id;
 		clk.dev = dev;
 
 		rate = clk_get_rate(&clk);
-		printf("  %u\t  %-14s   %lu\n", i, aic_clk_names[i].name, rate);
+		printf("  %lu\t  %-14s   %lu\n", clk.id, aic_clk_names[i].name, rate);
 	}
 	printf("\n------------------------------------\n");
 	return 0;
 }
 
+static int aic_clk_get(ulong *ch)
+{
+	int m;
+	for (m = 0; m < sizeof(aic_clk_names) / sizeof(aic_clk_names[0]); m++) {
+		if (*ch == aic_clk_names[m].id) {
+			*ch = m;
+			return m;
+		}
+
+	}
+	return -1;
+}
+
+
 static int aic_clk_dump_mux(u32 clk_start, u32 clk_cnt)
 {
 	struct udevice *dev;
 	struct clk clk;
+	ulong index = clk_start;
 	ulong rate;
-	int i, ret;
+	int i = 0;
+	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
 				DM_DRIVER_GET(artinchip_cmu), &dev);
@@ -151,12 +239,17 @@ static int aic_clk_dump_mux(u32 clk_start, u32 clk_cnt)
 
 	printf("------------------------------------\n");
 	printf("Clk-ID\t|      NAME      |    Hz\n");
-	for (i = clk_start; i < (clk_start + clk_cnt); i++) {
-		clk.id = aic_clk_names[i].id;
+
+	aic_clk_get(&index);
+
+	for (i = 0; i < clk_cnt; i++) {
+		clk.id = aic_clk_names[index + i].id;
 		clk.dev = dev;
 		rate = clk_get_rate(&clk);
-		printf("  %u\t  %-14s   %lu\n", i, aic_clk_names[i].name, rate);
+		printf("  %lu\t  %-14s   %lu\n", aic_clk_names[index + i].id,
+			aic_clk_names[index + i].name, rate);
 	}
+
 	printf("\n------------------------------------\n");
 	printf("0: Fixed rate clock     1: PLL clock         2: System clock\n");
 	printf("3: Peripheral clock     4: Display clock     5: Output clock\n");
@@ -174,7 +267,7 @@ static int do_aic_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong ch;
 
 	if (argc < 2) {
-		ret = aic_clk_dump_mux(0, AIC_CLK_END);
+		ret = aic_clk_dump_mux(0, sizeof(aic_clk_names) / sizeof(aic_clk_names[0]));
 		return 0;
 	}
 
@@ -214,7 +307,7 @@ static int do_aic_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 		aic_clk_dump_mux(tree->clkout_base, tree->clkout_cnt);
 		break;
 	default:
-		ret = aic_clk_dump_mux(0, AIC_CLK_END);
+		ret = aic_clk_dump_mux(0, sizeof(aic_clk_names) / sizeof(aic_clk_names[0]));
 		break;
 	}
 
@@ -226,14 +319,61 @@ static int do_aic_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int aic_clk_get_byid(struct udevice *dev, ulong id)
+{
+	struct clk clk;
+	ulong ch = id;
+	ulong rate;
+	int ret;
+
+	if (ch >= AIC_CLK_END)
+		return -1;
+
+	ret = aic_clk_get(&ch);
+	if (ret < 0) {
+		printf("u-boot does not support controlling "
+			"clock with id: %ld !\n", id);
+		return -1;
+	}
+
+	clk.id = aic_clk_names[ch].id;
+	clk.dev = dev;
+	rate = clk_get_rate(&clk);
+	printf("  %lu\t  %-14s   %lu\n", aic_clk_names[ch].id,
+		aic_clk_names[ch].name, rate);
+
+	return 0;
+}
+
+
+static int aic_clk_get_byname(struct udevice *dev, char *name)
+{
+	struct aic_clks aic_clks;
+	struct clk clk;
+	ulong rate;
+	int i, ret;
+
+	for (i = 0; i < sizeof(aic_clk_names) / sizeof(aic_clk_names[0]); i++) {
+		aic_clks.name = aic_clk_names[i].name;
+		aic_clks.name += 4;
+		ret = strncmp(aic_clks.name, name, strlen(name));
+		if (ret == 0) {
+			clk.id = aic_clk_names[i].id;
+			clk.dev = dev;
+			rate = clk_get_rate(&clk);
+			printf("  %lu\t  %-14s   %lu\n", aic_clk_names[i].id,
+				aic_clk_names[i].name, rate);
+		}
+	}
+	return 0;
+}
+
 static int do_aic_clk_get(struct cmd_tbl *cmdtp, int falg, int argc,
 		char *const argv[])
 {
 	struct udevice *dev;
-	struct aic_clks aic_clks;
-	struct clk clk;
-	int ret, i, j;
-	ulong rate, ch;
+	int ret, j;
+	ulong ch;
 
 	if (argc < 2) {
 		printf("please input [module name] or [clk id]. such:SPI SPI0 ...\n");
@@ -253,26 +393,11 @@ static int do_aic_clk_get(struct cmd_tbl *cmdtp, int falg, int argc,
 	for (j = 1; j < argc; j++) {
 		if (isalpha(argv[j][0]) == 0) {
 			ch = dectoul(argv[j], NULL);
-			if (ch >= AIC_CLK_END)
+			ret = aic_clk_get_byid(dev, ch);
+			if (ret < 0)
 				break;
-			clk.id = aic_clk_names[ch].id;
-			clk.dev = dev;
-			rate = clk_get_rate(&clk);
-			printf("  %lu\t  %-14s   %lu\n", aic_clk_names[ch].id,
-					aic_clk_names[ch].name, rate);
 		} else {
-			for (i = 0; i < AIC_CLK_END; i++) {
-				aic_clks.name = aic_clk_names[i].name;
-				aic_clks.name += 4;
-				ret = strncmp(aic_clks.name, argv[j], strlen(argv[j]));
-				if (ret == 0) {
-					clk.id = aic_clk_names[i].id;
-					clk.dev = dev;
-					rate = clk_get_rate(&clk);
-					printf("  %lu\t  %-14s   %lu\n", aic_clk_names[i].id,
-							aic_clk_names[i].name, rate);
-					}
-			}
+			aic_clk_get_byname(dev, argv[j]);
 		}
 	}
 
@@ -302,6 +427,7 @@ static int do_aic_clk_set(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("------------------------------------\n");
 	clk.id = index;
 	clk.dev = dev;
+	aic_clk_get(&index);
 	pre_freq = clk_get_rate(&clk);
 	ret = clk_set_rate(&clk, freq);
 	if (ret == 0)

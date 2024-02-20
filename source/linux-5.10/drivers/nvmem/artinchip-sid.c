@@ -19,6 +19,7 @@
 #define SID_REG_ADDR	(0x0004)
 #define SID_REG_WDATA	(0x0008)
 #define SID_REG_RDATA	(0x000C)
+#define SID_REG_TIMING	(0x0010)
 #define SID_REG_SRAM	(0x200)
 
 #define SID_STATUS_OFS	(8)
@@ -74,6 +75,7 @@ static int aic_sid_read(void *context, unsigned int offset, void *data,
 static int aic_sid_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
 	struct resource *res;
 	struct nvmem_config *nvmem_cfg;
 	struct nvmem_device *nvmem;
@@ -81,6 +83,7 @@ static int aic_sid_probe(struct platform_device *pdev)
 	struct clk *clk;
 	struct reset_control *rstc;
 	int ret;
+	u32 timing = 0;
 
 	sid = devm_kzalloc(dev, sizeof(*sid), GFP_KERNEL);
 	if (!sid)
@@ -132,6 +135,12 @@ static int aic_sid_probe(struct platform_device *pdev)
 		return PTR_ERR(nvmem);
 
 	platform_set_drvdata(pdev, nvmem);
+
+	if (of_property_read_u32(np, "aic,timing", &timing)) {
+		dev_info(dev, "Can't parse timing value\n");
+	} else {
+		writel(timing, sid->base + SID_REG_TIMING);
+	}
 
 	return PTR_ERR_OR_ZERO(nvmem);
 }

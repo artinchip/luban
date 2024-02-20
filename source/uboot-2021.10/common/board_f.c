@@ -800,11 +800,6 @@ __weak int reserve_arch(void)
 	return 0;
 }
 
-__weak int arch_cpu_init_dm(void)
-{
-	return 0;
-}
-
 __weak int checkcpu(void)
 {
 	return 0;
@@ -813,6 +808,11 @@ __weak int checkcpu(void)
 __weak int clear_bss(void)
 {
 	return 0;
+}
+
+static int misc_init_f(void)
+{
+	return event_notify_null(EVT_MISC_INIT_F);
 }
 
 static const init_fnc_t init_sequence_f[] = {
@@ -840,7 +840,6 @@ static const init_fnc_t init_sequence_f[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
-	arch_cpu_init_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
@@ -874,9 +873,7 @@ static const init_fnc_t init_sequence_f[] = {
 	show_board_info,
 #endif
 	INIT_FUNC_WATCHDOG_INIT
-#if defined(CONFIG_MISC_INIT_F)
 	misc_init_f,
-#endif
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_SYS_I2C_LEGACY)
 	init_func_i2c,

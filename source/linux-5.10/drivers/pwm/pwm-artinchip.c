@@ -106,6 +106,7 @@ enum aic_pwm_int_event {
 #define PWM_AQCTL_MASK			0x3
 #define PWM_ETSEL_INTEN			BIT(3)
 #define PWM_ETSEL_INTSEL_SHIFT		0
+#define PWM_SHADOW_SEL_ZRQ_PRD		0xa
 
 struct aic_pwm_action {
 	enum aic_pwm_action_type CBD;
@@ -691,6 +692,7 @@ static int aic_pwm_parse_dt(struct device *dev)
 		}
 		dev_dbg(dev, "ch%d is available\n", i);
 		pwm_reg_enable(apwm->regs, PWM_CKCTL, PWM_CKCTL_PWM_ON(i), 1);
+		writel(PWM_SHADOW_SEL_ZRQ_PRD, apwm->regs + PWM_CMPCTL(i));
 
 		ret = of_property_read_u32(child, "aic,tb-clk-rate",
 					   (u32 *)&arg->tb_clk_rate);

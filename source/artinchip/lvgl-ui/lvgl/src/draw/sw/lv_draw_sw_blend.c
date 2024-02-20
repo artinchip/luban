@@ -25,10 +25,10 @@
 
 static void fill_set_px(lv_color_t * dest_buf, const lv_area_t * blend_area, lv_coord_t dest_stride,
                         lv_color_t color, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stide);
-
+#if LV_COLOR_SCREEN_TRANSP == 0
 LV_ATTRIBUTE_FAST_MEM static void fill_normal(lv_color_t * dest_buf, const lv_area_t * dest_area,
                                               lv_coord_t dest_stride, lv_color_t color, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stride);
-
+#endif
 
 #if LV_COLOR_SCREEN_TRANSP
 LV_ATTRIBUTE_FAST_MEM static void fill_argb(lv_color_t * dest_buf, const lv_area_t * dest_area,
@@ -43,8 +43,10 @@ static void fill_blended(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_
 static void map_set_px(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_coord_t dest_stride,
                        const lv_color_t * src_buf, lv_coord_t src_stride, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stride);
 
+#if LV_COLOR_SCREEN_TRANSP == 0
 LV_ATTRIBUTE_FAST_MEM static void map_normal(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_coord_t dest_stride,
                                              const lv_color_t * src_buf, lv_coord_t src_stride, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stride);
+#endif
 
 #if LV_COLOR_SCREEN_TRANSP
 LV_ATTRIBUTE_FAST_MEM static void map_argb(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_coord_t dest_stride,
@@ -171,12 +173,21 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_blend_basic(lv_draw_ctx_t * draw_ctx, cons
     }
 #endif
     else if(dsc->blend_mode == LV_BLEND_MODE_NORMAL) {
+#if LV_COLOR_SCREEN_TRANSP
+        if(dsc->src_buf == NULL) {
+            fill_argb(dest_buf, &blend_area, dest_stride, dsc->color, dsc->opa, mask, mask_stride);
+        }
+        else {
+            map_argb(dest_buf, &blend_area, dest_stride, src_buf, src_stride, dsc->opa, mask, mask_stride, dsc->blend_mode);
+        }
+#else
         if(dsc->src_buf == NULL) {
             fill_normal(dest_buf, &blend_area, dest_stride, dsc->color, dsc->opa, mask, mask_stride);
         }
         else {
             map_normal(dest_buf, &blend_area, dest_stride, src_buf, src_stride, dsc->opa, mask, mask_stride);
         }
+#endif
     }
     else {
 #if LV_DRAW_COMPLEX
@@ -228,6 +239,7 @@ static void fill_set_px(lv_color_t * dest_buf, const lv_area_t * blend_area, lv_
     }
 }
 
+#if LV_COLOR_SCREEN_TRANSP == 0
 LV_ATTRIBUTE_FAST_MEM static void fill_normal(lv_color_t * dest_buf, const lv_area_t * dest_area,
                                               lv_coord_t dest_stride, lv_color_t color, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stride)
 {
@@ -361,6 +373,7 @@ LV_ATTRIBUTE_FAST_MEM static void fill_normal(lv_color_t * dest_buf, const lv_ar
         }
     }
 }
+#endif
 
 #if LV_COLOR_SCREEN_TRANSP
 static inline void set_px_argb(uint8_t * buf, lv_color_t color, lv_opa_t opa)
@@ -624,6 +637,7 @@ static void map_set_px(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_co
     }
 }
 
+#if LV_COLOR_SCREEN_TRANSP == 0
 LV_ATTRIBUTE_FAST_MEM static void map_normal(lv_color_t * dest_buf, const lv_area_t * dest_area, lv_coord_t dest_stride,
                                              const lv_color_t * src_buf, lv_coord_t src_stride, lv_opa_t opa, const lv_opa_t * mask, lv_coord_t mask_stride)
 
@@ -716,7 +730,7 @@ LV_ATTRIBUTE_FAST_MEM static void map_normal(lv_color_t * dest_buf, const lv_are
         }
     }
 }
-
+#endif
 
 
 #if LV_COLOR_SCREEN_TRANSP

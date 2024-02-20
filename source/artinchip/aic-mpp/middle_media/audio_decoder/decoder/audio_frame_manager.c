@@ -52,21 +52,21 @@ struct audio_frame_manager *audio_fm_create(struct audio_frame_manager_cfg *cfg)
 	struct audio_frame_impl *frame_impl;
 	int i;
 	logi("create frame manager");
-	if (!init_cfg || init_cfg->samples_per_frame <= 0){
+	if (!init_cfg || init_cfg->samples_per_frame <= 0) {
 		loge("para error!!!\n");
 		return NULL;
 	}
 
 	fm = (struct audio_frame_manager *)mpp_alloc(sizeof(struct audio_frame_manager));
-	if (!fm){
+	if (!fm) {
 		loge("mpp_alloc audio_frame_manager error!!!\n");
 		return NULL;
 	}
-	if(init_cfg->frame_count <= 0){
+	if (init_cfg->frame_count <= 0) {
 		init_cfg->frame_count = 16;
-	}else if(init_cfg->frame_count < MAX_FRAME_COUNT){
+	} else if (init_cfg->frame_count < MAX_FRAME_COUNT) {
 
-	}else{
+	} else {
 		init_cfg->frame_count = MAX_FRAME_COUNT;
 	}
 	fm->empty_num = init_cfg->frame_count;
@@ -93,7 +93,7 @@ struct audio_frame_manager *audio_fm_create(struct audio_frame_manager_cfg *cfg)
 		frame_impl->samples_per_frame = init_cfg->samples_per_frame;
 		frame_impl->frame.size = frame_impl->bits_per_sample * init_cfg->samples_per_frame/8;
 		frame_impl->frame.data = mpp_alloc(frame_impl->frame.size);
-		if(frame_impl->frame.data == NULL){
+		if (frame_impl->frame.data == NULL) {
 			loge("mpp_alloc frame_impl error,%d!!\n",i);
 		}
 		frame_impl++;
@@ -158,9 +158,9 @@ int audio_fm_destroy(struct audio_frame_manager *fm)
 	pthread_mutex_destroy(&fm->lock);
 
 	frame = fm->frame_node;
-	if(frame != NULL){
+	if (frame != NULL) {
 		for (i = 0; i < fm->frame_count; i++) {
-			if(frame->frame.data != NULL){
+			if (frame->frame.data != NULL) {
 				mpp_free(frame->frame.data);
 				frame->frame.data = NULL;
 			}
@@ -204,27 +204,27 @@ int audio_fm_decoder_put_frame(struct audio_frame_manager *fm, struct aic_audio_
 	struct audio_frame_impl *frm_impl = (struct audio_frame_impl *)frame;
 	int match = 0;
 
-	if (!fm || !frm_impl){
+	if (!fm || !frm_impl) {
 		loge("para error:fm or frame!\n");
 		return -1;
 	}
 
 	pthread_mutex_lock(&fm->lock);
-	if(!mpp_list_empty(&fm->using_list)){
+	if (!mpp_list_empty(&fm->using_list)) {
 		struct audio_frame_impl *frm=NULL,*frm1=NULL;
-		mpp_list_for_each_entry_safe(frm, frm1, &fm->using_list, list){
-			if(frm_impl == frm){
+		mpp_list_for_each_entry_safe(frm, frm1, &fm->using_list, list) {
+			if (frm_impl == frm) {
 				match = 1;
 				break;
 			}
 		}
-	}else{
+	} else {
 		pthread_mutex_unlock(&fm->lock);
 		loge("frame addr not match!\n");
 		return -1;
 	}
 
-	if(!match){
+	if (!match) {
 		pthread_mutex_unlock(&fm->lock);
 		loge("frame addr not match!\n");
 		return -1;
@@ -271,25 +271,25 @@ int audio_fm_render_put_frame(struct audio_frame_manager *fm, struct aic_audio_f
 	struct audio_frame_impl *frm=NULL,*frm1=NULL;
 	int match = 0;
 
-	if (!fm || !frame){
+	if (!fm || !frame) {
 		loge("para error:fm or frame!\n");
 		return -1;
 	}
 
 	pthread_mutex_lock(&fm->lock);
-	if(!mpp_list_empty(&fm->used_list)){
-		mpp_list_for_each_entry_safe(frm, frm1, &fm->used_list, list){
-			if(frame->data == frm->frame.data){
+	if (!mpp_list_empty(&fm->used_list)) {
+		mpp_list_for_each_entry_safe(frm, frm1, &fm->used_list, list) {
+			if (frame->data == frm->frame.data) {
 				match = 1;
 				break;
 			}
 		}
-	}else{
+	} else {
 		pthread_mutex_unlock(&fm->lock);
 		loge("frame addr not match!\n");
 		return -1;
 	}
-	if(!match){
+	if (!match) {
 		pthread_mutex_unlock(&fm->lock);
 		loge("frame addr not match!\n");
 		return -1;
@@ -320,8 +320,9 @@ int audio_fm_get_render_frame_num(struct audio_frame_manager *fm)
 int audio_fm_reset(struct audio_frame_manager *fm)
 {
 	struct audio_frame_impl *frame = NULL,*frame1 = NULL;
+	int i = 0;
 
-	if (!fm){
+	if (!fm) {
 		loge("audio_fm_reset fail:fm=NULL\n");
 		return -1;
 	}
@@ -350,6 +351,12 @@ int audio_fm_reset(struct audio_frame_manager *fm)
 			mpp_list_add_tail(&frame->list,  &fm->empty_list);
 			logd("pts:%ld \n",frame->frame.pts);
 		}
+	}
+	//clear flags
+	frame = fm->frame_node;
+	for (i = 0; i < fm->frame_count; i++) {
+		frame->frame.flag = 0;
+		frame++;
 	}
 
 	logd("empty_num:%d,ready_num:%d,using_num:%d,used_num:%d\n",fm->empty_num,fm->ready_num,fm->using_num,fm->used_num);

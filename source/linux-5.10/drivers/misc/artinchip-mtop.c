@@ -18,18 +18,19 @@
 #include <linux/types.h>
 #include <linux/pm_runtime.h>
 
-#define MTOP_CTL				0x0000
+#define MTOP_CTL			0x0000
 #define MTOP_TIME_CNT			0x0004
 #define MTOP_IRQ_CTL			0x0008
 #define MTOP_IRQ_STA			0x000C
-#define MTOP_AXI_WCNT(p)			(0x0100 + p * 0x20)
-#define MTOP_AXI_RCNT(p)			(0x0104 + p * 0x20)
+#define MTOP_AXI_WCNT(p)		(0x0100 + p * 0x20)
+#define MTOP_AXI_RCNT(p)		(0x0104 + p * 0x20)
 #define MTOP_AHB_WCNT			0x0200
 #define MTOP_AHB_RCNT			0x0204
 
 #define MTOP_TRIG			BIT(29)
 #define MTOP_MODE			BIT(28)
 #define MTOP_EN				BIT(0)
+#define MTOP_VERSION			0xFFC
 
 struct mtop_dev {
 	struct attribute_group attrs;
@@ -209,6 +210,16 @@ static ssize_t set_period_store(struct device *dev,
 	return size;
 }
 
+static ssize_t version_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	struct mtop_dev *mtop = dev_get_drvdata(dev);
+	void __iomem *base = mtop->base;
+	int version = readl(base + MTOP_VERSION);
+
+	return sprintf(buf, "%d.%d\n", version >> 8, version & 0xff);
+}
+
 DEVICE_ATTR_RO(cpu_rd);
 DEVICE_ATTR_RO(cpu_wr);
 DEVICE_ATTR_RO(dma_rd);
@@ -219,10 +230,12 @@ DEVICE_ATTR_RO(gvd_rd);
 DEVICE_ATTR_RO(gvd_wr);
 DEVICE_ATTR_RO(ahb_rd);
 DEVICE_ATTR_RO(ahb_wr);
+DEVICE_ATTR_RO(version);
 DEVICE_ATTR_WO(enable);
 DEVICE_ATTR_WO(set_period);
 
 static struct attribute *mtop_attrs[] = {
+	&dev_attr_version.attr,
 	&dev_attr_cpu_rd.attr,
 	&dev_attr_cpu_wr.attr,
 	&dev_attr_dma_rd.attr,

@@ -1,0 +1,7 @@
+menu "Vendor packages"
+
+source package/vendor/msnlink/Config.in
+source package/vendor/zjinnova/Config.in
+source package/vendor/carbit/Config.in
+
+endmenu

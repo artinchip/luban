@@ -9,11 +9,13 @@
 #define LV_CONF_H
 
 #define LV_USE_FREETYPE 0
+#define LV_USE_FLEX       1
 #define LV_USE_DEMO_MUSIC 0
 #define LV_USE_DEMO_BENCHMARK 0
 #define LV_BUILD_EXAMPLES 1
 
 #define LV_FONT_MONTSERRAT_48 1
+#define LV_FONT_MONTSERRAT_36 1
 #define LV_FONT_MONTSERRAT_24 1
 #define LV_FONT_MONTSERRAT_16 1
 #define LV_FONT_MONTSERRAT_12 1
@@ -79,5 +81,7 @@
     #define lv_vsnprintf vsnprintf
     #define LV_SPRINTF_USE_FLOAT 0
 #endif  /*LV_SPRINTF_CUSTOM*/
+
+#define LV_COLOR_SCREEN_TRANSP 1
 
 #endif // LV_CONF_H

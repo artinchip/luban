@@ -1,0 +1,9 @@
+使用驱动加载ATE测试方法
+
+5505 sdio的话
+1，加载驱动的时候带模式切换参数，命令如modprobe asr5505 driver_mode=1。
+5531 sdio的话
+1，加载驱动的时候带模式切换参数，命令如 modprobe asr5531 driver_mode=1 nss=2
+
+2，使用iwpriv工具调用ATE命令，命令格式为iwpriv wlan0 at_cmd 【cmd,param1,param2...】，命令中的
+cmd为串口ATE文档中的命令，param为文档中对应的参数，中间用逗号隔开，串口ATE命令文档可以参考《ASR5505S_量产测试校准参考手册_V1.0.0.pdf》。

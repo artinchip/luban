@@ -1,0 +1,75 @@
+#! /bin/sh
+#
+# adbd	This script configure and launch the adbd service.
+#	It is called from the boot, halt and reboot scripts.
+#
+# Version:	0.1
+#
+
+#[ -c /dev/urandom ] || exit 0
+#. /etc/default/rcS
+
+start() {
+	printf "Starting mdnsd: "
+	mkdir /dev/pts
+	mount -t devpts none /dev/pts
+
+	mount -t configfs none /sys/kernel/config
+	cd /sys/kernel/config/usb_gadget
+	mkdir g1
+	cd g1
+
+	echo "0x18d1" > idVendor
+	echo "0x4e26" > idProduct
+
+	mkdir configs/c.1
+	mkdir functions/ffs.adb
+
+	mkdir strings/0x409
+	mkdir configs/c.1/strings/0x409
+
+	echo "aic1602_demo128_nand" > strings/0x409/serialnumber
+	echo "AIC Inc." > strings/0x409/manufacturer
+	echo "FunctionFS gadget (adb)" > strings/0x409/product
+
+	echo "Conf 1" > configs/c.1/strings/0x409/configuration
+	echo 120 > configs/c.1/MaxPower
+
+	ifconfig lo up
+	ifconfig
+
+	cd /root
+
+	mdnsd&
+
+	sleep 1
+
+	echo `ls /sys/class/udc/` > /sys/kernel/config/usb_gadget/g1/UDC
+
+	echo "host" > /sys/devices/platform/soc/soc:usb-otg/otg_mode
+	echo "OK"
+}
+
+stop() {
+	printf "Stopping mdnsd: "
+
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	stop
+	start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

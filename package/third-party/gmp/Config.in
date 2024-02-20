@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_GMP
+	bool "gmp"
+	help
+	  GNU Multiple Precision Arithmetic Library.
+
+	  http://gmplib.org/
+
+if BR2_PACKAGE_GMP
+
+config BR2_PACKAGE_GMP_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

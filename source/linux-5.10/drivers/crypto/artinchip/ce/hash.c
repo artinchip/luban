@@ -10,6 +10,7 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
+#include <linux/pm_runtime.h>
 #include <crypto/engine.h>
 #include <crypto/hash.h>
 #include <crypto/md5.h>
@@ -640,6 +641,12 @@ static int aic_hash_alg_init(struct crypto_tfm *tfm)
 	aicalg = container_of(halg, struct aic_hash_alg, alg);
 	ctx->ce = aicalg->ce;
 
+#ifdef CONFIG_PM
+	if (ctx->ce->task_count == 0)
+		pm_runtime_get_sync(ctx->ce->dev);
+	ctx->ce->task_count++;
+#endif
+
 	ctx->enginectx.op.do_one_request = aic_hash_do_one_req;
 	ctx->enginectx.op.prepare_request = aic_hash_prepare_req;
 	ctx->enginectx.op.unprepare_request = aic_hash_unprepare_req;
@@ -665,6 +672,14 @@ static int aic_hash_hmac_alg_init(struct crypto_tfm *tfm)
 static void aic_hash_alg_exit(struct crypto_tfm *tfm)
 {
 	struct aic_hash_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
+
+#ifdef CONFIG_PM
+	ctx->ce->task_count--;
+	if (ctx->ce->task_count == 0) {
+		pm_runtime_mark_last_busy(ctx->ce->dev);
+		pm_runtime_put_autosuspend(ctx->ce->dev);
+	}
+#endif
 
 	pr_debug("%s\n", __func__);
 	kfree(ctx->remain_buf);

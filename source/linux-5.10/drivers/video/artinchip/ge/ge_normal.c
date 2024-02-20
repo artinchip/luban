@@ -80,6 +80,9 @@ struct aic_ge_data {
 	enum ge_mode         ge_mode;
 };
 
+static int ge_clk_enable(struct aic_ge_data *data);
+static int ge_clk_disable(struct aic_ge_data *data);
+
 struct aic_ge_data *g_data;
 
 #ifdef CONFIG_DMA_SHARED_BUFFER
@@ -1722,7 +1725,13 @@ static long ge_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			ret = -EFAULT;
 			break;
 		}
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_enable(g_data);
+#endif
 		ret = ge_fillrect(g_data, &fill);
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_disable(g_data);
+#endif
 	}
 	break;
 	case IOC_GE_BITBLT:
@@ -1733,7 +1742,13 @@ static long ge_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			ret = -EFAULT;
 			break;
 		}
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_enable(g_data);
+#endif
 		ret = ge_bitblt(g_data, &blt);
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_disable(g_data);
+#endif
 	}
 	break;
 	case IOC_GE_ROTATE:
@@ -1745,7 +1760,13 @@ static long ge_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			ret = -EFAULT;
 			break;
 		}
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_enable(g_data);
+#endif
 		ret = ge_rotate(g_data, &rot);
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+		ge_clk_disable(g_data);
+#endif
 	}
 	break;
 	case IOC_GE_SYNC:
@@ -1797,24 +1818,27 @@ static int ge_clk_disable(struct aic_ge_data *data)
 
 static int ge_open(struct inode *inode, struct file *file)
 {
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	mutex_lock(&g_data->lock);
 	if (g_data->refs == 0)
 		ge_clk_enable(g_data);
 
 	g_data->refs++;
 	mutex_unlock(&g_data->lock);
-
+#endif
 	return nonseekable_open(inode, file);
 }
 
 static int ge_release(struct inode *inode, struct file *file)
 {
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	mutex_lock(&g_data->lock);
 	if (g_data->refs == 1)
 		ge_clk_disable(g_data);
 
 	g_data->refs--;
 	mutex_unlock(&g_data->lock);
+#endif
 	return 0;
 }
 
@@ -1849,15 +1873,19 @@ static int aic_ge_parse_dt(struct device *dev)
 int aic_ge_bitblt_with_hsbc(struct ge_bitblt *blt, u32 *csc_coef)
 {
 	int ret;
-
 	mutex_lock(&g_data->lock);
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	if (g_data->refs == 0) {
 		ge_clk_enable(g_data);
 		g_data->refs++;
 	}
-
+#else
+	ge_clk_enable(g_data);
+#endif
 	ret = ge_base_bitblt(g_data, blt, csc_coef);
-
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+	ge_clk_disable(g_data);
+#endif
 	mutex_unlock(&g_data->lock);
 
 	return ret;
@@ -1954,21 +1982,23 @@ MODULE_DEVICE_TABLE(of, aic_ge_match_table);
 #ifdef CONFIG_PM
 static int aic_ge_pm_suspend(struct device *dev)
 {
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	mutex_lock(&g_data->lock);
 	if (g_data->refs > 0)
 		ge_clk_disable(g_data);
 	mutex_unlock(&g_data->lock);
-
+#endif
 	return 0;
 }
 
 static int aic_ge_pm_resume(struct device *dev)
 {
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	mutex_lock(&g_data->lock);
 	if (g_data->refs > 0)
 		ge_clk_enable(g_data);
 	mutex_unlock(&g_data->lock);
-
+#endif
 	return 0;
 }
 

@@ -104,20 +104,30 @@
 		reset-after-fw-burn;
 	};
 	config {
-		/*
-		 * The "aic,upgmode-gpio" is used to define upgrade-mode
-		 * pin to enter USB upgrade mode.
-		 * Why don't use the naming format "-gpios" as other gpio?
-		 * Because this pin maybe reuse some other device's pin,
-		 * e.g. UART. If use the "-gpios" to name it, it will cause
-		 * PINMUX conflict error during pinmux check.
-		 */
-		aic,upgmode-gpio = <&gpio_a 0 GPIO_ACTIVE_LOW>;
 	};
 
+	cpus {
+		u-boot,dm-pre-reloc;
+		cpu0: cpu@0 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+
+	timer {
+		u-boot,dm-pre-reloc;
+	};
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x0 0x40000000 0x0 0x4000000>;
+		u-boot,dm-pre-reloc;
 	};
 
 	/* Reserved 1M memory for aic ramdump
@@ -210,6 +220,27 @@
 	// clk-out1-enable;
 	// clk-out2-enable;
 	// clk-out3-enable;
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
+
+&osc24m {
+	u-boot,dm-pre-reloc;
+};
+
+&rc1m {
+	u-boot,dm-pre-reloc;
+};
+
+&osc32k {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
 };
 
 &rtc {
@@ -232,6 +263,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins_a>;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &uart2 {
@@ -301,11 +333,16 @@
 	status = "disabled";
 };
 
+&dma {
+	u-boot,dm-pre-reloc;
+};
+
 &spi0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins_a>;
 	status = "okay";
 	spi-max-frequency = <100000000>;
+	u-boot,dm-pre-reloc;
 	spi-flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -317,6 +354,7 @@
 		// aic,encrypt;
 		// aic,spi-id = <0>;
 		status = "okay";
+		u-boot,dm-pre-reloc;
 	};
 };
 
@@ -352,6 +390,7 @@
 	bus-width = <4>;
 	cap-sd-highspeed;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &sdmc2 {
@@ -681,3 +720,44 @@
        pinctrl-0 = <&can1_pins_a>;
        status = "okay";
 };
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+	gpio_a: bank-0 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_b: bank-1 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_c: bank-2 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_d: bank-3 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_e: bank-4 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_f: bank-5 {
+		u-boot,dm-pre-reloc;
+	};
+	uart1_pins_a: uart1-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	sdmc1_pins: sdmc1-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	spi0_pins_a: spi0-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+

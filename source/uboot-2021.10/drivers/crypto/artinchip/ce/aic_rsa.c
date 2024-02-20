@@ -37,6 +37,8 @@ int aic_mod_exp(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
 		return -EFAULT;
 	}
 
+	rsa_exit(bus);
+
 	return 0;
 }
 

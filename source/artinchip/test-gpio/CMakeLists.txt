@@ -9,6 +9,7 @@ set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
 add_compile_options(-Wall)
 
 add_executable(test_gpio test_gpio.c)
+add_executable(test_gpio_output test_gpio_output.c)
 
 # Install
 # install directories
@@ -19,4 +20,5 @@ include(GNUInstallDirs)
 
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
 	install(TARGETS test_gpio RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+	install(TARGETS test_gpio_output RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR

@@ -14,6 +14,12 @@ config AIC_PANEL_LVDS_GENERAL
 	help
 	  ArtInChip general LVDS panel
 
+config AIC_PANEL_DSI_SIMPLE
+	tristate "ArtInChip dsi simple panel driver"
+	depends on AIC_DISP_MIPI_DSI
+	help
+	  ArtInChip MIPI DSI simple panel
+
 config AIC_PANEL_DSI_B080XAN
 	tristate "ArtInChip dsi panel driver for B080XAN"
 	depends on AIC_DISP_MIPI_DSI

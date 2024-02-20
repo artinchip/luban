@@ -1,0 +1,114 @@
+
+#=======================================================================================================
+编译方法：
+   1，树莓派上编译的话 请先make menuconfig配置下
+   Device Drivers > Network device support > Wireless LAN > Asr Wireless Modules 选择芯片 lega/canon/duet/alto/bass usb/sdio use_dts 等属性
+   也可以这样配置 copy bcm2711_asr_xxx_defconfig 到树莓派的kernel ./arch/arm64/configs 目录
+   然后 KERNEL=kernel8;make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_asr_xxx_defconfig
+   再编译 KERNEL=kernel8;make ARCH=arm64 -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs
+   kernel8 对应的树莓派4B
+   2，pc ubuntu上编译5532u的话，执行make TARGET=canon_usb 即可生成ubuntu平台的5532u ko
+   lega  5505 sdio
+   canon 5532 usb/sdio
+   duet  5825 sdio
+   alto  595x sdio
+   bass  596x sdio
+
+
+	公共Makefile 对应是上述芯片的公共Makefile文件
+	请在公共Makefile 里修改 自己的对应的 platform,默认是树莓派平台,即 CONFIG_PLATFORM_RASPI_AARCH64 :=y,
+	如果是编译ubuntu pc版本的ko,请设置 CONFIG_PLATFORM_I386_PC:=y  其它设置成n
+	另外 CONFIG_BOARD 改成 自己对应的 芯片 比如 lega/duet/canon/alto
+
+
+1，使用内核方式整体随内核一起编译。
+	(1)将驱动目录asrwifidrv整体拷贝到kernel/driver/net/wireless/下面。
+	(2)修改wireless目录下的makefile文件中最后加一行obj-$(CONFIG_WLAN_VENDOR_ASR) += asrwifidrv/。
+	(3)修改wireless目录下的kconfig文件中最后加一行source "drivers/net/wireless/asrwifidrv/Kconfig"。
+	(4)进入kernel根目录下使用make menuconfig命令进入配置界面选择device drivers->Network device support->Wireless Lan->
+	   Asr wireless modules->Asr 5505 SDIO Wi-Fi，芯片名需要更加实际需要选择。
+	(5)需要在dts中添加platform device名称与驱动名称一致，比如如下asr-platform。
+	(6)编译。
+
+	asr-platform {
+		pinctrl-names = "boot_pins_gpio", "boot_pin_uart", "reset_on", "reset_off";
+		pinctrl-0 = <&fincha0_bt_uart_rts_func0>;
+		pinctrl-1 = <&fincha0_bt_uart_rts_func4 &fincha0_bt_uart_func4>;
+		pinctrl-2 = <&fincha0_wifi_reset_on>;
+		pinctrl-3 = <&fincha0_wifi_reset_off>;
+		sd-host = <&sdh1>;
+		asr_fw,reset-gpios = <&gpio 47 0>;
+
+		compatible = "asr,asr-platform";
+		status = "okay";
+	};
+
+2，在驱动路径下直接使用make单独编译。
+	(1)如果需要同时支持内核整体编译方式的话那么1步骤也要做，然后直接参考CONFIG_PLATFORM_HI3516_ARM=y类似的配置好
+	  kernel路径和编译器名称就可以了单独编译了。
+	(2)如果不支持内核整体编译方式，只需要单独编译驱动，并且不想修改dts，那么需要打开CONFIG_NOT_USED_DTS=y，这样就会在
+	  驱动中生成platform device，并且参考CONFIG_PLATFORM_HI3516_ARM=y类似的配置好kernel路径和编译器名称就可以了单独编译了。
+#=======================================================================================================
+
+#=======================================================================================================
+pc上运行 usb asr5531方案：
+如果要在pc上运行 usb asr5531方案请将Makefile中如下宏置y,默认宏就是支持ubuntu 5531usb编译的
+CONFIG_PLATFORM_I386_PC = y         # y表示pc 平台，n表示arm平台
+CONFIG_NOT_USED_DTS = y             # y表示不使用 dts 编译，n表示使用dts
+CONFIG_ASR_USB = y                  # y表示使用 usb，n表示不使用usb
+CONFIG_ASR_SDIO = n                 # y表示使用 sdio，n表示不使用sdio
+
+
+CONFIG_PLATFORM_FULLHAN_ARM=y         # y表示FUHAN平台，n表示其它平台
+CONFIG_PLATFORM_HI3516_ARM=y    	  # y表示HI3516平台，n表示其它平台
+
+CONFIG_ASR_SAE = y 开启表示支持连接wpa3的路由器，如连接到wpa3路由器的话需要升级wpa_supplicant 版本到2.10
+ccflags-y += -DASR_REDUCE_TCP_ACK 为开启降低ack发送频率，默认是6个ack回一个ack，频率可以通过来修改,
+    比如从默认的6修改成16的话
+    1，可以通过insmod ko时候来设置sudo insmod asr5531.ko nss=2 tcp_ack_num=16
+    2，可以动态修改，执行sudo sh -c 'echo 16 > /sys/module/asr5531/parameters/tcp_ack_num'
+
+支持驱动设置CCA值：设置方法如下
+    修改drv_code/asr_wifi_config.ini 里的 CCA_THRESHOLD=-35 ，默认是-35，可以改成其它值，范围[-90,0],通过 sudo insmod xxx.ko 来加载生效
+
+
+默认5532u支持漫游功能：通过驱动的CFG_ROAMING宏来设置的
+    注意需要将wpa_supplicant 2.9 或以上版本 打开 CONFIG_MBO:=y CONFIG_WNM:=y CONFIG_IEEE80211R:=y CONFIG_FILS:=y来支持漫游
+    新增支持11r ft 漫游配置,验证过wfa的 Over-the-Air FT
+	ft WPA2-Enterprise 的wpa_supplicant.conf 供参考
+    network={
+    ssid="WiFi1-5.2.6"
+        key_mgmt=FT-EAP WPA-EAP
+        eap=TTLS
+        ieee80211w=1
+        group_mgmt=AES-128-CMAC
+        identity="as-iot"
+        password="AAbbcc123"
+        phase1="peaplabel=0"
+        phase2="auth=MSCHAPV2"
+    }
+
+    ft WPA2-Personal的wpa_supplicant.conf 供参考
+    network={
+        ssid="WiFi1-5.2.6"
+        psk="MBORocks"
+        key_mgmt=FT-PSK
+    }
+
+默认5532u支持驱动来设置tx功率功能：通过将 asr_platform.h 中的 PWR_MCS0等设置到 /lib/firmware/asr_wifi_config.ini 文件中
+说明：默认tx pwr调整最小单位是0.25dB，drv配置传到fw会乘以0.4取整后再除以0.25得到实际的变动的dB数
+eg：增加mcs0 1dB的话：PWR_MCS0=10
+	增加mcs0 2dB的话：PWR_MCS0=20
+	增加mcs0 0.5dB的话：PWR_MCS0=5 这里5,6,7都行 算出的都是0.5dB
+
+
+note:
+    默认配置是ubutnu平台，usb模式，不使用dts
+    使用非dts时，需要注意 openwrt里之前存在.config 里有配置sdio或usb的话，会重新置位usb或sdio，需要在openwrt目录make kernel_menuconfig 重新配置下
+
+
+支持docker 环境编译和运行
+说明：/home/john/asr_work/test_1826_drv/legasdiodrv 为举例说明，drv的绝对路径，执行时需要替换成自己的
+docker build -t ubuntu5531:v1 .
+docker run -itu0 --name ubuntu5531 --privileged=true --net=host -v /dev/bus/usb:/dev/bus/usb -v /home/john/asr_work/test_1826_drv/legasdiodrv:/root/asrwifidrv ubuntu5531:v1 /bin/bash
+#=======================================================================================================

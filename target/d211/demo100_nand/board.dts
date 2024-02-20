@@ -96,6 +96,7 @@
 		rtp = &rtp;
 		tsen = &tsen;
 		pwm = &pwm;
+		epwm = &epwm;
 		sdmc0 = &sdmc0;
 		sdmc1 = &sdmc1;
 		sdmc2 = &sdmc2;
@@ -107,20 +108,30 @@
 		reset-after-fw-burn;
 	};
 	config {
-		/*
-		 * The "aic,upgmode-gpio" is used to define upgrade-mode
-		 * pin to enter USB upgrade mode.
-		 * Why don't use the naming format "-gpios" as other gpio?
-		 * Because this pin maybe reuse some other device's pin,
-		 * e.g. UART. If use the "-gpios" to name it, it will cause
-		 * PINMUX conflict error during pinmux check.
-		 */
-		aic,upgmode-gpio = <&gpio_a 0 GPIO_ACTIVE_LOW>;
 	};
 
+	cpus {
+		u-boot,dm-pre-reloc;
+		cpu0: cpu@0 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+
+	timer {
+		u-boot,dm-pre-reloc;
+	};
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x0 0x40000000 0x0 0x8000000>;
+		u-boot,dm-pre-reloc;
 	};
 
 	/* Reserved 1M memory for aic ramdump
@@ -156,15 +167,19 @@
 		clock-phase = <DEGREE_0>;
 		data-order = <RGB>;
 		disp-dither = <DITHER_RGB565>;
+		u-boot,dm-pre-reloc;
 
 		port {
+			u-boot,dm-pre-reloc;
 			panel_rgb_in: endpoint {
-			remote-endpoint = <&rgb0_out>;
+				remote-endpoint = <&rgb0_out>;
+				u-boot,dm-pre-reloc;
 			};
 		};
 
 		display-timings {
 			native-mode = <&timing0>;
+			u-boot,dm-pre-reloc;
 			timing0: 1024x600 {
 				clock-frequency = <52000000>;
 				hactive = <1024>;
@@ -177,6 +192,7 @@
 				vsync-len = <3>;
 				de-active = <1>;
 				pixelclk-active = <1>;
+				u-boot,dm-pre-reloc;
 			};
 		};
 	};
@@ -186,16 +202,20 @@
 		data-mapping = "vesa-24";
 		data-channel = "single-link1";
 		status = "okay";
+		u-boot,dm-pre-reloc;
 
 		enable-gpios = <&gpio_e 19 GPIO_ACTIVE_HIGH>;
 		port {
+			u-boot,dm-pre-reloc;
 			panel_lvds_in: endpoint {
 				remote-endpoint = <&lvds0_out>;
+				u-boot,dm-pre-reloc;
 			};
 		};
 
 		display-timings {
 			native-mode = <&timing1>;
+			u-boot,dm-pre-reloc;
 			timing1: 1024x600 {
 				clock-frequency = <52000000>;
 				hactive = <1024>;
@@ -208,6 +228,7 @@
 				vsync-len = <3>;
 				de-active = <1>;
 				pixelclk-active = <1>;
+				u-boot,dm-pre-reloc;
 			};
 		};
 	};
@@ -217,7 +238,8 @@
 		/* pwm node name; pwm device No.; period_ns; pwm_polarity */
 		pwms = <&pwm 3 1000000 0>;
 		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
-		default-brightness-level = <0>;
+		default-brightness-level = <6>;
+		u-boot,dm-pre-reloc;
 		status = "disabled";
 	};
 
@@ -255,6 +277,27 @@
 	/* Enable clock out2 */
 	clk-out2-enable;
 	// clk-out3-enable;
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
+
+&osc24m {
+	u-boot,dm-pre-reloc;
+};
+
+&rc1m {
+	u-boot,dm-pre-reloc;
+};
+
+&osc32k {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
 };
 
 &rtc {
@@ -271,6 +314,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_a>;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &uart1 {
@@ -364,10 +408,15 @@
 	};
 };
 
+&dma {
+	u-boot,dm-pre-reloc;
+};
+
 &spi0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins_a>;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 	spi-max-frequency = <100000000>;
 	spi-flash@0 {
 		#address-cells = <1>;
@@ -380,6 +429,7 @@
 		// aic,encrypt;
 		// aic,spi-id = <0>;
 		status = "okay";
+		u-boot,dm-pre-reloc;
 	};
 };
 
@@ -415,6 +465,7 @@
 	bus-width = <4>;
 	cap-sd-highspeed;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &sdmc2 {
@@ -437,6 +488,7 @@
 };
 
 &usbh0 {
+	aic,usb-ext-resistance = <0x40>;
 	status = "okay";
 };
 
@@ -460,6 +512,7 @@
 };
 
 &usbh0 {
+	aic,usb-ext-resistance = <0x40>;
 	status = "disabled";
 };
 &ohci0 {
@@ -477,6 +530,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_pins_a>;
 	artinchip,sw_usb_phy0;
+	aic,usb-ext-resistance = <0x40>;
 	status = "okay";
 };
 &ohci0 {
@@ -486,10 +540,15 @@
 #endif
 
 &usbh1 {
+	aic,usb-ext-resistance = <0x40>;
+	status = "okay";
+};
+&ohci1 {
 	status = "okay";
 };
 
 &pinctrl {
+	u-boot,dm-pre-reloc;
 	gmac0_local_pins: gmac0-2 {
 		pins {
 			pinmux = <AIC_PINMUX('E', 0, 6)>,
@@ -519,6 +578,49 @@
 			pinmux = <AIC_PINMUX('E', 11, 4)>;
 			bias-disable;
 			drive-strength = <3>;
+		};
+	};
+
+	gpio_a: bank-0 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_b: bank-1 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_c: bank-2 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_d: bank-3 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_e: bank-4 {
+		u-boot,dm-pre-reloc;
+	};
+	gpio_f: bank-5 {
+		u-boot,dm-pre-reloc;
+	};
+	lvds1_pins: lvds1-0 {
+			u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	uart0_pins_a: uart0-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	spi0_pins_a: spi0-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+		};
+	};
+	sdmc1_pins: sdmc1-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
 		};
 	};
 };
@@ -566,27 +668,41 @@
 &fb0 {
 	artinchip,uboot-logo-on=<1>;
 	height-virtual = <1200>;
+	u-boot,dm-pre-reloc;
 	port {
+		u-boot,dm-pre-reloc;
 		fb0_out: endpoint {
 			remote-endpoint = <&de0_in>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 };
 
+&ve {
+	u-boot,dm-pre-reloc;
+};
+&disp {
+	u-boot,dm-pre-reloc;
+};
 &de0 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
 	port@0 {
 		reg = <0>;
+		u-boot,dm-pre-reloc;
 		de0_in: endpoint {
 			remote-endpoint = <&fb0_out>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 
 	port@1 {
 		reg = <1>;
+		u-boot,dm-pre-reloc;
 		de0_out: endpoint {
 			remote-endpoint = <&lvds0_in>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 };
@@ -595,19 +711,24 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&lcd_rgb565_ld_pins>;
 	pinctrl-1 = <&lcd_rgb565_ld_sleep_pins>;
+	u-boot,dm-pre-reloc;
 	status = "disabled";
 
 	port@0 {
 		reg = <0>;
+		u-boot,dm-pre-reloc;
 		rgb0_in: endpoint {
 			remote-endpoint = <&rgb0_in>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 
 	port@1 {
 		reg = <1>;
+		u-boot,dm-pre-reloc;
 		rgb0_out: endpoint {
 			remote-endpoint = <&panel_rgb_in>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 };
@@ -616,18 +737,23 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&lvds1_pins>;
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
 	port@0 {
 		reg = <0>;
+		u-boot,dm-pre-reloc;
 		lvds0_in: endpoint {
 			remote-endpoint = <&de0_out>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 
 	port@1 {
 		reg = <1>;
+		u-boot,dm-pre-reloc;
 		lvds0_out: endpoint {
 			remote-endpoint = <&panel_lvds_in>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 };
@@ -707,6 +833,7 @@
 
 &pwm {
 	status = "disabled";
+	u-boot,dm-pre-reloc;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pwm3_pins_d>;
 	/* mode: up-count, down-count, up-down-count
@@ -720,6 +847,7 @@
 		aic,action0 = "none", "none", "none", "low", "none", "high";
 		aic,action1 = "none", "none", "none", "high", "none", "low";
 		status = "disabled";
+		u-boot,dm-pre-reloc;
 	};
 
 	pwm1 {
@@ -731,6 +859,7 @@
 		aic,action0 = "none", "none", "none", "low", "none", "high";
 		aic,action1 = "none", "none", "none", "high", "none", "low";
 		status = "disabled";
+		u-boot,dm-pre-reloc;
 	};
 
 	pwm2 {
@@ -743,6 +872,7 @@
 		aic,rise-edge-delay = <10>;
 		aic,fall-edge-delay = <10>;
 		status = "okay";
+		u-boot,dm-pre-reloc;
 	};
 
 	pwm3 {
@@ -754,6 +884,76 @@
 		aic,rise-edge-delay = <10>;
 		aic,fall-edge-delay = <10>;
 		status = "okay";
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&epwm {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&epwm0_pins_a>,
+			<&epwm1_pins_a>,
+			<&epwm2_pins_a>;
+	/* mode: up-count, down-count, up-down-count
+	   action: none, low, high, inverse */
+	epwm0 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
+	};
+
+	epwm1 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
+	};
+
+	epwm2 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
+	};
+
+	epwm3 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
+	};
+
+	epwm4 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
+	};
+
+	epwm5 {
+		aic,mode = "up-count";
+		aic,tb-clk-rate = <24000000>;
+		/*            CBD,    CBU,    CAD,    CAU,    PRD,   ZRO */
+		aic,action0 = "none", "none", "none", "high", "none", "low";
+		aic,action1 = "none", "high", "none", "none", "none", "low";
+		aic,default-level = <0>;
+		status = "disabled";
 	};
 };
 

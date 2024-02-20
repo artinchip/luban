@@ -1,0 +1,7 @@
+#!/bin/sh
+
+sync
+umount -l /mnt/sdcard
+rm -rf /mnt/sdcard
+
+echo "/mnt/sdcard is unmounted" > /dev/console

@@ -9,6 +9,7 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
 #include <crypto/internal/rsa.h>
 #include <crypto/engine.h>
 #include <crypto/scatterwalk.h>
@@ -329,6 +330,13 @@ static int aic_akcipher_rsa_alg_init(struct crypto_akcipher *tfm)
 
 	aicalg = container_of(akalg, struct aic_akcipher_alg, alg);
 	ctx->ce = aicalg->ce;
+
+#ifdef CONFIG_PM
+	if (ctx->ce->task_count == 0)
+		pm_runtime_get_sync(ctx->ce->dev);
+	ctx->ce->task_count++;
+#endif
+
 	ctx->enginectx.op.do_one_request = aic_akcipher_do_one_req;
 	ctx->enginectx.op.prepare_request = aic_akcipher_prepare_req;
 	ctx->enginectx.op.unprepare_request = aic_akcipher_unprepare_req;
@@ -351,6 +359,14 @@ static void aic_akcipher_rsa_clear_key(struct aic_akcipher_tfm_ctx *ctx)
 static void aic_akcipher_rsa_alg_exit(struct crypto_akcipher *tfm)
 {
 	struct aic_akcipher_tfm_ctx *ctx = akcipher_tfm_ctx(tfm);
+
+#ifdef CONFIG_PM
+	ctx->ce->task_count--;
+	if (ctx->ce->task_count == 0) {
+		pm_runtime_mark_last_busy(ctx->ce->dev);
+		pm_runtime_put_autosuspend(ctx->ce->dev);
+	}
+#endif
 
 	aic_akcipher_rsa_clear_key(ctx);
 }

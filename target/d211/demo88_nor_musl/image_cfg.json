@@ -1,0 +1,132 @@
+{
+	"spi-nor": { // Media type
+		"size": "16m", // Size of NOR
+		"partitions": {
+			"spl":    { "size": "256k" },
+			"uboot":  { "size": "640k" },
+			"userid": { "size": "64k" },
+			"env":    { "size": "64k" },
+			"env_r":  { "size": "64k" },
+			"falcon": { "size": "64k" },
+			"logo":   { "size": "512k" },
+			"kernel": { "size": "3584k" },
+			"rootfs": { "size": "6m" },
+			"user":   { "size": "-" },
+		}
+	},
+	"image": {
+		"info": { // Header information about image
+			"platform": "d211",
+			"product": "demo88_nor_musl",
+			"version": "1.0.0",
+			"media": {
+				"type": "spi-nor",
+				"device_id": 0,
+			}
+		},
+		"updater": { // Image writer which is downloaded to RAM by USB
+			"ddr": {
+				"file": "usbupg-ddr-init.aic",
+				"attr": ["required", "run"],
+				"ram": "0x00103000"
+			},
+			"env": {
+				"file": "env.bin",
+				"attr": ["required"],
+				"ram": "0x41000000"
+			},
+			"uboot": {
+				"file": "u-boot.itb",
+				"attr": ["required"],
+				"ram": "0x41100000"
+			},
+			"logo": {
+				"file": "logo.itb",
+				"attr": ["required"],
+				"ram": "0x42400000"
+			},
+			"spl": {
+				"file": "u-boot-spl-dtb.aic",
+				"attr": ["required", "run"],
+				"ram": "0x40000000"
+			},
+		},
+		"target": { // Image components which will be burn to device's partitions
+			"spl": {
+				"file": "u-boot-spl-dtb.aic",
+				"attr": ["mtd", "required"],
+				"part": ["spl"]
+			},
+			"uboot": {
+				"file": "u-boot.itb",
+				"attr": ["mtd", "required"],
+				"part": ["uboot"]
+			},
+			"env": {
+				"file": "env.bin",
+				"attr": ["mtd", "required"],
+				"part": ["env", "env_r"]
+			},
+			"logo": {
+				"file": "logo.itb",
+				"attr": ["mtd", "required"],
+				"part": ["logo"]
+			},
+			"kernel": {
+				"file": "kernel.itb",
+				"attr": ["mtd", "required"],
+				"part": ["kernel"]
+			},
+			"rootfs": {
+				"file": "rootfs.squashfs",
+				"attr": ["mtd", "required"],
+				"part": ["rootfs"]
+			},
+			"app": {
+				"file": "userfs1.jffs2",
+				"attr": ["mtd", "optional"],
+				"part": ["user"]
+			},
+		}
+	},
+	"temporary": { // Pre-proccess to generate image components from raw data
+		"aicboot": {
+			"usbupg-ddr-init.aic": {
+				"head_ver": "0x00010001",
+				"resource": {
+					"private": "ddr_init.bin",
+					"pbp": "d211.pbp",
+				},
+			},
+			"u-boot-spl-dtb.aic": {
+				"head_ver": "0x00010001",
+				"loader": {
+					"file": "u-boot-spl-dtb.bin",
+					"load address": "0x42000000",
+					"entry point":  "0x42000100",
+				},
+				"resource": {
+					"private": "ddr_init.bin",
+					"pbp": "d211.pbp",
+				},
+			},
+		},
+		"uboot_env": {
+			"env.bin": {
+				"file": "env.txt",
+				"size": "0x4000",
+			},
+		},
+		"itb": {
+			"u-boot.itb": {
+				"its": "u-boot.its"
+			},
+			"logo.itb": {
+				"its": "logo.its"
+			},
+			"kernel.itb": {
+				"its": "kernel.its"
+			},
+		},
+	},
+}

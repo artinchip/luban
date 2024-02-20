@@ -64,6 +64,7 @@ static char *mode_str[] = {
 
 extern void syscfg_usb_phy0_sw_host(int sw);
 static void aic_otg_update_mode(struct aic_otg *d);
+static void aic_otg_update_mode_immedicate(struct aic_otg *d);
 static void aic_otg_set_mode_by_id(struct aic_otg *d);
 static int aic_otg_get_id_val(struct aic_otg *d);
 static int aic_otg_id_detect_en(struct aic_otg *d);
@@ -258,11 +259,11 @@ static ssize_t otg_mode_store(struct device *dev,
 	if (!strncmp(buf, "host", 4)) {
 		aic_otg_id_detect_dis(d);
 		d->mode = MODE_FORCE_FLG | MODE_HOST;
-		aic_otg_update_mode(d);
+		aic_otg_update_mode_immedicate(d);
 	} else if (!strncmp(buf, "device", 6)) {
 		aic_otg_id_detect_dis(d);
 		d->mode = MODE_FORCE_FLG | MODE_DEVICE;
-		aic_otg_update_mode(d);
+		aic_otg_update_mode_immedicate(d);
 	} else if (!strncmp(buf, "auto", 4)) {
 		d->mode = 0;
 		ret = aic_otg_id_detect_en(d);
@@ -276,6 +277,12 @@ static ssize_t otg_mode_store(struct device *dev,
 }
 
 static DEVICE_ATTR(otg_mode, 0644, otg_mode_show, otg_mode_store);
+
+static void aic_otg_update_mode_immedicate(struct aic_otg *d)
+{
+	cancel_delayed_work(&d->work);
+	aic_otg_work(&d->work.work);
+}
 
 static void aic_otg_update_mode(struct aic_otg *d)
 {

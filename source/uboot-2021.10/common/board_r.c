@@ -665,6 +665,9 @@ static init_fnc_t init_sequence_r[] = {
 	stdio_init_tables,
 	serial_initialize,
 	initr_announce,
+#ifdef CONFIG_ARCH_EARLY_INIT_R
+	arch_early_init_r,
+#endif
 #if CONFIG_IS_ENABLED(WDT)
 	initr_watchdog,
 #endif
@@ -690,9 +693,6 @@ static init_fnc_t init_sequence_r[] = {
 	 * because PCU resources are crucial for flash access on some boards.
 	 */
 	pci_init,
-#endif
-#ifdef CONFIG_ARCH_EARLY_INIT_R
-	arch_early_init_r,
 #endif
 	power_init_board,
 #ifdef CONFIG_MTD_NOR_FLASH

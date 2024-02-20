@@ -4,6 +4,7 @@
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
+#include <linux/fb.h>
 #include <artinchip/sample_base.h>
 #include <video/artinchip_fb.h>
 
@@ -12,7 +13,7 @@
 #define AICFB_LAYER_MAX_NUM	2
 #define FB_DEV "/dev/fb0"
 
-static const char sopts[] = "nscflLaAkKedi:w:h:m:v:u";
+static const char sopts[] = "nscflLaAkKedi:w:h:m:v:bu";
 static const struct option lopts[] = {
 	{"get_layer_num",	no_argument, NULL, 'n'},
 	{"get_screen_size",	no_argument, NULL, 's'},
@@ -31,6 +32,7 @@ static const struct option lopts[] = {
 	{"height",	  required_argument, NULL, 'h'},
 	{"mode",	  required_argument, NULL, 'm'},
 	{"value",	  required_argument, NULL, 'v'},
+	{"colorblock",		no_argument, NULL, 'b'},
 	{"usage",		no_argument, NULL, 'u'},
 	{0, 0, 0, 0}
 };
@@ -57,6 +59,7 @@ void usage(char *program)
 	printf("\t -h, --height\t\tneed an integer argument\n");
 	printf("\t -m, --mode\t\tneed an integer argument [0, 2]\n");
 	printf("\t -v, --value\t\tneed an integer argument [0, 255]\n");
+	printf("\t -b, --colorblock\tshow a color-block image\n");
 	printf("\t -u, --usage \n");
 	printf("\n");
 	printf("Example: %s -l\n", program);
@@ -177,15 +180,31 @@ int set_layer_cfg(int fd, int id, int enable, int width, int height)
 	int ret = 0;
 	struct aicfb_layer_data layer = {0};
 
-	if ((id < 0) || (enable < 0) || (width < 0) || (height < 0)) {
+	if ((id != AICFB_LAYER_TYPE_UI) || (enable < 0) ||
+	    (width < 0) || (height < 0)) {
 		ERR("Invalid argument.\n");
 		return -1;
 	}
 
+	/* Get the current configuration of UI layer */
 	layer.layer_id = id;
-	layer.enable = enable;
-	layer.scale_size.width = layer.buf.size.width;
-	layer.scale_size.height = layer.buf.size.height;
+	ret = ioctl(fd, AICFB_GET_FB_LAYER_CONFIG, &layer);
+	if (ret < 0) {
+		ERR("ioctl() return %d\n", ret);
+		return ret;
+	}
+	if (width > layer.buf.size.width || height > layer.buf.size.height) {
+		ERR("Width %d x Height %d is out of range.\n", width, height);
+		return -1;
+	}
+
+	/* Set the configuration of UI layer */
+	layer.enable      = enable;
+	layer.buf.crop_en = 1;
+	layer.buf.crop.x  = 0;
+	layer.buf.crop.y  = 0;
+	layer.buf.crop.width = width;
+	layer.buf.crop.height = height;
 	ret = ioctl(fd, AICFB_UPDATE_LAYER_CONFIG, &layer);
 	if (ret < 0)
 		ERR("ioctl() return %d\n", ret);
@@ -299,6 +318,89 @@ int get_screen_size(int fd)
 	return 0;
 }
 
+int show_color_block(int fd)
+{
+	struct fb_fix_screeninfo fix = {0};
+	struct fb_var_screeninfo var = {0};
+
+	int i, j, color, step, blk_line, pixel_size, width, height, blk_height;
+	int colors24[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF};
+	int steps24[]  = {0x010000, 0x000100, 0x000001, 0x010101};
+	int colors16[] = {0xF800, 0x07E0, 0x001F, 0xFFFF};
+	int steps16[]  = {0x0800, 0x0020, 0x0001, 0x0821};
+	int *colors = colors24;
+	int *steps  = steps24;
+	char *fb_buf = NULL, *line1 = NULL, *line2 = NULL;
+
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix) < 0) {
+		ERR("ioctl FBIOGET_FSCREENINFO");
+		return -1;
+	}
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &var) < 0) {
+		ERR("ioctl FBIOGET_VSCREENINFO");
+		return -1;
+	}
+
+	pixel_size = var.bits_per_pixel / 8;
+	if (pixel_size == 2) {
+		colors = colors16;
+		steps  = steps16;
+	} else {
+		pixel_size = 4;
+	}
+
+	fb_buf = (char *)mmap(NULL, fix.smem_len,
+			PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0);
+	if (fb_buf == MAP_FAILED) {
+		ERR("mmap framebuffer");
+		return -1;
+	}
+	memset(fb_buf, 0, fix.smem_len);
+
+	width  = var.xres;
+	height = var.yres;
+	printf("Framebuf: size %d, width %d, height %d, bits per pixel %d\n", 
+		fix.smem_len, width, height, var.bits_per_pixel);
+
+	blk_height = height / 4;
+	line1 = fb_buf;
+	for (i = 0; i < height; i++) {
+		blk_line = i / blk_height;
+		color = colors[blk_line];
+		step = steps[blk_line];
+		for (j = 0; j < width; j++) {
+			memcpy(&line1[j * pixel_size], &color, pixel_size);
+			color -= step;
+			if (color == 0) {
+				color = colors[blk_line];
+				j++;
+			}
+		}
+		line1 += width * pixel_size;
+	}
+
+	/* Draw the location line */
+
+	line1 = &fb_buf[width * pixel_size] + pixel_size;
+	line2 = &fb_buf[width * (height - 2) * pixel_size - 101 * pixel_size];
+	for (i = 0; i < 100; i++) {
+		memcpy(&line1[i * pixel_size], &colors[3], pixel_size);
+		memcpy(&line2[i * pixel_size], &colors[3], pixel_size);
+	}
+
+	line1 = &fb_buf[width * pixel_size] + pixel_size;
+	line2 = &fb_buf[width * (height - 101) * pixel_size - pixel_size];
+	for (i = 0; i < 100; i++) {
+		memcpy(&line1[0], &colors[3], pixel_size);
+		line1 += width * pixel_size;
+		memcpy(&line2[0], &colors[3], pixel_size);
+		line2 += width * pixel_size;
+	}
+
+	munmap(fb_buf, fix.smem_len);
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int dev_fd = -1;
@@ -361,6 +463,9 @@ int main(int argc, char **argv)
 		case 'v':
 			value = str2int(optarg);
 			continue;
+		case 'b':
+			show_color_block(dev_fd);
+			goto end;
 		case 'u':
 			usage(argv[0]);
 			goto end;

@@ -116,8 +116,7 @@ static int add_dmabuf(struct frame_impl *frame, int line_stride)
 
 	pixel_format = frame->frm.mpp_frame.buf.format;
 
-	switch(pixel_format)
-	{
+	switch(pixel_format) {
 	case MPP_FMT_YUV420P:
 		comp = 3;
 		stride[0] = line_stride;
@@ -419,7 +418,7 @@ int fm_decoder_put_frame(struct frame_manager* fm, struct frame *frame)
 
 	frm_impl->ref_count--;
 
-	//* if ref_count=0 and displayed, add this frame to empty list
+	//if ref_count=0 and displayed, add this frame to empty list
 	if (frm_impl->ref_count == 0 && frm_impl->displayed) {
 		mpp_list_del_init(&frm_impl->list);
 		mpp_list_add_tail(&frm_impl->list, &fm->empty_list);
@@ -537,12 +536,21 @@ int fm_get_render_frame_num(struct frame_manager *fm)
 
 int fm_reset(struct frame_manager *fm)
 {
+	int i = 0;
+	struct frame_impl *frm_impl;
+
 	if (!mpp_list_empty(&fm->render_list)) {
 		struct frame_impl *fame1=NULL,*frame2=NULL;
 		mpp_list_for_each_entry_safe(fame1,frame2, &fm->render_list, list) {
 			mpp_list_del_init(&fame1->list);
 			mpp_list_add_tail(&fame1->list, &fm->empty_list);
 		}
+	}
+	//clear flags
+	frm_impl = fm->frame_node;
+	for (i = 0; i < fm->frame_count; i++) {
+		frm_impl->frm.mpp_frame.flags = 0;
+		frm_impl++;
 	}
 	logd("before reset render_num:%d,empty_num:%d,frame_count:%d\n",fm->render_num,fm->empty_num,fm->frame_count);
 	fm->empty_num = fm->frame_count;

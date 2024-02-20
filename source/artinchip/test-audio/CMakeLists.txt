@@ -8,9 +8,9 @@ set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
 
 add_compile_options(-Wall)
 
-add_executable(test_audio test_audio.c)
+add_executable(test_audio_qc test_audio_qc.c goertzel.c)
 
-target_link_libraries(test_audio pthread)
+target_link_libraries(test_audio_qc pthread asound)
 
 # Install
 # install directories
@@ -20,5 +20,5 @@ endif()
 include(GNUInstallDirs)
 
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-	install(TARGETS test_audio RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+	install(TARGETS test_audio_qc RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR

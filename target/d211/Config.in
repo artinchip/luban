@@ -45,6 +45,10 @@ config LUBAN_BOARD_D211_DEMO88_NOR
 	bool "demo88_nor"
 	depends on LUBAN_CHIP_D211
 
+config LUBAN_BOARD_D211_DEMO88_NOR_MUSL
+	bool "demo88_nor_musl"
+	depends on LUBAN_CHIP_D211
+
 endchoice
 
 config LUBAN_BOARD_OF_D211
@@ -55,6 +59,7 @@ config LUBAN_BOARD_OF_D211
 	default "per2_spinor" if LUBAN_BOARD_D211_PER2_SPINOR
 	default "demo128_nand" if LUBAN_BOARD_D211_DEMO128_NAND
 	default "demo100_nand" if LUBAN_BOARD_D211_DEMO100_NAND
+	default "demo88_nor_musl" if LUBAN_BOARD_D211_DEMO88_NOR_MUSL
 	default "demo88_nor" if LUBAN_BOARD_D211_DEMO88_NOR
 	default "demo88_nand" if LUBAN_BOARD_D211_DEMO88_NAND
 	default "ota_emmc" if LUBAN_BOARD_D211_OTA_EMMC

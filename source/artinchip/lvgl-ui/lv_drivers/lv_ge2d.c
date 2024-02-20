@@ -16,10 +16,12 @@
 #include "mpp_ge.h"
 #include "mpp_decoder.h"
 #include "lv_fbdev.h"
+#include "dma_allocator.h"
 
 #define PI 3.141592653589
 #define SIN(x) (sin((x)* PI / 180.0))
 #define COS(x) (cos((x)* PI / 180.0))
+#define ALIGN_16B(x) ((x + 15) & (~15))
 
 typedef struct _img_info {
     unsigned int img_size;
@@ -369,6 +371,38 @@ static int ge_run_blit(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t *draw_d
     return LV_RES_OK;
 }
 
+static int get_bpp_by_fmt(enum mpp_pixel_format fmt)
+{
+    if (fmt == MPP_FMT_ARGB_8888)
+        return 4;
+    else if (fmt == MPP_FMT_RGB_888)
+        return 3;
+    else if (fmt == MPP_FMT_RGB_565)
+        return 2;
+
+    return 4;
+}
+
+static int dma_buf_malloc(int size)
+{
+    int dev_fd;
+    int buf_fb;
+
+    dev_fd = dmabuf_device_open();
+    if (dev_fd < 0) {
+        return -1;
+    }
+
+    buf_fb = dmabuf_alloc(dev_fd, size);
+    dmabuf_device_close(dev_fd);
+    return buf_fb;
+}
+
+static void dma_buf_free(int buf_fd)
+{
+    dmabuf_free(buf_fd);
+}
+
 static int ge_run_rotate(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t *draw_dsc,
                     struct mpp_frame *frame, const lv_area_t *blend_area, const lv_area_t *coords)
 
@@ -382,25 +416,94 @@ static int ge_run_rotate(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t *draw
     lv_coord_t blend_height = lv_area_get_height(blend_area);
     int line_length = draw_buf_pitch();
     enum mpp_pixel_format fmt = draw_buf_fmt();
+    int32_t zoom = 256;
+    int out_w = 0;
+    int out_h = 0;
+    int out_stride = 0;
+    int out_size = 0;
+    u32 out_fd = -1;
+    int out_pivot_x = 0;
+    int out_pivot_y = 0;
 
     /* src buf */
     rot.src_buf.buf_type = MPP_DMA_BUF_FD;
     if (frame->buf.format == MPP_FMT_ARGB_8888
         || frame->buf.format == MPP_FMT_RGBA_8888
-        || frame->buf.format == MPP_FMT_RGB_888) {
-        mpp_ge_add_dmabuf(g_ge, frame->buf.fd[0]);
-        rot.src_buf.fd[0] = frame->buf.fd[0];
-        rot.src_buf.stride[0] = frame->buf.stride[0];
-        rot.src_buf.format = frame->buf.format;
+        || frame->buf.format == MPP_FMT_RGB_888
+        || frame->buf.format == MPP_FMT_RGB_565) {
+
+        if (draw_dsc->zoom == LV_IMG_ZOOM_NONE) {
+            mpp_ge_add_dmabuf(g_ge, frame->buf.fd[0]);
+            rot.src_buf.fd[0] = frame->buf.fd[0];
+            rot.src_buf.stride[0] = frame->buf.stride[0];
+            rot.src_buf.format = frame->buf.format;
+            rot.src_buf.size.width = frame->buf.size.width;
+            rot.src_buf.size.height = frame->buf.size.height;
+            rot.src_rot_center.x = draw_dsc->pivot.x;
+            rot.src_rot_center.y = draw_dsc->pivot.y;
+        } else {
+            struct ge_bitblt blt = { 0 };
+            int bpp = get_bpp_by_fmt(frame->buf.format);
+
+            mpp_ge_add_dmabuf(g_ge, frame->buf.fd[0]);
+            zoom =  draw_dsc->zoom;
+            out_w = (frame->buf.size.width * zoom) >> 8;
+            out_h = (frame->buf.size.height * zoom) >> 8;
+            out_pivot_x = (draw_dsc->pivot.x * zoom) >> 8;
+            out_pivot_y = (draw_dsc->pivot.y * zoom) >> 8;
+            out_stride = ALIGN_16B(out_w * bpp);
+            out_size = out_stride * out_h;
+            out_fd = dma_buf_malloc(out_size);
+            if (out_fd < 0) {
+                LV_LOG_ERROR("malloc fail\n");
+                goto failed;
+            }
+
+            mpp_ge_add_dmabuf(g_ge, out_fd);
+            /* src buf */
+            blt.src_buf.buf_type = MPP_DMA_BUF_FD;
+            blt.src_buf.fd[0] = frame->buf.fd[0];
+            blt.src_buf.stride[0] = frame->buf.stride[0];
+            blt.src_buf.format = frame->buf.format;
+            blt.src_buf.size.width = frame->buf.size.width;
+            blt.src_buf.size.height = frame->buf.size.height;
+
+            /* dst buf */
+            blt.dst_buf.buf_type = MPP_DMA_BUF_FD;
+            blt.dst_buf.fd[0] = out_fd;
+            blt.dst_buf.stride[0] = out_stride;
+            blt.dst_buf.format = frame->buf.format;
+            blt.dst_buf.size.width = out_w;
+            blt.dst_buf.size.height = out_h;
+
+            ret = mpp_ge_bitblt(g_ge, &blt);
+            if (ret < 0) {
+                LV_LOG_ERROR("bitblt fail\n");
+                goto failed;
+            }
+            ret = mpp_ge_emit(g_ge);
+            if (ret < 0) {
+                LV_LOG_ERROR("emit fail\n");
+                goto failed;
+            }
+            ret = mpp_ge_sync(g_ge);
+            if (ret < 0) {
+                LV_LOG_ERROR("sync fail\n");
+                goto failed;
+            }
+
+            rot.src_buf.fd[0] = out_fd;
+            rot.src_buf.stride[0] = out_stride;
+            rot.src_buf.format = frame->buf.format;
+            rot.src_buf.size.width = out_w;
+            rot.src_buf.size.height = out_h;
+            rot.src_rot_center.x = out_pivot_x;
+            rot.src_rot_center.y = out_pivot_y;
+        }
     } else {
         LV_LOG_ERROR("frame unsupport format:%d\n", frame->buf.format);
         return LV_RES_INV;
     }
-    rot.src_buf.crop_en = 0;
-    rot.src_buf.size.width = frame->buf.size.width;
-    rot.src_buf.size.height = frame->buf.size.height;
-    rot.src_rot_center.x = draw_dsc->pivot.x;
-    rot.src_rot_center.y = draw_dsc->pivot.y;
 
     /* dst buf */
 #ifdef USE_DRAW_BUF
@@ -444,20 +547,34 @@ static int ge_run_rotate(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t *draw
     ret = mpp_ge_rotate(g_ge, &rot);
     if (ret < 0) {
         LV_LOG_ERROR("rotate fail");
-        return LV_RES_INV;
+        goto failed;
     }
     ret = mpp_ge_emit(g_ge);
     if (ret < 0) {
         LV_LOG_ERROR("emit fail");
-        return LV_RES_INV;
+        goto failed;
     }
     ret = mpp_ge_sync(g_ge);
     if (ret < 0) {
         LV_LOG_ERROR("sync fail");
-        return LV_RES_INV;
+        goto failed;
     }
 
+    if (out_fd > 0) {
+        mpp_ge_rm_dmabuf(g_ge, out_fd);
+        dma_buf_free(out_fd);
+    }
+
+    mpp_ge_rm_dmabuf(g_ge, frame->buf.fd[0]);
     return LV_RES_OK;
+failed:
+    if (out_fd > 0) {
+        mpp_ge_rm_dmabuf(g_ge, out_fd);
+        dma_buf_free(out_fd);
+    }
+
+    mpp_ge_rm_dmabuf(g_ge, frame->buf.fd[0]);
+    return LV_RES_INV;
 }
 
 static void rgb565_to_argb(unsigned short src_pixel, unsigned int* dst_color)
@@ -736,14 +853,13 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_aic_img_decoded(struct _lv_draw_ctx_t * draw_
         if (blend_dsc.mask_buf == NULL && blend_dsc.blend_mode == LV_BLEND_MODE_NORMAL
             && (dest_buf == disp->driver->draw_buf->buf1 || dest_buf == disp->driver->draw_buf->buf2)
             && disp->driver->set_px_cb == NULL ) {
-
             struct mpp_frame frame;
             memcpy(&frame, src_buf, sizeof(frame));
 
-            if (is_fix_angle(draw_dsc->angle)) {
-                ge_run_blit(draw_ctx, draw_dsc, &frame, &blend_area, coords);
-            } else if (draw_dsc->angle > 0 && draw_dsc->zoom == LV_IMG_ZOOM_NONE) {
+            if (!draw_dsc->antialias || !is_fix_angle(draw_dsc->angle)) {
                 ge_run_rotate(draw_ctx, draw_dsc, &frame, &blend_area, coords);
+            } else if (draw_dsc->angle == 0) {
+                ge_run_blit(draw_ctx, draw_dsc, &frame, &blend_area, coords);
             } else {
                 LV_LOG_ERROR("unsupported angle:%d zoom:%d\n", draw_dsc->angle, draw_dsc->zoom);
                 return;

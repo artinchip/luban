@@ -99,6 +99,8 @@ struct aic_ge_data {
 };
 
 static struct aic_ge_data *g_data;
+static int ge_clk_enable(struct aic_ge_data *data);
+static int ge_clk_disable(struct aic_ge_data *data);
 
 static inline struct aic_ge_client *to_get_client(struct file *file)
 {
@@ -309,6 +311,10 @@ static void run_hw(struct aic_ge_data *data)
 
 	list_del(&batch->list);
 
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+	ge_clk_enable(data);
+#endif
+
 	/* config cmd queue ring buffer */
 	writel(data->cmd_phys, data->regs + CMD_BUF_START_ADDR);
 	writel(END_ADDR(data->cmd_phys, data->total_size),
@@ -378,6 +384,10 @@ static irqreturn_t aic_ge_handler(int irq, void *ctx)
 #endif
 
 	data->cur_batch = NULL;
+
+#ifdef CONFIG_CTRL_GE_CLK_IN_FRAME
+	ge_clk_disable(data);
+#endif
 
 	if (!list_empty(&data->ready)) {
 		run_hw(data);
@@ -612,6 +622,7 @@ static ssize_t ge_write(struct file *file, const char *buff,
 	return count;
 }
 
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 static void ge_power_on(struct aic_ge_data *data)
 {
 	mutex_lock(&data->lock);
@@ -631,6 +642,7 @@ static void ge_power_off(struct aic_ge_data *data)
 	data->refs--;
 	mutex_unlock(&data->lock);
 }
+#endif
 
 static int ge_open(struct inode *inode, struct file *file)
 {
@@ -647,7 +659,9 @@ static int ge_open(struct inode *inode, struct file *file)
 	INIT_LIST_HEAD(&client->buf_list);
 	mutex_init(&client->buf_lock);
 
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	ge_power_on(data);
+#endif
 	client->id = atomic_inc_return(&data->cur_id);
 
 	spin_lock_irqsave(&data->hw_lock, flags);
@@ -675,9 +689,9 @@ static int ge_release(struct inode *inode, struct file *file)
 
 	ge_clean_dma_buf(data, client);
 	kfree(client);
-
+#ifndef CONFIG_CTRL_GE_CLK_IN_FRAME
 	ge_power_off(data);
-
+#endif
 	return 0;
 }
 

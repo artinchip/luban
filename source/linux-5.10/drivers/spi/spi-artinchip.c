@@ -60,6 +60,11 @@ enum spi_mode_type {
 #define SPINOR_OP_READ4_1_1_2	0x3c	/* Read data bytes (Dual SPI) */
 #define SPINOR_OP_READ4_1_1_4	0x6c	/* Read data bytes (Quad SPI) */
 
+#define RX_SAMP_DLY_AUTO        0
+#define RX_SAMP_DLY_NONE        1
+#define RX_SAMP_DLY_HALF_CYCLE  2
+#define RX_SAMP_DLY_ONE_CYCLE   3
+
 /* The port only used for request DDMA, and maybe different in different SoC */
 #define DMA_SPI0		10
 
@@ -79,6 +84,7 @@ struct aic_spi {
 	char dev_name[48];
 	spinlock_t lock;
 	bool bit_mode;
+	u32 rx_samp_dly;
 };
 
 struct aic_spi_platform_data {
@@ -361,7 +367,8 @@ static inline bool spi_ctlr_bit_mode_txsts_clear(void __iomem *base_addr)
 }
 
 static int spi_ctlr_bit_mode_read(struct aic_spi *aicspi, unsigned char *rx_buf,
-				  unsigned int rx_len, unsigned long speed_hz)
+				  unsigned int rx_len, unsigned long speed_hz,
+				  unsigned char bits_per_word)
 {
 	int dolen, remain, i;
 	u32 val, rxbits;
@@ -381,7 +388,7 @@ static int spi_ctlr_bit_mode_read(struct aic_spi *aicspi, unsigned char *rx_buf,
 
 		/* Configre rx length and start transfer */
 		val = readl(aicspi->base_addr + SPI_REG_BTC);
-		val |= (dolen * 8) << BTC_BIT_RX_BIT_LEN_OFS;
+		val |= bits_per_word << BTC_BIT_RX_BIT_LEN_OFS;
 		val |= BTC_BIT_XFER_EN_MSK;
 		writel(val, aicspi->base_addr + SPI_REG_BTC);
 
@@ -393,7 +400,7 @@ static int spi_ctlr_bit_mode_read(struct aic_spi *aicspi, unsigned char *rx_buf,
 		/* Read rx bits */
 		rxbits = readl(aicspi->base_addr + SPI_REG_RBR);
 		for (i = 0; i < dolen; i++)
-			p[i] = (rxbits >> ((3 - i) * 8)) & 0xFF;
+			p[i] = (rxbits >> (i * 8)) & 0xFF;
 		p += dolen;
 		remain -= dolen;
 	}
@@ -406,7 +413,8 @@ static int spi_ctlr_bit_mode_read(struct aic_spi *aicspi, unsigned char *rx_buf,
 
 static int spi_ctlr_bit_mode_write(struct aic_spi *aicspi,
 				   unsigned char *tx_buf, unsigned int tx_len,
-				   unsigned long speed_hz)
+				   unsigned long speed_hz,
+				   unsigned char bits_per_word)
 {
 	int dolen, remain, i;
 	u32 val, txbits;
@@ -425,12 +433,12 @@ static int spi_ctlr_bit_mode_write(struct aic_spi *aicspi,
 			dolen = 4;
 		/* Prepare and write tx bits */
 		for (i = 0; i < dolen; i++)
-			txbits |= p[i] << ((3 - i) * 8);
+			txbits |= p[i] << (i * 8);
 		writel(txbits, aicspi->base_addr + SPI_REG_TBR);
 
 		/* Configure tx length and start transfer */
 		val = readl(aicspi->base_addr + SPI_REG_BTC);
-		val |= (dolen * 8) << BTC_BIT_TX_BIT_LEN_OFS;
+		val |= bits_per_word << BTC_BIT_TX_BIT_LEN_OFS;
 		val |= BTC_BIT_XFER_EN_MSK;
 		writel(val, aicspi->base_addr + SPI_REG_BTC);
 
@@ -456,6 +464,7 @@ static int aic_spi_bit_mode_transfer_one(struct spi_controller *ctlr,
 	void __iomem *base_addr = aicspi->base_addr;
 	u8 *tx_buf = (u8 *)t->tx_buf;
 	u8 *rx_buf = (u8 *)t->rx_buf;
+	u8 bits_per_word = t->bits_per_word;
 
 	dev_dbg(aicspi->dev,
 		"spi-%d: begin bit transfer, txbuf 0x%lx, rxbuf 0x%lx, len %d\n",
@@ -472,9 +481,10 @@ static int aic_spi_bit_mode_transfer_one(struct spi_controller *ctlr,
 
 	if (t->tx_buf)
 		spi_ctlr_bit_mode_write(aicspi, (unsigned char *)t->tx_buf,
-					t->len, t->speed_hz);
+					t->len, t->speed_hz, bits_per_word);
 	if (t->rx_buf)
-		spi_ctlr_bit_mode_read(aicspi, t->rx_buf, t->len, t->speed_hz);
+		spi_ctlr_bit_mode_read(aicspi, t->rx_buf, t->len, t->speed_hz,
+				       bits_per_word);
 
 	return 1; /* In progress */
 }
@@ -758,14 +768,29 @@ static inline void spi_ctlr_quad_disable(void __iomem *base_addr)
 	writel(val, base_addr + SPI_REG_BCC);
 }
 
-static inline void spi_ctlr_set_delay_mode(void __iomem *base_addr, bool en)
+static inline void spi_ctlr_set_tx_delay_mode(void __iomem *base_addr, bool en)
 {
 	u32 val = readl(base_addr + SPI_REG_TCR);
 
 	if (en)
-		val |= (TCR_BIT_SDC | TCR_BIT_SDDM);
+		val |= (TCR_BIT_SDDM);
 	else
-		val &= ~(TCR_BIT_SDC | TCR_BIT_SDDM);
+		val &= ~(TCR_BIT_SDDM);
+	writel(val, base_addr + SPI_REG_TCR);
+}
+
+static inline void spi_ctlr_set_rx_delay_mode(void __iomem *base_addr, int mode)
+{
+	u32 val = readl(base_addr + SPI_REG_TCR);
+
+	val &= ~TCR_RX_SAMPDLY_MSK;
+	if (mode == RX_SAMP_DLY_NONE) {
+		val |= TCR_RX_SAMPDLY_NONE;
+	} else if (mode == RX_SAMP_DLY_HALF_CYCLE) {
+		val |= TCR_RX_SAMPDLY_HALF;
+	} else {
+		val |= TCR_RX_SAMPDLY_ONE;
+	}
 	writel(val, base_addr + SPI_REG_TCR);
 }
 
@@ -970,6 +995,28 @@ static int spi_ctlr_cfg_quad(struct aic_spi *aicspi, struct spi_transfer *t)
 	return 0;
 }
 
+static void spi_ctlr_set_rx_delay(struct aic_spi *aicspi, u32 speed_hz)
+{
+	void __iomem *base_addr = aicspi->base_addr;
+	int rxdlymode = RX_SAMP_DLY_NONE;
+
+	if (aicspi->rx_samp_dly == RX_SAMP_DLY_AUTO) {
+		if (speed_hz <= 24000000)
+			rxdlymode = RX_SAMP_DLY_NONE;
+		else if (speed_hz <= 60000000)
+			rxdlymode = RX_SAMP_DLY_HALF_CYCLE;
+		else
+			rxdlymode = RX_SAMP_DLY_ONE_CYCLE;
+	} else if (aicspi->rx_samp_dly == RX_SAMP_DLY_NONE) {
+		rxdlymode = RX_SAMP_DLY_NONE;
+	} else if (aicspi->rx_samp_dly == RX_SAMP_DLY_HALF_CYCLE) {
+		rxdlymode = RX_SAMP_DLY_HALF_CYCLE;
+	} else {
+		rxdlymode = RX_SAMP_DLY_ONE_CYCLE;
+	}
+	spi_ctlr_set_rx_delay_mode(base_addr, rxdlymode);
+}
+
 static int spi_ctlr_cfg_xfer(struct aic_spi *aicspi, struct spi_device *spi,
 			     struct spi_transfer *t)
 {
@@ -994,7 +1041,7 @@ static int spi_ctlr_cfg_xfer(struct aic_spi *aicspi, struct spi_device *spi,
 		else
 			spi_ctlr_cfg_single(aicspi, t);
 	}
-
+	spi_ctlr_set_rx_delay(aicspi, t->speed_hz);
 	spi_ctlr_set_clk(t->speed_hz, clk_get_rate(aicspi->mclk), base_addr);
 	return 0;
 }
@@ -1435,6 +1482,7 @@ static int aic_spi_hw_init(struct aic_spi *aicspi,
 	spi_ctlr_set_master_mode(base_addr);
 	spi_ctlr_set_clk(24000000, src_clk, base_addr);
 	spi_cltr_cfg_tc(SPI_MODE_0, base_addr);
+	spi_ctlr_set_tx_delay_mode(base_addr, true);
 	spi_ctlr_enable_tp(base_addr);
 	spi_ctlr_set_ss_owner(base_addr, true);
 	spi_ctlr_bit_mode_set_ss_owner(aicspi->base_addr, true);
@@ -1634,7 +1682,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 		 * dummy will be processed by spi controller.
 		 */
 		tx_single = tx_total;
-		spi_ctlr_set_delay_mode(base_addr, false);
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_disable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1643,7 +1690,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	case DUAL_OUTPUT_MODE:
 		dev_dbg(aicspi->dev, "DUAL OUTPUT\n");
 		tx_single = op->cmd.nbytes + op->addr.nbytes;
-		spi_ctlr_set_delay_mode(base_addr, false);
 		spi_ctlr_quad_disable(base_addr);
 		spi_ctlr_dual_enable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1652,7 +1698,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	case DUAL_IO_MODE:
 		dev_dbg(aicspi->dev, "DUAL I/O\n");
 		tx_single = op->cmd.nbytes;
-		spi_ctlr_set_delay_mode(base_addr, true);
 		spi_ctlr_quad_disable(base_addr);
 		spi_ctlr_dual_enable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1661,7 +1706,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	case QUAD_OUTPUT_MODE:
 		dev_dbg(aicspi->dev, "QUAD OUTPUT\n");
 		tx_single = op->cmd.nbytes + op->addr.nbytes;
-		spi_ctlr_set_delay_mode(base_addr, false);
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1670,7 +1714,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	case QUAD_IO_MODE:
 		dev_dbg(aicspi->dev, "QUAD I/O\n");
 		tx_single = op->cmd.nbytes;
-		spi_ctlr_set_delay_mode(base_addr, true);
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1679,7 +1722,6 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	case QPI_MODE:
 		dev_dbg(aicspi->dev, "QPI\n");
 		tx_single = 0;
-		spi_ctlr_set_delay_mode(base_addr, false);
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
 		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
@@ -1687,6 +1729,7 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 		break;
 	}
 
+	spi_ctlr_set_rx_delay(aicspi, mem->spi->max_speed_hz);
 	spi_ctlr_set_clk(mem->spi->max_speed_hz, clk_get_rate(aicspi->mclk),
 			 base_addr);
 	spi_ctlr_set_cs_enable(aicspi, true);
@@ -1789,6 +1832,7 @@ static int aic_spi_probe(struct platform_device *pdev)
 	int ret = 0, err = 0, irq;
 	struct resource	*mem_res;
 	struct aic_spi *aicspi;
+	const char *dly;
 
 	if (!np) {
 		dev_err(&pdev->dev, "failed to get of_node\n");
@@ -1860,6 +1904,16 @@ static int aic_spi_probe(struct platform_device *pdev)
 		dev_warn(aicspi->dev, "failed to request tx dma channel\n");
 	else
 		ctlr->dma_tx = aicspi->dma_tx;
+
+	dly = NULL;
+	device_property_read_string(&pdev->dev, "aic,rx-samp-dly", &dly);
+	aicspi->rx_samp_dly = RX_SAMP_DLY_AUTO;
+	if (dly  && !strcmp(dly, "none"))
+		aicspi->rx_samp_dly = RX_SAMP_DLY_NONE;
+	if (dly  && !strcmp(dly, "half"))
+		aicspi->rx_samp_dly = RX_SAMP_DLY_HALF_CYCLE;
+	if (dly  && !strcmp(dly, "one"))
+		aicspi->rx_samp_dly = RX_SAMP_DLY_ONE_CYCLE;
 
 	if (aicspi->dma_tx || aicspi->dma_rx)
 		ctlr->can_dma = aic_spi_can_dma;

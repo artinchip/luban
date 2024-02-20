@@ -86,9 +86,17 @@ enum fpga_gmac_clk_t {
 #endif
 
 #define SYSCFG_LDO_CFG		0x20
+#define SYSCFG_USB0_REXT	0x48
+#define SYSCFG_USB1_REXT	0x4C
 #define SYSCFG_USB0_CFG		0x40C
 #define SYSCFG_GMAC0_CFG	0x410
 #define SYSCFG_GMAC1_CFG	0x414
+
+#define SYSCFG_USB_RES_CAL_EN_SHIFT		8
+#define SYSCFG_USB_RES_CAL_EN_MASK		BIT(8)
+#define SYSCFG_USB_RES_CAL_VAL_SHIFT		0
+#define SYSCFG_USB_RES_CAL_VAL_MASK		GENMASK(7, 0)
+#define SYSCFG_USB_RES_CAL_VAL_DEF		0x40
 
 #define SYSCFG_USB0_HOST_MODE			0
 #define SYSCFG_USB0_DEVICE_MODE			1
@@ -289,7 +297,48 @@ EXPORT_SYMBOL_GPL(syscfg_fpga_gmac_clk_sel);
 
 static int syscfg_usb_init(struct syscfg_dev *syscfg)
 {
-	// TODO: read some parameters in usb dts, and set it to syscfg register
+	char *name[2] = {"usb@10210000", "usb@10220000"};
+	u32 rext_reg[2] = {SYSCFG_USB0_REXT, SYSCFG_USB1_REXT};
+	struct device_node *usbh = NULL;
+	void __iomem *ctl_reg;
+	u32 val;
+	u32 resis;
+	int i;
+
+	/* config usb host external resistance */
+	while (1) {
+		if (!usbh)
+			usbh = of_find_node_by_name(NULL, "usb");
+		else
+			usbh = of_find_node_by_name(usbh, "usb");
+
+		if (!usbh)
+			return 0;
+
+		for (i = 0; i < 2; i++)
+			if (!strcmp(usbh->full_name, name[i]))
+				break;
+		if (i == 2)
+			continue;
+
+		if (of_property_read_u32(usbh, "aic,usb-ext-resistance",
+					 &resis))
+			continue;
+		resis &= SYSCFG_USB_RES_CAL_VAL_MASK;
+
+		dev_info(syscfg->dev, "Find %s in dts, resis = 0x%x\n",
+			 usbh->full_name, resis);
+
+		ctl_reg = syscfg->regs + rext_reg[i];
+		val = readl(ctl_reg);
+
+		val &= ~SYSCFG_USB_RES_CAL_VAL_MASK;
+		val |= resis << SYSCFG_USB_RES_CAL_VAL_SHIFT;
+		val |= 1 << SYSCFG_USB_RES_CAL_EN_SHIFT;
+
+		writel(val, ctl_reg);
+	}
+
 	return 0;
 }
 

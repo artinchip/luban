@@ -1,0 +1,81 @@
+#
+# ASR device configuration
+#
+
+menuconfig WLAN_VENDOR_ASR
+	bool "Asr Wireless Modules"
+	depends on NET
+	default y
+
+
+if WLAN_VENDOR_ASR
+
+config ASR5531
+	select CFG80211
+	tristate "ASR 5531 USB/SDIO Wi-Fi"
+	default n
+
+
+config ASR5505
+	select MMC
+	select CFG80211
+	tristate "ASR 5505 SDIO Wi-Fi"
+	default n
+
+
+config ASR5825
+	select MMC
+	select CFG80211
+	tristate "ASR 5825 SDIO Wi-Fi & BLE"
+	default n
+
+
+config ASR595X
+	select MMC
+	select CFG80211
+	tristate "ASR 595X SDIO Wi-Fi & BLE"
+	default n
+
+
+config ASR596X
+	select MMC
+	select CFG80211
+	tristate "ASR 596X SDIO Wi-Fi & BLE"
+	default n
+config ASR_SDIO
+	bool "SDIO bus interface support for FullMAC driver"
+	select MMC
+	depends on ( ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
+	default n
+
+
+config ASR_USB
+	bool "USB bus interface support for FullMAC driver"
+	select USB
+	depends on (ASR5531 && !ASR_SDIO)
+	default y
+
+
+config ASR_SAE
+	bool "ASR device SAE support"
+	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
+	default y
+
+
+config ASR_DBG
+	bool "ASR device tracing dbg log"
+	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
+	default n
+
+
+config ASR_KEY_DBG
+	bool "ASR driver debug functions"
+	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
+	default n
+
+config	NOT_USED_DTS
+	bool "do not use dts"
+	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
+	default y
+
+endif # WLAN_VENDOR_ASR

@@ -8,6 +8,8 @@ menu "Host utilities"
 	source package/third-party/uboot-tools/Config.in.host
 	source package/third-party/util-linux/Config.in.host
 	source package/third-party/zic/Config.in.host
+	source package/third-party/gdb/Config.in.host
+	source package/third-party/binutils/Config.in.host
 	comment "************************ Storage/Memory **********************"
 	source package/third-party/e2fsprogs/Config.in.host
 	source package/third-party/mtd/Config.in.host
@@ -47,7 +49,6 @@ menu "Host utilities"
         source package/third-party/libtool/Config.in.host
         source package/third-party/make/Config.in.host
         source package/third-party/meson/Config.in.host
-        source package/third-party/ncurses/Config.in.host
         source package/third-party/ninja/Config.in.host
 	source package/third-party/pkgconf/Config.in.host
 	source package/third-party/patchelf/Config.in.host

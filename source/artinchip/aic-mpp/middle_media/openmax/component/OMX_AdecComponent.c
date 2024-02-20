@@ -493,11 +493,6 @@ static OMX_ERRORTYPE OMX_AdecEmptyThisBuffer(
 			//mpp_decoder_get_packet is ok then mpp_decoder_put_packet is also ok
 			aic_audio_decoder_put_packet(pAdecDataType->pDecoder, &pkt);
 
-			if (pkt.flag & PACKET_FLAG_EOS) {
-				pAdecDataType->nFlags |= ADEC_INPORT_STREAM_END_FLAG;
-				printf("[%s:%d]StreamEndFlag!!!\n",__FUNCTION__,__LINE__);
-			}
-
 			rate += pkt.size;
 			if (pev.tv_sec == 0) {
 				clock_gettime(CLOCK_REALTIME,&pev);
@@ -521,14 +516,20 @@ static OMX_ERRORTYPE OMX_AdecEmptyThisBuffer(
 			pktNode->sBuff.nFlags = pBuffer->nFlags;
 			mpp_list_del(&pktNode->sList);
 			mpp_list_add_tail(&pktNode->sList, &pAdecDataType->sInProcessedPkt);
-			aic_pthread_mutex_unlock(&pAdecDataType->sInPktLock);
-
-			sMsg.message_id = OMX_CommandNops;
-			sMsg.data_size = 0;
-			aic_msg_put(&pAdecDataType->sMsgQue, &sMsg);
+			if (pAdecDataType->nWaitForReadyPkt == 1) {
+				sMsg.message_id = OMX_CommandNops;
+				sMsg.data_size = 0;
+				aic_msg_put(&pAdecDataType->sMsgQue, &sMsg);
+				pAdecDataType->nWaitForReadyPkt = 0;
+			}
+			if (pktNode->sBuff.nFlags & PACKET_FLAG_EOS) {
+				pAdecDataType->nFlags |= ADEC_INPORT_STREAM_END_FLAG;
+				//pVdecDataType->nStreamEndFlag = OMX_TRUE;
+					printf("[%s:%d]:StreamEndFlag\n",__FUNCTION__,__LINE__);
+			}
 			pAdecDataType->nReceivePacktOkNum++;
 			logd("pAdecDataType->nReceivePacktOkNum:%d\n",pAdecDataType->nReceivePacktOkNum);
-
+			aic_pthread_mutex_unlock(&pAdecDataType->sInPktLock);
 		} else if (pAdecDataType->sInBufSupplier.eBufferSupplier == OMX_BufferSupplyInput) {
 			eError = OMX_ErrorNotImplemented;
 			logw("OMX_ErrorNotImplemented\n");
@@ -610,10 +611,12 @@ static OMX_ERRORTYPE OMX_AdecFillThisBuffer(
 			pAdecDataType->nSendBackFrameOkNum++;
 			mpp_list_del(&pFrameNode1->sList);
 			mpp_list_add_tail(&pFrameNode1->sList, &pAdecDataType->sOutEmptyFrame);
-
-			sMsg.message_id = OMX_CommandNops;
-			sMsg.data_size = 0;
-			aic_msg_put(&pAdecDataType->sMsgQue, &sMsg);
+			if (pAdecDataType->nWaitForEmptyFrame ==1) {
+				sMsg.message_id = OMX_CommandNops;
+				sMsg.data_size = 0;
+				aic_msg_put(&pAdecDataType->sMsgQue, &sMsg);
+				pAdecDataType->nWaitForEmptyFrame = 0;
+			}
 			logd("pAdecDataType->nReceivePacktOkNum:%d\n",pAdecDataType->nReceivePacktOkNum);
 		} else {
 			pAdecDataType->nSendBackFrameErrorNum++;
@@ -1138,6 +1141,7 @@ static void* OMX_AdecComponentThread(void* pThreadData)
 	OMX_S32 nCmdData;	//OMX_STATETYPE
 	ADEC_DATA_TYPE* pAdecDataType = (ADEC_DATA_TYPE*)pThreadData;
 	OMX_S32 ret;
+	OMX_S32 dec_ret;
 	ADEC_OUT_FRAME *pFrameNode;
 	struct aic_audio_frame   sFrame;
 	OMX_S32 bNotifyFrameEnd = 0;
@@ -1247,120 +1251,109 @@ _AIC_MSG_GET_:
 			}
 		}
 
-		// decode
-		/*mp3 using libmad */
-		if (!(pAdecDataType->nFlags & ADEC_OUTPORT_SEND_ALL_FRAME_FLAG)) {
-			ret = aic_audio_decoder_decode(pAdecDataType->pDecoder);
-			if (ret == DEC_OK) {
-				//loge("mpp_decoder_decode ok!!!\n");
-				if (OMX_AdecListEmpty(&pAdecDataType->sOutEmptyFrame,pAdecDataType->sOutFrameLock)) {
-					ADEC_OUT_FRAME *pFrameNode = (ADEC_OUT_FRAME*)mpp_alloc(sizeof(ADEC_OUT_FRAME));
-					if (NULL == pFrameNode) {
-						loge("mpp_alloc error \n");
-						goto _AIC_MSG_GET_;
-					}
-					memset(pFrameNode,0x00,sizeof(ADEC_OUT_FRAME));
-					aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
-					mpp_list_add_tail(&pFrameNode->sList, &pAdecDataType->sOutEmptyFrame);
-					aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
-					pAdecDataType->nOutFrameNodeNum++;
-				}
-				ret = aic_audio_decoder_get_frame(pAdecDataType->pDecoder, &sFrame);
-				//loge("**********ret = %d************\n",ret);
-
-				if (ret == DEC_OK) {
-					//loge("mpp_decoder_decode ok!!!\n");
-					OMX_S32 result = 0;
-					OMX_BUFFERHEADERTYPE sBuffHead;
-					sBuffHead.nOutputPortIndex = ADEC_PORT_OUT_INDEX;
-					sBuffHead.pBuffer = (OMX_U8 *)&sFrame;
-					if (pAdecDataType->sOutPortTunneledInfo.nTunneledFlag) {
-						sBuffHead.nInputPortIndex = pAdecDataType->sOutPortTunneledInfo.nTunnelPortIndex;
-						result = OMX_EmptyThisBuffer(pAdecDataType->sOutPortTunneledInfo.pTunneledComp,&sBuffHead);
-					} else {
-						if (pAdecDataType->pCallbacks != NULL && pAdecDataType->pCallbacks->FillBufferDone != NULL) {
-							result = pAdecDataType->pCallbacks->FillBufferDone(pAdecDataType->hSelf,pAdecDataType->pAppData,&sBuffHead);
-						}
-					}
-					if (result == 0) {
-						static struct timespec pev = {0,0} ,cur = {0,0};
-						static int frame_rate = 0;
-						aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
-						pFrameNode = mpp_list_first_entry(&pAdecDataType->sOutEmptyFrame, ADEC_OUT_FRAME, sList);
-						pFrameNode->sFrameInfo = sFrame;
-						mpp_list_del(&pFrameNode->sList);
-						mpp_list_add_tail(&pFrameNode->sList, &pAdecDataType->sOutProcessingFrame);
-						aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
-						if (pFrameNode->sFrameInfo.flag & FRAME_FLAG_EOS) {
-							pAdecDataType->nFlags |= ADEC_OUTPORT_SEND_ALL_FRAME_FLAG;
-							printf("[%s:%d] nFrameEndFlag",__FUNCTION__,__LINE__);
-						}
-						pAdecDataType->nSendFrameOkNum++;
-
-						frame_rate++;
-						if (pev.tv_sec == 0) {
-							clock_gettime(CLOCK_REALTIME,&pev);
-						} else {
-							long diff;
-							clock_gettime(CLOCK_REALTIME,&cur);
-							diff = (cur.tv_sec - pev.tv_sec)*1000*1000 + (cur.tv_nsec - pev.tv_nsec)/1000;
-							if (diff > 1*1000*1000) {
-								logd("a_fr:%d,diff:%ld \n",frame_rate,diff);
-								frame_rate = 0;
-								pev = cur;
-							}
-						}
-						//loge("pAdecDataType->nSendFrameOkNum:%d\n",pAdecDataType->nSendFrameOkNum);
-					} else {
-						//this may drop last frame,so it must deal with this case
-						if (sFrame.flag & FRAME_FLAG_EOS) {
-							printf("[%s:%d]frame end!!!\n",__FUNCTION__,__LINE__);
-						}
-						ret = aic_audio_decoder_put_frame(pAdecDataType->pDecoder, &sFrame);
-						if (ret != 0) {// how to do
-							loge("mpp_decoder_put_frame error!!!!\n");
-							//ASSERT();
-						}
-						logw("OMX_EmptyThisBuffer or FillBufferDone fail!\n");
-						pAdecDataType->nSendFrameErrorNum++;
-					}
-
-				} else if (ret == DEC_NO_RENDER_FRAME) {
-					logw("mpp_decoder_get_frame error DEC_NO_RENDER_FRAME !!!\n");
-					aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 1*1000);
-				} else if (ret == DEC_ERR_FM_NOT_CREATE) {
-					logw("mpp_decoder_get_frame error DEC_ERR_FM_NOT_CREATE !!!\n");
-					aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 1*1000);
-				} else if (ret == DEC_NO_EMPTY_FRAME) {
-					int nCnt = 0;
-					aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
-					mpp_list_for_each_entry(pFrameNode, &pAdecDataType->sOutProcessingFrame, sList) {
-						nCnt++;
-					}
-					aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
-					loge("mpp_decoder_get_frame error DEC_NO_EMPTY_FRAME sOutProcessingFrame:%d ,nSendFrameOkNum:%d!!!\n",nCnt,pAdecDataType->nSendFrameOkNum);
-					aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 1*1000);
-				} else {
-					logw("mpp_decoder_get_frame other error \n");
-				}
-			} else if (ret == DEC_NO_READY_PACKET) {
-				aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 10*1000);
-			} else if (ret == DEC_NO_EMPTY_FRAME) {
-					aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 0);
-			} else if (ret == DEC_ERR_FM_NOT_CREATE) {
-				aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 1*1000);
-			} else if (ret == DEC_NO_RENDER_FRAME) {
-				usleep(5*1000);
-			} else {
-				//ASSERT();
-				loge("mpp_decoder_decode error serious,do not keep decoding  !!!\n");
-			}
+		aic_pthread_mutex_lock(&pAdecDataType->sInPktLock);
+		aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
+		dec_ret = aic_audio_decoder_decode(pAdecDataType->pDecoder);
+		if (dec_ret == DEC_OK) {
+			logd("mpp_decoder_decode ok!!!\n");
+		} else if (dec_ret == DEC_NO_READY_PACKET) {
+			pAdecDataType->nWaitForReadyPkt = 1;
+		} else if (dec_ret == DEC_NO_EMPTY_FRAME) {
+			pAdecDataType->nWaitForEmptyFrame = 1;
+		} else if (dec_ret == DEC_NO_RENDER_FRAME) {
+			logd("aic_audio_decoder_decode other error ret:%d \n",dec_ret);
+		} else {
+			logd("aic_audio_decoder_decode other error ret:%d \n",dec_ret);
 		}
+		aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
+		aic_pthread_mutex_unlock(&pAdecDataType->sInPktLock);
+
+
+		do {
+			OMX_S32 result = 0;
+			OMX_BUFFERHEADERTYPE sBuffHead;
+
+			ret = aic_audio_decoder_get_frame(pAdecDataType->pDecoder,&sFrame);
+			if (ret != DEC_OK) {
+				logd("mpp_decoder_get_frame other error ret:%d \n",ret);
+				break;
+			}
+			if (OMX_AdecListEmpty(&pAdecDataType->sOutEmptyFrame,pAdecDataType->sOutFrameLock)) {
+				ADEC_OUT_FRAME *pFrameNode = (ADEC_OUT_FRAME*)mpp_alloc(sizeof(ADEC_OUT_FRAME));
+				if (NULL == pFrameNode) {
+					loge("mpp_alloc error \n");
+					aic_audio_decoder_put_frame(pAdecDataType->pDecoder, &sFrame);
+					goto _AIC_MSG_GET_;
+				}
+				memset(pFrameNode,0x00,sizeof(ADEC_OUT_FRAME));
+				aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
+				mpp_list_add_tail(&pFrameNode->sList, &pAdecDataType->sOutEmptyFrame);
+				aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
+				pAdecDataType->nOutFrameNodeNum++;
+			}
+			sBuffHead.nOutputPortIndex = ADEC_PORT_OUT_INDEX;
+			sBuffHead.pBuffer = (OMX_U8 *)&sFrame;
+			if (pAdecDataType->sOutPortTunneledInfo.nTunneledFlag) {
+				sBuffHead.nInputPortIndex = pAdecDataType->sOutPortTunneledInfo.nTunnelPortIndex;
+				result = OMX_EmptyThisBuffer(pAdecDataType->sOutPortTunneledInfo.pTunneledComp,&sBuffHead);
+			} else {
+				if (pAdecDataType->pCallbacks != NULL && pAdecDataType->pCallbacks->FillBufferDone != NULL) {
+					result = pAdecDataType->pCallbacks->FillBufferDone(pAdecDataType->hSelf,pAdecDataType->pAppData,&sBuffHead);
+				}
+			}
+			if (result == 0) {
+				aic_pthread_mutex_lock(&pAdecDataType->sOutFrameLock);
+				pFrameNode = mpp_list_first_entry(&pAdecDataType->sOutEmptyFrame, ADEC_OUT_FRAME, sList);
+				pFrameNode->sFrameInfo = sFrame;
+				mpp_list_del(&pFrameNode->sList);
+				mpp_list_add_tail(&pFrameNode->sList, &pAdecDataType->sOutProcessingFrame);
+				aic_pthread_mutex_unlock(&pAdecDataType->sOutFrameLock);
+				if (pFrameNode->sFrameInfo.flag & FRAME_FLAG_EOS) {
+					printf("[%s:%d] nFrameEndFlag",__FUNCTION__,__LINE__);
+					pAdecDataType->nFlags |= ADEC_OUTPORT_SEND_ALL_FRAME_FLAG;
+					if (pAdecDataType->pCallbacks && pAdecDataType->pCallbacks->EventHandler)  {
+						pAdecDataType->pCallbacks->EventHandler(pAdecDataType->hSelf,pAdecDataType->pAppData,OMX_EventBufferFlag,0, 0,NULL);
+					}
+				}
+				pAdecDataType->nSendFrameOkNum++;
+			} else {
+				//this may drop last frame,so it must deal with this case
+				if (sFrame.flag & FRAME_FLAG_EOS) {
+					printf("[%s:%d]frame end!!!\n",__FUNCTION__,__LINE__);
+					pAdecDataType->nFlags |= ADEC_OUTPORT_SEND_ALL_FRAME_FLAG;
+					if (pAdecDataType->pCallbacks && pAdecDataType->pCallbacks->EventHandler)  {
+						pAdecDataType->pCallbacks->EventHandler(pAdecDataType->hSelf,pAdecDataType->pAppData,OMX_EventBufferFlag,0, 0,NULL);
+					}
+				}
+				ret = aic_audio_decoder_put_frame(pAdecDataType->pDecoder, &sFrame);
+				if (ret != 0) {// how to do
+					loge("mpp_decoder_put_frame error!!!!\n");
+					//ASSERT();
+				}
+				pAdecDataType->nSendFrameErrorNum++;
+			}
+		} while(1);
+
+        if (dec_ret == DEC_NO_READY_PACKET) {
+            aic_pthread_mutex_lock(&pAdecDataType->sInPktLock);
+            if (!(pAdecDataType->nFlags & ADEC_INPORT_STREAM_END_FLAG)) {
+                aic_pthread_mutex_unlock(&pAdecDataType->sInPktLock);
+                aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 0);
+            } else {
+                aic_pthread_mutex_unlock(&pAdecDataType->sInPktLock);
+                aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 5*1000);
+            }
+        } else if (dec_ret == DEC_NO_EMPTY_FRAME) {
+            if (!(pAdecDataType->nFlags & ADEC_OUTPORT_SEND_ALL_FRAME_FLAG)) {
+                aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 0);
+            }
+        } else {
+            aic_msg_wait_new_msg(&pAdecDataType->sMsgQue, 5*1000);
+        }
 		// send frame back to decoder in OMX_AdecFillThisBuffer
-
 	}
-_EXIT:
 
+_EXIT:
 	logi("in port:nReceivePacktOkNum:%d,"\
 		"nReceivePacktFailNum:%d,"\
 		"nPutPacktToDecoderOkNum:%d,"\

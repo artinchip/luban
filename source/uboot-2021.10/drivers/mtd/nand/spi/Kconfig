@@ -43,6 +43,11 @@ config SPI_NAND_MICRON
 	help
 	  Enable this driver for Micron SPI NAND flash.
 
+config SPI_NAND_XTX
+	bool "Support XTX SPI NAND"
+	help
+	  Enable this driver for XTX SPI NAND flash.
+
 config SPI_NAND_MACRONIX
 	bool "Support Macronix SPI NAND"
 	help

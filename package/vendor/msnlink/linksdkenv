@@ -1,0 +1,60 @@
+#!/system/bin/sh
+
+#echo "86364000">/proc/sys/net/core/rmem_max
+
+#echo '1' > /config/usb_gadget/g1/configs/b.1/MaxPower
+
+export LINKSDK_CARPLAY_USE_NEW_CONNECTION=1
+
+#mdnsd程序名称
+export LINKSDK_BIN_MDNSD="mdnsd"
+
+#MFI芯片挂载的I2C路径
+export LINKSDK_PATH_MFI_DEV=/dev/i2c-0
+
+#USB otg和peripheral切换的路径
+export LINKSDK_PATH_USB_MODE=/sys/devices/platform/soc/soc:usb-otg/otg_mode
+export LINKSDK_PATH_USB_NAME=/sys/devices/platform/soc/soc:usb-otg/otg_mode
+export LINKSDK_USB_CONTROLL_NAME="10200000.udc"
+
+#USB HOST模式名称
+export LINKSDK_USB_MODE_HOST_NAME=host
+
+#USB device模式名称
+export LINKSDK_USB_MODE_DEVICE_NAME=device
+
+#USB IAP Gadget读写路径
+export LINKSDK_PATH_USB_IAP=/dev/usb_iap
+
+#BT IAP Socket读写路径
+export LINKSDK_PATH_BT_IAP=/dev/goc_spp
+
+#BT AAP Socket读写路径
+export LINKSDK_PATH_BT_AAP=/dev/goc_spp
+
+#临时目录(CarPlay临时KeyChain存放位置)
+export LINKSDK_PATH_TMP=/data/linksdk/
+
+#车辆名称和返回图标名称
+export LINKSDK_CAR_NAME="LT Link"
+
+#CarPlay返回图标路径,配置NULL无返回图标
+export LINKSDK_PATH_CP_OEMICON=/etc/carplayicon_120x120.png
+
+#CarPlay创建热点名称
+export LINKSDK_AP_NAME=carplay_037b
+
+#CarPlay创建热点密码
+export LINKSDK_AP_PSK=88888888
+
+#CarPlay USB充电电流单位mA, 默认1000mA (支持0,500,1000,1500,2100,2400,3000)
+export LINKSDK_CHARGING_CURRENT=1000
+
+#授权码存放分区，分区大小需要大于4K
+export LINKSDK_PATH_LICENSE=/dev/block/by-name/xxxx
+
+#平台签名,由SDK方提供
+export LINKSDK_PLAYFORM_SIGN=xxxxxxxxxxx
+
+#增加USB设备BUS绑定功能防止手机插入非OTG进行操作
+export LINKSDK_PATH_USB_MONITOR=/dev/bus/usb/001/

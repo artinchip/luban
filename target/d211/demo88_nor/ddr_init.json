@@ -28,7 +28,7 @@
 			"tpr10":   "0x00000000",
 			"tpr11":   "0x00000000",
 			"tpr12":   "0x00000000",
-			"tpr13":   "0x0001F801",
+			"tpr13":   "0x0001FC01",
 			"tpr14":   "0x00000000",
 			"tpr15":   "0x00000000",
 			"tpr16":   "0x00000000",
@@ -63,7 +63,7 @@
 			"tpr10":   "0x00000000",
 			"tpr11":   "0x00000000",
 			"tpr12":   "0x00000000",
-			"tpr13":   "0x0001F801",
+			"tpr13":   "0x0001FC01",
 			"tpr14":   "0x00000000",
 			"tpr15":   "0x00000000",
 			"tpr16":   "0x00000000",
@@ -73,12 +73,13 @@
 	},
 	"system": {
 		"upgmode": { // Set PIN to enter BROM's upgrading mode
+			// If set upgmode_pin_cfg_reg to "0", disable bootpin detect in PBP
 			"upgmode_pin_cfg_reg": "0x18700080", // PINMUX REG, PA0
 			"upgmode_pin_cfg_val": "0x10321",    // PINMUX VAL
 			"upgmode_pin_input_reg": "0x18700000", // INPUT VAL REG
 			"upgmode_pin_input_msk": "0x1", // Bit MSK
 			"upgmode_pin_input_val": "0x0", // Bit VAL
-			"upgmode_pin_pullup_dly": "0x1F4", // n * 1us delay, limited to between 500us and 100ms
+			"upgmode_pin_pullup_dly": "500", // n * 1us delay, limited to between 500us and 100ms
 		},
 		"uart": { // PBP's uart setting
 			"main": {

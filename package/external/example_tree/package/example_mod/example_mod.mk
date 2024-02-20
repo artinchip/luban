@@ -1,0 +1,4 @@
+EXAMPLE_PACKAGE_VERSION =
+
+EXAMPLE_PACKAGE_CONF_OPTS += -DCMAKE_INSTALL_PREFIX=/usr/local
+$(eval $(cmake-package))

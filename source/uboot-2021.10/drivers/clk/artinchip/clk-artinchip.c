@@ -295,6 +295,67 @@ static ulong pll_clk_set_rate(struct clk *clk, ulong rate, int index)
 	return 0;
 }
 
+static u32 cpu_clk_write_enable(struct aic_sys_clk *system, u32 val_tmp)
+{
+	struct aic_cpu_attr *cpu =  (struct aic_cpu_attr *)system->clk_attr;
+	u32 val = val_tmp;
+
+	if (cpu->key_bit >= 0) {
+		val &= ~(cpu->key_mask << cpu->key_bit);
+		val |= cpu->key_val << cpu->key_bit;
+	}
+	return val;
+}
+
+static int system_clk_enable(struct clk *clk, int index)
+{
+	u32 value;
+	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
+	struct aic_clk_tree *tree = priv->tree;
+	struct aic_sys_clk *system = &tree->system[index];
+	struct aic_cpu_attr *cpu = (struct aic_cpu_attr *)system->clk_attr;
+
+	if (system->type != AIC_CPU_CLK)
+		return 0;
+	/* enable system clk */
+	value = readl(priv->base + system->reg);
+	if (cpu->mod_gate >= 0)
+		value |= 1 << cpu->mod_gate;
+	value = cpu_clk_write_enable(system, value);
+
+	/* reset system clk */
+	if (cpu->rst_bit >= 0)
+		value |= 1 << cpu->rst_bit;
+	value = cpu_clk_write_enable(system, value);
+	writel(value, priv->base + system->reg);
+
+	return 0;
+}
+
+static int system_clk_disable(struct clk *clk, int index)
+{
+	u32 value;
+	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
+	struct aic_clk_tree *tree = priv->tree;
+	struct aic_sys_clk *system = &tree->system[index];
+	struct aic_cpu_attr *cpu = (struct aic_cpu_attr *)system->clk_attr;
+
+	if (system->type != AIC_CPU_CLK)
+		return 0;
+	/* disable cpu clk */
+	value = readl(priv->base + system->reg);
+	if (cpu->mod_gate >= 0)
+		value &= ~(1 << cpu->mod_gate);
+	value = cpu_clk_write_enable(system, value);
+
+	/* reset cpu clk */
+	if (cpu->rst_bit >= 0)
+		value &= ~(1 << cpu->rst_bit);
+	value = cpu_clk_write_enable(system, value);
+	writel(value, priv->base + system->reg);
+
+	return 0;
+}
 
 static ulong system_clk_set_rate(struct clk *clk, ulong rate, int index)
 {
@@ -316,6 +377,8 @@ static ulong system_clk_set_rate(struct clk *clk, ulong rate, int index)
 		value = readl(priv->base + system->reg);
 		value &= ~(system->div_mask << system->div_shift);
 		value |= div << system->div_shift;
+		if (system->type == AIC_CPU_CLK)
+			value = cpu_clk_write_enable(system, value);
 		writel(value, priv->base + system->reg);
 	}
 
@@ -328,8 +391,8 @@ static ulong system_clk_get_rate(struct clk *clk, int index)
 	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
 	struct aic_clk_tree *tree = priv->tree;
 	struct aic_sys_clk *system = &tree->system[index];
-
 	value = readl(priv->base + system->reg);
+
 	if (!(value & (1 << 8)))
 		return 24000000;
 
@@ -342,7 +405,6 @@ static ulong system_clk_get_rate(struct clk *clk, int index)
 		value = (value >> system->div_shift) & system->div_mask;
 	}
 	value += 1;
-
 	return parent_rate / value;
 }
 
@@ -360,6 +422,8 @@ static int system_clk_set_parent(struct clk *clk,
 	for (i = 0; i < system->parent_cnt; i++) {
 		if (system->parent[i] == parent->id) {
 			value |= (i << system->mux_shift);
+			if (system->type == AIC_CPU_CLK)
+				value = cpu_clk_write_enable(system, value);
 			writel(value, (void *)((long)priv->base + system->reg));
 			return 0;
 		}
@@ -367,7 +431,6 @@ static int system_clk_set_parent(struct clk *clk,
 
 	return -EPERM;
 }
-
 
 static int periph_clk_enable(struct clk *clk, int index)
 {
@@ -694,6 +757,8 @@ static struct aic_clk_ops aic_clk_type_ops[] = {
 
 	/* ops handle for system clocks */
 	{
+		.enable = system_clk_enable,
+		.disable = system_clk_disable,
 		.set_rate = system_clk_set_rate,
 		.get_rate = system_clk_get_rate,
 		.set_parent = system_clk_set_parent,

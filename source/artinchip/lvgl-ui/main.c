@@ -47,6 +47,11 @@ int main(void)
 #if LV_USE_DEMO_MUSIC == 1
     void lv_demo_music(void);
     lv_demo_music();
+#endif
+
+#if LV_USE_AIC_DEMO == 1
+    void ui_init(void);
+    ui_init();
 #else
     void base_ui_init();
     base_ui_init();

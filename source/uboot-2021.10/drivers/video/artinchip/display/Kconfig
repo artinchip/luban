@@ -35,11 +35,20 @@ config VIDEO_ARTINCHIP_MAX_BPP
 	  framebuffer during device-model binding/probing.
 
 config LOGO_IMAGE_SIZE
-	int "Boot logo image size (size in Kilo Bytes)"
+	int "logo itb image size (size in Kilo Bytes) in nor"
 	depends on VIDEO_ARTINCHIP
-	default 36
+	depends on DM_SPI_FLASH
+	default 512
 	help
-	  Boot logo image size.
+	  logo.itb image size.
+
+config LOGO_PART_OFFSET
+	hex "logo partition start offset in nor"
+	depends on VIDEO_ARTINCHIP
+	depends on DM_SPI_FLASH
+	default 0x120000
+	help
+	  logo partition start offset in nor
 
 config JPEG_LOGO_IMAGE
 	bool "Support JPEG BOOT LOGO"

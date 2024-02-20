@@ -27,6 +27,7 @@ Shell commands
    x86/cbsysinfo
    conitrace
    echo
+   event
    exception
    extension
    exit

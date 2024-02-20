@@ -1400,7 +1400,11 @@ _AIC_MSG_GET_:
 				goto _AIC_MSG_GET_;
 			}
 		}
-
+		// skip other pkt type
+		if (sPkt.type != MPP_MEDIA_TYPE_VIDEO && sPkt.type != MPP_MEDIA_TYPE_AUDIO) {
+			pDemuxerDataType->nNeedPeek = 1;
+			goto _AIC_MSG_GET_;
+		}
 		if (sPkt.type == MPP_MEDIA_TYPE_VIDEO) {
 			OMX_BOOL bFind = OMX_FALSE;
 

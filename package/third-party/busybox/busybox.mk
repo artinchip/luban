@@ -145,6 +145,10 @@ endef
 define BUSYBOX_INSTALL_MDEV_CONF
 	$(INSTALL) -D -m 0644 package/third-party/busybox/mdev.conf \
 		$(TARGET_DIR)/etc/mdev.conf
+	$(INSTALL) -d  package/third-party/busybox/mdev \
+		$(TARGET_DIR)/etc/mdev
+	$(INSTALL) -D  package/third-party/busybox/mdev/* \
+		$(TARGET_DIR)/etc/mdev/
 endef
 define BUSYBOX_SET_MDEV
 	$(call KCONFIG_ENABLE_OPT,CONFIG_MDEV)

@@ -149,6 +149,8 @@
 #define TX_CNT_REG						(0x4C)
 
 #define FADE_CTRL0_REG						(0x58)
+#define FADE_CTRL0_STEP_MASK					GENMASK(30, 16)
+#define FADE_CTRL0_STEP(step)					((step) << 16)
 #define FADE_CTRL0_CH1_EN					(2)
 #define FADE_CTRL0_CH0_EN					(1)
 #define FADE_CTRL0_EN						(0)
@@ -229,6 +231,10 @@ struct aic_codec {
 
 static void aic_codec_start_playback(struct aic_codec *codec)
 {
+	regmap_update_bits(codec->regmap, FADE_CTRL0_REG,
+			FADE_CTRL0_STEP_MASK, FADE_CTRL0_STEP(0x80));
+	regmap_update_bits(codec->regmap, FADE_CTRL1_REG,
+			FADE_CTRL1_TARGET_VOL_MASK, 0x7FFF);
 	/* Enable AUDOUT DRQ */
 	regmap_update_bits(codec->regmap, FIFO_INT_EN_REG,
 			FIFO_AUDOUT_DRQ_EN, FIFO_AUDOUT_DRQ_EN);
@@ -238,6 +244,12 @@ static void aic_codec_stop_playback(struct aic_codec *codec)
 {
 	unsigned int space_cnt;
 	unsigned int cnt = 5000;
+
+	regmap_update_bits(codec->regmap, FADE_CTRL0_REG,
+			FADE_CTRL0_STEP_MASK, FADE_CTRL0_STEP(0x3FFF));
+	regmap_update_bits(codec->regmap, FADE_CTRL1_REG,
+			FADE_CTRL1_TARGET_VOL_MASK, 0);
+
 	/* Disable AUDOUT DRQ */
 	regmap_update_bits(codec->regmap, FIFO_INT_EN_REG,
 			FIFO_AUDOUT_DRQ_EN, 0);
@@ -1166,9 +1178,6 @@ static int aic_codec_probe(struct platform_device *pdev)
 	/* Reset codec register */
 	regmap_update_bits(codec->regmap, GLOBE_CTL_REG,
 					GLOBE_GLB_RST, GLOBE_GLB_RST);
-	/* disable fade */
-	regmap_update_bits(codec->regmap, FADE_CTRL0_REG,
-					FADE_CTRL0_MASK, FADE_CTRL0_DISABLE);
 
 	codec->dev->init_name = "aic-codec-dev";
 

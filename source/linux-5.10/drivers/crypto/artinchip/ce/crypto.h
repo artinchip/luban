@@ -35,6 +35,7 @@ struct aic_crypto_dev {
 	u32 irq_status;
 	u32 err_status;
 	u32 clk_rate;
+	int task_count;
 };
 
 static inline bool is_word_aligned(unsigned int offset)

@@ -21,6 +21,11 @@
 #ifdef CONFIG_AUTO_CALCULATE_PART_CONFIG
 #include <generated/image_cfg_part_config.h>
 #endif
+#ifdef CONFIG_VIDEO_ARTINCHIP
+#include <cpu_func.h>
+#include <artinchip/artinchip_fb.h>
+#include <artinchip_ve.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,6 +48,71 @@ unsigned int __weak spl_spi_get_uboot_offs(struct spi_flash *flash)
 }
 
 #ifdef CONFIG_SPL_OS_BOOT
+#ifdef CONFIG_VIDEO_ARTINCHIP
+static int spi_flash_read_logo(struct spi_flash *flash, const char *name)
+{
+	unsigned char *fit, *dst;
+	size_t data_size;
+	const void *data;
+	struct udevice *dev;
+	int noffset, ret;
+
+	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	if (ret) {
+		pr_err("Failed to find aicfb udevice\n");
+		return ret;
+	}
+
+	fit = memalign(DECODE_ALIGN, LOGO_MAX_SIZE);
+	if (!fit) {
+		pr_err("Failed to malloc for logo image!\n");
+		return -ENOMEM;
+	}
+
+	spi_flash_read(flash, CONFIG_LOGO_PART_OFFSET, LOGO_MAX_SIZE,
+		       (void *)fit);
+
+	noffset = fit_image_get_node(fit, name);
+	if (noffset < 0) {
+		printf("Failed to get %s node\n", name);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/* Load specific logo image */
+	ret = fit_image_get_data(fit, noffset, &data, &data_size);
+	if (ret < 0) {
+		pr_err("Failed to get data\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	dst = memalign(DECODE_ALIGN, data_size);
+	if (!dst) {
+		pr_err("Failed to alloc dst buf\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+	memcpy(dst, data, data_size);
+	flush_dcache_range((uintptr_t)dst, (uintptr_t)dst + data_size);
+
+	if (dst[1] == 'P' || dst[2] == 'N' || dst[3] == 'G')
+		aic_png_decode(dst, data_size);
+	else
+		pr_err("not support logo file format, need a png image\n");
+
+out:
+	aicfb_update_ui_layer(dev);
+	aicfb_startup_panel(dev);
+
+	if (fit)
+		free(fit);
+	if (dst)
+		free(dst);
+	return ret;
+}
+#endif
+
 /*
  * Load the kernel, check for a valid header we can parse, and if found load
  * the kernel and then device tree.
@@ -53,6 +123,9 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 {
 	int err;
 
+#ifdef CONFIG_VIDEO_ARTINCHIP
+	spi_flash_read_logo(flash, "boot");
+#endif
 	spi_flash_read(flash, CONFIG_SYS_SPI_ARGS_OFFS,
 		       CONFIG_SYS_SPI_ARGS_SIZE,
 		       (void *)CONFIG_SYS_SPL_ARGS_ADDR);

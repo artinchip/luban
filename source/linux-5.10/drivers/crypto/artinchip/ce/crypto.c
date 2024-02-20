@@ -344,6 +344,7 @@ static int aic_crypto_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	ce_dev->dev = dev;
+	ce_dev->task_count = 0;
 
 	ce_dev->base = devm_platform_ioremap_resource(pdev, 0);
 	if (IS_ERR(ce_dev->base))
@@ -387,6 +388,11 @@ static int aic_crypto_probe(struct platform_device *pdev)
 		udelay(2);
 		reset_control_deassert(ce_dev->reset);
 	}
+
+	pm_runtime_set_autosuspend_delay(dev, 1000);
+	pm_runtime_use_autosuspend(dev);
+	pm_runtime_set_active(dev);
+	pm_runtime_enable(dev);
 
 	platform_set_drvdata(pdev, ce_dev);
 
@@ -433,7 +439,7 @@ static const struct of_device_id aic_dt_ids[] = {
 };
 
 #ifdef CONFIG_PM
-static int aic_crypto_pm_suspend(struct device *dev)
+static int aic_crypto_runtime_suspend(struct device *dev)
 {
 	struct aic_crypto_dev *ce_dev = dev_get_drvdata(dev);
 
@@ -441,7 +447,7 @@ static int aic_crypto_pm_suspend(struct device *dev)
 	return 0;
 }
 
-static int aic_crypto_pm_resume(struct device *dev)
+static int aic_crypto_runtime_resume(struct device *dev)
 {
 	struct aic_crypto_dev *ce_dev = dev_get_drvdata(dev);
 
@@ -449,11 +455,15 @@ static int aic_crypto_pm_resume(struct device *dev)
 	return 0;
 }
 
-static SIMPLE_DEV_PM_OPS(aic_crypto_pm_ops, aic_crypto_pm_suspend,
-						aic_crypto_pm_resume);
-#define AIC_CRYPTO_DEV_PM_OPS		(&aic_crypto_pm_ops)
+static const struct dev_pm_ops aic_crypto_pm_ops = {
+	SET_RUNTIME_PM_OPS(
+			aic_crypto_runtime_suspend,
+			aic_crypto_runtime_resume,
+			NULL) };
+
+#define AIC_CRYPTO_DEV_PM_OPS (&aic_crypto_pm_ops)
 #else
-#define AIC_CRYPTO_DEV_PM_OPS		NULL
+#define AIC_CRYPTO_DEV_PM_OPS NULL
 #endif
 
 MODULE_DEVICE_TABLE(of, aic_dt_ids);

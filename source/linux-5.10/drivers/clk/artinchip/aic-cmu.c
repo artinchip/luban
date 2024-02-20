@@ -431,7 +431,8 @@ static void __init aic_clocks_init(struct device_node *np)
 	const struct pll_clk_cfg *pllcfg;
 	const struct disp_clk_cfg *dispcfg;
 	void __iomem *reg_base;
-	int i;
+	int i, ret;
+	u32 xtal_gm, val;
 
 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws, AIC_CLK_END),
 			      GFP_KERNEL);
@@ -445,6 +446,15 @@ static void __init aic_clocks_init(struct device_node *np)
 	if (!reg_base) {
 		pr_err("%s: could not map ccu region\n", __func__);
 		return;
+	}
+
+	/* xtal drive force value */
+	ret = of_property_read_u32(np, "aic,xtal_driver", &xtal_gm);
+	if (!ret) {
+		val = readl(reg_base + PLL_IN_REG);
+		val &= ~GENMASK(31, 30);
+		val |= xtal_gm << 30;
+		writel(val, reg_base + PLL_IN_REG);
 	}
 
 	hws[CLK_DUMMY] = aic_clk_hw_fixed("dummy", 0);

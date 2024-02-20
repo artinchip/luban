@@ -9,6 +9,8 @@
 
 #include <asm/csr.h>
 
+struct event;
+
 /*
  * Interupt configuration macros
  */
@@ -62,5 +64,8 @@ void __attribute__((weak)) local_save_flags(unsigned int flag)
 {
 	;
 }
+
+/* Hook to set up the CPU (called from SPL too) */
+int riscv_cpu_setup(void *ctx, struct event *event);
 
 #endif /* __ASM_RISCV_SYSTEM_H */

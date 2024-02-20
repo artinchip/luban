@@ -308,7 +308,7 @@ int main(int argc, char **argv)
 	struct mpp_decoder* dec = mpp_decoder_create(type);
 
 	struct decode_config config;
-	config.bitstream_buffer_size = (file_len + 1023) & (~1023);
+	config.bitstream_buffer_size = (file_len + 1023 + 32) & (~1023);
 	config.extra_frame_num = 0;
 	config.packet_count = 1;
 

@@ -1,0 +1,31 @@
+deb http://mirrors.aliyun.com/ubuntu/ focal main restricted
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted
+deb http://mirrors.aliyun.com/ubuntu/ focal universe
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates universe
+deb http://mirrors.aliyun.com/ubuntu/ focal multiverse
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates multiverse
+deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted
+deb http://mirrors.aliyun.com/ubuntu/ focal-security universe
+deb http://mirrors.aliyun.com/ubuntu/ focal-security multiverse
+
+# below needed to linux-header
+deb http://archive.ubuntu.com/ubuntu xenial main restricted
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial main restricted
+deb http://archive.ubuntu.com/ubuntu xenial-updates main restricted
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-updates main restricted
+deb http://archive.ubuntu.com/ubuntu xenial universe
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial universe
+deb http://archive.ubuntu.com/ubuntu xenial-updates universe
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-updates universe
+deb http://archive.ubuntu.com/ubuntu xenial multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial multiverse
+deb http://archive.ubuntu.com/ubuntu xenial-updates multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-updates multiverse
+deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+deb-src http://cn.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu xenial-security main restricted
+deb-src http://security.ubuntu.com/ubuntu xenial-security main restricted
+deb http://archive.ubuntu.com/ubuntu xenial-security universe
+deb-src http://security.ubuntu.com/ubuntu xenial-security universe
+deb http://archive.ubuntu.com/ubuntu xenial-security multiverse

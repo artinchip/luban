@@ -264,6 +264,9 @@ static int clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 		}
 		/* Configure fractional division */
 		writel(fra_en << PLL_FRAC_EN_BIT | fra_in, pll->fra_reg);
+		/* when using decimal divsion, do not configure spreading parameters */
+		sdm_en = (1UL << PLL_SDM_EN_BIT) | (2UL << PLL_SDM_MODE_BIT);
+		writel(sdm_en, pll->sdm_reg);
 	}
 
 	if (pll->type == AIC_PLL_SDM) {
@@ -334,6 +337,7 @@ struct clk_hw *aic_clk_hw_pll(void __iomem *base, const struct pll_clk_cfg *cfg)
 		break;
 	case AIC_PLL_FRA:
 		pll->fra_reg = base + cfg->offset_fra;
+		pll->sdm_reg = base + cfg->offset_sdm;
 		break;
 	case AIC_PLL_SDM:
 		pll->sdm_reg = base + cfg->offset_sdm;

@@ -119,6 +119,10 @@ typedef struct VDEC_DATA_TYPE {
 	struct mpp_list sOutProcessingFrame;
 	pthread_mutex_t sOutFrameLock;
 
+	OMX_S8 nWaitForReadyPkt;
+	OMX_S8 nWaitForEmptyFrame;
+
+
 }VDEC_DATA_TYPE;
 
 #endif

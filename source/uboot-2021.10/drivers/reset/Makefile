@@ -30,4 +30,6 @@ obj-$(CONFIG_RESET_SYSCON) += reset-syscon.o
 obj-$(CONFIG_RESET_RASPBERRYPI) += reset-raspberrypi.o
 obj-$(CONFIG_RESET_SCMI) += reset-scmi.o
 obj-$(CONFIG_RESET_ZYNQMP) += reset-zynqmp.o
-obj-$(CONFIG_RESET_ARTINCHIP) += reset-artinchip-common.o reset-artinchip.o
+obj-$(CONFIG_RESET_ARTINCHIP) += reset-artinchip-common.o
+obj-$(CONFIG_RESET_ARTINCHIP_V1_0) += reset-artinchip.o
+obj-$(CONFIG_RESET_ARTINCHIP_V1_3) += reset-artinchip-v13.o

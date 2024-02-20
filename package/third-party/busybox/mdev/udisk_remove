@@ -1,0 +1,7 @@
+#!/bin/sh
+
+sync
+umount -l /mnt/udisk
+rm -rf /mnt/udisk
+
+echo "/mnt/udisk is unmounted" > /dev/console

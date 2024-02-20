@@ -86,8 +86,8 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
 
     if (aac_decoder->aac_handle_init_flag == 0) {
         aac_decoder->curr_packet = audio_pm_dequeue_ready_packet(aac_decoder->decoder.pm);
-        ret = NeAACDecInit(aac_decoder->aac_handle, aac_decoder->curr_packet->data, aac_decoder->curr_packet->size, &samplerate, &channels);
-        if (ret < 0){
+        ret = NeAACDecInit2(aac_decoder->aac_handle, aac_decoder->curr_packet->data, aac_decoder->curr_packet->size, &samplerate, &channels);
+        if (ret < 0) {
             audio_pm_enqueue_empty_packet(aac_decoder->decoder.pm, aac_decoder->curr_packet);
             loge("NeAACDecInit error\n");
             return DEC_ERR_NOT_SUPPORT;
@@ -106,7 +106,7 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
         return DEC_ERR_NOT_SUPPORT;
     }
 
-    if (frame_info.samples == 0){
+    if (frame_info.samples == 0) {
         audio_pm_enqueue_empty_packet(aac_decoder->decoder.pm, aac_decoder->curr_packet);
         loge("size:%d,pts:%lld\n", aac_decoder->curr_packet->size, aac_decoder->curr_packet->pts);
         return DEC_OK;
@@ -149,7 +149,7 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
             mpp_free(frame->data);
             frame->data = NULL;
             frame->data = mpp_alloc(pcm_data_size);
-            if (frame->data == NULL){
+            if (frame->data == NULL) {
                 loge("mpp_alloc frame->data fail!!!\n");
                 return DEC_ERR_NULL_PTR;
             }

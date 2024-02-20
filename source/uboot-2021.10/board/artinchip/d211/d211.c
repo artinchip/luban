@@ -27,9 +27,19 @@
 #include <asm/arch/usb_detect.h>
 #include <serial.h>
 #include <linux/delay.h>
+#include <asm/unaligned.h>
 #include <userid.h>
 
 #define usleep_range(a, b) udelay((b))
+
+#define BASE_RTC                  ((void *)0x19030000)
+#define RTC_WRITE_KEY_REG         (BASE_RTC + 0x0FC)
+#define RTC_WRITE_KEY_VALUE       (0xAC)
+
+#define RTC_BOOTINFO1_REG         (BASE_RTC + 0x100)
+#define BOOTINFO1_REASON_OFF      (4)
+#define BOOTINFO1_REASON_MSK      (0xF << 4)
+#define RTC_REBOOT_REASON_UPGRADE (4)
 
 #ifdef CONFIG_SPL_SPI_NAND_TINY
 #include <artinchip_spinand.h>
@@ -43,7 +53,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define MAX_MTDIDS 64
 #define MAX_MTDPARTS 256
-#define LOGO_OFFSET	(0x120000)
 
 #define EFUSE_CMU_REG ((void *)0x18020904)
 #define EFUSE_SHADOW_FEATURE_REG ((void *)0x19010224)
@@ -76,7 +85,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #define LSR_TX_EMP_BIT       BIT(6)
-
 
 void board_debug_uart_init(void)
 {
@@ -141,7 +149,7 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("spl_early_init() failed: %d\n", ret);
 
-	arch_cpu_init_dm();
+	riscv_cpu_setup(NULL, NULL);
 
 	preloader_console_init();
 
@@ -261,60 +269,6 @@ static int setup_dm_verity_part(void)
 #endif
 
 #ifdef CONFIG_VIDEO_ARTINCHIP
-#ifdef CONFIG_DM_SPI_FLASH
-static int aic_logo_decode(unsigned char *dst, unsigned int size)
-{
-	if (dst[0] == 0xff || dst[1] == 0xd8) {
-		pr_debug("Loaded a JPEG logo image\n");
-		return aic_jpeg_decode(dst, size);
-	}
-
-	if (dst[1] == 'P' || dst[2] == 'N' || dst[3] == 'G') {
-		pr_debug("Loaded a PNG logo image\n");
-		return aic_png_decode(dst, size);
-	}
-
-	pr_err("not support logo file format, need a png/jpg image\n");
-	return 0;
-}
-#endif /* CONFIG_DM_SPI_FLASH */
-
-static int spinor_load_logo(struct udevice *dev)
-{
-#ifdef CONFIG_DM_SPI_FLASH
-	unsigned int bus = CONFIG_SF_DEFAULT_BUS;
-	unsigned int cs = CONFIG_SF_DEFAULT_CS;
-	struct udevice *new, *bus_dev;
-	struct spi_flash *flash;
-	unsigned char *dst;
-	int ret;
-
-	ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
-	if (ret) {
-		pr_err("Failed to find a spi device\n");
-		return -EINVAL;
-	}
-	flash = dev_get_uclass_priv(new);
-
-	dst = memalign(DECODE_ALIGN, LOGO_MAX_SIZE);
-	if (!dst) {
-		pr_err("Failed to malloc for logo image!\n");
-		return -ENOMEM;
-	}
-
-	ret = spi_flash_read(flash, LOGO_OFFSET, LOGO_MAX_SIZE, dst);
-	if (ret) {
-		pr_err("Failed to read logo image for SPINOR\n");
-		free(dst);
-		return ret;
-	}
-
-	aic_logo_decode(dst, LOGO_MAX_SIZE);
-	free(dst);
-#endif
-	return 0;
-}
-
 static int board_prepare_logo(struct udevice *dev)
 {
 	enum boot_device bd;
@@ -324,16 +278,12 @@ static int board_prepare_logo(struct udevice *dev)
 	switch (bd) {
 	case BD_SDMC0:
 	case BD_SDMC1:
+	case BD_SPINAND:
+	case BD_SPINOR:
 		ret = aic_disp_logo("boot", bd);
 		break;
 	case BD_SDFAT32:
 		ret = aic_disp_logo("sdburn", bd);
-		break;
-	case BD_SPINAND:
-		ret = aic_disp_logo("boot", bd);
-		break;
-	case BD_SPINOR:
-		ret = spinor_load_logo(dev);
 		break;
 	case BD_BOOTROM:
 		ret = aic_disp_logo("usbburn", bd);
@@ -366,9 +316,10 @@ static int board_show_logo(void)
 }
 #endif /* CONFIG_VIDEO_ARTINCHIP  */
 
-static u32 efuse_get_ddr_size(void)
+static u64 efuse_get_ddr_size(void)
 {
-	u32 val, mem, size = 0;
+	u32 val, mem;
+	u64 size = 0;
 
 	writel(0x1100, EFUSE_CMU_REG);
 	val = readl(EFUSE_SHADOW_FEATURE_REG);
@@ -395,6 +346,41 @@ static u32 efuse_get_ddr_size(void)
 		pr_info("No DDR info\n");
 	}
 	return size;
+}
+
+static u64 get_dram_size(void)
+{
+	const fdt64_t *val;
+	u64 size = 0;
+	int offset;
+	int len;
+
+	size = efuse_get_ddr_size();
+	if (size > 0)
+		return size;
+	offset = fdt_path_offset(gd->fdt_blob, "/memory");
+	if (offset < 0) {
+		pr_err("Get memory node from DTS failed.\n");
+		return size;
+	}
+
+	val = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
+	if (len < sizeof(*val) * 2) {
+		pr_err("Get memory size from DTS failed.\n");
+		return size;
+	}
+
+	size = (u64)get_unaligned_be64(&val[1]);
+	return size;
+}
+
+int dram_init(void)
+{
+	gd->ram_size = get_dram_size();
+	if (gd->ram_size == 0) {
+		pr_err("Get DRAM size failed.\n");
+	}
+	return 0;
 }
 
 void fdt_fix_mem_size(void *blob)
@@ -440,7 +426,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	logo.start = (phys_addr_t)priv->fb;
 	logo.end = (phys_addr_t)priv->fb + priv->fb_size - 1;
 
-	err = fdtdec_add_reserved_memory(blob, "aic-logo", &logo, NULL, false);
+	err = fdtdec_add_reserved_memory(blob, "aic-logo", &logo, NULL, 0, NULL, false);
 	if (err < 0 && err != -FDT_ERR_EXISTS) {
 		pr_err("%s: failed to add reserved memory\n", __func__);
 		return err;
@@ -864,9 +850,39 @@ ulong board_spl_fit_size_align(ulong size)
 /* Get the top of usable RAM */
 ulong board_get_usable_ram_top(ulong total_size)
 {
-	if (gd->ram_top ==
-	    CONFIG_SPL_OPENSBI_LOAD_ADDR + CONFIG_SPL_OPENSBI_SIZE)
-		return gd->ram_top - CONFIG_SPL_OPENSBI_SIZE;
-	else
-		return gd->ram_top;
+	u64 dram_size;
+	phys_addr_t top;
+
+	dram_size = get_dram_size();
+	top = CONFIG_SYS_SDRAM_BASE + dram_size;
+
+	/* last region is for OpenSBI */
+	top = top - CONFIG_SPL_OPENSBI_SIZE;
+	return top;
 }
+
+
+int board_load_opensbi_to_ram_top(void)
+{
+	return 1;
+}
+
+#ifndef CONFIG_SPL_BUILD
+extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+void do_brom_upg(void)
+{
+	u32 val;
+
+	printf("%s, RTC\n", __func__);
+	writel(RTC_WRITE_KEY_VALUE, RTC_WRITE_KEY_REG);
+
+	val = readl((void *)RTC_BOOTINFO1_REG);
+	val &= ~BOOTINFO1_REASON_MSK;
+	val |= (RTC_REBOOT_REASON_UPGRADE << BOOTINFO1_REASON_OFF);
+
+	writel(val, (void *)RTC_BOOTINFO1_REG);
+
+	writel(0, RTC_WRITE_KEY_REG);
+	do_reset(NULL, 0, 0, 0);
+}
+#endif

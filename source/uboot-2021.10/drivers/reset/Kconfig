@@ -149,11 +149,26 @@ config RESET_HISILICON
 	help
 	  Support for reset controller on HiSilicon SoCs.
 
-config RESET_ARTINCHIP
+menuconfig RESET_ARTINCHIP
 	bool "Reset controller driver for ArtInChip SoCs"
 	depends on DM_RESET && ARCH_ARTINCHIP
 	help
 	  Support for reset controller on ArtInChip SoCs.
+if RESET_ARTINCHIP
+	choice
+		prompt "Select aic reset driver"
+		default RESET_ARTINCHIP_V1_0
+		config RESET_ARTINCHIP_V1_0
+			bool "aic-reset-v1.0"
+			help
+			reset driver for ArtInChip SoCs
+
+		config RESET_ARTINCHIP_V1_3
+			bool "aic-reset-v1.3"
+			help
+			reset driver for ArtInChip SoCs
+	endchoice
+endif
 
 config RESET_IMX7
 	bool "i.MX7/8 Reset Driver"

@@ -19,6 +19,17 @@ enum event_t {
 	EVT_NONE,
 	EVT_TEST,
 
+	/* Events related to driver model */
+	EVT_DM_POST_INIT_F,
+	EVT_DM_POST_INIT_R,
+	EVT_DM_PRE_PROBE,
+	EVT_DM_POST_PROBE,
+	EVT_DM_PRE_REMOVE,
+	EVT_DM_POST_REMOVE,
+
+	/* Init hooks */
+	EVT_MISC_INIT_F,
+
 	EVT_COUNT
 };
 
@@ -31,6 +42,15 @@ union event_data {
 	struct event_data_test {
 		int signal;
 	} test;
+
+	/**
+	 * struct event_dm - driver model event
+	 *
+	 * @dev: Device this event relates to
+	 */
+	struct event_dm {
+		struct udevice *dev;
+	} dm;
 };
 
 /**
@@ -122,7 +142,9 @@ static inline const char *event_spy_id(struct evspy_info *spy)
 int event_register(const char *id, enum event_t type, event_handler_t func,
 		   void *ctx);
 
-#if CONFIG_IS_ENABLED(EVENT)
+/** event_show_spy_list( - Show a list of event spies */
+void event_show_spy_list(void);
+
 /**
  * event_notify() - notify spies about an event
  *
@@ -137,6 +159,7 @@ int event_register(const char *id, enum event_t type, event_handler_t func,
  */
 int event_notify(enum event_t type, void *data, int size);
 
+#if CONFIG_IS_ENABLED(EVENT)
 /**
  * event_notify_null() - notify spies about an event
  *
@@ -147,11 +170,6 @@ int event_notify(enum event_t type, void *data, int size);
  */
 int event_notify_null(enum event_t type);
 #else
-static inline int event_notify(enum event_t type, void *data, int size)
-{
-	return 0;
-}
-
 static inline int event_notify_null(enum event_t type)
 {
 	return 0;

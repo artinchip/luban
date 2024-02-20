@@ -25,8 +25,11 @@
 			os = "opensbi";
 			arch = "riscv";
 			compression = "none";
-			load = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
-			entry = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+			/* Don't set the load address and entry address for opensbi,
+			 * let SPL determine the load address according DRAM size.
+			 * load = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+			 * entry = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+			 */
 			data = /incbin/("fw_dynamic.bin");
 		};
 		fdt-1 {

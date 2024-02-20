@@ -882,6 +882,9 @@ static int spinand_detect(struct spinand_device *spinand)
 		return -EINVAL;
 	}
 
+	dev_info(spinand->slave->dev, "RAW ID %02x%02x%02x%02x\n",
+		 spinand->id.data[0], spinand->id.data[1], spinand->id.data[2],
+		 spinand->id.data[3]);
 	dev_info(spinand->slave->dev,
 		 "%s SPI NAND was found.\n", spinand->manufacturer->name);
 	dev_info(spinand->slave->dev,

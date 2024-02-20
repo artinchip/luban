@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
+#include <linux/iopoll.h>
 #include "dbi_reg.h"
 #include "reg_util.h"
+
+#define DBI_TIMEOUT_US	1000000
+#define DBI_DELAY_US	1000
 
 void i8080_cmd_ctl(void __iomem *base, u32 first_line, u32 other_line)
 {
@@ -66,7 +70,8 @@ void i8080_wr_fifo_flush(void __iomem *base)
 
 void i8080_cmd_wr(void __iomem *base, u32 code, u32 count, const u8 *data)
 {
-	int i;
+	int i, ret;
+	u32 val;
 
 	i8080_wr_cmd(base, code);
 
@@ -75,9 +80,20 @@ void i8080_cmd_wr(void __iomem *base, u32 code, u32 count, const u8 *data)
 
 	i8080_wr_ctl(base, count, 1);
 
-	while (!reg_rd_bit(base + I8080_STATUS, DBI_I8080_TX_FIFO_EMPTY,
-		DBI_I8080_TX_FIFO_EMPTY_SHIFT))
-		;
+#ifdef ARTINCHIP_MIPI_DBI_DEBUG
+	pr_info("command: %#x, ", code);
+	pr_info("data:");
+	for (i = 0; i < count; i++)
+		pr_info(" %#x", *(data + i));
+
+	pr_info("\n");
+#endif
+
+	ret = readl_poll_timeout(base + I8080_STATUS, val,
+		((val & (DBI_I8080_IDEL | DBI_I8080_TX_FIFO_EMPTY)) == 0x02),
+		DBI_DELAY_US, DBI_TIMEOUT_US);
+	if (ret)
+		pr_err("Timeout during wait i8080 write\n");
 }
 
 void qspi_code_cfg(void __iomem *base, u32 code1, u32 code2, u32 code3)
@@ -179,7 +195,8 @@ void spi_wr_fifo_flush(void __iomem *base)
 
 void spi_cmd_wr(void __iomem *base, u32 code, u32 count, const u8 *data)
 {
-	int i;
+	int i, ret;
+	u32 val;
 
 	spi_wr_cmd(base, code);
 
@@ -188,7 +205,18 @@ void spi_cmd_wr(void __iomem *base, u32 code, u32 count, const u8 *data)
 
 	spi_wr_ctl(base, count, 1);
 
-	while (!reg_rd_bit(base + SPI_STATUS, DBI_SPI_TX_FIFO_EMPTY,
-		DBI_SPI_TX_FIFO_EMPTY_SHIFT))
-		;
+#ifdef ARTINCHIP_MIPI_DBI_DEBUG
+	pr_info("command: %#x, ", code);
+	pr_info("data:");
+	for (i = 0; i < count; i++)
+		pr_info(" %#x", *(data + i));
+
+	pr_info("\n");
+#endif
+
+	ret = readl_poll_timeout(base + SPI_STATUS, val,
+		((val & (DBI_SPI_IDEL | DBI_SPI_TX_FIFO_EMPTY)) == 0x02),
+		DBI_DELAY_US, DBI_TIMEOUT_US);
+	if (ret)
+		pr_err("Timeout during wait spi write\n");
 }

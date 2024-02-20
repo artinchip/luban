@@ -365,6 +365,7 @@ int uart_send(int fd, char *send_buf, int data_len)
 	ssize_t ret = 0;
 
 	ret = write(fd, send_buf, data_len);
+	tcdrain(fd);
 	tcflush(fd, TCOFLUSH);
 	if (ret == data_len)
 		return ret;

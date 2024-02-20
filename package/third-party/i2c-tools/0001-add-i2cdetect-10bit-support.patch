@@ -1,0 +1,105 @@
+diff --git a/tools/i2cbusses.c b/tools/i2cbusses.c
+index d23ee7a..08ac282 100644
+--- a/tools/i2cbusses.c
++++ b/tools/i2cbusses.c
+@@ -393,7 +393,7 @@ int parse_i2c_address(const char *address_arg, int all_addrs)
+ 	long address;
+ 	char *end;
+ 	long min_addr = 0x08;
+-	long max_addr = 0x77;
++	long max_addr = 0x3ff;
+
+ 	address = strtol(address_arg, &end, 0);
+ 	if (*end || !*address_arg) {
+@@ -403,7 +403,7 @@ int parse_i2c_address(const char *address_arg, int all_addrs)
+
+ 	if (all_addrs) {
+ 		min_addr = 0x00;
+-		max_addr = 0x7f;
++		max_addr = 0x3ff;
+ 	}
+
+ 	if (address < min_addr || address > max_addr) {
+diff --git a/tools/i2cdetect.c b/tools/i2cdetect.c
+index 0b9af48..5081b64 100644
+--- a/tools/i2cdetect.c
++++ b/tools/i2cdetect.c
+@@ -40,22 +40,27 @@
+ static void help(void)
+ {
+ 	fprintf(stderr,
+-		"Usage: i2cdetect [-y] [-a] [-q|-r] I2CBUS [FIRST LAST]\n"
++		"Usage: i2cdetect [-y] [-a] [-q|-r] [-t] I2CBUS [FIRST LAST]\n"
+ 		"       i2cdetect -F I2CBUS\n"
+ 		"       i2cdetect -l\n"
+ 		"  I2CBUS is an integer or an I2C bus name\n"
++		"  IF you want to detect 10bit slave add the parameter -t\n"
+ 		"  If provided, FIRST and LAST limit the probing range.\n");
+ }
+
+ static int scan_i2c_bus(int file, int mode, unsigned long funcs,
+-			int first, int last)
++			int first, int last, int use_10bit_mode)
+ {
+ 	int i, j;
+ 	int cmd, res;
++	int print_rows = 128;
++
++	if (use_10bit_mode == 1)
++		print_rows = 1024;
+
+ 	printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+
+-	for (i = 0; i < 128; i += 16) {
++	for (i = 0; i < print_rows; i += 16) {
+ 		printf("%02x: ", i);
+ 		for(j = 0; j < 16; j++) {
+ 			fflush(stdout);
+@@ -83,7 +88,8 @@ static int scan_i2c_bus(int file, int mode, unsigned long funcs,
+ 				printf("   ");
+ 				continue;
+ 			}
+-
++			if (use_10bit_mode == 1)
++				ioctl(file, I2C_TENBIT, i+j);
+ 			/* Set slave address */
+ 			if (ioctl(file, I2C_SLAVE, i+j) < 0) {
+ 				if (errno == EBUSY) {
+@@ -204,9 +210,10 @@ int main(int argc, char *argv[])
+ 	char filename[20];
+ 	unsigned long funcs;
+ 	int mode = MODE_AUTO;
+-	int first = 0x08, last = 0x77;
++	int first = 0x08, last = 0x7ff;
+ 	int flags = 0;
+ 	int yes = 0, version = 0, list = 0;
++	int use_10bit_mode = 0;
+
+ 	/* handle (optional) flags first */
+ 	while (1+flags < argc && argv[1+flags][0] == '-') {
+@@ -214,6 +221,7 @@ int main(int argc, char *argv[])
+ 		case 'V': version = 1; break;
+ 		case 'y': yes = 1; break;
+ 		case 'l': list = 1; break;
++		case 't': use_10bit_mode = 1; break;
+ 		case 'F':
+ 			if (mode != MODE_AUTO && mode != MODE_FUNC) {
+ 				fprintf(stderr, "Error: Different modes "
+@@ -240,7 +248,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 		case 'a':
+ 			first = 0x00;
+-			last = 0x7F;
++			last = 0x7FF;
+ 			break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+@@ -378,7 +386,7 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+
+-	res = scan_i2c_bus(file, mode, funcs, first, last);
++	res = scan_i2c_bus(file, mode, funcs, first, last, use_10bit_mode);
+
+ 	close(file);
+

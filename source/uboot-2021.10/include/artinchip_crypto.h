@@ -463,10 +463,17 @@ struct dm_crypto_ops {
 	 * Return: 0 if OK, -1 on error
 	 */
 	int (*get_err)(struct udevice *dev, u32 alg_unit);
+	/**
+	 * Release crypto device
+	 * @dev: the device
+	 *
+	 */
+	void (*release)(struct udevice *dev);
 };
 
 int crypto_init_device(struct udevice **dev);
 int aes_init(struct udevice *dev);
+void aes_exit(struct udevice *dev);
 int aes_set_encrypt_key(struct udevice *dev, void *key, u32 key_len);
 int aes_set_decrypt_key(struct udevice *dev, void *key, u32 key_len);
 int aes_ecb_encrypt(struct udevice *dev, void *in, void *out, u32 size);
@@ -476,6 +483,7 @@ int aes_cbc_encrypt(struct udevice *dev, void *in, void *out, u32 size,
 int aes_cbc_decrypt(struct udevice *dev, void *in, void *out, u32 size,
 		    void *iv);
 int rsa_init(struct udevice *dev);
+void rsa_exit(struct udevice *dev);
 int rsa_public_encrypt(struct udevice *dev, rsa_context_t *context, void *src,
 		       u32 src_size, void *out);
 int rsa_private_decrypt(struct udevice *dev, rsa_context_t *context, void *src,
@@ -485,6 +493,7 @@ int rsa_private_encrypt(struct udevice *dev, rsa_context_t *context, void *src,
 int rsa_public_decrypt(struct udevice *dev, rsa_context_t *context, void *src,
 		       u32 src_size, void *out, u32 *out_size);
 int sha_init(struct udevice *dev);
+void sha_exit(struct udevice *dev);
 int sha_start(struct udevice *dev, sha_context_t *context, sha_mode_t mode);
 int sha_update(struct udevice *dev, sha_context_t *context, const void *input,
 	       u32 size, int is_last);

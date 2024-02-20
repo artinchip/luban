@@ -13,7 +13,7 @@
 			"kernel":   { "size": "12m" },
 			"recovery": { "size": "10m" },
 			"ubiroot":  {
-				"size": "32m",
+				"size": "64m",
 				"ubi": { // Volume in UBI device
 					"rootfs": { "size": "-" },
 				},

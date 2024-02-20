@@ -171,6 +171,9 @@ config USB_F_OBEX
 config USB_F_NCM
 	tristate
 
+config USB_F_IAP
+	tristate
+
 config USB_F_ECM
 	tristate
 
@@ -270,6 +273,14 @@ config USB_CONFIGFS_NCM
 	  NCM is an advanced protocol for Ethernet encapsulation, allows
 	  grouping of several ethernet frames into one USB transfer and
 	  different alignment possibilities.
+
+config USB_CONFIGFS_IAP
+	bool "IPhone IAP Driver"
+	depends on USB_CONFIGFS
+	depends on NET
+	select USB_F_IAP
+	help
+	  IAP Driver for CarPlay
 
 config USB_CONFIGFS_ECM
 	bool "Ethernet Control Model (CDC ECM)"

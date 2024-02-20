@@ -54,6 +54,9 @@ typedef struct AUDIO_RENDER_IN_FRAME {
 #define  AUDIO_RENDRE_DUMP_FILEPATH "/sdcard/audio.pcm"
 #endif
 
+#define AUDIO_RENDER_WAIT_FRAME_INTERVAL (10*1000*1000)
+#define AUDIO_RENDER_WAIT_FRAME_MAX_TIME (8*1000*1000)
+
 typedef struct AUDIO_RENDER_DATA_TYPE {
 	OMX_STATETYPE state;
 	pthread_mutex_t stateLock;
@@ -105,7 +108,6 @@ typedef struct AUDIO_RENDER_DATA_TYPE {
 	OMX_S8  *pDumpAudioFilePath;
 #endif
 
-	pthread_mutex_t sWaitReayFrameLock;
 	OMX_S32 nWaitReayFrameFlag;
 
 }AUDIO_RENDER_DATA_TYPE;

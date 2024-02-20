@@ -235,9 +235,9 @@ function mk_image_file()
 	# Generate image
 	rm -rf ${BINARIES_DIR}/*.itb
 	if [ "$(grep BR2_GENERATE_BURNER_IMAGE=y ${BR2_CONFIG})" != "" ]; then
-		run_cmd "${MKIMAGEPY} -v -b -c ${BINARIES_DIR}/image_cfg.json -d ${BINARIES_DIR}"
+		run_cmd "${MKIMAGEPY} -v -s -b -c ${BINARIES_DIR}/image_cfg.json -d ${BINARIES_DIR}"
 	else
-		run_cmd "${MKIMAGEPY} -v -c ${BINARIES_DIR}/image_cfg.json -d ${BINARIES_DIR}"
+		run_cmd "${MKIMAGEPY} -v -s -c ${BINARIES_DIR}/image_cfg.json -d ${BINARIES_DIR}"
 	fi
 
 	return 0

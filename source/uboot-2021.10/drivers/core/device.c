@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <event.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -494,6 +495,10 @@ int device_probe(struct udevice *dev)
 	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return 0;
 
+	ret = device_notify(dev, EVT_DM_PRE_PROBE);
+	if (ret)
+		return ret;
+
 	drv = dev->driver;
 	assert(drv);
 
@@ -582,6 +587,10 @@ int device_probe(struct udevice *dev)
 
 	if (dev->parent && device_get_uclass_id(dev) == UCLASS_PINCTRL)
 		pinctrl_select_state(dev, "default");
+
+	ret = device_notify(dev, EVT_DM_POST_PROBE);
+	if (ret)
+		return ret;
 
 	return 0;
 fail_uclass:

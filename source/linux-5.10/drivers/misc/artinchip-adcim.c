@@ -182,6 +182,19 @@ static ssize_t status_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(status);
 
+static ssize_t version_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+{
+	int version;
+	struct adcim_dev *adcim = dev_get_drvdata(dev);
+	void __iomem *regs = adcim->regs;
+
+	version = readl(regs + ADCIM_VERSION);
+
+	return sprintf(buf, "%d.%02d\n", version >> 8, version & 0xff);
+}
+static DEVICE_ATTR_RO(version);
+
 static ssize_t calibration_show(struct device *dev,
 				struct device_attribute *devattr,
 				char *buf)
@@ -314,6 +327,7 @@ static DEVICE_ATTR_WO(rtp_down);
 static struct attribute *adcim_attr[] = {
 	&dev_attr_status.attr,
 	&dev_attr_calibration.attr,
+	&dev_attr_version.attr,
 #ifdef CONFIG_ARTINCHIP_ADCIM_DM
 	&dev_attr_dm_chan.attr,
 	&dev_attr_rtp_down.attr,

@@ -813,4 +813,6 @@ void spl_perform_fixups(struct spl_image_info *spl_image);
 struct image_header *spl_get_load_buffer(ssize_t offset, size_t size);
 
 void spl_save_restore_data(void);
+
+int board_load_opensbi_to_ram_top(void);
 #endif

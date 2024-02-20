@@ -1201,6 +1201,15 @@ static void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell, void *buf)
 {
 	u8 *p, *b;
 	int i, extra, bit_offset = cell->bit_offset;
+#if IS_ENABLED(CONFIG_ARCH_ARTINCHIP)
+	int byte_offset = 0;
+
+	if (bit_offset > BITS_PER_BYTE) {
+		byte_offset = bit_offset / BITS_PER_BYTE;
+		bit_offset = bit_offset % BITS_PER_BYTE;
+		*(int *)buf >>= byte_offset * BITS_PER_BYTE;
+	}
+#endif
 
 	p = b = buf;
 	if (bit_offset) {
@@ -1227,6 +1236,14 @@ static void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell, void *buf)
 
 	/* clear msb bits if any leftover in the last byte */
 	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+
+#if IS_ENABLED(CONFIG_ARCH_ARTINCHIP)
+	if (byte_offset) {
+		*(int *)buf &= GENMASK(bit_offset + cell->nbits, 0);
+	} else {
+		*(int *)buf &= GENMASK(bit_offset + cell->nbits, bit_offset);
+	}
+#endif
 }
 
 static int __nvmem_cell_read(struct nvmem_device *nvmem,

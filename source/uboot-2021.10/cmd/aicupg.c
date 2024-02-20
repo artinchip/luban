@@ -38,6 +38,11 @@ static int image_header_check(struct image_header_pack *header)
 }
 #endif
 
+__weak void do_brom_upg(void)
+{
+	printf("%s is not implemented.\n", __func__);
+}
+
 static int check_upg_mode(long start_tm, long tmo)
 {
 	long cur_tm, tm;
@@ -409,6 +414,10 @@ static int do_aicupg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
 	char *devtype = NULL;
 	int intf, ret = CMD_RET_USAGE;
 
+	if ((argc == 1) || ((argc == 2) && !strcmp(argv[1], "brom"))) {
+		do_brom_upg();
+		return 0;
+	}
 	if ((argc < 3) || (argc > AICUPG_ARGS_MAX))
 		return ret;
 
@@ -433,11 +442,11 @@ static int do_aicupg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
 U_BOOT_CMD(aicupg, AICUPG_ARGS_MAX, 0, do_aicupg,
 	"ArtInChip firmware upgrade",
 	"[devtype] [interface]\n"
-	"  - devtype: should be usb, mmc, fat\n"
+	"  - devtype: should be usb, mmc, fat, brom\n"
 	"  - interface: specify the controller id\n"
 	"e.g.\n"
 	"aicupg\n"
-	"  - if no parameter is provided, it will try to detect boot device.\n"
+	"  - if no parameter is provided, it will reboot to BROM's upgmode.\n"
 	"aicupg usb 0\n"
 	"aicupg mmc 1\n"
 	"- when devtype is fat: \n"
@@ -446,4 +455,5 @@ U_BOOT_CMD(aicupg, AICUPG_ARGS_MAX, 0, do_aicupg,
 	"e.g. \n"
 	"aicupg fat udisk 0\n"
 	"aicupg fat mmc 1\n"
+	"aicupg\n"
 );

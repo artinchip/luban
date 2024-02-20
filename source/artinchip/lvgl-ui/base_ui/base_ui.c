@@ -773,6 +773,7 @@ void base_ui_init()
     lv_obj_set_pos(img_point, 192, 200);
     lv_img_set_pivot(img_point, 12, 108);
     lv_img_set_angle(img_point, rot_angle * 10);
+    lv_img_set_antialias(img_point, 0);
 
     ui_speed = lv_label_create(main_tab0);
     lv_obj_set_width(ui_speed, LV_SIZE_CONTENT);

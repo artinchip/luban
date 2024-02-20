@@ -14,6 +14,7 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 #include "clk-aic.h"
+#include <dt-bindings/clock/artinchip,aic-cmu.h>
 
 #define PLL_INT0_GEN_REG (0x0000)
 #define PLL_INT1_GEN_REG (0x0004)
@@ -163,22 +164,22 @@ static u32 cpu_src_sels[] = {CLK_OSC24M, CLK_PLL_INT0};
 #endif
 
 static struct aic_sys_clk clk_syss[] = {
-	CLK_SYS(CLK_AXI0, CLK_AXI0_REG, axi0_src_sels,
+	CLK_SYS_BUS(CLK_AXI0, CLK_AXI0_REG, axi0_src_sels,
 		ARRAY_SIZE(axi0_src_sels), 8, 1, 0, 5),
-	CLK_SYS(CLK_AHB0, CLK_AHB0_REG, ahb0_src_sels,
+	CLK_SYS_BUS(CLK_AHB0, CLK_AHB0_REG, ahb0_src_sels,
 		ARRAY_SIZE(ahb0_src_sels), 8, 1, 0, 5),
-	CLK_SYS(CLK_APB0, CLK_APB0_REG, apb0_src_sels,
+	CLK_SYS_BUS(CLK_APB0, CLK_APB0_REG, apb0_src_sels,
 		ARRAY_SIZE(apb0_src_sels), 8, 1, 0, 5),
 #ifdef CONFIG_CLK_ARTINCHIP_V0_1
-	CLK_SYS(CLK_APB1, CLK_APB1_REG, apb1_src_sels,
+	CLK_SYS_BUS(CLK_APB1, CLK_APB1_REG, apb1_src_sels,
 		ARRAY_SIZE(apb1_src_sels), 8, 1, 0, 5),
-	CLK_SYS(CLK_CPU, CLK_CPU_REG, cpu_src_sels,
+	CLK_SYS_BUS(CLK_CPU, CLK_CPU_REG, cpu_src_sels,
 		ARRAY_SIZE(cpu_src_sels), 8, 2, 0, 5),
 
 #else
-	CLK_SYS(CLK_APB1, CLK_APB1_REG, apb1_src_sels,
+	CLK_SYS_BUS(CLK_APB1, CLK_APB1_REG, apb1_src_sels,
 		ARRAY_SIZE(apb1_src_sels), 8, 1, 0, 0),
-	CLK_SYS(CLK_CPU, CLK_CPU_REG, cpu_src_sels,
+	CLK_SYS_BUS(CLK_CPU, CLK_CPU_REG, cpu_src_sels,
 		ARRAY_SIZE(cpu_src_sels), 8, 1, 0, 5),
 #endif
 };

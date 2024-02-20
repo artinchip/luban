@@ -1,3 +1,38 @@
+# V1.2.3 #
+
+##新增##
+
+- 新增驱动模块：PSADC、EPWM、rx8025t
+- USB Gadget：增加f_iap功能
+- 新增器件支持：
+   - NAND：xtx
+   - WiFi：asr5505、sv6x5x
+- 新增第三方包：msnlink/zjinnova/Carbit的投屏方案适配、GDB、libpjsip、libsrtp、libatomic_ops
+- 新增方案：demo88 nor musl
+- 默认打开SD卡、U盘的自动挂载功能
+
+##优化##
+
+- 功耗优化：包括驱动、PBP等
+- Audio：支持Fade in/out
+- LVGL：优化透明度的处理性能；支持缩放和任意角度旋转的组合；
+- 启动流程全面支持自适应DDR Size处理
+- NOR方案：支持自动计算分区信息
+- USB：增加外部阻抗的参数配置
+- SPI：支持配置Sample Delay、Rx Delay
+- SID：增加时序参数可配置
+- DMA：增强通道参数的有效性检查
+- package：支持子目录、外部源码目录的编译管理
+- i2c-tools：支持10bit模式
+- 简化U-Boot的DTS配置，合并board-u-boot.dtsi到board.dts
+
+##修改##
+
+- DDR Init：默认打开展频功能，便于ESD测试
+- MPP：修正部分MP4文件的播放错误
+- test_fb增加"-b"参数显示渐变色块，方便验证硬件环境
+- test_gpio增加output的配置功能
+
 
 # V1.2.2 #
 

@@ -11,6 +11,7 @@
 #include <linux/kfifo.h>
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
+#include <linux/pm_runtime.h>
 #include <crypto/des.h>
 #include <crypto/aes.h>
 #include <crypto/internal/des.h>
@@ -1185,6 +1186,13 @@ static int aic_skcipher_alg_init(struct crypto_skcipher *tfm)
 
 	aicalg = container_of(skalg, struct aic_skcipher_alg, alg);
 	ctx->ce = aicalg->ce;
+
+#ifdef CONFIG_PM
+	if (ctx->ce->task_count == 0)
+		pm_runtime_get_sync(ctx->ce->dev);
+	ctx->ce->task_count++;
+#endif
+
 	ctx->enginectx.op.do_one_request = aic_skcipher_do_one_req;
 	ctx->enginectx.op.prepare_request = aic_skcipher_prepare_req;
 	ctx->enginectx.op.unprepare_request = aic_skcipher_unprepare_req;
@@ -1199,6 +1207,15 @@ static void aic_skcipher_alg_exit(struct crypto_skcipher *tfm)
 
 	pr_debug("%s\n", __func__);
 	ctx = crypto_skcipher_ctx(tfm);
+
+#ifdef CONFIG_PM
+	ctx->ce->task_count--;
+	if (ctx->ce->task_count == 0) {
+		pm_runtime_mark_last_busy(ctx->ce->dev);
+		pm_runtime_put_autosuspend(ctx->ce->dev);
+	}
+#endif
+
 	kfree_sensitive(ctx->inkey);
 	ctx->inkey = NULL;
 }
