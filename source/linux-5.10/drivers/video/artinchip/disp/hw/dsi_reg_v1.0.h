@@ -57,7 +57,7 @@
 #define DSI_VID_MODE_CFG_LP_EN_VBP		BIT(9)
 #define DSI_VID_MODE_CFG_LP_EN_VSA		BIT(8)
 #define DSI_VID_MODE_CFG_TYPE_MASK		GENMASK(1, 0)
-#define DSI_VID_MODE_CFG_TYPE(x)		(((x) & 0x3) << 0)
+#define DSI_VID_MODE_CFG_TYPE(x)		((((x) >> 1) & 0x3) << 0)
 
 #define DSI_VID_HBP_TIME_MASK			GENMASK(27, 16)
 #define DSI_VID_HBP_TIME(x)			(((x) & 0xFFF) << 16)
@@ -222,7 +222,7 @@ void dsi_set_data_clk_polrs(void __iomem *base, u32 dc_inv);
 
 void dsi_set_clk_div(void __iomem *base, ulong mclk);
 void dsi_pkg_init(void __iomem *base);
-void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane);
+void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane, enum dsi_mode mode);
 void dsi_hs_clk(void __iomem *base, u32 enable);
 void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 		u32 lane, u32 vc, struct videomode *vm);

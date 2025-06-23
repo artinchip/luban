@@ -775,6 +775,13 @@ config CMD_UNZIP
 	help
 	  Uncompress a zip-compressed memory region.
 
+config CMD_HWUNZIP
+	bool "hardware unzip"
+	default n
+	select GZIP_DECODE_ARTINCHIP
+	help
+	  Hardware Uncompress a zip-compressed memory region.
+
 config CMD_ZIP
 	bool "zip"
 	select GZIP_COMPRESSED

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Copyright (C) 2023 ArtInChip Technology Co., Ltd.
  * Author: weijie.ding <weijie.ding@artinchip.com>
@@ -29,8 +29,9 @@
 #include <linux/if.h>
 
 #define CAN_DEBUG	0
+#define MAX_SIZE	60
 
-int test_can_loopback()
+int test_can_loopback(char *dev_name)
 {
 	int sock_fd, epfd, err;
 	struct can_frame tx_frame, rx_frame;
@@ -43,7 +44,7 @@ int test_can_loopback()
 	memset(&rx_frame, 0, sizeof(struct can_frame));
 
 	sock_fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-	strcpy(ifr.ifr_name, "can0");
+	strcpy(ifr.ifr_name, dev_name);
 	ioctl(sock_fd, SIOCGIFINDEX, &ifr);
 
 	addr.can_family = AF_CAN;
@@ -93,20 +94,39 @@ int test_can_loopback()
 		return 0;
 }
 
+void usage(char *program)
+{
+	printf("Usage: %s DEV_NAME\n", program);
+	printf("\tExample:\n");
+	printf("\t\t%s can0\n", program);
+	printf("\t\t%s can1\n", program);
+}
+
 int main(int argc, char *argv[])
 {
 	int ret;
+	char buf[MAX_SIZE];
 
-	system("ip link set can0 type can bitrate 1000000 loopback on");
-	system("ifconfig can0 up");
+	if (argc != 2 || (strcmp(argv[1], "can0") && strcmp(argv[1], "can1"))) {
+		usage(argv[0]);
+		return -1;
+	}
 
-	ret = test_can_loopback();
-	system("ifconfig can0 down");
+	snprintf(buf, MAX_SIZE,
+		 "ip link set %s type can bitrate 1000000 loopback on",
+		 argv[1]);
+	system(buf);
+	snprintf(buf, MAX_SIZE, "ifconfig %s up", argv[1]);
+	system(buf);
+
+	ret = test_can_loopback(argv[1]);
+	snprintf(buf, MAX_SIZE, "ifconfig %s down", argv[1]);
+	system(buf);
 	if (!ret) {
-		printf("CAN loopback test success\n");
+		printf("%s loopback test success\n", argv[1]);
 		return 0;
 	} else {
-		printf("CAN loopback test error\n");
+		printf("%s loopback test error\n", argv[1]);
 		return -1;
 	}
 }

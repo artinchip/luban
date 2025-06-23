@@ -5,4 +5,9 @@ TEST_DVP_ENABLE_PATCH = NO
 TEST_DVP_DEPENDENCIES += test-common
 
 TEST_DVP_CONF_OPTS += -DCMAKE_INSTALL_PREFIX=/usr/local
+
+ifeq ($(BR2_PACKAGE_AIC_MPP),y)
+TEST_DVP_CONF_OPTS += -DUSE_GE_ROTATION=yes
+endif
+
 $(eval $(cmake-package))

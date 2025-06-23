@@ -1,0 +1,348 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="离线烧录，是指使用烧录器烧录存储器件，包括 SPI NOR 和 SPI NAND。本节演示使用硕飞 SP328 烧录器进行烧录的详细流程和步骤，以 D21x 平台的镜像烧录为例。 注： 离线（脱机）烧录会破坏掉固件的加密信息。如果开启了安全启动，SPIENC 等加密方案，则不得进行脱机烧录。 注： 执行本节步骤和流程之前，确保已安装硕飞 SP328 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/chapter-app.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html"/><meta name="DC.relation" content="../../../topics/sdk/peripheral/peripheral-intro.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>离线烧录</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1663"/><meta name="wh-source-relpath" content="topics/sdk/burnsys/burner_offline.dita"/><meta name="wh-out-relpath" content="topics/sdk/burnsys/burner_offline.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html">离线烧录</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html" title="烧写 eFuse" aria-label="上一主题: 烧写 eFuse" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/peripheral/peripheral-intro.html" title="外设移植" aria-label="下一主题: 外设移植" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/burnsys/burner_offline.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">离线烧录</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="- topic/div div" id="id__burnsys_offline_intro">
+            <div class="- topic/p p" data-ofbid="d203150e30__20250123155222">离线烧录，是指使用烧录器烧录存储器件，包括 SPI NOR 和 SPI NAND。本节演示使用硕飞 SP328 烧录器进行烧录的详细流程和步骤，以 D21x
+                    平台的镜像烧录为例。<div class="- topic/note note note note_note" id="id__note_rnf_mv5_12c" data-ofbid="id__note_rnf_mv5_12c"><span class="note__title">注：</span> <div class="note__body">离线（脱机）烧录会破坏掉固件的加密信息。如果开启了安全启动，SPIENC
+                    等加密方案，则不得进行脱机烧录。</div></div></div>
+            <div class="- topic/note note note note_note" id="id__note_lyw_npt_12c" data-ofbid="id__note_lyw_npt_12c"><span class="note__title">注：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d203150e37__20250123155222">执行本节步骤和流程之前，确保已安装硕飞 SP328 烧录器，并准备好要烧录平台的镜像文件。更多关于烧录器的使用方法，可参考官方使用文档 (<a class="- topic/xref xref" href="https://www.sflytech.com/download/software/SP32_Manual_cn.pdf" target="_blank" rel="external noopener">https://www.sflytech.com/download/software/SP32_Manual_cn.pdf</a>) 以及软件使用文档。</p>
+            </div></div>
+        </div>
+        <section class="- topic/section section" id="id__id2" data-ofbid="id__id2"><h2 class="- topic/title title sectiontitle">准备镜像文件</h2>
+            
+            <ol class="- topic/ol ol" id="id__ol_bgv_lff_jdc" data-ofbid="id__ol_bgv_lff_jdc">
+                <li class="- topic/li li" data-ofbid="d203150e53__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d203150e55__20250123155222">在 SDK 根目录下，执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make menuconfig</span> 进入配置界面。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d203150e62__20250123155222">
+                    <div class="- topic/p p" data-ofbid="d203150e64__20250123155222">勾选下列制作镜像参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_rj1_mff_jdc" data-ofbid="id__codeblock_rj1_mff_jdc"><code>Filesystem images  ---&gt;
+    [*] Generate burner format image</code></pre></div>
+                    <div class="- topic/p p" data-ofbid="d203150e69__20250123155222">对于 NAND 烧录镜像制作，需要设置 ROOTFS 为 UBI 文件格式：<div class="- topic/note note note note_note" id="id__note_nvr_yjv_fdc" data-ofbid="id__note_nvr_yjv_fdc"><span class="note__title">注：</span> <div class="note__body">
+                            <p class="- topic/p p" data-ofbid="d203150e73__20250123155222">仅在使用 NAND 且使用 UBI 文件系统时执行下列步骤，否则可略过。</p>
+                        </div></div><ol class="- topic/ol ol" type="a" id="id__ol_jzb_sc1_rdc" data-ofbid="id__ol_jzb_sc1_rdc">
+                            <li class="- topic/li li" data-ofbid="d203150e78__20250123155222">
+                                <p class="- topic/p p" data-ofbid="d203150e80__20250123155222">在根目录执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make menuconfig</span> 打开配置界面。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d203150e87__20250123155222">
+                                <div class="- topic/p p" data-ofbid="d203150e89__20250123155222">找到并使能下列配置项 <code class="+ topic/ph pr-d/codeph ph codeph">ubi image containing an ubifs root
+                                        filesystem</code>：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_b4r_4ff_jdc" data-ofbid="id__codeblock_b4r_4ff_jdc"><code>Filesystem images  ---&gt;
+        RootFS images  ---&gt;
+            [*] ubi image containing an ubifs root filesystem
+            [ ]   Use custom config file
+            ()    Additional ubinize options</code></pre></div>
+                            </li>
+                        </ol></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d203150e100__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d203150e102__20250123155222">编译完成后，在编译输出目录 <span class="+ topic/ph sw-d/filepath ph filepath">(images)/burner</span> 下找到烧录器使用到的镜像，例如
+                            <span class="+ topic/ph sw-d/filepath ph filepath">d21x_demo100_nand_page_2k_block_128k_v1.0.0.bin</span>。</p>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__section_mh4_4bv_12c" data-ofbid="id__section_mh4_4bv_12c"><h2 class="- topic/title title sectiontitle">新建项目</h2>
+            
+            <ol class="- topic/ol ol" id="id__ol_yst_1z5_12c" data-ofbid="id__ol_yst_1z5_12c">
+                <li class="- topic/li li" data-ofbid="d203150e121__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d203150e123__20250123155222">在烧录器软件菜单栏中，选择 <span class="+ topic/ph ui-d/menucascade ph menucascade"><span class="+ topic/ph ui-d/uicontrol ph uicontrol">芯片</span><abbr> &gt; </abbr><span class="+ topic/ph ui-d/uicontrol ph uicontrol">识别芯片型号</span></span>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d203150e136__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d203150e138__20250123155222">在弹窗中，选择芯片类型后点击开始检测。</p>
+                    <p class="- topic/p p" data-ofbid="d203150e141__20250123155222">烧录器具有自动识别芯片的功能，若识别失败，则手动选择芯片型号。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d203150e145__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d203150e147__20250123155222">在烧录器软件菜单栏中，点击<span class="+ topic/ph ui-d/menucascade ph menucascade"><span class="+ topic/ph ui-d/uicontrol ph uicontrol">文件</span><abbr> &gt; </abbr><span class="+ topic/ph ui-d/uicontrol ph uicontrol">新建项目</span></span>。</p>
+                    <div class="- topic/p p" data-ofbid="d203150e159__20250123155222">在弹出的芯片型号选择对话框中，根据检查到的芯片型号选择匹配的型号。<figure class="- topic/fig fig fignone" id="id__id12" data-ofbid="id__id12">
+                            
+                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_mzt_xff_jdc" src="../../../reusables/reused-topics/../../images/burnsys/burner_make_new_project1.png" width="576" alt="burner_make_new_project1"/></div><br/>
+                        <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">新建项目</span></figcaption></figure></div>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__section_vrj_bcv_12c" data-ofbid="id__section_vrj_bcv_12c"><h2 class="- topic/title title sectiontitle">加载烧录数据</h2>
+            
+            <p class="- topic/p p" data-ofbid="d203150e181__20250123155222">创建新项目后，在系统弹窗中点击<span class="+ topic/ph ui-d/uicontrol ph uicontrol">加载数据…</span>文件夹，并选择<a class="- topic/xref xref" href="../../../reusables/reused-topics/../../topics/sdk/burnsys/burner_offline.html#id__id2">准备烧录的镜像文件</a>。</p>
+            <figure class="- topic/fig fig fignone" id="id__id13" data-ofbid="id__id13">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_zst_1z5_12c" src="../../../reusables/reused-topics/../../images/burnsys/burner_load_file.png" width="480" alt="burner_load_file"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">加载烧录文件</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="id__section_ztm_fcv_12c" data-ofbid="id__section_ztm_fcv_12c"><h2 class="- topic/title title sectiontitle">项目设置</h2>
+            
+            
+            <div class="- topic/p p" data-ofbid="d203150e211__20250123155222">在<span class="+ topic/ph ui-d/uicontrol ph uicontrol">项目设置</span>页面，配置下列参数：<ol class="- topic/ol ol" id="id__ul_oxq_5cs_gdc" data-ofbid="id__ul_oxq_5cs_gdc">
+                    <li class="- topic/li li" data-ofbid="d203150e218__20250123155222">选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">烧录区域</span>。</li>
+                    <li class="- topic/li li" data-ofbid="d203150e224__20250123155222">选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">烧录操作（自动）</span>。</li>
+                    <li class="- topic/li li" data-ofbid="d203150e230__20250123155222">选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">附加选项</span>。</li>
+                </ol></div>
+            <figure class="- topic/fig fig fignone" id="id__id14" data-ofbid="id__id14">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_att_1z5_12c" src="../../../reusables/reused-topics/../../images/burnsys/burner_project_setting1.png" width="480" alt="burner_project_setting1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 3</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title"><span class="+ topic/ph ui-d/uicontrol ph uicontrol">项目设置</span>配置界面</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="id__section_bjh_tbv_12c" data-ofbid="id__section_bjh_tbv_12c"><h2 class="- topic/title title sectiontitle">项目运行（烧录操作）</h2>
+            
+            <p class="- topic/p p" data-ofbid="d203150e259__20250123155222">点击<span class="+ topic/ph ui-d/uicontrol ph uicontrol">自动单次</span>即可开始烧录，右侧会显示烧录信息。烧录完成后，即可取下芯片焊接至对应平台进行上电验证。</p>
+            <figure class="- topic/fig fig fignone" id="id__id16" data-ofbid="id__id16">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_ctt_1z5_12c" src="../../../reusables/reused-topics/../../images/burnsys/burner_project_run1.png" width="576" alt="burner_project_run1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 4</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">项目运行</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="id__section_lnv_jcv_12c" data-ofbid="id__section_lnv_jcv_12c"><h2 class="- topic/title title sectiontitle">分区烧录模式</h2>
+            
+            <p class="- topic/p p" data-ofbid="d203150e283__20250123155222">分区烧录模式是一种针对 NAND Flash 存储器的烧录方式，允许将存储器划分为多个独立的区域，每个区域可以存储不同的数据。仅 NAND Flash
+                烧录设置有所不用，其它操作步骤不变。</p>
+            <div class="- topic/p p" data-ofbid="d203150e286__20250123155222">
+                <ol class="- topic/ol ol" id="id__ol_npx_dds_gdc" data-ofbid="id__ol_npx_dds_gdc">
+                    <li class="- topic/li li" data-ofbid="d203150e290__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d203150e292__20250123155222">打开 NAND Flash 烧录工具。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d203150e296__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d203150e298__20250123155222">点击 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">NAND Flash 烧录选项</span>，进入烧录选项设置界面。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d203150e305__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d203150e307__20250123155222">在坏块处理方式选择框中，选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">分区模式（含跳过坏块）</span>。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d203150e314__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d203150e316__20250123155222">点击图标选择输出目录 <span class="+ topic/ph sw-d/filepath ph filepath">(images)/burner</span> 中的
+                                <span class="+ topic/ph sw-d/filepath ph filepath">image_part_table.bin</span> 文件后，即可导入分区表。</p>
+                        <p class="- topic/p p" data-ofbid="d203150e325__20250123155222">在分区烧录模式下，需要导入分区表。分区表是一个描述存储器分区结构的文件，包含了每个分区的起始地址、大小和其他相关信息。</p>
+                    </li>
+                </ol>
+            </div>
+            <figure class="- topic/fig fig fignone" id="id__id17" data-ofbid="id__id17">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_ppk_bkv_fdc" src="../../../reusables/reused-topics/../../images/burnsys/burner_project_import_part_table1.png" width="576" alt="burner_project_import_part_table1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 5</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">导入分区表</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="id__section_kjn_kcv_12c" data-ofbid="id__section_kjn_kcv_12c"><h2 class="- topic/title title sectiontitle">坏块管理</h2>
+            
+            <div class="- topic/p p" data-ofbid="d203150e349__20250123155222">本节澄清烧录工厂需要关注的 SDK 坏块管理策略及相关问题，仅针对 SPI NAND 烧录。对于 SPI NOR
+                    烧录，控制器会完成坏块管理，因此不需要进行额外的坏块处理。<div class="table-container"><table class="- topic/table table frame-all" id="id__table_pwm_35t_12c" data-ofbid="id__table_pwm_35t_12c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">坏块管理相关问题及说明</span></caption><colgroup><col style="width:24.752475247524753%"/><col style="width:75.24752475247524%"/></colgroup><thead class="- topic/thead thead">
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_pwm_35t_12c__entry__1">问题</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-1" id="id__table_pwm_35t_12c__entry__2">详细说明</th>
+                            </tr>
+                        </thead><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_pwm_35t_12c__entry__1">坏块标识策略</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_pwm_35t_12c__entry__2">SDK 不使用 Spare area，其全部作为坏块管理用，使用 Spare area 的前两个字节做标识，不是 0xFF
+                                    0xFF 则表示为坏快，直接跳过。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_pwm_35t_12c__entry__1">坏块处理策略</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_pwm_35t_12c__entry__2">直接跳过该块，无其他要特殊记录的资料信息。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_pwm_35t_12c__entry__1">ECC 算法</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_pwm_35t_12c__entry__2">SDK 使用 FLASH 内部硬件 ECC， 因此没有额外的算法代码。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_pwm_35t_12c__entry__1">固定 BLOCK 要求</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_pwm_35t_12c__entry__2">前四个 BLOCK 如果都是坏块，直接报出烧录失败，无其他特殊要求。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_pwm_35t_12c__entry__1">文件系统</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_pwm_35t_12c__entry__2">根据客户需要会使用 FATFS 或者 littlefs。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_pwm_35t_12c__entry__1">Image file 最大容量要求</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="id__table_pwm_35t_12c__entry__2">根据客户需要，不限制最大容量，但 SPI NAND 性价比比较高的是 128 MB 或者 256 MB 的，推论分区一般在
+                                    200M 以下。</td>
+                            </tr>
+                        </tbody></table></div></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__id2" data-tocid="id__id2">准备镜像文件</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_mh4_4bv_12c" data-tocid="id__section_mh4_4bv_12c">新建项目</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_vrj_bcv_12c" data-tocid="id__section_vrj_bcv_12c">加载烧录数据</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_ztm_fcv_12c" data-tocid="id__section_ztm_fcv_12c">项目设置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_bjh_tbv_12c" data-tocid="id__section_bjh_tbv_12c">项目运行（烧录操作）</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_lnv_jcv_12c" data-tocid="id__section_lnv_jcv_12c">分区烧录模式</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_kjn_kcv_12c" data-tocid="id__section_kjn_kcv_12c">坏块管理</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

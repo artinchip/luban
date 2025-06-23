@@ -27,6 +27,7 @@
 #define MHCR_WBR           (1 << 8)
 
 #define MHINT_DPLD         (1 << 2)
+#define MHINT_AMR_1        (1 << 3)
 #define MHINT_AMR_3        (3 << 3)
 #define MHINT_IPLD         (1 << 8)
 #define MHINT_IWPE         (1 << 10)
@@ -35,7 +36,7 @@
 #define MHCR_ICACHE_OPTIONS (MHCR_ICACHE_EN | MHCR_RS | MHCR_BPE | MHCR_BTB)
 #define MHCR_DCACHE_OPTIONS (MHCR_DCACHE_EN | MHCR_WRITE_ALLOC | MHCR_WRITE_BACK | MHCR_WBR)
 #define MHINT_ICACHE_OPTIONS (MHINT_IPLD | MHINT_IWPE)
-#define MHINT_DCACHE_OPTIONS (MHINT_DPLD | MHINT_AMR_3 |MHINT_DDIS_3)
+#define MHINT_DCACHE_OPTIONS (MHINT_DPLD | MHINT_AMR_1 |MHINT_DDIS_3)
 
 void flush_dcache_all(void)
 {

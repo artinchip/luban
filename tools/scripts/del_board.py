@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: Apache-2.0
 
-# Copyright (C) 2023 ArtInChip
+# Copyright (C) 2023-2024 ArtInChip
 
-import os, sys, argparse, subprocess
+import os
+import sys
+import argparse
+import subprocess
 
 UBOOT_DIR = 'source/uboot-2021.10/'
-LINUX_DIR = 'source/linux-5.10/'
+LINUX_DIR = ''
+
+
+def GetLinuxDir(args):
+    global LINUX_DIR
+    dirs = os.listdir(args.topdir + '/source')
+
+    for sub_dir in dirs:
+        if 'linux' in sub_dir:
+            LINUX_DIR = 'source/' + sub_dir + '/'
+
 
 def RunCommand(cmd, dumpmsg=False, verbose=False):
     """Execute command
@@ -32,12 +45,14 @@ def RunCommand(cmd, dumpmsg=False, verbose=False):
 
     return 0
 
+
 def RunShellCommand(cmd):
     ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if ret.returncode:
         print(indent_str('Failed to run shell command:' + cmd, 1))
         sys.exit(1)
     return str(ret.stdout, encoding='utf-8')
+
 
 def indent_str(text, indent):
     itext = text
@@ -46,10 +61,12 @@ def indent_str(text, indent):
         indent -= 1
     return itext
 
+
 def GetReferenceBoardDefconfig(targetcfg):
     cmd = 'find {} -maxdepth 1 -type f -name "*_defconfig"'.format(targetcfg)
     defconfigs = RunShellCommand(cmd)
     return defconfigs.split()
+
 
 def GetChipNameOfDefconfig(dotcfg):
     f = open(dotcfg, 'r')
@@ -63,6 +80,7 @@ def GetChipNameOfDefconfig(dotcfg):
             break
     return name
 
+
 def GetChipOptionOfDefconfig(dotcfg, chip):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -75,6 +93,7 @@ def GetChipOptionOfDefconfig(dotcfg, chip):
             break
     return name
 
+
 def GetBoardNameOfDefconfig(dotcfg):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -85,6 +104,7 @@ def GetBoardNameOfDefconfig(dotcfg):
             name = ln.replace('LUBAN_BOARD_NAME=', '').replace('"', '').strip()
             break
     return name
+
 
 def GetBoardOptionNameOfDefconfig(dotcfg, board_name):
     f = open(dotcfg, 'r')
@@ -97,6 +117,7 @@ def GetBoardOptionNameOfDefconfig(dotcfg, board_name):
             break
     return opt_name
 
+
 def GetArchOfRefDefconfig(dotcfg):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -107,6 +128,7 @@ def GetArchOfRefDefconfig(dotcfg):
             name = ln.replace('BR2_ARCH=', '').replace('"', '').strip()
             break
     return name
+
 
 def SelectReferenceDefconfig(defconfigs, dotconfigs):
     reflist = []
@@ -136,8 +158,10 @@ def SelectReferenceDefconfig(defconfigs, dotconfigs):
     print(indent_str(selected + '\n', 2))
     return selected
 
+
 def GetBoardNameForConfig(name):
     return name.replace('\t', '_').replace(' ', '_')
+
 
 def GenDotConfig(args, cfg_list):
     root_cfg = args.topdir + 'package/Config.in'
@@ -151,6 +175,7 @@ def GenDotConfig(args, cfg_list):
         cmd = 'HOSTARCH={} BR2_CONFIG={} BASE_DIR={} BR2_DEFCONFIG={} {} --defconfig={} {}'.format(args.arch, dotcfg, args.outdir, cfg, args.conf, cfg, root_cfg)
         RunShellCommand(cmd)
     return dotconfigs
+
 
 def DeleteOneBoardDirectory(topdir, refcfg, dotconfigs):
 
@@ -166,6 +191,7 @@ def DeleteOneBoardDirectory(topdir, refcfg, dotconfigs):
     cmd = 'rm -rdf {}'.format(refboard_dir)
     RunShellCommand(cmd)
     print(indent_str('Deleted: ' + refboard_dir.replace(topdir, ''), 1))
+
 
 def DeleteOneDefconfig(topdir, refcfg, dotconfigs):
     global UBOOT_DIR
@@ -232,7 +258,7 @@ def DeleteOneDefconfig(topdir, refcfg, dotconfigs):
     f = open(cfg_in, 'w')
 
     chip_option = GetChipOptionOfDefconfig(ref_dotcfg, refchipname)
-    delete_depends = False 
+    delete_depends = False
     for ln in lines:
         if 'config' in ln and board_option in ln:
             delete_depends = True
@@ -240,7 +266,7 @@ def DeleteOneDefconfig(topdir, refcfg, dotconfigs):
         if 'bool' in ln and refboardname in ln:
             continue
         if delete_depends and 'depends on' in ln and chip_option in ln:
-            delete_depends = False 
+            delete_depends = False
             continue
         if 'default' in ln and board_option in ln:
             continue
@@ -248,7 +274,9 @@ def DeleteOneDefconfig(topdir, refcfg, dotconfigs):
     f.close()
     print(indent_str('Updated: ' + cfg_in.replace(topdir, ''), 1))
 
+
 def DeleteOneBoard(args):
+    GetLinuxDir(args)
     target_cfgdir = args.topdir + 'target/configs/'
     defconfigs = GetReferenceBoardDefconfig(target_cfgdir)
 
@@ -264,6 +292,7 @@ def DeleteOneBoard(args):
     DeleteOneDefconfig(args.topdir, refcfg, dotconfigs)
 
     return 0
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

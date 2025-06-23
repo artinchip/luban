@@ -32,7 +32,7 @@ struct asr_stats {
 struct asr_usbdev {
 	struct asr_bus *bus;
 	struct asr_usbdev_info *devinfo;
-	enum asr_usb_state state;
+	volatile enum asr_usb_state state;
 	struct asr_stats stats;
 	int ntxq, nrxq, rxsize;
 	u32 bus_mtu;

@@ -9,7 +9,7 @@
 #include <linux/string.h>
 #include <linux/iopoll.h>
 
-#include "../aic_com.h"
+#include "../aic_fb.h"
 #include "reg_util.h"
 #include "dsi_reg.h"
 
@@ -246,7 +246,7 @@ static void dsi_dphy_cfg_hsfreq(void __iomem *base, ulong mclk)
 	dsi_dphy_cfg(base, 0x44, &freq_wdata, &freq_rdata);
 }
 
-void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane)
+void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane, enum dsi_mode mode)
 {
 	void __iomem *ANA2 = base + DSI_ANA_CFG2;
 	void __iomem *CFG = base + DSI_PHY_CFG;
@@ -290,6 +290,14 @@ void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane)
 	reg_set_bits(CFG, DSI_PHY_CFG_DATA_LANE_MASK,
 		DSI_PHY_CFG_DATA_LANE(lane - 1));
 	aic_delay_us(5);
+
+	if (mode & DSI_CLOCK_NON_CONTINUOUS) {
+		reg_clr_bit(CFG, DSI_PHY_CFG_HSCLK_REQ);
+		aic_delay_us(5);
+		reg_set_bit(CFG, DSI_PHY_CFG_AUTO_CLK_EN);
+		aic_delay_us(5);
+	}
+
 	reg_set_bit(CFG, DSI_PHY_CFG_RST_CLK_EN);
 }
 
@@ -335,8 +343,6 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 
 	if (unlikely(format >= DSI_FMT_MAX))
 		BUG();
-	if (unlikely(mode >= DSI_MOD_MAX))
-		BUG();
 
 	reg_clr_bit(IFCFG, DSI_DPI_IF_CFG_SHUTD);
 	reg_clr_bit(IFCFG, DSI_DPI_IF_CFG_COLORM);
@@ -357,7 +363,7 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	reg_clr_bit(INPOL, DSI_DPI_IN_POL_SHUTDOWN);
 	reg_clr_bit(INPOL, DSI_DPI_IN_POL_COLORM);
 
-	if (mode == DSI_MOD_CMD_MODE) {
+	if (mode & DSI_MOD_CMD_MODE) {
 		reg_set_bit(base + DSI_CTL, DSI_CTL_DSI_MODE);
 		reg_write(base + DSI_EDPI_CMD_SIZE, vm->hactive);
 		reg_clr_bit(CMDCFG, DSI_CMD_MODE_CFG_ACK_REQ_EN);
@@ -374,7 +380,7 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_VFP);
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_VACT);
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HBP);
-	if (mode == DSI_MOD_VID_BURST)
+	if (mode & DSI_MOD_VID_BURST)
 		reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HFP);
 	else
 		reg_clr_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HFP);

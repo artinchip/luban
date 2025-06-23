@@ -36,7 +36,6 @@
 #include "aicmac_napi.h"
 #include "aicmac_util.h"
 
-static int tc = TC_DEFAULT;
 static int buf_sz = DEFAULT_BUFSIZE;
 
 #define AICMAC_ALIGN(x) ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
@@ -47,7 +46,9 @@ static int aicmac_set_features(struct net_device *dev,
 {
 	struct aicmac_priv *priv = netdev_priv(dev);
 
-	return aicmac_mac_reg_rx_ipc_enable(priv->plat->mac_data);
+	aicmac_mac_reg_rx_ipc_enable(priv->plat->mac_data);
+
+	return 0;
 }
 
 static void aicmac_service_event_schedule(struct aicmac_priv *priv)
@@ -107,8 +108,11 @@ static int aicmac_tx_clean(struct aicmac_priv *priv, int budget, u32 queue)
 		dma_rmb();
 
 		/* Just consider the last segment and ...*/
-		if (likely(!(status & tx_not_ls)))
+		if (likely(!(status & tx_not_ls))) {
 			aicmac_1588_get_tx_hwtstamp(priv, p, skb);
+			if (likely(!(status & tx_err)))
+				priv->dev->stats.tx_packets++;
+		}
 
 		if (likely(tx_q->tx_skbuff_dma[entry].buf)) {
 			if (tx_q->tx_skbuff_dma[entry].map_as_page)
@@ -239,66 +243,41 @@ static void aicmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
 static inline void aicmac_rx_refill(struct aicmac_priv *priv, u32 queue)
 {
 	struct aicmac_rx_queue *rx_q = &priv->plat->rx_queue[queue];
-	int len, dirty = aicmac_rx_dirty(priv, queue);
+	int dirty = aicmac_rx_dirty(priv, queue);
 	unsigned int entry = rx_q->dirty_rx;
+	int bfsize = priv->plat->dma_data->dma_buf_sz;
+	struct dma_desc *p;
 
-	len = DIV_ROUND_UP(priv->plat->dma_data->dma_buf_sz, PAGE_SIZE) *
-	      PAGE_SIZE;
 	while (dirty-- > 0) {
-		struct aicmac_rx_buffer *buf = &rx_q->buf_pool[entry];
-		struct dma_desc *p;
-		bool use_rx_wd;
-
 		p = (struct dma_desc *)(rx_q->dma_erx + entry);
 
-		if (!buf->page) {
-			buf->page = page_pool_dev_alloc_pages(rx_q->page_pool);
-			if (!buf->page)
-				break;
-		}
+		if (likely(rx_q->rx_skbuff[entry] == NULL)) {
+			struct sk_buff *skb;
 
-		if (!buf->sec_page) {
-			buf->sec_page =
-				page_pool_dev_alloc_pages(rx_q->page_pool);
-			if (!buf->sec_page)
+			skb = netdev_alloc_skb_ip_align(priv->dev, bfsize);
+
+			if (unlikely(skb == NULL))
 				break;
 
-			buf->sec_addr = page_pool_get_dma_addr(buf->sec_page);
+			rx_q->rx_skbuff[entry] = skb;
+			rx_q->rx_skbuff_dma[entry] = dma_map_single(priv->device,
+								    skb->data, bfsize,
+								    DMA_FROM_DEVICE);
 
-			dma_sync_single_for_device(priv->device, buf->sec_addr,
-						   len, DMA_FROM_DEVICE);
+			aicmac_dma_desc_set_addr(p, rx_q->rx_skbuff_dma[entry]);
+			if (priv->mode == AICMAC_CHAIN_MODE)
+				aicmac_dma_chain_refill_desc3(rx_q, p);
+			else
+				aicmac_dma_ring_refill_desc3(rx_q, p);
 		}
-
-		buf->addr = page_pool_get_dma_addr(buf->page);
-
-		/* Sync whole allocation to device. This will invalidate old
-		 * data.
-		 */
-		dma_sync_single_for_device(priv->device, buf->addr, len,
-					   DMA_FROM_DEVICE);
-
-		aicmac_dma_desc_set_addr(p, buf->addr);
-		aicmac_dma_desc_set_sec_addr(p, buf->sec_addr);
-		if (priv->mode == AICMAC_CHAIN_MODE)
-			aicmac_dma_chain_refill_desc3(rx_q, p);
-		else
-			aicmac_dma_ring_refill_desc3(rx_q, p);
-
-		rx_q->rx_count_frames++;
-		rx_q->rx_count_frames += priv->rx_coal_frames;
-		if (rx_q->rx_count_frames > priv->rx_coal_frames)
-			rx_q->rx_count_frames = 0;
-		use_rx_wd = rx_q->rx_count_frames;
 
 		dma_wmb();
-
-		aicmac_dma_desc_set_rx_owner(p, use_rx_wd);
+		aicmac_dma_desc_set_rx_owner(p, true);
 
 		entry = AICMAC_GET_ENTRY(entry, DMA_RX_SIZE);
 	}
+
 	rx_q->dirty_rx = entry;
-	rx_q->rx_tail_addr =
-		rx_q->dma_rx_phy + (rx_q->dirty_rx * sizeof(struct dma_desc));
 }
 
 static int aicmac_rx(struct aicmac_priv *priv, int limit, u32 queue)
@@ -311,34 +290,14 @@ static int aicmac_rx(struct aicmac_priv *priv, int limit, u32 queue)
 	struct sk_buff *skb = NULL;
 
 	while (count < limit) {
-		unsigned int hlen = 0, prev_len = 0;
-		enum pkt_hash_types hash_type;
-		struct aicmac_rx_buffer *buf;
 		struct dma_desc *np, *p;
-		unsigned int sec_len;
 		int entry;
-		u32 hash;
 
-		if (!count && rx_q->state_saved) {
-			skb = rx_q->state.skb;
-			error = rx_q->state.error;
-			len = rx_q->state.len;
-		} else {
-			rx_q->state_saved = false;
-			skb = NULL;
-			error = 0;
-			len = 0;
-		}
+		entry = next_entry;
+		p = (struct dma_desc *)(rx_q->dma_erx + entry);
 
 		if (count >= limit)
 			break;
-
-read_again:
-		sec_len = 0;
-		entry = next_entry;
-		buf = &rx_q->buf_pool[entry];
-
-		p = (struct dma_desc *)(rx_q->dma_erx + entry);
 
 		/* read the status of the incoming frame */
 		status = aicmac_dma_desc_get_rx_status(p,
@@ -353,116 +312,44 @@ read_again:
 		np = (struct dma_desc *)(rx_q->dma_erx + next_entry);
 
 		prefetch(np);
-		prefetch(page_address(buf->page));
 
 		if (unlikely(status == discard_frame)) {
-			page_pool_recycle_direct(rx_q->page_pool, buf->page);
-			buf->page = NULL;
 			error = 1;
 			if (!priv->plat->ptp_data->hwts_rx_en)
 				priv->dev->stats.rx_errors++;
 		}
 
-		if (unlikely(error && (status & rx_not_ls)))
-			goto read_again;
+		skb = rx_q->rx_skbuff[entry];
+		if (unlikely(!skb)) {
+			netdev_err(priv->dev, "rx descriptor is not consistent\n");
+			rx_q->cur_rx = entry;
+			break;
+		}
+		prefetch(skb->data - NET_IP_ALIGN);
+		rx_q->rx_skbuff[entry] = NULL;
+
 		if (unlikely(error)) {
-			dev_kfree_skb(skb);
 			count++;
+			error = 0;
 			continue;
 		}
 
 		/* Buffer is good. Go on. */
-
-		if (likely(status & rx_not_ls)) {
-			len += priv->plat->dma_data->dma_buf_sz;
-		} else {
-			prev_len = len;
-			len = aicmac_dma_desc_get_rx_frame_len(p, coe);
-		}
-
-		if (!skb) {
-			if (hlen > 0) {
-				sec_len = len;
-				if (!(status & rx_not_ls))
-					sec_len = sec_len - hlen;
-				len = hlen;
-
-				prefetch(page_address(buf->sec_page));
-			}
-
-			skb = napi_alloc_skb(&ch->rx_napi, len);
-			if (!skb) {
-				count++;
-				continue;
-			}
-
-			dma_sync_single_for_cpu(priv->device, buf->addr, len,
-						DMA_FROM_DEVICE);
-			skb_copy_to_linear_data(skb, page_address(buf->page),
-						len);
-			skb_put(skb, len);
-
-			page_pool_recycle_direct(rx_q->page_pool, buf->page);
-			buf->page = NULL;
-		} else {
-			unsigned int buf_len = len - prev_len;
-
-			if (likely(status & rx_not_ls))
-				buf_len = priv->plat->dma_data->dma_buf_sz;
-
-			dma_sync_single_for_cpu(priv->device, buf->addr,
-						buf_len, DMA_FROM_DEVICE);
-			skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags,
-					buf->page, 0, buf_len,
-					priv->plat->dma_data->dma_buf_sz);
-
-			/* Data payload appended into SKB */
-			page_pool_release_page(rx_q->page_pool, buf->page);
-			buf->page = NULL;
-		}
-
-		if (sec_len > 0) {
-			dma_sync_single_for_cpu(priv->device, buf->sec_addr,
-						sec_len, DMA_FROM_DEVICE);
-			skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags,
-					buf->sec_page, 0, sec_len,
-					priv->plat->dma_data->dma_buf_sz);
-
-			len += sec_len;
-
-			/* Data payload appended into SKB */
-			page_pool_release_page(rx_q->page_pool, buf->sec_page);
-			buf->sec_page = NULL;
-		}
-
-		if (likely(status & rx_not_ls))
-			goto read_again;
+		len = aicmac_dma_desc_get_rx_frame_len(p, coe);
 
 		/* Got entire packet into SKB. Finish it. */
+		skb_put(skb, len);
 
 		aicmac_1588_get_rx_hwtstamp(priv, p, np, skb);
 		skb->protocol = eth_type_trans(skb, priv->dev);
 
-		if (unlikely(!coe))
-			skb_checksum_none_assert(skb);
-		else
-			skb->ip_summed = CHECKSUM_UNNECESSARY;
+		skb->ip_summed = CHECKSUM_UNNECESSARY;
 
-		skb_set_hash(skb, hash, hash_type);
-
-		skb_record_rx_queue(skb, queue);
 		napi_gro_receive(&ch->rx_napi, skb);
 
 		priv->dev->stats.rx_packets++;
 		priv->dev->stats.rx_bytes += len;
 		count++;
-	}
-
-	if (status & rx_not_ls) {
-		rx_q->state_saved = true;
-		rx_q->state.skb = skb;
-		rx_q->state.error = error;
-		rx_q->state.len = len;
 	}
 
 	aicmac_rx_refill(priv, queue);
@@ -706,21 +593,10 @@ static irqreturn_t aicmac_interrupt(int irq, void *dev_id)
 	for (chan = 0; chan < channels_to_check; chan++)
 		status[chan] = aicmac_napi_check(priv, chan);
 
+	/* force TX sf mode, which means never tx err with tx_hard_error_bump_tc */
 	for (chan = 0; chan < tx_channel_count; chan++) {
-		if (unlikely(status[chan] & tx_hard_error_bump_tc)) {
-			/* Try to bump up the dma threshold on this failure */
-			if (tc <= 256) {
-				tc += 64;
-				if (priv->plat->dma_data->force_thresh_dma_mode)
-					aicmac_dma_set_operation_mode(priv, tc,
-						tc, chan);
-				else
-					aicmac_dma_set_operation_mode(priv,
-						tc, SF_DMA_MODE, chan);
-			}
-		} else if (unlikely(status[chan] == tx_hard_error)) {
+		if (unlikely(status[chan] == tx_hard_error))
 			aicmac_tx_err(priv, chan);
-		}
 	}
 
 	return IRQ_HANDLED;
@@ -813,8 +689,8 @@ static int aicmac_open(struct net_device *dev)
 				priv->plat->dma_data->dma_buf_sz);
 	}
 
-	priv->plat->dma_data->dma_buf_sz = bfsize;
-	buf_sz = bfsize;
+	priv->plat->dma_data->dma_buf_sz = AICMAC_ALIGN(bfsize);
+	buf_sz = AICMAC_ALIGN(bfsize);
 
 	ret = aicmac_dma_alloc_dma_desc_resources(priv);
 	if (ret < 0) {
@@ -1030,6 +906,9 @@ static int aicmac_xmit(struct sk_buff *skb, struct net_device *dev)
 
 		aicmac_dma_desc_set_addr(desc, des);
 
+		if (unlikely(is_jumbo))
+			aicmac_dma_desc_set_sec_addr(desc, des + BUF_SIZE_4KiB);
+
 		tx_q->tx_skbuff_dma[entry].map_as_page = true;
 		tx_q->tx_skbuff_dma[entry].len = len;
 		tx_q->tx_skbuff_dma[entry].last_segment = last_segment;
@@ -1168,10 +1047,7 @@ static int aicmac_change_mtu(struct net_device *dev, int new_mtu)
 		return -EBUSY;
 	}
 
-	new_mtu = AICMAC_ALIGN(new_mtu);
-
-	/* If condition true, FIFO is too small or MTU too large */
-	if (txfifosz < new_mtu || new_mtu > BUF_SIZE_16KiB)
+	if (new_mtu > BUF_SIZE_16KiB)
 		return -EINVAL;
 
 	dev->mtu = new_mtu;
@@ -1192,7 +1068,7 @@ static netdev_features_t aicmac_fix_features(struct net_device *dev,
 	if (!priv->plat->dma_data->tx_coe)
 		features &= ~NETIF_F_CSUM_MASK;
 
-	if (priv->plat->mac_data->bugged_jumbo && dev->mtu > ETH_DATA_LEN)
+	if (dev->mtu > ETH_DATA_LEN)
 		features &= ~NETIF_F_CSUM_MASK;
 
 	return features;

@@ -225,7 +225,7 @@ static int decode_idat(struct udevice *dev, struct png_ctx *ctx, int length)
 	int offset = ctx->ptr - ctx->buf_start + 2;
 	int left_len = ctx->length - offset;
 	void *lz77_buf = NULL, *filter_buf = NULL, *pal_buf = NULL;
-	uintptr_t input_start, input_end;
+	uintptr_t input_start, input_end, filter_buf_len;
 	int ret = -1;
 
 	lz77_buf = memalign(DECODE_ALIGN, LZ77_BUF_SIZE);
@@ -233,13 +233,15 @@ static int decode_idat(struct udevice *dev, struct png_ctx *ctx, int length)
 		pr_err("failed to alloc lz77_buf\n");
 		goto out;
 	}
+	flush_dcache_range((uintptr_t)lz77_buf, (uintptr_t)LZ77_BUF_SIZE);
 
-	filter_buf = memalign(DECODE_ALIGN,
-		ALIGN_64B(ctx->width * format_pixel_byte(OUTPUT_FORMAT)));
+	filter_buf_len = ALIGN_64B(ctx->width * format_pixel_byte(OUTPUT_FORMAT));
+	filter_buf = memalign(DECODE_ALIGN, filter_buf_len);
 	if (!filter_buf) {
 		pr_err("failed to alloc filter_buf\n");
 		goto out;
 	}
+	flush_dcache_range((uintptr_t)filter_buf, filter_buf_len);
 
 	if (ctx->color_type == PNG_COLOR_TYPE_PALETTE) {
 		pal_buf = memalign(DECODE_ALIGN, PAL_BUF_SIZE);

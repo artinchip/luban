@@ -62,7 +62,8 @@ static int f35sqa_select_target(struct spinand_device *spinand,
 }
 
 static const struct spinand_info foresee_spinand_table[] = {
-	SPINAND_INFO("F35SQA002G", 0x72,
+	SPINAND_INFO("F35SQA002G",
+		     SPINAND_ID(0x72),
 		     NAND_MEMORG(1, 2048, 64, 64, 2048, 1, 1, 1),
 		     NAND_ECCREQ(1, 528),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -71,7 +72,8 @@ static const struct spinand_info foresee_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&f35sqa_ooblayout, NULL),
 		     SPINAND_SELECT_TARGET(f35sqa_select_target)),
-	SPINAND_INFO("F35SQA001G", 0x71,
+	SPINAND_INFO("F35SQA001G",
+		     SPINAND_ID(0x71),
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(1, 528),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -80,8 +82,29 @@ static const struct spinand_info foresee_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&f35sqa_ooblayout, NULL),
 		     SPINAND_SELECT_TARGET(f35sqa_select_target)),
-	SPINAND_INFO("F35SQA512M", 0x70,
+	SPINAND_INFO("F35SQA512M",
+		     SPINAND_ID(0x70),
 		     NAND_MEMORG(1, 2048, 64, 64, 512, 1, 1, 1),
+		     NAND_ECCREQ(1, 528),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&f35sqa_ooblayout, NULL),
+		     SPINAND_SELECT_TARGET(f35sqa_select_target)),
+	SPINAND_INFO("F35SQB004G",
+		     SPINAND_ID(0x53),
+		     NAND_MEMORG(1, 4096, 128, 64, 2048, 1, 1, 1),
+		     NAND_ECCREQ(1, 528),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&f35sqa_ooblayout, NULL),
+		     SPINAND_SELECT_TARGET(f35sqa_select_target)),
+	SPINAND_INFO("FS35ND01G",
+		     SPINAND_ID(0xEA),
+		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(1, 528),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -113,7 +136,7 @@ static int foresee_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, foresee_spinand_table,
 				     ARRAY_SIZE(foresee_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

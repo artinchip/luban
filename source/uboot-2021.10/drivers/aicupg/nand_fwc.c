@@ -661,29 +661,33 @@ char *mtd_ubi_env_get(void)
 	mtdparts = env_get("MTD");
 	if (!mtdparts) {
 		pr_err("Get MTD partition table from ENV failed.\n");
-		return false;
+		return NULL;
 	}
 	env_set("mtdparts", mtdparts);
 
 	ubivols = env_get("UBI");
 	if (!ubivols) {
 		pr_err("Get UBI volume table from ENV failed.\n");
-		return false;
+		return NULL;
 	}
 
 	mtd_list = build_mtd_list(mtdparts);
 	if (!mtd_list) {
 		pr_err("Parse mtdparts error.\n");
-		return false;
+		return NULL;
 	}
 
 	ubi_list = build_ubi_list(ubivols);
 	if (!ubi_list) {
 		pr_err("Parse ubivols error.\n");
-		return false;
+		return NULL;
 	}
 
 	part_table = (char *)malloc(PARTITION_TABLE_LEN);
+	if (!part_table) {
+		pr_err("Error: malloc buffer failed.\n");
+		return NULL;
+	}
 	memset(part_table, 0, PARTITION_TABLE_LEN);
 	strcpy(part_table, mtdparts);
 	while (ubi_list) {
@@ -820,6 +824,7 @@ static s32 nand_fwc_get_mtd_partitions(struct fwc_info *fwc,
 {
 	char name[MAX_NAND_NAME], *p;
 	int cnt, idx;
+	struct mtd_info *mtd;
 
 	p = fwc->meta.partition;
 
@@ -836,11 +841,12 @@ static s32 nand_fwc_get_mtd_partitions(struct fwc_info *fwc,
 		cnt++;
 		if (*p == ';' || *p == ':' || *p == '\0') {
 			name[cnt] = '\0';
-			priv->mtds[idx] = get_mtd_device_nm(name);
-			if (IS_ERR_OR_NULL(priv->mtds[idx])) {
+			mtd = get_mtd_device_nm(name);
+			if (IS_ERR_OR_NULL(mtd)) {
 				pr_err("Get mtd %s failed.\n", name);
 				return -1;
 			}
+			priv->mtds[idx] = mtd;
 			idx++;
 			cnt = 0;
 		}
@@ -1023,8 +1029,6 @@ void nand_fwc_start(struct fwc_info *fwc)
 	}
 
 	priv->attr = attr;
-	fwc->burn_result = 0;
-	fwc->run_result = 0;
 
 	return;
 err:
@@ -1038,6 +1042,7 @@ err:
 	}
 	if (priv)
 		free(priv);
+	fwc->priv = NULL;
 }
 
 static s32 nand_fwc_mtd_writer(struct fwc_info *fwc, u8 *buf, s32 len)
@@ -1050,8 +1055,15 @@ static s32 nand_fwc_mtd_writer(struct fwc_info *fwc, u8 *buf, s32 len)
 	s32 write_end_addr, calc_len;
 	u8 *buf_to_write, *buf_to_read, *rdbuf;
 
-	rdbuf = malloc(len);
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return 0;
+
+	rdbuf = malloc(len);
+	if (!rdbuf) {
+		pr_err("Error: malloc buffer failed.\n");
+		return 0;
+	}
 	for (i = 0; i < MAX_DUPLICATED_PART; i++) {
 		mtd = priv->mtds[i];
 		if (!mtd)
@@ -1092,7 +1104,7 @@ static s32 nand_fwc_mtd_writer(struct fwc_info *fwc, u8 *buf, s32 len)
 	}
 
 	if ((fwc->meta.size - fwc->trans_size) < len)
-		calc_len = fwc->meta.size % DEFAULT_BLOCK_ALIGNMENT_SIZE;
+		calc_len = fwc->meta.size - fwc->trans_size;
 	else
 		calc_len = len;
 
@@ -1107,6 +1119,8 @@ static s32 nand_fwc_mtd_writer(struct fwc_info *fwc, u8 *buf, s32 len)
 				fwc->calc_trans_crc, fwc->calc_partition_crc);
 	}
 #endif
+	debug("%s, data len %d, trans len %d, calc len %d\n", __func__, len,
+	      fwc->trans_size, calc_len);
 
 	free(rdbuf);
 	return len;
@@ -1119,6 +1133,8 @@ static s32 nand_fwc_ubi_writer(struct fwc_info *fwc, u8 *buf, s32 len)
 	s32 ret, i;
 
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return 0;
 	for (i = 0; i < MAX_DUPLICATED_PART; i++) {
 		if (!priv->vols[i])
 			continue;
@@ -1139,6 +1155,8 @@ s32 nand_fwc_data_write(struct fwc_info *fwc, u8 *buf, s32 len)
 	struct aicupg_nand_priv *priv;
 
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return 0;
 	if (priv->attr & FWC_ATTR_DEV_MTD) {
 		if (priv->spl_flag)
 			len = nand_fwc_spl_writer(fwc, buf, len);
@@ -1154,12 +1172,8 @@ s32 nand_fwc_data_write(struct fwc_info *fwc, u8 *buf, s32 len)
 		len = 0;
 		fwc->trans_size += len;
 		fwc->calc_partition_crc = 0;
-		fwc->burn_result = 1;
-		fwc->run_result = 0;
 	} else {
 		fwc->trans_size += len;
-		fwc->burn_result = 0;
-		fwc->run_result = 0;
 	}
 	pr_debug("%s, data len %d, trans len %d\n", __func__, len,
 		 fwc->trans_size);
@@ -1178,6 +1192,8 @@ static s32 nand_fwc_mtd_read(struct fwc_info *fwc, u8 *buf, s32 len)
 	u8 *buf_to_read;
 
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return 0;
 	mtd = priv->mtds[0];
 	if (!mtd)
 		return 0;
@@ -1268,6 +1284,8 @@ s32 nand_fwc_data_read(struct fwc_info *fwc, u8 *buf, s32 len)
 	struct aicupg_nand_priv *priv;
 
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return 0;
 	if (priv->attr & FWC_ATTR_DEV_MTD) {
 		len = nand_fwc_mtd_read(fwc, buf, len);
 	} else if (priv->attr & FWC_ATTR_DEV_UBI) {
@@ -1280,13 +1298,9 @@ s32 nand_fwc_data_read(struct fwc_info *fwc, u8 *buf, s32 len)
 		len = 0;
 		fwc->trans_size += len;
 		fwc->calc_partition_crc = 0;
-		fwc->burn_result = 1;
-		fwc->run_result = 0;
 	} else {
 		fwc->trans_size += len;
 		fwc->calc_partition_crc = fwc->meta.crc;
-		fwc->burn_result = 0;
-		fwc->run_result = 0;
 	}
 	pr_debug("%s, data len %d, trans len %d\n", __func__, len,
 		 fwc->trans_size);

@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2022-2023 Artinchip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 

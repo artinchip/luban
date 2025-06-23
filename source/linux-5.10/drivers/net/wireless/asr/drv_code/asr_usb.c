@@ -32,7 +32,7 @@
 #define ASR_USB_RESET_GETVER_LOOP_CNT    10
 
 #define ASR_USB_NRXQ    50
-#define ASR_USB_NTXQ    150
+#define ASR_USB_NTXQ    256
 
 #define ASR_USB_NCTLQ	5
 
@@ -159,6 +159,103 @@ fail:
 	return NULL;
 }
 
+#ifdef CONFIG_ASR_USB_PM
+#include "asr_msg_tx.h"
+static void usb_pm_cmd_work_func(struct work_struct *work)
+{
+	struct asr_usbdev_info *devinfo = container_of(work, struct asr_usbdev_info, pm_cmd_work.work);
+	struct usb_device *udev = devinfo->usbdev;
+	struct device *dev = &udev->dev;
+	struct asr_hw *asr_hw = devinfo->bus_pub.bus->asr_hw;
+	char *cmd = asr_hw->mod_params->usb_pm_cmd;
+	int ret = 0;
+
+	if (strlen(cmd)) {
+		asr_dbg(TRACE, "at cmd: %s\n", cmd);
+
+		if (strncmp(cmd, "enable", strlen("enable")) == 0) {
+			usb_enable_autosuspend(udev);
+		} else if (strncmp(cmd, "disable", strlen("disable")) == 0) {
+			usb_disable_autosuspend(udev);
+		} else if (strncmp(cmd, "suspend", strlen("suspend")) == 0) {
+			pm_runtime_mark_last_busy(dev);
+			ret = pm_runtime_put_sync_autosuspend(dev);
+		} else if (strncmp(cmd, "resume", strlen("resume")) == 0) {
+			ret = pm_runtime_get_sync(dev);
+		} else if (strncmp(cmd, "version", strlen("version")) == 0) {
+			if (!asr_send_fw_softversion_req(asr_hw, &asr_hw->fw_softversion_cfm))
+				asr_dbg(TRACE, "fw version: %s\n", asr_hw->fw_softversion_cfm.fw_softversion);
+		} else if (strncmp(cmd, "spnd_delay", strlen("spnd_delay")) == 0) {
+			char *pmsecs = strchr(cmd, '=');
+			if (pmsecs) {
+				pmsecs++; //point to delay time
+				devinfo->autosuspend_delay = simple_strtol(pmsecs, NULL, 0);
+				asr_dbg(TRACE, "auto suspend delay %dms\n", devinfo->autosuspend_delay);
+				pm_runtime_set_autosuspend_delay(&udev->dev, devinfo->autosuspend_delay);
+			}
+		}
+
+		asr_dbg(TRACE, "runtime op result: %d", ret);
+		asr_dbg(TRACE, "usage count: %d, runtime auto: %d, "
+				"use_autosuspend: %d, autosuspend_delay: %d\n",
+				atomic_read(&dev->power.usage_count),
+				dev->power.runtime_auto,
+				dev->power.use_autosuspend,
+				dev->power.autosuspend_delay);
+		memset(cmd, 0x00, 20);
+	}
+
+	schedule_delayed_work(&devinfo->pm_cmd_work,
+		msecs_to_jiffies(ASR_ATE_AT_CMD_TIMER_OUT));
+}
+
+static void asr_usb_enable_autosuspend(struct asr_usbdev_info *devinfo)
+{
+	struct usb_device *udev = devinfo->usbdev;
+	pm_runtime_mark_last_busy(&udev->dev);
+	pm_runtime_set_autosuspend_delay(&udev->dev, devinfo->autosuspend_delay);
+	usb_disable_autosuspend(udev);
+}
+
+static int asr_usb_pm_init(struct asr_usbdev_info *devinfo)
+{
+	/* Initialize delayed work for asr cmd */
+	INIT_DELAYED_WORK(&devinfo->pm_cmd_work, usb_pm_cmd_work_func);
+	schedule_delayed_work(&devinfo->pm_cmd_work,
+		msecs_to_jiffies(ASR_ATE_AT_CMD_TIMER_OUT));
+
+	init_waitqueue_head(&devinfo->pm_waitq);
+
+	devinfo->autosuspend_delay = 2000;
+	asr_usb_enable_autosuspend(devinfo);
+
+	return 0;
+}
+
+static inline int asr_usb_pm_acquire(struct asr_usbdev_info *devinfo)
+{
+	int	status;
+	struct usb_device *udev = devinfo->usbdev;
+
+	status = pm_runtime_get(&udev->dev);
+	if (status < 0 && status != -EINPROGRESS) {
+		asr_err("pm runtime get error %d", status);
+		return status;
+	}
+
+	wait_event_timeout(devinfo->pm_waitq,
+						devinfo->bus_pub.state == ASRMAC_USB_STATE_UP,
+						msecs_to_jiffies(10000));
+	return 0;
+}
+
+static inline int asr_usb_pm_release(struct usb_device *udev)
+{
+	pm_runtime_mark_last_busy(&udev->dev);
+	return pm_runtime_put_sync_autosuspend(&udev->dev);
+}
+#endif
+
 static int asr_usb_ctl_resp_wait(struct asr_usbctlreq *req)
 {
 	return wait_event_timeout(req->resp_wait,
@@ -265,15 +362,21 @@ static int asr_usb_tx_ctlpkt(struct device *dev, u8 * buf, u32 len)
 	struct asr_usbctlreq *req;
 
 	asr_dbg(USB, "Enter\n");
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_acquire(devinfo);
+#endif
+
 	if (devinfo->bus_pub.state != ASRMAC_USB_STATE_UP) {
 		asr_err("usb tx bus state:%d\n", devinfo->bus_pub.state);
-		return -EIO;
+		ret = -EIO;
+		goto exit;
 	}
 
 	req = asr_usb_deq(&devinfo->ctl_qlock, &devinfo->ctl_tx_freeq, NULL);
 	if (req == NULL) {
 		asr_err("no req to send ctlpkt freecount\n");
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto exit;
 	}
 
 	size = len;
@@ -287,10 +390,11 @@ static int asr_usb_tx_ctlpkt(struct device *dev, u8 * buf, u32 len)
 						asr_usb_ctlwrite_complete, req);
 	asr_usb_enq(&devinfo->ctl_qlock, &devinfo->ctl_tx_postq, &req->list, NULL);
 	ret = usb_submit_urb(req->urb, GFP_ATOMIC);
-	if (ret < 0) {
+	if (ret) {
 		asr_err("asr_usb_tx_ctlpkt usb_submit_urb FAILED: %d", ret);
 		asr_usb_del_fromq(&devinfo->ctl_qlock, &req->list);
 		asr_usb_enq(&devinfo->ctl_qlock, &devinfo->ctl_tx_freeq, &req->list, NULL);
+		goto exit;
 	}
 
 	ret = asr_usb_ctl_resp_wait(req);
@@ -299,6 +403,10 @@ static int asr_usb_tx_ctlpkt(struct device *dev, u8 * buf, u32 len)
 		ret = -EIO;
 	}
 
+exit:
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_release(devinfo->usbdev);
+#endif
 	return ret;
 }
 
@@ -408,9 +516,9 @@ void asr_txflowblock_if(struct asr_vif *ifp, bool state)
 	asr_dbg(TRACE, "enter: state=%d\n", state);
 
 	if (state) {
-		netif_stop_queue(ifp->ndev);
+        netif_tx_stop_all_queues(ifp->ndev);
 	} else {
-		netif_wake_queue(ifp->ndev);
+        netif_tx_wake_all_queues(ifp->ndev);
 	}
 }
 
@@ -430,7 +538,7 @@ void asr_txflowblock(struct device *dev, bool state)
 	else if (state == false)
 		tx_unblock_cnt++;
 	asr_dbg(USB, "txq %d:%d\n",tx_block_cnt,tx_unblock_cnt);
-	for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++)
+	for (i = 0; i < asr_hw->vif_max_num; i++)
 		asr_txflowblock_if(asr_hw->vif_table[i], state);
 }
 
@@ -462,6 +570,10 @@ static void asr_usb_tx_complete(struct urb *urb)
 		asr_txflowblock(devinfo->dev, false);
 		devinfo->tx_flowblock = false;
 	}
+
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_release(devinfo->usbdev);
+#endif
 }
 
 void asr_rx_frames(struct device *dev, struct sk_buff_head *skb_list)
@@ -533,6 +645,10 @@ static void asr_usb_rx_complete(struct urb *urb)
 			asr_err("%d skb is null\r\n", __LINE__);
 			return;
 		}
+
+#ifdef CONFIG_ASR_USB_PM
+		asr_usb_pm_acquire(devinfo);
+#endif
 		skb_queue_head_init(&skbq);
 		skb_queue_tail(&skbq, skb);
 		asr_dbg(USB, "urb:pipe=0x%x,x_len=%d,actual_length=%d\n",
@@ -541,10 +657,14 @@ static void asr_usb_rx_complete(struct urb *urb)
 		g_usb_rx_cnt++;
 #endif
 		// no need to move tail pointer bcz skb will rechain to rx_sk_list.
-		skb_put(skb, urb->actual_length);
+        // new rx move skb_put to asr_rxdataind.
+		//skb_put(skb, urb->actual_length);
 
 		asr_rx_frames(devinfo->dev, &skbq);
 		asr_usb_rx_refill(devinfo, req);
+#ifdef CONFIG_ASR_USB_PM
+		asr_usb_pm_release(devinfo->usbdev);
+#endif
 	} else {
 		if (skb)
 			dev_kfree_skb_any(skb);
@@ -619,7 +739,7 @@ static void asr_usb_rx_fill_all(struct asr_usbdev_info *devinfo)
 {
 	struct asr_usbreq *req;
 	int usb_rx_refill_cnt = 0;
-	asr_dbg(USB, "Enter\n");
+	asr_dbg(USB, "Enter freecount %d\n", devinfo->rx_freecount);
 
 	if (devinfo->bus_pub.state != ASRMAC_USB_STATE_UP) {
 		asr_err("bus is not up=%d\n", devinfo->bus_pub.state);
@@ -663,7 +783,7 @@ static void asr_usb_state_change(struct asr_usbdev_info *devinfo, int state)
 	}
 }
 
-static void asr_usb_intr_complete(struct urb *urb)
+/*static void asr_usb_intr_complete(struct urb *urb)
 {
 	struct asr_usbdev_info *devinfo = (struct asr_usbdev_info *)urb->context;
 	int err;
@@ -689,7 +809,7 @@ static void asr_usb_intr_complete(struct urb *urb)
 		if (err)
 			asr_err("usb_submit_urb, err=%d\n", err);
 	}
-}
+}*/
 
 static int asr_usb_tx(struct device *dev, struct sk_buff *skb)
 {
@@ -701,6 +821,10 @@ static int asr_usb_tx(struct device *dev, struct sk_buff *skb)
 #endif
 
 	asr_dbg(USB, "Enter, skb=%p %d\n", skb, skb->len);
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_acquire(devinfo);
+#endif
+
 	if (devinfo->bus_pub.state != ASRMAC_USB_STATE_UP) {
 		asr_err("state is not up, state:%d\n", devinfo->bus_pub.state);
 		ret = -EIO;
@@ -751,6 +875,9 @@ fail:
 #endif
 	skb_pull(skb, sizeof(struct hostdesc) + HOST_PAD_USB_LEN); //if usb_submit_urb fail, the skb will freeed by _dev_queue_xmit which will call kfree_skb_list(skb)
 	//asr_txcomplete(dev, skb, false);
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_release(devinfo->usbdev);
+#endif
 	return ret;
 }
 
@@ -758,7 +885,7 @@ static int asr_usb_up(struct device *dev)
 {
 	struct asr_usbdev_info *devinfo = asr_usb_get_businfo(dev);
 	u16 ifnum;
-	int ret;
+	//int ret;
 
 	asr_dbg(USB, "Enter\n");
 	if (devinfo->bus_pub.state == ASRMAC_USB_STATE_UP)
@@ -767,7 +894,7 @@ static int asr_usb_up(struct device *dev)
 	/* Success, indicate devinfo is fully up */
 	asr_usb_state_change(devinfo, ASRMAC_USB_STATE_UP);
 
-	if (devinfo->intr_urb) {
+	/*if (devinfo->intr_urb) {
 		usb_fill_int_urb(devinfo->intr_urb, devinfo->usbdev,
 				 devinfo->intr_pipe,
 				 &devinfo->intr,
@@ -779,7 +906,7 @@ static int asr_usb_up(struct device *dev)
 			asr_err("USB_SUBMIT_URB failed with status %d\n", ret);
 			return -EINVAL;
 		}
-	}
+	}*/
 
 	if (devinfo->ctl_urb) {
 		devinfo->ctl_in_pipe = usb_rcvctrlpipe(devinfo->usbdev, 0);
@@ -800,6 +927,10 @@ static int asr_usb_up(struct device *dev)
 		devinfo->ctl_read.wIndex = cpu_to_le16p(&ifnum);
 	}
 	asr_usb_rx_fill_all(devinfo);
+
+#ifdef CONFIG_ASR_USB_PM
+	asr_usb_pm_init(devinfo);
+#endif
 
 	return 0;
 }
@@ -829,6 +960,12 @@ static void asr_usb_down(struct device *dev)
 	asr_usb_free_q(&devinfo->tx_postq, true);
 	asr_usb_free_q(&devinfo->rx_postq, true);
 	asr_usb_free_q(&devinfo->ctl_tx_postq, true);
+
+#ifdef CONFIG_ASR_USB_PM
+	cancel_delayed_work_sync(&devinfo->pm_cmd_work);
+	if (waitqueue_active(&devinfo->pm_waitq))
+		wake_up(&devinfo->pm_waitq);
+#endif
 }
 
 static void asr_usb_sync_complete(struct urb *urb)
@@ -1898,8 +2035,8 @@ static int asr_usb_suspend(struct usb_interface *intf, pm_message_t state)
 	struct asr_usbdev_info *devinfo = asr_usb_get_businfo(&usb->dev);
 
 	asr_dbg(USB, "Enter\n");
-	devinfo->bus_pub.state = ASRMAC_USB_STATE_SLEEP;
-	asr_detach(&usb->dev);
+	asr_usb_state_change(devinfo, ASRMAC_USB_STATE_SLEEP);
+	//asr_detach(&usb->dev);
 	return 0;
 }
 
@@ -1910,12 +2047,21 @@ static int asr_usb_resume(struct usb_interface *intf)
 {
 	struct usb_device *usb = interface_to_usbdev(intf);
 	struct asr_usbdev_info *devinfo = asr_usb_get_businfo(&usb->dev);
-	struct device *dev = devinfo->dev;
-	struct asr_bus *bus_if = NULL;
-	int ret;
-	void *drvdata;
+	//struct device *dev = devinfo->dev;
+	//struct asr_bus *bus_if = NULL;
+	//int ret;
+	//void *drvdata;
 
 	asr_dbg(USB, "Enter\n");
+
+	asr_usb_state_change(devinfo, ASRMAC_USB_STATE_UP);
+	asr_usb_rx_fill_all(devinfo);
+
+#ifdef	CONFIG_ASR_USB_PM
+	if (waitqueue_active(&devinfo->pm_waitq))
+		wake_up(&devinfo->pm_waitq);
+#endif
+	#if 0
 	//if (!asr_attach(0, devinfo->dev))
 	//    return asr_bus_start(&usb->dev);
 
@@ -1940,6 +2086,7 @@ static int asr_usb_resume(struct usb_interface *intf)
 			return ret;
 		}
 	}
+	#endif
 
 	return 0;
 }

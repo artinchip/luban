@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Copyright (c) 2023 ArtInChip Inc.
+ * Copyright (c) 2023-2024 ArtInChip Inc.
+ * Authors: ArtInChip
  */
 #include <common.h>
 #include <command.h>
@@ -112,13 +113,12 @@ struct aic_clks aic_clk_names[] = {
 };
 #endif /* CLK_ARTINCHIP_V1_0 */
 
-#ifdef CONFIG_CLK_ARTINCHIP_CMU_V1_3
-#include <dt-bindings/clock/artinchip,aic-cmu-v13.h>
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+#include <dt-bindings/clock/artinchip,aic-cmu-v20.h>
 struct aic_clks aic_clk_names[] = {
 	/* Fixed rate clock */
 	CLK_NAME(CLK_24M),
 	CLK_NAME(CLK_32K),
-	CLK_NAME(CLK_AXI_AHB),
 	/* PLL clock */
 	CLK_NAME(CLK_PLL_FRA0),
 	CLK_NAME(CLK_PLL_FRA1),
@@ -147,7 +147,6 @@ struct aic_clks aic_clk_names[] = {
 	CLK_NAME(CLK_SPI4),
 	CLK_NAME(CLK_SDMC0),
 	CLK_NAME(CLK_SDMC1),
-	CLK_NAME(CLK_SPIENC),
 	CLK_NAME(CLK_I2S0),
 	CLK_NAME(CLK_AUDIO),
 	CLK_NAME(CLK_UART0),
@@ -177,7 +176,79 @@ struct aic_clks aic_clk_names[] = {
 	CLK_NAME(CLK_OUT2),
 	CLK_NAME(CLK_OUT3),
 };
-#endif	/*CLK_ARTINCHIP_V1_3*/
+#endif	/*CLK_ARTINCHIP_V2_0*/
+
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V3_0
+#include <dt-bindings/clock/artinchip,aic-cmu-v30.h>
+struct aic_clks aic_clk_names[] = {
+	/* Fixed rate clock */
+	CLK_NAME(CLK_24M),
+	CLK_NAME(CLK_32K),
+	/* PLL clock */
+	CLK_NAME(CLK_PLL_FRA0),
+	CLK_NAME(CLK_PLL_FRA1),
+	CLK_NAME(CLK_PLL_FRA2),
+	CLK_NAME(CLK_PLL_INT0),
+	CLK_NAME(CLK_PLL_INT1),
+	/* system clock */
+	CLK_NAME(CLK_CPU0),
+	CLK_NAME(CLK_CPU1),
+	CLK_NAME(CLK_AHB),
+	CLK_NAME(CLK_AXI),
+	CLK_NAME(CLK_APB),
+	/* Peripheral clock */
+	CLK_NAME(CLK_SYSCFG),
+	CLK_NAME(CLK_DMA0),
+	CLK_NAME(CLK_DMA1),
+	CLK_NAME(CLK_WDOG),
+	CLK_NAME(CLK_USBH0),
+	CLK_NAME(CLK_USBH1),
+	CLK_NAME(CLK_USB_PHY0),
+	CLK_NAME(CLK_USB_PHY1),
+	CLK_NAME(CLK_QSPI0),
+	CLK_NAME(CLK_QSPI1),
+	CLK_NAME(CLK_QSPI2),
+	CLK_NAME(CLK_QSPI3),
+	CLK_NAME(CLK_SDMC0),
+	CLK_NAME(CLK_SDMC1),
+	CLK_NAME(CLK_SDMC2),
+	CLK_NAME(CLK_SPIENC),
+	CLK_NAME(CLK_I2S0),
+	CLK_NAME(CLK_I2S1),
+	CLK_NAME(CLK_I2S2),
+	CLK_NAME(CLK_AUDIO),
+	CLK_NAME(CLK_UART0),
+	CLK_NAME(CLK_UART1),
+	CLK_NAME(CLK_UART2),
+	CLK_NAME(CLK_UART3),
+	CLK_NAME(CLK_UART4),
+	CLK_NAME(CLK_UART5),
+	CLK_NAME(CLK_UART6),
+	CLK_NAME(CLK_UART7),
+	CLK_NAME(CLK_LCD0),
+	CLK_NAME(CLK_LVDS0),
+	CLK_NAME(CLK_LCD1),
+	CLK_NAME(CLK_LVDS1),
+	CLK_NAME(CLK_DE),
+	CLK_NAME(CLK_SID),
+	CLK_NAME(CLK_I2C0),
+	CLK_NAME(CLK_I2C1),
+	CLK_NAME(CLK_I2C2),
+	CLK_NAME(CLK_ADCIM),
+	CLK_NAME(CLK_GPAI),
+	CLK_NAME(CLK_THS),
+	/* Display clock */
+	CLK_NAME(CLK_PIX0),
+	CLK_NAME(CLK_SCLK0),
+	CLK_NAME(CLK_PIX1),
+	CLK_NAME(CLK_SCLK1),
+	/* Output clock */
+	CLK_NAME(CLK_OUT0),
+	CLK_NAME(CLK_OUT1),
+	CLK_NAME(CLK_OUT2),
+	CLK_NAME(CLK_OUT3),
+};
+#endif	/*CLK_ARTINCHIP_V3_0*/
 
 #define GET_NUM 4
 

@@ -1,0 +1,461 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="CTP 驱动一般由触摸屏原厂提供，经过移植后添加到 SDK 中编译和使用。本节以 GT9xx 触摸屏为例，详细说明调试和移植一款新 CTP 的流程。 驱动存放路径： source/linux-5.10/drivers/input/touchscreen/gt9xx 。 注： 从触摸屏供应商处获取和内核版本匹配的驱动程序，如果版本不匹配则可能编译出错，需要自行适配。 驱动移植 修改 Makefile ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/peripheral/touch-screen-debug-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/touch_panel/rtp_debug.html"/><meta name="DC.relation" content="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><title>CTP 调试配置</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1728"/><meta name="wh-source-relpath" content="topics/sdk/touch_panel/ctp_debug.dita"/><meta name="wh-out-relpath" content="topics/sdk/touch_panel/ctp_debug.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="touch_screen_debug_guide"><div class="title"><a href="../../../topics/sdk/peripheral/touch-screen-debug-guide.html">触摸屏</a><div class="wh-tooltip"><p class="shortdesc">RTP 和 CTP 调试示例流程。</p></div></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/touch_panel/ctp_debug.html">CTP 调试配置</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/touch_panel/rtp_debug.html" title="RTP 调试配置" aria-label="上一主题: RTP 调试配置" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html" title="显示屏" aria-label="下一主题: 显示屏" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="touch_screen_debug_guide-d4445e1697" class="topicref" data-id="touch_screen_debug_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action touch_screen_debug_guide-d4445e1697-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/touch-screen-debug-guide.html" id="touch_screen_debug_guide-d4445e1697-link">触摸屏</a><div class="wh-tooltip"><p class="shortdesc">RTP 和 CTP 调试示例流程。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="id-d4445e1714" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/touch_panel/rtp_debug.html" id="id-d4445e1714-link">RTP 调试配置</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1728" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/touch_panel/ctp_debug.html" id="id-d4445e1728-link">CTP 调试配置</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="_59-d4445e1743" class="topicref" data-id="_59" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _59-d4445e1743-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html" id="_59-d4445e1743-link">显示屏</a><div class="wh-tooltip"><p class="shortdesc">Panel 类型详细介绍，以及参数和功能配置描述。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="wifi-d4445e1918" class="topicref" data-id="wifi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action wifi-d4445e1918-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/wifi/wifi-debug-guide.html" id="wifi-d4445e1918-link">WiFi</a></div></div></li><li role="treeitem"><div data-tocid="concept_s4m_zk3_pzb-d4445e1946" class="topicref" data-id="concept_s4m_zk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/keyadc/device-keyboards-user-guide.html" id="concept_s4m_zk3_pzb-d4445e1946-link">按键矩阵</a><div class="wh-tooltip"><p class="shortdesc">此章节介绍按键矩阵的使用方法以及相关配置。</p></div></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/touch_panel/ctp_debug.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">CTP 调试配置</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body body">
+                                <p class="- topic/p p" data-ofbid="d189587e28__20250123155220">CTP 驱动一般由触摸屏原厂提供，经过移植后添加到 SDK 中编译和使用。本节以 GT9xx 触摸屏为例，详细说明调试和移植一款新
+            CTP 的流程。</p>
+        <div class="- topic/p p" data-ofbid="d189587e31__20250123155220">驱动存放路径：<span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/input/touchscreen/gt9xx</span>。<div class="- topic/note note note note_note" id="id__note_ig5_yjr_gdc" data-ofbid="id__note_ig5_yjr_gdc"><span class="note__title">注：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d189587e38__20250123155220">从触摸屏供应商处获取和内核版本匹配的驱动程序，如果版本不匹配则可能编译出错，需要自行适配。</p>
+            </div></div></div>
+        <section class="- topic/section section" id="id__section_uf1_wjr_gdc" data-ofbid="id__section_uf1_wjr_gdc"><h2 class="- topic/title title sectiontitle">驱动移植</h2>
+            
+            <ol class="- topic/ol ol" id="id__ol_pb2_svq_ldc" data-ofbid="id__ol_pb2_svq_ldc">
+                <li class="- topic/li li" data-ofbid="d189587e49__20250123155220">
+                    <p class="- topic/p p" data-ofbid="d189587e51__20250123155220"><strong class="+ topic/ph hi-d/b ph b">修改 <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span> 文件</strong>，将 <span class="+ topic/ph sw-d/filepath ph filepath">gt9xx</span>
+                        目录中的源文件编译进内核模块。</p>
+                    <p class="- topic/p p" data-ofbid="d189587e62__20250123155220">在 <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/input/touchscreen/Makefile</span>
+                        文件中添加以下内容：</p>
+                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_okm_vjr_gdc" data-ofbid="id__pre_okm_vjr_gdc"><code>diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index <span class="hl-number">75924</span>acd8.<span class="hl-number">.4</span>be057598 <span class="hl-number">100644</span>
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -<span class="hl-number">116</span>,<span class="hl-number">3</span> +<span class="hl-number">116</span>,<span class="hl-number">6</span> @@ obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)      += rohm_bu21023.o
+ obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)       += raspberrypi-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_IQS5XX)       += iqs5xx.o
+ obj-$(CONFIG_TOUCHSCREEN_ZINITIX)      += zinitix.o
++obj-$(CONFIG_INPUT_TOUCHSCREEN)   += gt9xx/
+</code></pre>
+                    <p class="- topic/p p" data-ofbid="d189587e75__20250123155220">确保 <span class="+ topic/ph sw-d/filepath ph filepath">gt9xx</span> 目录中包含正确的驱动程序源代码，并且该目录结构符合内核的构建系统要求。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d189587e82__20250123155220"><strong class="+ topic/ph hi-d/b ph b">修改 <span class="+ topic/ph sw-d/filepath ph filepath">Kconfig</span> 文件</strong>，引入 <code class="+ topic/ph pr-d/codeph ph codeph">gt9xx</code> 目录下的
+                        <code class="+ topic/ph pr-d/codeph ph codeph">Kconfig</code> 文件。<div class="- topic/p p" data-ofbid="d189587e95__20250123155220">在
+                            <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/input/touchscreen/Kconfig</span>
+                        中添加以下内容，使得该目录下的配置选项能够被主
+                            <code class="+ topic/ph pr-d/codeph ph codeph">Kconfig</code>
+                        文件识别和处理：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_pkm_vjr_gdc" data-ofbid="id__pre_pkm_vjr_gdc"><code>diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index a8d18a679.<span class="hl-number">.6</span>acdc3b63 <span class="hl-number">100644</span>
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -<span class="hl-number">1344</span>,<span class="hl-number">5</span> +<span class="hl-number">1344</span>,<span class="hl-number">7</span> @@ config TOUCHSCREEN_ZINITIX
+
+          To compile this driver as a module, choose M here: the
+          module will be called zinitix.
+-
++source <span class="hl-string">"drivers/input/touchscreen/gt9xx/Kconfig"</span></code></pre></div><p class="- topic/p p" data-ofbid="d189587e109__20250123155220">确保
+                            <code class="+ topic/ph pr-d/codeph ph codeph">gt9xx</code> 目录中包含一个有效的 <code class="+ topic/ph pr-d/codeph ph codeph">Kconfig</code> 文件，并且该文件定义了与
+                            <code class="+ topic/ph pr-d/codeph ph codeph">gt9xx</code> 驱动程序相关的配置选项。</p></li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__section_sb1_xjr_gdc" data-ofbid="id__section_sb1_xjr_gdc"><h2 class="- topic/title title sectiontitle">内核配置</h2>
+            
+            <div class="- topic/p p" data-ofbid="d189587e128__20250123155220">
+                <div class="- topic/div div section" id="id__id4">
+                    <ol class="- topic/ol ol" id="id__ol_xg2_r33_ndc" data-ofbid="id__ol_xg2_r33_ndc">
+                        <li class="- topic/li li" data-ofbid="d189587e134__20250123155220">在 Luban 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make km</span> (<span class="+ topic/keyword sw-d/cmdname keyword cmdname">make
+                                kernel-menuconfig</span>)，进入 kernel
+                                的功能配置，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_mfm_wjr_gdc" data-ofbid="id__pre_mfm_wjr_gdc"><code>Linux
+    Device Drivers
+        Input device support
+            [*] Touchscreens
+                &lt;M&gt; gt9xx based touchscreens</code></pre><p class="- topic/p p" data-ofbid="d189587e144__20250123155220">确保
+                                    <code class="+ topic/ph pr-d/codeph ph codeph">gt9xx based touchscreens</code> 被选中（用
+                                    <code class="+ topic/ph pr-d/codeph ph codeph">&lt;M&gt;</code> 表示）。</p></li>
+                        <li class="- topic/li li" data-ofbid="d189587e153__20250123155220">
+                            <p class="- topic/p p" data-ofbid="d189587e155__20250123155220">保存配置并退出配置界面后，以 ko 的方式编译驱动。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d189587e159__20250123155220">
+                            <div class="- topic/p p" data-ofbid="d189587e161__20250123155220">编译完成后启动系统，启动脚本
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">S10mdev</span>
+                                自动加载，如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_nfm_wjr_gdc" data-ofbid="id__pre_nfm_wjr_gdc"><code>start(){echo-n<span class="hl-string">"Starting $DAEMON... "</span>start-stop-daemon-S-b-m-p$PIDFILE-x/sbin/mdev---df[$?-eq0]&amp;&amp;echo<span class="hl-string">"OK"</span>||echo<span class="hl-string">"ERROR"</span># coldplug modulesfind/sys/-namemodalias-print0| \
+         xargs-<span class="hl-number">0</span>sort-u| \
+         tr<span class="hl-string">'\n'</span><span class="hl-string">'\0'</span>| \
+         xargs-<span class="hl-number">0</span>modprobe-abq}</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d189587e174__20250123155220">
+                            <p class="- topic/p p" data-ofbid="d189587e176__20250123155220">如果不需要自动加载，可注释掉所示代码，并按照需要自定义加载服务，否则可略过此步。</p>
+                            <p class="- topic/p p" data-ofbid="d189587e179__20250123155220">自定义时，可参考其他启动服务。</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+        <section class="- topic/section section" id="id__section_fmr_zjr_gdc" data-ofbid="id__section_fmr_zjr_gdc"><h2 class="- topic/title title sectiontitle">DTS 参数配置</h2>
+            
+            <div class="- topic/p p" data-ofbid="d189587e192__20250123155220">在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 文件中添加或修改与 GT9xx
+                触摸屏相关的节点和属性。关于需要添加的参数选项，可以查看驱动代码中所要解析的 dts 参数，示例如下：<ul class="- topic/ul ul" id="id__ul_szf_ck3_ndc" data-ofbid="id__ul_szf_ck3_ndc">
+                    <li class="- topic/li li" data-ofbid="d189587e199__20250123155220"> GT9xx 驱动程序中所要解析的 dts
+                        参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_mx1_bkr_gdc" data-ofbid="id__codeblock_mx1_bkr_gdc"><code>    <strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> gtp_parse_dt(<strong class="hl-keyword">struct</strong> device *dev,
+                    <strong class="hl-keyword">struct</strong> goodix_ts_platform_data *pdata)
+{
+    <strong class="hl-keyword">int</strong> ret;
+    u32  key_nums;
+    <strong class="hl-keyword">struct</strong> property *prop;
+    u32 key_map[MAX_KEY_NUMS];
+    <strong class="hl-keyword">struct</strong> device_node *np = dev-&gt;of_node;
+
+    gtp_parse_dt_coords(dev, pdata);
+
+    ret = of_property_read_u32(np, <span class="hl-string">"irq-flags"</span>,
+                &amp;pdata-&gt;irq_flags);
+    <strong class="hl-keyword">if</strong> (ret) {
+        dev_info(dev,
+            <span class="hl-string">"Failed get int-trigger-type from dts,set default\n"</span>);
+        pdata-&gt;irq_flags = GTP_DEFAULT_INT_TRIGGER;
+    }
+    of_property_read_u32(np, <span class="hl-string">"goodix,int-sync"</span>, &amp;pdata-&gt;int_sync);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;int_sync)
+        dev_info(dev, <span class="hl-string">"int-sync enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,driver-send-cfg"</span>,
+                &amp;pdata-&gt;driver_send_cfg);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;driver_send_cfg)
+        dev_info(dev, <span class="hl-string">"driver-send-cfg enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,swap-x2y"</span>, &amp;pdata-&gt;swap_x2y);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;swap_x2y)
+        dev_info(dev, <span class="hl-string">"swap-x2y enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,slide-wakeup"</span>, &amp;pdata-&gt;slide_wakeup);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;slide_wakeup)
+        dev_info(dev, <span class="hl-string">"slide-wakeup enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,auto-update"</span>, &amp;pdata-&gt;auto_update);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;auto_update)
+        dev_info(dev, <span class="hl-string">"auto-update enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,auto-update-cfg"</span>,
+                &amp;pdata-&gt;auto_update_cfg);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;auto_update_cfg)
+        dev_info(dev, <span class="hl-string">"auto-update-cfg enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,esd-protect"</span>, &amp;pdata-&gt;esd_protect);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;esd_protect)
+        dev_info(dev, <span class="hl-string">"esd-protect enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,type-a-report"</span>,
+                &amp;pdata-&gt;type_a_report);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;type_a_report)
+        dev_info(dev, <span class="hl-string">"type-a-report enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,resume-in-workqueue"</span>,
+                &amp;pdata-&gt;resume_in_workqueue);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;resume_in_workqueue)
+        dev_info(dev, <span class="hl-string">"resume-in-workqueue enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,power-off-sleep"</span>,
+                &amp;pdata-&gt;power_off_sleep);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;power_off_sleep)
+        dev_info(dev, <span class="hl-string">"power-off-sleep enabled\n"</span>);
+
+    of_property_read_u32(np, <span class="hl-string">"goodix,pen-suppress-finger"</span>,
+                &amp;pdata-&gt;pen_suppress_finger);
+    <strong class="hl-keyword">if</strong> (pdata-&gt;pen_suppress_finger)
+        dev_info(dev, <span class="hl-string">"pen-suppress-finger enabled\n"</span>);
+
+    prop = of_find_property(np, <span class="hl-string">"touchscreen-key-map"</span>, NULL);
+    <strong class="hl-keyword">if</strong> (prop) {
+        key_nums = prop-&gt;length / <strong class="hl-keyword">sizeof</strong>(key_map[<span class="hl-number">0</span>]);
+        key_nums = key_nums &gt; MAX_KEY_NUMS ? MAX_KEY_NUMS : key_nums;
+
+        dev_dbg(dev, <span class="hl-string">"key nums %d\n"</span>, key_nums);
+        ret = of_property_read_u32_array(np,
+                <span class="hl-string">"touchscreen-key-map"</span>, key_map,
+                key_nums);
+        <strong class="hl-keyword">if</strong> (ret) {
+            dev_err(dev, <span class="hl-string">"Unable to read key codes\n"</span>);
+            pdata-&gt;key_nums = <span class="hl-number">0</span>;
+            memset(pdata-&gt;key_map, <span class="hl-number">0</span>,
+                MAX_KEY_NUMS * <strong class="hl-keyword">sizeof</strong>(pdata-&gt;key_map[<span class="hl-number">0</span>]));
+        }
+        pdata-&gt;key_nums = key_nums;
+        memcpy(pdata-&gt;key_map, key_map,
+            key_nums * <strong class="hl-keyword">sizeof</strong>(pdata-&gt;key_map[<span class="hl-number">0</span>]));
+        dev_info(dev, <span class="hl-string">"key-map is [%x %x %x %x]\n"</span>,
+            pdata-&gt;key_map[<span class="hl-number">0</span>], pdata-&gt;key_map[<span class="hl-number">1</span>],
+            pdata-&gt;key_map[<span class="hl-number">2</span>], pdata-&gt;key_map[<span class="hl-number">3</span>]);
+    }
+
+    pdata-&gt;irq_gpio = of_get_named_gpio(np, <span class="hl-string">"irq-gpios"</span>, <span class="hl-number">0</span>);
+    <strong class="hl-keyword">if</strong> (!gpio_is_valid(pdata-&gt;irq_gpio))
+        dev_err(dev, <span class="hl-string">"No valid irq gpio"</span>);
+
+    pdata-&gt;rst_gpio = of_get_named_gpio(np, <span class="hl-string">"reset-gpios"</span>, <span class="hl-number">0</span>);
+    <strong class="hl-keyword">if</strong> (!gpio_is_valid(pdata-&gt;rst_gpio))
+        dev_err(dev, <span class="hl-string">"No valid rst gpio"</span>);
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d189587e204__20250123155220">
+                        <div class="- topic/p p" data-ofbid="d189587e206__20250123155220">在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中需要对应添加的参数项：
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_s2r_bkr_gdc" data-ofbid="id__pre_s2r_bkr_gdc"><code>&amp;i2c3 {
+    pinctrl-names = <span class="hl-string">"default"</span>;
+    pinctrl-<span class="hl-number">0</span> = &lt;&amp;i2c3_pins_a&gt;;
+    status = <span class="hl-string">"okay"</span>;
+
+    gt9xx@<span class="hl-number">5</span>d {
+        status = <span class="hl-string">"okay"</span>;
+        compatible = <span class="hl-string">"goodix,gt9xx"</span>;
+        reg = &lt;<span class="hl-number">0x5d</span>&gt;;                               <em class="hl-comment">//</em><a class="- topic/xref xref" href="ctp_debug.html#id__div_b5l_5k3_ndc">CTP 设备地址</a>，可以从规格书中获取
+        reset-gpios = &lt;&amp;gpio_a <span class="hl-number">8</span> GPIO_ACTIVE_LOW&gt;;
+        irq-gpios = &lt;&amp;gpio_a <span class="hl-number">9</span> GPIO_ACTIVE_HIGH&gt;;
+        irq-flags = &lt;<span class="hl-number">2</span>&gt;;
+
+        touchscreen-max-id = &lt;<span class="hl-number">11</span>&gt;;
+        touchscreen-size-x = &lt;<span class="hl-number">1024</span>&gt;;                <em class="hl-comment">//CTP x 轴的范围</em>
+        touchscreen-size-y = &lt;<span class="hl-number">600</span>&gt;;                 <em class="hl-comment">//CTP y 轴的范围</em>
+        touchscreen-max-w = &lt;<span class="hl-number">1024</span>&gt;;                  <em class="hl-comment">//MAX width</em>
+        touchscreen-max-p = &lt;<span class="hl-number">512</span>&gt;;                  <em class="hl-comment">//MAX pressure</em>
+
+        goodix,<strong class="hl-keyword">int</strong>-sync = &lt;<span class="hl-number">1</span>&gt;;
+    };
+};
+</code></pre></div>
+                        <div class="- topic/div div" id="id__div_b5l_5k3_ndc"><strong class="+ topic/ph hi-d/b ph b">CTP 设备地址获取</strong><div class="- topic/p p" data-ofbid="d189587e221__20250123155220">在下列规格书示例中， GT9xx
+                                根据初始化时序的不同支持两种设备地址，默认时序的读写地址为 0xBA/0xBB，和去掉最后一位读写位的读写地址，即设备地址，此处为
+                                    0x5d。<figure class="- topic/fig fig fignone" id="id__fig_u24_ckr_gdc" data-ofbid="id__fig_u24_ckr_gdc">
+                                    <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_dsj_ckr_gdc" src="../../../images/rtp/slave_addr.png" alt="slave_addr"/></div><br/>
+                                </figure>
+                            </div></div>
+                        
+                        <div class="- topic/div div"><strong class="+ topic/ph hi-d/b ph b">硬件接线示例图</strong><div class="- topic/p p" data-ofbid="d189587e238__20250123155220">
+                                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_bdd_dkr_gdc" src="../../../images/hardware/ctp.png" alt="ctp"/></div><br/>
+                                <div class="- topic/note note note note_note" id="id__note_bfl_dkr_gdc" data-ofbid="id__note_bfl_dkr_gdc"><span class="note__title">注：</span> <div class="note__body">
+                                    <p class="- topic/p p" data-ofbid="d189587e248__20250123155220">确保 dts 所配置的参数和引脚与硬件原理图一致。</p>
+                                </div></div>
+                            </div></div>
+                    </li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="id__section_tfp_2kr_gdc" data-ofbid="id__section_tfp_2kr_gdc"><h2 class="- topic/title title sectiontitle">调试</h2>
+            
+            
+            <div class="- topic/p p" data-ofbid="d189587e266__20250123155220">
+                <ul class="- topic/ul ul" id="id__ul_zk5_2kr_gdc" data-ofbid="id__ul_zk5_2kr_gdc">
+                    <li class="- topic/li li" data-ofbid="d189587e270__20250123155220">
+                        <p class="- topic/p p" data-ofbid="d189587e272__20250123155220">测量硬件通路是否正常，测量电压信号是否正常。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d189587e276__20250123155220">
+                        <p class="- topic/p p" data-ofbid="d189587e278__20250123155220">查看打印信息</p>
+                        <p class="- topic/p p" data-ofbid="d189587e281__20250123155220">在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中修改
+                                <code class="+ topic/ph pr-d/codeph ph codeph">bootargs</code>，增加<code class="+ topic/ph pr-d/codeph ph codeph">“loglevel=8”</code>
+                            以调高打印级别，系统启动时或
+                            insmod
+                            驱动模块时看是否有异常打印。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d189587e298__20250123155220">
+                        <p class="- topic/p p" data-ofbid="d189587e300__20250123155220">获取坐标信息</p>
+                        <p class="- topic/p p" data-ofbid="d189587e303__20250123155220">如果系统有编译 <code class="+ topic/ph pr-d/codeph ph codeph">getevent</code> 工具，可在触摸屏有触摸时进行坐标的打印：</p>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_al5_2kr_gdc" data-ofbid="id__pre_al5_2kr_gdc"><code># getevent</code></pre>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d189587e313__20250123155220">
+                        <p class="- topic/p p" data-ofbid="d189587e315__20250123155220">获取设备信息</p>
+                        <div class="- topic/p p" data-ofbid="d189587e318__20250123155220">使用以下命令查看设备信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_thd_fm3_ndc" data-ofbid="id__codeblock_thd_fm3_ndc"><code>cat /proc/bus/input/devices</code></pre></div>
+                        <div class="- topic/p p" data-ofbid="d189587e323__20250123155220">输出示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_bl5_2kr_gdc" data-ofbid="id__pre_bl5_2kr_gdc"><code>I: Bus=<span class="hl-number">0018</span>Vendor=dead Product=beef Version=<span class="hl-number">28</span>bb
+N: Name=<span class="hl-string">"goodix-ts"</span>
+P: Phys=input/ts
+S: Sysfs=/devices/virtual/input/input0
+U: Uniq=
+H: Handlers=event0
+B: PROP=<span class="hl-number">2</span>
+B: EV=b
+B: KEY=<span class="hl-number">1</span>c00 <span class="hl-number">00000</span>
+B: ABS=<span class="hl-number">6e1800000000000</span>
+</code></pre></div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_uf1_wjr_gdc" data-tocid="id__section_uf1_wjr_gdc">驱动移植</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_sb1_xjr_gdc" data-tocid="id__section_sb1_xjr_gdc">内核配置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_fmr_zjr_gdc" data-tocid="id__section_fmr_zjr_gdc">DTS 参数配置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_tfp_2kr_gdc" data-tocid="id__section_tfp_2kr_gdc">调试</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

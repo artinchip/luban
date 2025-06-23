@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2021, ArtInChip Technology Co., Ltd
+ * Copyright (c) 2021-2024, ArtInChip Technology Co., Ltd
  */
 
 #undef DEBUG
@@ -89,6 +89,7 @@ static void aic_ep0_read(struct aic_udc *dev);
 static void aic_ep0_kick(struct aic_udc *dev, struct aic_ep *ep);
 static void aic_handle_ep0(struct aic_udc *dev);
 static int aic_ep0_write(struct aic_udc *dev);
+static int aic_npinep_rewrite(struct aic_udc *dev, u8 ep_num);
 static int write_fifo_ep0(struct aic_ep *ep, struct aic_request *req);
 static void done(struct aic_ep *ep, struct aic_request *req, int status);
 static void stop_activity(struct aic_udc *dev,
@@ -133,8 +134,11 @@ static struct usb_ep_ops aic_ep_ops = {
 #define remove_proc_files() do {} while (0)
 
 /***********************************************************/
-
-static struct aic_udc_reg *reg;
+#if CONFIG_AIC_USB_UDC_V10
+static struct aic_udc_reg_v10 *reg;
+#else
+static struct aic_udc_reg_v20 *reg;
+#endif
 
 bool dfu_usb_get_reset(void)
 {
@@ -269,7 +273,6 @@ static int setdma_tx(struct aic_ep *ep, struct aic_request *req)
 	u32 *buf, ctrl = 0;
 	u32 length, pktcnt;
 	u32 ep_num = ep_index(ep);
-	u32 uTemp;
 
 	buf = req->req.buf + req->req.actual;
 	length = req->req.length - req->req.actual;
@@ -289,24 +292,12 @@ static int setdma_tx(struct aic_ep *ep, struct aic_request *req)
 	else
 		pktcnt = (length - 1) / (ep->ep.maxpacket) + 1;
 
-	/* Flush the endpoint's Tx FIFO */
-	uTemp = readl(&reg->usbdevinit);
-	writel(uTemp | USBDEVINIT_TXFNUM(ep->fifo_num), &reg->usbdevinit);
-	writel(uTemp | USBDEVINIT_TXFNUM(ep->fifo_num) | USBDEVINIT_TXFFLSH,
-	       &reg->usbdevinit);
-	while (readl(&reg->usbdevinit) & USBDEVINIT_TXFFLSH)
-		;
-
 	writel(phys_to_bus((unsigned long)ep->dma_buf),
 	       &reg->inepdmaaddr[ep_num]);
 	writel(DIEPT_SIZ_PKT_CNT(pktcnt) | DIEPT_SIZ_XFER_SIZE(length),
 	       &reg->ineptsfsiz[ep_num]);
 
 	ctrl = readl(&reg->inepcfg[ep_num]);
-
-	/* Write the FIFO number to be used for this endpoint */
-	ctrl &= DIEPCTL_TX_FIFO_NUM_MASK;
-	ctrl |= DIEPCTL_TX_FIFO_NUM(ep->fifo_num);
 
 	debug_cond(DEBUG_IN_EP, "%s, DIEPCTL <= 0x%x\n", __func__,
 		   DEPCTL_EPENA | DEPCTL_CNAK | ctrl);
@@ -501,7 +492,7 @@ static inline void aic_udc_check_tx_queue(struct aic_udc *dev, u8 ep_num)
 
 static void process_ep_in_intr(struct aic_udc *dev)
 {
-	u32 ep_intr, ep_intr_status;
+	u32 ep_intr, ep_intr_status, ep_intr_msk;
 	u8 ep_num = 0;
 
 	ep_intr = readl(&reg->usbepint);
@@ -513,12 +504,18 @@ static void process_ep_in_intr(struct aic_udc *dev)
 	while (ep_intr) {
 		if (ep_intr & DAINT_IN_EP_INT(1)) {
 			ep_intr_status = readl(&reg->inepint[ep_num]);
+			ep_intr_msk = readl(&reg->inepintmsk);
 			debug_cond(DEBUG_IN_EP,
 				   "\tEP%d-IN : DIEPINT = 0x%x\n",
 				   ep_num, ep_intr_status);
 
 			/* Interrupt Clear */
 			writel(ep_intr_status, &reg->inepint[ep_num]);
+
+			ep_intr_status &= ep_intr_msk;
+
+			if (ep_intr_status & INTKNEPMIS)
+				aic_npinep_rewrite(dev, ep_num);
 
 			if (ep_intr_status & TRANSFER_DONE) {
 				complete_tx(dev, ep_num);
@@ -963,6 +960,7 @@ static void aic_ep0_read(struct aic_udc *dev)
 {
 	struct aic_request *req;
 	struct aic_ep *ep = &dev->ep[0];
+	int i = 0;
 
 	if (!list_empty(&ep->queue)) {
 		req = list_entry(ep->queue.next, struct aic_request, queue);
@@ -971,6 +969,16 @@ static void aic_ep0_read(struct aic_udc *dev)
 		debug("%s: ---> BUG\n", __func__);
 		BUG();
 		return;
+	}
+
+	if (readl(&reg->outepcfg[0]) & DEPCTL_EPENA) {
+		for (i = 0; i < EP0_RW_WAIT_COUNT; i++)
+			if (!(readl(&reg->outepcfg[0]) & DEPCTL_EPENA))
+				break;
+		if (i == EP0_RW_WAIT_COUNT) {
+			debug("%s wait for last time read timeout\n", __func__);
+			return;
+		}
 	}
 
 	debug_cond(DEBUG_EP0 != 0,
@@ -1001,7 +1009,7 @@ static int aic_ep0_write(struct aic_udc *dev)
 {
 	struct aic_request *req;
 	struct aic_ep *ep = &dev->ep[0];
-	int ret, need_zlp = 0;
+	int ret, need_zlp = 0, i = 0, j = 0;
 
 	if (list_empty(&ep->queue))
 		req = 0;
@@ -1011,6 +1019,25 @@ static int aic_ep0_write(struct aic_udc *dev)
 	if (!req) {
 		debug_cond(DEBUG_EP0 != 0, "%s: NULL REQ\n", __func__);
 		return 0;
+	}
+
+	/* ep0 use cpu to write data, other ep use dma.
+	 * There may be a situation where both CPU and DMA
+	 * write data at the same time.
+	 * So, wait for other ep transfer by dma to complete.
+	 */
+	for (i = 1U; i < AIC_MAX_ENDPOINTS - 1; i++) {
+		if (!((dev->tx_fifo_map & (1 << i))))
+			continue;
+		if (readl(&reg->inepcfg[i]) & DEPCTL_EPENA) {
+			for (j = 0; j < EP0_RW_WAIT_COUNT; j++)
+				if (!(readl(&reg->inepcfg[i]) & DEPCTL_EPENA))
+					break;
+			if (j == EP0_RW_WAIT_COUNT) {
+				debug_cond(DEBUG_EP0 != 0,
+					   "wait ep%d write timeout!!!\n", i);
+			}
+		}
 	}
 
 	debug_cond(DEBUG_EP0 != 0,
@@ -1030,7 +1057,6 @@ static int aic_ep0_write(struct aic_udc *dev)
 		dev->ep0state = WAIT_FOR_COMPLETE;
 		debug_cond(DEBUG_EP0 != 0,
 			   "%s: finished, waiting for status\n", __func__);
-
 	} else {
 		dev->ep0state = DATA_STATE_XMIT;
 		debug_cond(DEBUG_EP0 != 0,
@@ -1038,6 +1064,175 @@ static int aic_ep0_write(struct aic_udc *dev)
 	}
 
 	return 1;
+}
+
+/* func: aic_flush_txfifo
+ * num:  0x00-Non-periodic TXFIFO
+ *       0x01-Periodic TXFIFO1
+ *       0x01-Periodic TXFIFO2
+ *       0x10-all FIFO
+ */
+static void aic_flush_txfifo(uint32_t num)
+{
+	uint32_t val;
+
+	val = readl(&reg->usbdevinit);
+	val &= ~USBDEVINIT_TXFNUM(USBDEVINIT_TXFNUM_SHIFT);
+	writel(val | USBDEVINIT_TXFNUM(num), &reg->usbdevinit);
+	writel(val | USBDEVINIT_TXFNUM(num) | USBDEVINIT_TXFFLSH,
+	       &reg->usbdevinit);
+	while (readl(&reg->usbdevinit) & USBDEVINIT_TXFFLSH)
+		debug("%s: waiting for tx_fifo_flush\n", __func__);
+}
+
+static void aic_inep_reenable(struct aic_udc *dev, u8 ep_num)
+{
+	u32 val = 0;
+
+	if (ep_num == 0) {
+		val = readl(&reg->inepcfg[ep_num]);
+		/* bit[0:1]-0 is Control IN (64 bytes) */
+		val &= ~(0x3);
+		val |= DEPCTL_SETD0PID | DEPCTL_USBACTEP;
+		writel(val, &reg->inepcfg[ep_num]);
+	}
+
+	val = readl(&reg->usbepintmsk);
+	/* Enable ep0 in int msk */
+	val |= (1 << ep_num);
+	writel(val, &reg->usbepintmsk);
+}
+
+static int aic_npinep_rewrite(struct aic_udc *dev, u8 ep_num)
+{
+	struct aic_ep *ep = NULL;
+	unsigned int pending_map = 0;
+	int i = 0, j = 0, fail = 0;
+	u32 val = 0;
+
+	for (i = 0U, j = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+		val = readl(&reg->inepcfg[i]);
+		if (!((dev->tx_fifo_map & (1 << i)) && (val & DEPCTL_EPENA)))
+			continue;
+		/* mark the fifo which need to be rewrite */
+		j++;
+		pending_map |= (1 << i);
+	}
+
+	/* Mismatch must be caused by two or more ep */
+	if (j <= 1)
+		return 0;
+
+	debug_cond(DEBUG_EP0 != 0,
+		   "mismatch ep pending_map:0x%x\n", pending_map);
+
+	/* (1) close all no-periodic ep */
+	/* (1.1) Set Global In NP NAK in Shared FIFO for non periodic ep */
+	val = readl(&reg->usbintsts);
+	if (!(val & INT_GINNAKEFF)) {
+		val = readl(&reg->usbdevfunc);
+		val |= USBDEVFUNC_SGNPINNAK;
+		writel(val, &reg->usbdevfunc);
+	} else {
+		debug_cond(DEBUG_EP0 != 0,
+			   "%s GNINAKEFF is not 0, reg:0x%x, check bit:0x%x\n",
+			   __func__, val, val & INT_GINNAKEFF);
+	}
+
+	for (i = 0; i < DIS_EP_TIMOUT; i++) {
+		udelay(1);
+		val = readl(&reg->usbintsts);
+		/* wait for SGNPINNAK to take effect, this bit will be set to 1 */
+		if (val & INT_GINNAKEFF)
+			break;
+	}
+	if (i == DIS_EP_TIMOUT)
+		debug_cond(DEBUG_EP0 != 0,
+			   "%s timeout reg->usbintsts.INT_GINNAKEFF\n",
+			   __func__);
+
+	/* (1.2) Disable ep */
+	for (i = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+		val = readl(&reg->inepcfg[i]);
+		if (!((dev->tx_fifo_map & (1 << i)) && (val & DEPCTL_EPENA)))
+			continue;
+
+		/* set NACK and disabled ep */
+		val |= DEPCTL_SNAK;
+		val |= DEPCTL_EPDIS;
+		writel(val, &reg->inepcfg[i]);
+	}
+
+	/* check if ep disabled complete */
+	for (j = 0; j < DIS_EP_TIMOUT; j++) {
+		fail = 0;
+		for (i = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+			if (!(pending_map & (1 << i)))
+				continue;
+			/* wait for ep disabled finish */
+			val = readl(&reg->inepint[i]);
+			if (!(val & EPDISBLD)) {
+				fail = i + 1;
+				break;
+			}
+		}
+		if (!fail)
+			break;
+		udelay(1);
+	}
+	if (j == DIS_EP_TIMOUT)
+		debug_cond(DEBUG_EP0 != 0,
+			   "%s ep%d timeout EPDisable\n", __func__, fail - 1);
+
+	/* Clear EPDISBLD interrupt */
+	for (i = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+		if (!(pending_map & (1 << i)))
+			continue;
+		val = readl(&reg->inepint[i]);
+		val |= EPDISBLD;
+		writel(val, &reg->inepint[i]);
+	}
+	for (i = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+		if (!(pending_map & (1 << i)))
+			continue;
+		val = readl(&reg->inepint[i]);
+	}
+
+	/* (1.3) Flush Np-TXFIFO */
+	aic_flush_txfifo(0);
+
+	/* (1.4) Clear Global In NP NAK in Shared FIFO for non periodic ep */
+	val = readl(&reg->usbdevfunc);
+	val |= USBDEVFUNC_CGNPINNAK;
+	writel(val, &reg->usbdevfunc);
+
+	/* (2) reopen current ep */
+	aic_inep_reenable(dev, ep_num);
+
+	/* (3) rewrite current ep */
+	if (pending_map & (1 << ep_num)) {
+		ep = &dev->ep[ep_num];
+		if (ep_num == 0)
+			aic_ep0_kick(dev, ep);
+		else
+			aic_udc_check_tx_queue(dev, ep_num);
+	}
+
+	/* (4) reopen & rewrite other ep, let's receive ep mismtach interrupt */
+	for (i = 0U; i < AIC_MAX_ENDPOINTS; i++) {
+		if (!(pending_map & (1 << i)) || i == ep_num)
+			continue;
+		/* enable another ep */
+		aic_inep_reenable(dev, i);
+		/* another ep start send */
+		ep = &dev->ep[i];
+		if (i == 0)
+			aic_ep0_kick(dev, ep);
+		else
+			aic_udc_check_tx_queue(dev, i);
+	}
+
+	return 0;
 }
 
 static int aic_udc_get_status(struct aic_udc *dev,
@@ -1645,7 +1840,6 @@ static void aic_ep0_kick(struct aic_udc *dev, struct aic_ep *ep)
 	if (ep_is_in(ep)) {
 		dev->ep0state = DATA_STATE_XMIT;
 		aic_ep0_write(dev);
-
 	} else {
 		dev->ep0state = DATA_STATE_RECV;
 		aic_ep0_read(dev);
@@ -1847,6 +2041,11 @@ static void done(struct aic_ep *ep, struct aic_request *req, int status)
 {
 	unsigned int stopped = ep->stopped;
 
+	if (unlikely(!req)) {
+		debug("%s: nothing to complete?\n", __func__);
+		return;
+	}
+
 	debug("%s: %s %p, req = %p, stopped = %d\n",
 	      __func__, ep->ep.name, ep, &req->req, stopped);
 
@@ -1882,8 +2081,8 @@ static void done(struct aic_ep *ep, struct aic_request *req, int status)
 		printf("\n");
 	}
 #endif
-	spin_unlock(&ep->dev->lock);
 	aic_handle_unaligned_req_complete(ep, req);
+	spin_unlock(&ep->dev->lock);
 	req->req.complete(&ep->ep, &req->req);
 	spin_lock(&ep->dev->lock);
 
@@ -1943,7 +2142,7 @@ static void reconfig_usbd(struct aic_udc *dev)
 	int i;
 	unsigned int uTemp;
 	uint32_t dflt_gusbcfg;
-	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz, offset;
+	u32 rx_fifo_sz, tx_fifo_sz, fifo0_ofs, offset;
 	u32 max_hw_ep;
 	int pdata_hw_ep;
 
@@ -1995,7 +2194,7 @@ static void reconfig_usbd(struct aic_udc *dev)
 	/* 6. Unmask the core interrupts*/
 	writel(GINTMSK_INIT, &reg->usbintmsk);
 
-	/* 7. Set NAK bit of EP0, EP1, EP2*/
+	/* 7. Set NAK bit of all EPs*/
 	writel(DEPCTL_EPDIS | DEPCTL_SNAK, &reg->outepcfg[EP0_CON]);
 	writel(DEPCTL_EPDIS | DEPCTL_SNAK | (1 << DEPCTL_NEXT_EP_BIT),
 	       &reg->inepcfg[EP0_CON]);
@@ -2009,6 +2208,8 @@ static void reconfig_usbd(struct aic_udc *dev)
 	writel(((1 << EP0_CON) << DAINT_OUT_BIT)
 	       | (1 << EP0_CON), &reg->usbepintmsk);
 
+	dev->tx_fifo_map |= (1 << 0);
+
 	/* 9. Unmask device OUT EP common interrupts*/
 	writel(DOEPMSK_INIT, &reg->outepintmsk);
 
@@ -2016,25 +2217,34 @@ static void reconfig_usbd(struct aic_udc *dev)
 	writel(DIEPMSK_INIT, &reg->inepintmsk);
 
 	rx_fifo_sz = RX_FIFO_SIZE;
-	np_tx_fifo_sz = NPTX_FIFO_SIZE;
+
 	tx_fifo_sz = PTX_FIFO_SIZE;
 
 	if (dev->pdata->rx_fifo_sz)
 		rx_fifo_sz = dev->pdata->rx_fifo_sz;
-	if (dev->pdata->np_tx_fifo_sz)
-		np_tx_fifo_sz = dev->pdata->np_tx_fifo_sz;
+
 	if (dev->pdata->tx_fifo_sz)
 		tx_fifo_sz = dev->pdata->tx_fifo_sz;
 
 	/* 11. Set Rx FIFO Size (in 32-bit words) */
 	writel(rx_fifo_sz, &reg->rxfifosiz);
 
+	#ifdef CONFIG_AIC_USB_UDC_V10
+	u32 np_tx_fifo_sz = NPTX_FIFO_SIZE;
+
+	if (dev->pdata->np_tx_fifo_sz)
+		np_tx_fifo_sz = dev->pdata->np_tx_fifo_sz;
 	/* 12. Set Non Periodic Tx FIFO Size */
 	writel((np_tx_fifo_sz << 16) | rx_fifo_sz,
 	       &reg->nptxfifosiz);
-
+	fifo0_ofs = np_tx_fifo_sz;
+	#else
+	writel((dev->pdata->tx_fifo_sz_array[0] << 16) | rx_fifo_sz,
+	       &reg->ietxfifosiz);
+	fifo0_ofs = dev->pdata->tx_fifo_sz_array[0];
+	#endif
 	/* retrieve the number of IN Endpoints (excluding ep0) */
-	max_hw_ep = PERIOD_IN_EP_NUM;
+	max_hw_ep = TX_FIFO_NUM;
 	pdata_hw_ep = dev->pdata->tx_fifo_sz_nb;
 
 	/* tx_fifo_sz_nb should equal to number of IN Endpoint */
@@ -2042,12 +2252,13 @@ static void reconfig_usbd(struct aic_udc *dev)
 		pr_warn("Got %d hw endpoint but %d tx-fifo-size in array !!\n",
 			max_hw_ep, pdata_hw_ep);
 
-	offset = rx_fifo_sz + np_tx_fifo_sz;
-	for (i = 0; i < max_hw_ep; i++) {
+	offset = rx_fifo_sz + fifo0_ofs;
+	for (i = 1; i < max_hw_ep; i++) {
+		/* txfifo0 is configured separately, starting from txfifo1 here */
 		if (pdata_hw_ep)
 			tx_fifo_sz = dev->pdata->tx_fifo_sz_array[i];
 
-		writel((offset | tx_fifo_sz << 16), &reg->txfifosiz[i]);
+		writel((offset | tx_fifo_sz << 16), &reg->txfifosiz[i - 1]);
 		offset += tx_fifo_sz;
 	}
 	/* Flush the RX FIFO */
@@ -2057,12 +2268,7 @@ static void reconfig_usbd(struct aic_udc *dev)
 		debug("%s: waiting for rx_fifo_flush\n", __func__);
 
 	/* Flush all the Tx FIFO's */
-	uTemp = readl(&reg->usbdevinit);
-	writel(uTemp | USBDEVINIT_TXFNUM(0x10), &reg->usbdevinit);
-	writel(uTemp | USBDEVINIT_TXFNUM(0x10) | USBDEVINIT_TXFFLSH,
-	       &reg->usbdevinit);
-	while (readl(&reg->usbdevinit) & USBDEVINIT_TXFFLSH)
-		debug("%s: waiting for tx_fifo_flush\n", __func__);
+	aic_flush_txfifo(0x10);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
@@ -2088,8 +2294,13 @@ static void reconfig_usbd(struct aic_udc *dev)
 		debug("usbintmsk = 0x%x\n", readl(&reg->usbintmsk));
 		debug("rxfifosiz = 0x%x\n", readl(&reg->rxfifosiz));
 		debug("rxfifosts = 0x%x\n", readl(&reg->rxfifosts));
+		#ifdef CONFIG_AIC_USB_UDC_V10
 		debug("nptxfifosiz = 0x%x\n", readl(&reg->nptxfifosiz));
 		debug("nptxfifosts = 0x%x\n", readl(&reg->nptxfifosts));
+		#else
+		debug("ietxfifosiz = 0x%x\n", readl(&reg->ietxfifosiz));
+		debug("thr_ctl = 0x%x\n", readl(&reg->thr_ctl));
+		#endif
 		debug("txfifosiz[0] = 0x%x\n", readl(&reg->txfifosiz[0]));
 		debug("txfifosiz[1] = 0x%x\n", readl(&reg->txfifosiz[1]));
 		debug("usbdevconf = 0x%x\n", readl(&reg->usbdevconf));
@@ -2146,6 +2357,7 @@ static int aic_ep_enable(struct usb_ep *_ep,
 	struct aic_ep *ep;
 	struct aic_udc *dev;
 	unsigned long flags = 0;
+	u32 val;
 
 	debug("%s: %p\n", __func__, _ep);
 
@@ -2175,11 +2387,26 @@ static int aic_ep_enable(struct usb_ep *_ep,
 		return -ERANGE;
 	}
 
+	/* USB_ENDPOINT_XFER_BULK no need to configure because
+	 * the fault value of this register is 0-No-periodic FIFO.
+	 */
+	if ((desc->bmAttributes == USB_ENDPOINT_XFER_ISOC ||
+		desc->bmAttributes == USB_ENDPOINT_XFER_INT)) {
+		/* Write the FIFO number to be used for this endpoint */
+		val = readl(&reg->inepcfg[ep_index(ep)]);
+		val &= DIEPCTL_TX_FIFO_NUM_MASK;
+		val |= DIEPCTL_TX_FIFO_NUM(ep->fifo_num);
+		writel(val, &reg->inepcfg[ep_index(ep)]);
+	}
+
 	dev = ep->dev;
 	if (!dev->driver || dev->gadget.speed == USB_SPEED_UNKNOWN) {
 		debug("%s: bogus device state\n", __func__);
 		return -ESHUTDOWN;
 	}
+
+	if (ep_is_in(ep) && desc->bmAttributes == USB_ENDPOINT_XFER_BULK)
+		dev->tx_fifo_map |= (1 << ep_index(ep));
 
 	ep->stopped = 0;
 	ep->desc = desc;
@@ -2218,6 +2445,8 @@ static int aic_ep_disable(struct usb_ep *_ep)
 	}
 
 	spin_lock_irqsave(&ep->dev->lock, flags);
+
+	ep->dev->tx_fifo_map &= ~(1 << ep_index(ep));
 
 	/* Nuke all pending requests */
 	nuke(ep, -ESHUTDOWN);
@@ -2419,7 +2648,11 @@ int aic_udc_probe(struct aic_plat_udc_data *pdata)
 
 	dev->pdata = pdata;
 
-	reg = (struct aic_udc_reg *)pdata->regs_udc;
+#ifdef CONFIG_AIC_USB_UDC_V10
+	reg = (struct aic_udc_reg_v10 *)pdata->regs_udc;
+#else
+	reg = (struct aic_udc_reg_v20 *)pdata->regs_udc;
+#endif
 
 	dev->gadget.is_dualspeed = 1;	/* Hack only*/
 	dev->gadget.is_otg = 0;
@@ -2506,6 +2739,7 @@ static void aic_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 
 static int aic_udc_of_to_plat(struct udevice *dev)
 {
+	int ret;
 	struct aic_plat_udc_data *plat = dev_get_plat(dev);
 	ulong drvdata;
 	void (*set_params)(struct aic_plat_udc_data *data);
@@ -2514,9 +2748,29 @@ static int aic_udc_of_to_plat(struct udevice *dev)
 
 	plat->rx_fifo_sz = AIC_RX_FIFO_SIZE;
 	plat->np_tx_fifo_sz = AIC_NP_TX_FIFO_SIZE;
-	plat->tx_fifo_sz_nb = 2;
-	plat->tx_fifo_sz_array[0] = AIC_PERIOD_TX_FIFO1_SIZE;
-	plat->tx_fifo_sz_array[1] = AIC_PERIOD_TX_FIFO2_SIZE;
+	plat->tx_fifo_sz_nb = TX_FIFO_NUM;
+	plat->tx_fifo_sz_array[0] = AIC_NP_TX_FIFO_SIZE;
+	plat->tx_fifo_sz_array[1] = AIC_PERIOD_TX_FIFO1_SIZE;
+	plat->tx_fifo_sz_array[2] = AIC_PERIOD_TX_FIFO2_SIZE;
+
+	ret = dev_read_u32_default(dev, "rx-fifo-size", 0);
+	if (ret > 0)
+		plat->rx_fifo_sz = ret;
+
+	ret = dev_read_u32_default(dev, "np-tx-fifo-size", 0);
+	if (ret > 0)
+		plat->np_tx_fifo_sz = ret;
+
+	ret = dev_read_size(dev, "tx-fifo-size");
+
+	if (ret > 0) {
+		plat->tx_fifo_sz_nb = ret / sizeof(u32);
+		if (plat->tx_fifo_sz_nb > 16)
+			plat->tx_fifo_sz_nb = 16;
+		ret = dev_read_u32_array(dev, "tx-fifo-size",
+					 plat->tx_fifo_sz_array,
+					 plat->tx_fifo_sz_nb);
+	}
 
 	plat->force_b_session_valid =
 		dev_read_bool(dev, "u-boot,force-b-session-valid");
@@ -2539,6 +2793,26 @@ static void aic_udc_v10_params(struct aic_plat_udc_data *p)
 	p->usb_gusbcfg =
 		0 << 15		/* PHY Low Power Clock sel*/
 		| 0x5 << 10	/* USB Turnaround time (0x5 for HS phy) */
+		| 0 << 9	/* [0:HNP disable,1:HNP enable]*/
+		| 0 << 8	/* [0:SRP disable 1:SRP enable]*/
+		| 0 << 6	/* 0: high speed utmi+, 1: full speed serial*/
+#ifdef CONFIG_FPGA_BOARD_ARTINCHIP
+		| 1 << 4	/* 0: utmi+, 1:ulpi*/
+#else
+		| 0 << 4	/* 0: utmi+, 1:ulpi*/
+#endif
+		| 0x7 << 0;	/* FS timeout calibration**/
+}
+
+static void aic_udc_v20_params(struct aic_plat_udc_data *p)
+{
+	p->usb_gusbcfg =
+		0 << 15		/* PHY Low Power Clock sel*/
+#ifdef CONFIG_FPGA_BOARD_ARTINCHIP
+		| 0x9 << 10	/* USB Turnaround time (0x9 for HS phy) */
+#else
+		| 0x5 << 10	/* USB Turnaround time (0x5 for HS phy) */
+#endif
 		| 0 << 9	/* [0:HNP disable,1:HNP enable]*/
 		| 0 << 8	/* [0:SRP disable 1:SRP enable]*/
 		| 0 << 6	/* 0: high speed utmi+, 1: full speed serial*/
@@ -2583,7 +2857,7 @@ static int aic_udc_gg_clk_init(struct udevice *dev,
 	int ret;
 
 	ret = clk_get_bulk(dev, clks);
-	if (ret == -ENOSYS)
+	if (ret == -ENOSYS || ret == -ENOENT)
 		return 0;
 
 	if (ret)
@@ -2610,7 +2884,6 @@ static int aic_udc_gg_probe(struct udevice *dev)
 	ret = aic_udc_gg_clk_init(dev, &priv->clks);
 	if (ret)
 		return ret;
-
 	ret = aic_udc_gg_reset_init(dev, &priv->resets);
 	if (ret)
 		return ret;
@@ -2666,6 +2939,8 @@ static int aic_udc_gg_remove(struct udevice *dev)
 static const struct udevice_id aic_udc_ids[] = {
 	{ .compatible = "artinchip,aic-udc-v1.0",
 		.data = (ulong)aic_udc_v10_params },
+	{ .compatible = "artinchip,aic-udc-v2.0",
+		.data = (ulong)aic_udc_v20_params },
 	{},
 };
 

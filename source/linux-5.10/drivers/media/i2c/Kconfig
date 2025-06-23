@@ -1060,6 +1060,26 @@ config VIDEO_OV13858
 	  This is a Video4Linux2 sensor driver for the OmniVision
 	  OV13858 camera.
 
+config VIDEO_GM7150
+	tristate "GuoTeng GM7150 support"
+	depends on I2C && VIDEO_V4L2
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select V4L2_FWNODE
+	help
+	  This is a Video4Linux2 sensor driver for the GuoTeng
+	  GM7150 video decoder.
+
+config VIDEO_TP2825
+	tristate "TechPoint TP2825x AHD support"
+	depends on I2C && VIDEO_V4L2
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select V4L2_FWNODE
+	help
+	  This is a Video4Linux2 sensor driver for the TechPoint
+	  TP2825x AHD video decoder.
+
 config VIDEO_VS6624
 	tristate "ST VS6624 sensor support"
 	depends on VIDEO_V4L2 && I2C

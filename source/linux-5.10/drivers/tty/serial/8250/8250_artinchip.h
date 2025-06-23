@@ -58,6 +58,8 @@
 #define AIC_HSK_WAIT_CYCLE		0xA5		/* DMA wait cycle */
 #define AIC_HSK_HAND_SHAKE		0xE5		/* DMA handshake */
 
+#define AIC_UART_SETTING_TIMEOUT	100000
+
 struct aic8250_port_data {
 	int			line;
 	struct uart_8250_dma	dma;

@@ -1,0 +1,335 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="SPI NOR 要工作既需要 SoC 端 SPI 模块的驱动能力，也需要对 SPI NOR 模块的正确配置，本章阐述如何进行 SPI NOR 器件的移植工作，以 CFX 的 GM25Q128A 和 FudanMicro 的 FM25Q128 为例。 U-Boot 中移植一款 SPI NOR，最重要的是 JEDEC ID，通过在数据手册中查找 0x9F 命令获得 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/spinor/spinor_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/spinor/spinor_config.html"/><meta name="DC.relation" content="../../../topics/sdk/spinor/spinor_linux_transplant.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="u_boot_transplant"/><meta name="DC.language" content="zh-CN"/><title>U-Boot 移植</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="u_boot_transplant-d4445e4326"/><meta name="wh-source-relpath" content="topics/sdk/spinor/spinor_uboot_transplant.dita"/><meta name="wh-out-relpath" content="topics/sdk/spinor/spinor_uboot_transplant.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="u_boot_transplant" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-memory"><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="spi_nor_user_guide"><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html">SPI NOR 使用指南</a></div></div></li><li><div class="topicref" data-id="topicset_spinor"><div class="title"><a href="../../../topics/sdk/spinor/spinor_uboot_transplant.html">移植指南</a></div></div></li><li class="active"><div class="topicref" data-id="u_boot_transplant"><div class="title"><a href="../../../topics/sdk/spinor/spinor_uboot_transplant.html">U-Boot 移植</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/spinor/spinor_config.html" title="SPI NOR 配置" aria-label="上一主题: SPI NOR 配置" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/spinor/spinor_linux_transplant.html" title="Linux 移植" aria-label="下一主题: Linux 移植" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4071" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4071-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html" id="id-d4445e4071-link">SDMC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nand_user_guide-d4445e4239" class="topicref" data-id="spi_nand_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nand_user_guide-d4445e4239-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinand/spi-nand-user-guide.html" id="spi_nand_user_guide-d4445e4239-link">SPI NAND 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="spi_nor_user_guide-d4445e4297" class="topicref" data-id="spi_nor_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action spi_nor_user_guide-d4445e4297-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html" id="spi_nor_user_guide-d4445e4297-link">SPI NOR 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="spi_nor_configuration-d4445e4311" class="topicref" data-id="spi_nor_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_config.html" id="spi_nor_configuration-d4445e4311-link">SPI NOR 配置</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="topicset_spinor-d4445e4325" class="topicref" data-id="topicset_spinor" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action topicset_spinor-d4445e4325-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_uboot_transplant.html" id="topicset_spinor-d4445e4325-link">移植指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="u_boot_transplant-d4445e4326" class="topicref" data-id="u_boot_transplant" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_uboot_transplant.html" id="u_boot_transplant-d4445e4326-link">U-Boot 移植</a></div></div></li><li role="treeitem"><div data-tocid="spi_nor_linux_transplant-d4445e4340" class="topicref" data-id="spi_nor_linux_transplant" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_linux_transplant.html" id="spi_nor_linux_transplant-d4445e4340-link">Linux 移植</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_n3v_ttw_bzb-d4445e4354" class="topicref" data-id="concept_n3v_ttw_bzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_n3v_ttw_bzb-d4445e4354-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html" id="concept_n3v_ttw_bzb-d4445e4354-link">文件系统使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/spinor/spinor_uboot_transplant.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">U-Boot 移植</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d164664e33__20250123155217">SPI NOR 要工作既需要 SoC 端 SPI 模块的驱动能力，也需要对 SPI NOR 模块的正确配置，本章阐述如何进行 SPI NOR 器件的移植工作，以
+                <code class="+ topic/ph pr-d/codeph ph codeph">CFX</code> 的 <code class="+ topic/ph pr-d/codeph ph codeph">GM25Q128A</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">FudanMicro</code> 的
+                <code class="+ topic/ph pr-d/codeph ph codeph">FM25Q128</code> 为例。<ul class="- topic/ul ul" id="u_boot_transplant__ul_ehm_5vy_c1c" data-ofbid="u_boot_transplant__ul_ehm_5vy_c1c">
+                <li class="- topic/li li" data-ofbid="d164664e49__20250123155217">
+                    <p class="- topic/p p" data-ofbid="d164664e51__20250123155217">U-Boot 中移植一款 SPI NOR，最重要的是 JEDEC ID，通过在数据手册中查找 0x9F 命令获得</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d164664e55__20250123155217">
+                    <p class="- topic/p p" data-ofbid="d164664e57__20250123155217">其他的参数都可以默认设置，INFO(0xa14017, 0, 64 * 1024, n_sectors, SECT_4K |
+                        SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ)</p>
+                </li>
+            </ul></div>
+        <div class="- topic/p p" data-ofbid="d164664e62__20250123155217">U-Boot 中 对不同厂家的 SPI NOR 器件的管理集成度很高， 主要代码在
+                <span class="+ topic/ph sw-d/filepath ph filepath">source/uboot-2021.10/drivers/mtd/spi/spi-nor-ids.c</span>
+                中，添加一款新厂家的新器件需要经过如下步骤：<ol class="- topic/ol ol" id="u_boot_transplant__ol_hf4_j5y_c1c" data-ofbid="u_boot_transplant__ol_hf4_j5y_c1c">
+                <li class="- topic/li li" data-ofbid="d164664e69__20250123155217">添加厂家的宏定义。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="u_boot_transplant__codeblock_zp3_k5y_c1c" data-ofbid="u_boot_transplant__codeblock_zp3_k5y_c1c"><code>config SPI_FLASH_FMSH
+    bool <span class="hl-string">"FudanMicro SPI flash support"</span>
+    help
+      Add support <strong class="hl-keyword">for</strong> various FMSH (Shanghai Fudan Microelectronics Group Company)
+      SPI flash chips (FM25xxx).
+
+config SPI_FLASH_CFX
+    bool <span class="hl-string">"CFX SPI flash support"</span>
+    help
+      Add support <strong class="hl-keyword">for</strong> various CFX (Zhuhai ChuangFeiXin-Technology)
+      SPI flash chips (GM25xxx).</code></pre></li>
+                <li class="- topic/li li" data-ofbid="d164664e74__20250123155217">在 <span class="+ topic/ph sw-d/filepath ph filepath">spi-nor-ids.c</span> 的 <span class="+ topic/ph sw-d/filepath ph filepath">spi_nor_ids</span> 结构中添加
+                    FMHS 和 CFX
+                    的相关器件的支持。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="u_boot_transplant__codeblock_ulj_l5y_c1c" data-ofbid="u_boot_transplant__codeblock_ulj_l5y_c1c"><code>#ifdef CONFIG_SPI_FLASH_FMSH
+    <em class="hl-comment">/* Shanghai Fudan Microelectronics Group Company */</em>
+    { INFO(<span class="hl-string">"FM25Q128"</span>, <span class="hl-number">0xa14017</span>, <span class="hl-number">0</span>, <span class="hl-number">64</span> * <span class="hl-number">1024</span>, <span class="hl-number">256</span>, SECT_<span class="hl-number">4</span>K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+    { INFO(<span class="hl-string">"FM25Q64"</span>, <span class="hl-number">0xa14018</span>, <span class="hl-number">0</span>, <span class="hl-number">64</span> * <span class="hl-number">1024</span>, <span class="hl-number">128</span>, SECT_<span class="hl-number">4</span>K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+#endif
+#ifdef CONFIG_SPI_FLASH_CFX
+    <em class="hl-comment">/* Zhuhai ChuangFeiXin Technology */</em>
+    { INFO(<span class="hl-string">"GM25Q128A"</span>, <span class="hl-number">0x1c4018</span>, <span class="hl-number">0</span>, <span class="hl-number">64</span> * <span class="hl-number">1024</span>, <span class="hl-number">256</span>, SECT_<span class="hl-number">4</span>K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+#endif</code></pre></li>
+                <li class="- topic/li li" data-ofbid="d164664e85__20250123155217">设置 <strong class="+ topic/ph hi-d/b ph b">flash_info</strong><div class="- topic/div div" id="u_boot_transplant__div_flash_info_config">
+                        <div class="- topic/p p" data-ofbid="d164664e91__20250123155217">flash_info 数据结构主要用来描述某一颗 SPI NOR 的参数，通过 INFO
+                            宏来设置，其详细结构为：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="u_boot_transplant__codeblock_y1s_45y_c1c" data-ofbid="u_boot_transplant__codeblock_y1s_45y_c1c"><code><strong class="hl-keyword">struct</strong> flash_info {
+    <strong class="hl-keyword">char</strong>    *name;                  <em class="hl-comment">//器件名称，一般用器件编号替代</em>
+    u8      id[SPI_NOR_MAX_ID_LEN]; <em class="hl-comment">//JEDEC 授权的器件 ID</em>
+    u8      id_len;                 <em class="hl-comment">//ID 长度，填 0，自动计算</em>
+    <strong class="hl-keyword">unsigned</strong>    sector_size;        <em class="hl-comment">//sector size，现在的意义已经改变</em>
+    u16     n_sectors;              <em class="hl-comment">//sector 数目，通过 flash size 和 sector size 计算出来</em>
+    u16     page_size;              <em class="hl-comment">//页大小， INFO 宏固定为 256</em>
+    u16     addr_width;             <em class="hl-comment">//</em><span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中配置
+    u32     flags;                  <em class="hl-comment">//功能标识</em></code></pre></div>
+                        <ul class="- topic/ul ul" id="u_boot_transplant__ul_g2b_t5y_c1c" data-ofbid="u_boot_transplant__ul_g2b_t5y_c1c">
+                            <li class="- topic/li li" data-ofbid="d164664e101__20250123155217"><strong class="+ topic/ph hi-d/b ph b">JEDEC ID</strong>：和 SPI NAND 不同， SPI NOR 的 ID 包含 Manufacture ID 和
+                                Device ID 等多项内容，一般为 24 位，描述方式为<div class="table-container"><table class="- topic/table table frame-all" id="u_boot_transplant__table_l5h_55y_c1c" data-ofbid="u_boot_transplant__table_l5h_55y_c1c" data-cols="4"><caption></caption><colgroup><col style="width:25%"/><col style="width:25%"/><col style="width:25%"/><col style="width:25%"/></colgroup><thead class="- topic/thead thead">
+                                            <tr class="- topic/row">
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_l5h_55y_c1c__entry__1">阈值</th>
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_l5h_55y_c1c__entry__2">名称</th>
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_l5h_55y_c1c__entry__3">示例</th>
+                                                <th class="- topic/entry entry colsep-0 rowsep-1" id="u_boot_transplant__table_l5h_55y_c1c__entry__4">标记方式</th>
+                                            </tr>
+                                        </thead><tbody class="- topic/tbody tbody">
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__1">MID7 - IDF0</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__2">Maunfacture ID</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__3">0xa1</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__4">JEDEC 分配</td>
+                                            </tr>
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__1">D15 - D8</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__2">Memory Type</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__3">0x40</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="u_boot_transplant__table_l5h_55y_c1c__entry__4">0x9F 命令</td>
+                                            </tr>
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_l5h_55y_c1c__entry__1">D7 - D0</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_l5h_55y_c1c__entry__2">Memory Desity</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_l5h_55y_c1c__entry__3">0x17</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="u_boot_transplant__table_l5h_55y_c1c__entry__4">0x9F 命令</td>
+                                            </tr>
+                                        </tbody></table></div><p class="- topic/p p" data-ofbid="d164664e185__20250123155217">不同厂家在数据手册中描述方法不一样，但现代的 SPI NOR 的 MID 一般通过
+                                    “Maunfacture/MID” 等字段标注，Device ID 的（D15 - D0） 一般通过 0x9F 命令标注，
+                                    因此在数据手册中通过搜索 9F 一般能构造出 JEDEC ID， 如下图所示</p><ul class="- topic/ul ul" id="u_boot_transplant__ul_m5h_55y_c1c" data-ofbid="u_boot_transplant__ul_m5h_55y_c1c">
+                                    <li class="- topic/li li" data-ofbid="d164664e189__20250123155217">0xC84018<div class="- topic/p p" data-ofbid="d164664e191__20250123155217">
+                                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_n5h_55y_c1c" src="../../../images/memory/spinor_device_id1.png" width="480" alt="id-1"/></div><br/>
+                                        </div></li>
+                                    <li class="- topic/li li" data-ofbid="d164664e200__20250123155217">0xC22018<div class="- topic/p p" data-ofbid="d164664e202__20250123155217">
+                                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_p5h_55y_c1c" src="../../../images/memory/spinor_device_id2.png" width="480" alt="id-2"/></div><br/>
+                                        </div></li>
+                                    <li class="- topic/li li" data-ofbid="d164664e211__20250123155217">0xA14017<div class="- topic/p p" data-ofbid="d164664e213__20250123155217">
+                                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_r5h_55y_c1c" src="../../../images/memory/spinor_device_id3.png" width="480" alt="id-3"/></div><br/>
+                                        </div></li>
+                                </ul></li>
+                            <li class="- topic/li li" data-ofbid="d164664e223__20250123155217"><strong class="+ topic/ph hi-d/b ph b">sector_size</strong>：Sector Size 是个历史产物，不管是文件系统还是厂家的器件规格都开始对外提供基于
+                                Block 的接口，但在名称上还保留了 Sector 的名称，而驱动中则已经完全切换到 Block 的逻辑<p class="- topic/p p" data-ofbid="d164664e227__20250123155217">Sector Size
+                                    主要定义的是擦除参数，一般的器件提供三种擦除操作</p><div class="table-container"><table class="- topic/table table frame-all" id="u_boot_transplant__table_exs_dvy_c1c" data-ofbid="u_boot_transplant__table_exs_dvy_c1c" data-cols="4"><caption></caption><colgroup><col style="width:26.814814814814813%"/><col style="width:16.296296296296298%"/><col style="width:14.814814814814813%"/><col style="width:42.07407407407407%"/></colgroup><thead class="- topic/thead thead">
+                                            <tr class="- topic/row">
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_exs_dvy_c1c__entry__1">操作方式</th>
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_exs_dvy_c1c__entry__2">命令</th>
+                                                <th class="- topic/entry entry colsep-1 rowsep-1" id="u_boot_transplant__table_exs_dvy_c1c__entry__3">擦除大小</th>
+                                                <th class="- topic/entry entry colsep-0 rowsep-1" id="u_boot_transplant__table_exs_dvy_c1c__entry__4">备注</th>
+                                            </tr>
+                                        </thead><tbody class="- topic/tbody tbody">
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__1">Sector Erase( SE)</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__2">0x20</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__3">4K</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__4">基础能力，主要做兼容，不做主力</td>
+                                            </tr>
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__1">32K Block Erase (BE)</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__2">0x52</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__3">32K</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="u_boot_transplant__table_exs_dvy_c1c__entry__4">不再使用，和 BE-64 成对</td>
+                                            </tr>
+                                            <tr class="- topic/row">
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_exs_dvy_c1c__entry__1">64K Block Erase (BE)</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_exs_dvy_c1c__entry__2">0xD8</td>
+                                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="u_boot_transplant__table_exs_dvy_c1c__entry__3">64K</td>
+                                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="u_boot_transplant__table_exs_dvy_c1c__entry__4">大部分都支持，如果不支持则必须支持 SE</td>
+                                            </tr>
+                                        </tbody></table></div><p class="- topic/p p" data-ofbid="d164664e309__20250123155217">在驱动中，Sector_Size 描述的实际是 BE-64 的参数，而 BE-64 要求的 size 又是固定的
+                                    64K，因此该参数的设置原则是：</p><ul class="- topic/ul ul" id="u_boot_transplant__ul_fxs_dvy_c1c" data-ofbid="u_boot_transplant__ul_fxs_dvy_c1c">
+                                    <li class="- topic/li li" data-ofbid="d164664e313__20250123155217">在数据手册中，如果支持 64K Block Erase (0xD8）命令，则设置为 ‘64 * 1024’</li>
+                                    <li class="- topic/li li" data-ofbid="d164664e316__20250123155217">在数据手册中, 如果不支持 64K Block Erase (0xD8）命令，则设置为 ‘4 * 1024’</li>
+                                </ul><div class="- topic/p p" data-ofbid="d164664e319__20250123155217">
+                                    <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_gxs_dvy_c1c" src="../../../images/memory/spinor_sector_size.png" width="480" alt="se"/></div><br/>
+                                </div></li>
+                            <li class="- topic/li li" data-ofbid="d164664e328__20250123155217"><strong class="+ topic/ph hi-d/b ph b">n_sectors</strong>：Sector (Block) 数目通过计算得到， 计算公式为 (（flash size）/
+                                sector size)，需要注意不同参数使用 Byte（B） 还是 bit（b） 描述<ul class="- topic/ul ul" id="u_boot_transplant__ul_gzk_3vy_c1c" data-ofbid="u_boot_transplant__ul_gzk_3vy_c1c">
+                                    <li class="- topic/li li" data-ofbid="d164664e334__20250123155217">
+                                        <p class="- topic/p p" data-ofbid="d164664e336__20250123155217">gd25q128： 128Mb / 64KB = 256</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d164664e340__20250123155217">
+                                        <p class="- topic/p p" data-ofbid="d164664e342__20250123155217">FM25Q128: 128Mb / 64KB = 256</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d164664e346__20250123155217">
+                                        <p class="- topic/p p" data-ofbid="d164664e348__20250123155217">FM25Q64: 64Mb / 64KB = 128</p>
+                                    </li>
+                                </ul></li>
+                            <li class="- topic/li li" data-ofbid="d164664e353__20250123155217"><strong class="+ topic/ph hi-d/b ph b">flags</strong>：设置额外的功能标志。<ul class="- topic/ul ul" id="u_boot_transplant__ul_sxx_jvy_c1c" data-ofbid="u_boot_transplant__ul_sxx_jvy_c1c">
+                                    <li class="- topic/li li" data-ofbid="d164664e359__20250123155217">SECT_4K 建议均设置，此功能用来兼容 Sector Erase( SE)
+                                        的支持，在一些特殊情况下可以继续工作</li>
+                                    <li class="- topic/li li" data-ofbid="d164664e362__20250123155217">如果支持 0xBB 命令，则打开 SPI_NOR_DUAL_READ</li>
+                                    <li class="- topic/li li" data-ofbid="d164664e365__20250123155217">如果支持 0xEB 命令，则打开 SPI_NOR_QUAD_READ<div class="- topic/p p" data-ofbid="d164664e367__20250123155217">
+                                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_gds_5jv_mbc" src="../../../images/memory/spinor_qspi_read.png" width="480" alt="qspi"/></div><br/>
+                                        </div></li>
+                                    <li class="- topic/li li" data-ofbid="d164664e376__20250123155217">如果有 Status Register，则打开 USE_FSR，是一种状态呈现，非必须 <div class="- topic/p p" data-ofbid="d164664e378__20250123155217">
+                                            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="u_boot_transplant__image_vxx_jvy_c1c" src="../../../images/memory/spinor_user_fsr.png" width="480" alt="fsr"/></div><br/>
+                                        </div></li>
+                                </ul></li>
+                        </ul>
+                    </div></li>
+            </ol></div>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

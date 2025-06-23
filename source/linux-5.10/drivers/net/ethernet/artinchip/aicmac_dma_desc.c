@@ -166,7 +166,9 @@ void aicmac_dma_desc_release_tx_desc(struct dma_desc *p, int mode)
 {
 	int ter = (le32_to_cpu(p->des0) & ETDES0_END_RING) >> 21;
 
-	memset(p, 0, offsetof(struct dma_desc, des2));
+	//memset(p, 0, offsetof(struct dma_desc, des2));
+	p->des0 = 0;
+	p->des1 = 0;
 
 	if (mode == AICMAC_CHAIN_MODE)
 		enh_desc_end_tx_desc_on_chain(p);
@@ -180,10 +182,10 @@ void aicmac_dma_desc_prepare_tx_desc(struct dma_desc *p, int is_fs, int len,
 {
 	unsigned int tdes0 = le32_to_cpu(p->des0);
 
-	if (mode == AICMAC_CHAIN_MODE)
-		enh_set_tx_desc_len_on_chain(p, len);
-	else
+	if (mode != AICMAC_CHAIN_MODE)
 		enh_set_tx_desc_len_on_ring(p, len);
+	else
+		enh_set_tx_desc_len_on_chain(p, len);
 
 	if (is_fs)
 		tdes0 |= ETDES0_FIRST_SEGMENT;
@@ -297,4 +299,5 @@ void aicmac_dma_desc_clear(struct dma_desc *p)
 
 void aicmac_dma_desc_set_sec_addr(struct dma_desc *p, dma_addr_t addr)
 {
+	p->des3 = cpu_to_le32(addr);
 }

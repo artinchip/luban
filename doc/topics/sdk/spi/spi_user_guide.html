@@ -1,0 +1,383 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Serial Peripheral Interface (SPI) 是一种高速、全双工的同步通信总线。由于其实现比较简单，没有专利限制等，因此在各种器件中得到广泛的应用。 SPI 总线是一种行业事实标准，并没有统一的标准化组织，不同厂商在实际应用中演化出多种工作模式。 表 1 . 术语定义 术语 定义 注释说明 SPI Serial Peripheral Interface 串行外设接口 Dual ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/chapter-title/chapter-interface-sdk.html"/><meta name="DC.relation" content="../../../topics/sdk/rtp/rtp_faq.html"/><meta name="DC.relation" content="../../../topics/sdk/spi/spi_config.html"/><meta name="DC.relation" content="../../../topics/sdk/spi/spi_config.html"/><meta name="DC.relation" content="../../../topics/sdk/spi/spi_debug.html"/><meta name="DC.relation" content="../../../topics/sdk/spi/spi_design.html"/><meta name="DC.relation" content="../../../topics/sdk/spi/spi_faq.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="spi"/><meta name="DC.language" content="zh-CN"/><title>SPI 使用指南</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="spi-d4445e6962"/><meta name="wh-source-relpath" content="topics/sdk/spi/spi_user_guide.dita"/><meta name="wh-out-relpath" content="topics/sdk/spi/spi_user_guide.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="spi" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li class="active"><div class="topicref" data-id="spi"><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html">SPI 使用指南</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/rtp/rtp_faq.html" title="常见问题" aria-label="上一主题: 常见问题" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/spi/spi_config.html" title="SPI 配置" aria-label="下一主题: SPI 配置" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true" class="active"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="spi_configuration-d4445e6976" class="topicref" data-id="spi_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_config.html" id="spi_configuration-d4445e6976-link">SPI 配置</a></div></div></li><li role="treeitem"><div data-tocid="spi_debug_guide-d4445e6990" class="topicref" data-id="spi_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_debug.html" id="spi_debug_guide-d4445e6990-link">调试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_design_intro-d4445e7004" class="topicref" data-id="spi_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_design_intro-d4445e7004-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_design.html" id="spi_design_intro-d4445e7004-link">设计说明</a></div></div></li><li role="treeitem"><div data-tocid="spi_common_issues-d4445e7060" class="topicref" data-id="spi_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_faq.html" id="spi_common_issues-d4445e7060-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/spi/spi_user_guide.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">SPI 使用指南</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d124640e33__20250123155211">Serial Peripheral Interface (SPI) 是一种高速、全双工的同步通信总线。由于其实现比较简单，没有专利限制等，因此在各种器件中得到广泛的应用。 SPI
+                总线是一种行业事实标准，并没有统一的标准化组织，不同厂商在实际应用中演化出多种工作模式。<div class="table-container"><table class="- topic/table table frame-all" id="spi__table_yzq_1wy_21c" data-ofbid="spi__table_yzq_1wy_21c" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">术语定义</span></caption><colgroup><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_yzq_1wy_21c__entry__1">术语</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_yzq_1wy_21c__entry__2">定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="spi__table_yzq_1wy_21c__entry__3">注释说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__1">SPI</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__2">Serial Peripheral Interface</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__3">串行外设接口</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__1">Dual SPI</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__2">Dual Serial Peripheral Interface</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__3">双路 SPI</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__1">Quad SPI</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__2">Quad Serial Peripheral Interface</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__3">四路 SPI，又称 QSPI</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__1">CPOL</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__2">Clock polarity</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_yzq_1wy_21c__entry__3">时钟极性</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_yzq_1wy_21c__entry__1">CPHA</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_yzq_1wy_21c__entry__2">Clock phase</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="spi__table_yzq_1wy_21c__entry__3">时钟相位</td>
+                        </tr>
+                    </tbody></table></div></div>
+        <section class="- topic/section section" id="spi__section_pzl_z4s_4dc" data-ofbid="spi__section_pzl_z4s_4dc"><h2 class="- topic/title title sectiontitle">模块特性</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e133__20250123155211">SPI 总线接口的应用领域：</p>
+            <ul class="- topic/ul ul" id="spi__ul_ztj_rvy_21c" data-ofbid="spi__ul_ztj_rvy_21c">
+                <li class="- topic/li li" data-ofbid="d124640e138__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e140__20250123155211">存储设备：Flash、SD、MMC、EEPROM 等</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e144__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e146__20250123155211">传感器：温度传感器、压力传感器等</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e150__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e152__20250123155211">ADC/DAC</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e156__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e158__20250123155211">Audio Codec</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e162__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e164__20250123155211">LCD 显示屏幕</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e169__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e171__20250123155211">触摸屏幕</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e175__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e177__20250123155211">RTC</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e181__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e183__20250123155211">数字电位计</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e187__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e189__20250123155211">游戏控制器等</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d124640e194__20250123155211">ArtInChip SPI 支持：</p>
+            <ul class="- topic/ul ul" id="spi__ul_b5j_rvy_21c" data-ofbid="spi__ul_b5j_rvy_21c">
+                <li class="- topic/li li" data-ofbid="d124640e199__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e201__20250123155211">全双工、半双工模式</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e205__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e207__20250123155211">DMA 读写模式</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e211__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e213__20250123155211">CPU 读写模式</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e217__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e219__20250123155211">最高工作频率 100MHz</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e223__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e225__20250123155211">支持四线制模式：标准 4 线 SPI、DUAL SPI、QUAD SPI</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e230__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e232__20250123155211">支持三线制模式</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d124640e236__20250123155211">
+                    <p class="- topic/p p" data-ofbid="d124640e238__20250123155211">数据位传输的模式可配置，CPOL 和 CPHA</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="spi__section_c5j_rvy_21c" data-ofbid="spi__section_c5j_rvy_21c"><h2 class="- topic/title title sectiontitle">标准 4 线 SPI</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e249__20250123155211">这是一种四线制的 SPI 连接和工作模式。</p>
+            <figure class="- topic/fig fig fignone" id="spi__fig_kvq_wvy_21c" data-ofbid="spi__fig_kvq_wvy_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi__image_d5j_rvy_21c" src="../../../images/spi/4line_standard_spi.png" alt="4line_standard_spi"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">四线制标准 SPI</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="spi__section_e5j_rvy_21c" data-ofbid="spi__section_e5j_rvy_21c"><h2 class="- topic/title title sectiontitle">DUAL SPI</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e270__20250123155211">主机端的 MISO 为 SIO0, MOSI 为 SIO1，常用于 SPI Flash。</p>
+            <figure class="- topic/fig fig fignone" id="spi__fig_ibv_vvy_21c" data-ofbid="spi__fig_ibv_vvy_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi__image_f5j_rvy_21c" src="../../../images/spi/dual_spi1.png" alt="dual_spi1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">四线制 DUAL SPI</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="spi__section_g5j_rvy_21c" data-ofbid="spi__section_g5j_rvy_21c"><h2 class="- topic/title title sectiontitle">QUAD SPI</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e291__20250123155211">主机端的 MOSI 为 IO0, MISO 为 IO1, WP 为 IO2, HOLD 为 IO3，常用于 SPI Flash。</p>
+            <figure class="- topic/fig fig fignone" id="spi__fig_fqw_5vy_21c" data-ofbid="spi__fig_fqw_5vy_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi__image_h5j_rvy_21c" src="../../../images/spi/quad_spi.png" alt="quad_spi"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 3</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">四线制 QUAD SPI</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="spi__section_i5j_rvy_21c" data-ofbid="spi__section_i5j_rvy_21c"><h2 class="- topic/title title sectiontitle">三线制 SPI</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e313__20250123155211">三线制 SPI 常用于工业控制类场景。这种接线方式，主机端使用 MOSI 作为 DIO。</p>
+            <figure class="- topic/fig fig fignone" id="spi__fig_qnc_5vy_21c" data-ofbid="spi__fig_qnc_5vy_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi__image_j5j_rvy_21c" src="../../../images/spi/3line_spi.png" alt="3line_spi1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 4</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">三线制 SPI</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="spi__section_k5j_rvy_21c" data-ofbid="spi__section_k5j_rvy_21c"><h2 class="- topic/title title sectiontitle">CPOL 与 CPHA</h2>
+            
+            <p class="- topic/p p" data-ofbid="d124640e334__20250123155211">CPHA 是时钟相位，CPOL 是时钟极性，两者的不同组合是 SPI 数据传输的不同模式。</p>
+            <div class="table-container"><table class="- topic/table table frame-all" id="spi__table_l5j_rvy_21c" data-ofbid="spi__table_l5j_rvy_21c" data-cols="2"><caption></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_l5j_rvy_21c__entry__1">CPHA</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="spi__table_l5j_rvy_21c__entry__2">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_l5j_rvy_21c__entry__1">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_l5j_rvy_21c__entry__2">数据采样在第 1 个边沿，数据发送在第 2 个边沿</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_l5j_rvy_21c__entry__1">1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="spi__table_l5j_rvy_21c__entry__2">数据采样在第 2 个边沿，数据发送在第 1 个边沿</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="spi__table_m5j_rvy_21c" data-ofbid="spi__table_m5j_rvy_21c" data-cols="2"><caption></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_m5j_rvy_21c__entry__1">CPOL</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="spi__table_m5j_rvy_21c__entry__2">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_m5j_rvy_21c__entry__1">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_m5j_rvy_21c__entry__2">空闲状态时，SCK 为低电平</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_m5j_rvy_21c__entry__1">1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="spi__table_m5j_rvy_21c__entry__2">空闲状态时，SCK 为高电平</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="spi__table_n5j_rvy_21c" data-ofbid="spi__table_n5j_rvy_21c" data-cols="3"><caption></caption><colgroup><col style="width:16.393442622950822%"/><col style="width:29.672131147540988%"/><col style="width:53.934426229508205%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_n5j_rvy_21c__entry__1">Mode</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi__table_n5j_rvy_21c__entry__2">值</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="spi__table_n5j_rvy_21c__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__1">0</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__2">CPOL=0, CPHA=0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__3">空闲时，SCK 处于低电平数据采样在上升沿，下降沿保持</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__1">1</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__2">CPOL=0, CPHA=1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__3">空闲时，SCK 处于高电平数据采样在下降沿，上升沿保持</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__1">2</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__2">CPOL=1, CPHA=0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi__table_n5j_rvy_21c__entry__3">空闲时，SCK 处于低电平数据采样在下降沿，上升沿保持</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_n5j_rvy_21c__entry__1">3</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi__table_n5j_rvy_21c__entry__2">CPOL=1, CPHA=1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="spi__table_n5j_rvy_21c__entry__3">空闲时，SCK 处于高电平数据采样在上升沿，下降沿保持</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        <div class=" wh_child_links d-print-none "><nav aria-label="Child Links" role="navigation" class="- topic/related-links related-links"><ul class="ullinks"><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/spi/spi_config.html">SPI 配置</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/spi/spi_debug.html">调试指南</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/spi/spi_design.html">设计说明</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/spi/spi_faq.html">常见问题</a></strong></li></ul></nav></div>
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#spi__section_pzl_z4s_4dc" data-tocid="spi__section_pzl_z4s_4dc">模块特性</a></div></li><li class="section-item"><div class="section-title"><a href="#spi__section_c5j_rvy_21c" data-tocid="spi__section_c5j_rvy_21c">标准 4 线 SPI</a></div></li><li class="section-item"><div class="section-title"><a href="#spi__section_e5j_rvy_21c" data-tocid="spi__section_e5j_rvy_21c">DUAL SPI</a></div></li><li class="section-item"><div class="section-title"><a href="#spi__section_g5j_rvy_21c" data-tocid="spi__section_g5j_rvy_21c">QUAD SPI</a></div></li><li class="section-item"><div class="section-title"><a href="#spi__section_i5j_rvy_21c" data-tocid="spi__section_i5j_rvy_21c">三线制 SPI</a></div></li><li class="section-item"><div class="section-title"><a href="#spi__section_k5j_rvy_21c" data-tocid="spi__section_k5j_rvy_21c">CPOL 与 CPHA</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

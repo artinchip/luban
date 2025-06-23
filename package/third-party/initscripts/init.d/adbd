@@ -15,9 +15,9 @@ start() {
 	mount -t devpts none /dev/pts
 
 	mount -t configfs none /sys/kernel/config
-	cd /sys/kernel/config/usb_gadget
+	cd /sys/kernel/config/usb_gadget || exit
 	mkdir g_adb
-	cd g_adb
+	cd g_adb || exit
 
 	echo "0x18d1" > idVendor
 	echo "0x4e26" > idProduct
@@ -43,7 +43,7 @@ start() {
 	ifconfig lo up
 	ifconfig
 
-	cd /root
+	cd /root || exit
 	adbd&
 
 	sleep 1
@@ -55,6 +55,13 @@ start() {
 
 stop() {
 	printf "Stopping adbd: "
+	PROCESS=$(ps | grep -v grep | grep "  adbd" | awk '{print $1}')
+
+	if [ ! -z "$PROCESS" ]; then
+		kill -9 $PROCESS
+		sleep 1
+		echo "" > /sys/kernel/config/usb_gadget/g_adb/UDC
+	fi
 
 	echo "OK"
 }

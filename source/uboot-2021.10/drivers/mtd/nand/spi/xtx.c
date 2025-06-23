@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2022 ArtInChip
+ * Copyright (c) 2022-2025 ArtInChip
  *
  * Authors:
  * keliang.liu <keliang.liu@artinchip.com>
@@ -27,6 +27,7 @@ static SPINAND_OP_VARIANTS(read_cache_variants,
 		SPINAND_PAGE_READ_FROM_CACHE_OP(false, 0, 1, NULL, 0));
 
 static SPINAND_OP_VARIANTS(write_cache_variants,
+		SPINAND_PROG_LOAD_X4(true, 0, NULL, 0),
 		SPINAND_PROG_LOAD(true, 0, NULL, 0));
 
 static SPINAND_OP_VARIANTS(update_cache_variants,
@@ -77,14 +78,24 @@ static int xtx_ecc_get_status(struct spinand_device *spinand,
 }
 
 static const struct spinand_info xtx_spinand_table[] = {
-    SPINAND_INFO("XT26G01C", 0x11,
-		 NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
-		 NAND_ECCREQ(8, 528),
-		 SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
-					  &write_cache_variants,
-					  &update_cache_variants),
-		 SPINAND_HAS_QE_BIT,
-		 SPINAND_ECCINFO(&xtx_ooblayout, xtx_ecc_get_status)),
+    SPINAND_INFO("XT26G01C",
+			 SPINAND_ID(0x11),
+			 NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
+			 NAND_ECCREQ(8, 528),
+			 SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+						  &write_cache_variants,
+						  &update_cache_variants),
+			 SPINAND_HAS_QE_BIT,
+			 SPINAND_ECCINFO(&xtx_ooblayout, xtx_ecc_get_status)),
+	SPINAND_INFO("XT26G04C",
+			 SPINAND_ID(0x13),
+			 NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+			 NAND_ECCREQ(8, 528),
+			 SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+						  &write_cache_variants,
+						  &update_cache_variants),
+			 SPINAND_HAS_QE_BIT,
+			 SPINAND_ECCINFO(&xtx_ooblayout, xtx_ecc_get_status)),
 };
 
 static int xtx_spinand_init(struct spinand_device *spinand)
@@ -107,7 +118,7 @@ static int xtx_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, xtx_spinand_table,
 				     ARRAY_SIZE(xtx_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

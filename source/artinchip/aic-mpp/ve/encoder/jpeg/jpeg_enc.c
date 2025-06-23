@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg encode
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg encode
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -224,9 +226,9 @@ static void set_quality(struct jpeg_ctx* s)
 	if (s->quality > 100)
 		s->quality = 100;
 
-	//* 1. quality = 1, produce "worst" quality, 5000*std_quant_table
-	//* 2. quality = 50, produce "good" quality, std_quant_table
-	//* 3. quality =100, produce "best" quality, the value of table are all 1
+	// 1. quality = 1, produce "worst" quality, 5000*std_quant_table
+	// 2. quality = 50, produce "good" quality, std_quant_table
+	// 3. quality =100, produce "best" quality, the value of table are all 1
 	if (s->quality < 50) {
 		s->quality = 5000 / s->quality;
 	} else {
@@ -257,6 +259,7 @@ int mpp_encode_jpeg(struct mpp_frame* frame, int quality, int dma_buf_fd, int bu
 	s->width = frame->buf.size.width;
 	s->height = frame->buf.size.height;
 	s->quality = quality;
+	s->y_stride = frame->buf.stride[0];
 
 	if (frame->buf.format == MPP_FMT_NV12) {
 		comp = 2;

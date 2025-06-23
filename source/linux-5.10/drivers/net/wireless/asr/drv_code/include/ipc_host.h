@@ -66,6 +66,11 @@ struct ipc_host_env_tag {
 	u32 rx_bufnb_sdio_deagg;
 	// Store the size of the Rx Data buffers
 	u32 rx_bufsz_sdio_deagg;
+
+	// Store the number of Rx amsdu Data buffers
+	u32 rx_bufnb_sdio_deagg_amsdu;
+	// Store the size of the Rx amsdu Data buffers
+	u32 rx_bufsz_sdio_deagg_amsdu;
 	#endif
 
 	/// Pointer to the attached object (used in callbacks and register accesses)
@@ -104,7 +109,7 @@ void ipc_host_init(struct ipc_host_env_tag *env, struct ipc_host_cb_tag *cb, voi
  ******************************************************************************
  */
 int ipc_host_irq(struct ipc_host_env_tag *env, int *type);
-int asr_process_int_status(struct ipc_host_env_tag *env, int *type, bool restart_flag);
+int asr_process_int_status(struct ipc_host_env_tag *env);
 
 /**
  ******************************************************************************

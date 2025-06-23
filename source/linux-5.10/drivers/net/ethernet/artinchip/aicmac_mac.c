@@ -230,7 +230,7 @@ struct aicmac_mac_data *aicmac_mac_init_data(struct platform_device *pdev,
 	mac_data->bugged_jumbo = 1;
 
 	mac_data->en_tx_lpi_clockgating = false;
-	mac_data->multicast_filter_bins = 256;
+	mac_data->multicast_filter_bins = 64;
 	mac_data->unicast_filter_entries = 8;
 	mac_data->mcast_bits_log2 = ilog2(mac_data->multicast_filter_bins);
 	;
@@ -275,7 +275,8 @@ int aicmac_mac_ip_init(struct aicmac_priv *priv)
 	plat->hw_cap.eee = 0;
 	plat->hw_cap.av = 1;
 	/* TX and RX csum */
-	plat->hw_cap.tx_coe = AICMAC_RX_COE_NONE;
+	plat->hw_cap.tx_coe = AICMAC_RX_COE_TYPE2;
+	plat->hw_cap.rx_coe = AICMAC_RX_COE_TYPE2;
 	plat->hw_cap.rxfifo_over_2048 = 0;
 	/* TX and RX number of channels */
 	plat->hw_cap.number_rx_channel = 1;

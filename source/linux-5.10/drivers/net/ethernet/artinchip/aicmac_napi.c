@@ -45,8 +45,7 @@ int aicmac_napi_init(void *priv_ptr)
 	netif_set_real_num_rx_queues(ndev, priv->plat->rx_queues_to_use);
 	netif_set_real_num_tx_queues(ndev, priv->plat->tx_queues_to_use);
 
-	ndev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
-			    NETIF_F_RXCSUM;
+	ndev->hw_features = NETIF_F_SG | NETIF_F_CSUM_MASK | NETIF_F_RXCSUM;
 
 	ndev->priv_flags |= IFF_UNICAST_FLT;
 

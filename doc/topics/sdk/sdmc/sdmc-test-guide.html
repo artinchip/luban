@@ -1,0 +1,510 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="测试环境 准备 SDMC 测试所需的测试环境，如下所示： 硬件 ： 开发板，或者 FPGA 板子 板子上必须要接有 eMMC/SDCard 软件 ： PC 端的串口终端软件，用于 PC 和开发板进行串口通信 Linux 内核原生的 test 工具，用于 Host 驱动的功能测试 Luban 自带的 iozone 工具，用于块设备的性能测试 按照下列步骤打开对应的测试工具： mmc_test 在 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-user-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-debug_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-design-guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="sdmc_test_guide"/><meta name="DC.language" content="zh-CN"/><title>测试指南</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="sdmc_test_guide-d4445e4113"/><meta name="wh-source-relpath" content="topics/sdk/sdmc/sdmc-test-guide.dita"/><meta name="wh-out-relpath" content="topics/sdk/sdmc/sdmc-test-guide.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="sdmc_test_guide" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-memory"><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html">SDMC 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="sdmc_test_guide"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-test-guide.html">测试指南</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/sdmc/sdmc-debug_guide.html" title="调试指南" aria-label="上一主题: 调试指南" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/sdmc/sdmc-design-guide.html" title="设计说明" aria-label="下一主题: 设计说明" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e4071" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4071-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html" id="id-d4445e4071-link">SDMC 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="sdmc_configuration-d4445e4085" class="topicref" data-id="sdmc_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-config.html" id="sdmc_configuration-d4445e4085-link">SDMC 配置</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_debug_guide-d4445e4099" class="topicref" data-id="sdmc_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-debug_guide.html" id="sdmc_debug_guide-d4445e4099-link">调试指南</a></div></div></li><li role="treeitem" class="active"><div data-tocid="sdmc_test_guide-d4445e4113" class="topicref" data-id="sdmc_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-test-guide.html" id="sdmc_test_guide-d4445e4113-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="sdmc_design_intro-d4445e4127" class="topicref" data-id="sdmc_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action sdmc_design_intro-d4445e4127-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-design-guide.html" id="sdmc_design_intro-d4445e4127-link">设计说明</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e4225" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-faq.html" id="id-d4445e4225-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nand_user_guide-d4445e4239" class="topicref" data-id="spi_nand_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nand_user_guide-d4445e4239-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinand/spi-nand-user-guide.html" id="spi_nand_user_guide-d4445e4239-link">SPI NAND 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nor_user_guide-d4445e4297" class="topicref" data-id="spi_nor_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nor_user_guide-d4445e4297-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html" id="spi_nor_user_guide-d4445e4297-link">SPI NOR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_n3v_ttw_bzb-d4445e4354" class="topicref" data-id="concept_n3v_ttw_bzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_n3v_ttw_bzb-d4445e4354-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html" id="concept_n3v_ttw_bzb-d4445e4354-link">文件系统使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/sdmc/sdmc-test-guide.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">测试指南</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 9 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="sdmc_test_guide__section_rxz_vdb_ndc" data-ofbid="sdmc_test_guide__section_rxz_vdb_ndc"><h2 class="- topic/title title sectiontitle">测试环境</h2>
+            
+            <div class="- topic/p p" id="sdmc_test_guide__p_f1z_y5g_f1c" data-ofbid="sdmc_test_guide__p_f1z_y5g_f1c">准备 SDMC 测试所需的测试环境，如下所示：<ul class="- topic/ul ul" id="sdmc_test_guide__ol_rrk_pls_c1c" data-ofbid="sdmc_test_guide__ol_rrk_pls_c1c">
+                    <li class="- topic/li li" data-ofbid="d44181e42__20250123155200"><strong class="+ topic/ph hi-d/b ph b"> 硬件</strong>：<ul class="- topic/ul ul" id="sdmc_test_guide__ul_y1w_rqt_c1c" data-ofbid="sdmc_test_guide__ul_y1w_rqt_c1c">
+                            <li class="- topic/li li" data-ofbid="d44181e48__20250123155200">
+                                <p class="- topic/p p" data-ofbid="d44181e50__20250123155200">开发板，或者 FPGA 板子</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d44181e54__20250123155200">
+                                <p class="- topic/p p" data-ofbid="d44181e56__20250123155200">板子上必须要接有 eMMC/SDCard</p>
+                            </li>
+                        </ul></li>
+                    <li class="- topic/li li" data-ofbid="d44181e61__20250123155200"><strong class="+ topic/ph hi-d/b ph b">软件</strong>：<ul class="- topic/ul ul" id="sdmc_test_guide__ul_ocq_hts_c1c" data-ofbid="sdmc_test_guide__ul_ocq_hts_c1c">
+                            <li class="- topic/li li" data-ofbid="d44181e67__20250123155200">
+                                <p class="- topic/p p" data-ofbid="d44181e69__20250123155200">PC 端的串口终端软件，用于 PC 和开发板进行串口通信</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d44181e73__20250123155200">
+                                <p class="- topic/p p" data-ofbid="d44181e75__20250123155200">Linux 内核原生的 test 工具，用于 Host 驱动的功能测试</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d44181e79__20250123155200">
+                                <p class="- topic/p p" data-ofbid="d44181e81__20250123155200">Luban 自带的 iozone 工具，用于块设备的性能测试</p>
+                            </li>
+                        </ul></li>
+                </ul></div>
+            <div class="- topic/p p" data-ofbid="d44181e87__20250123155200">按照下列步骤打开对应的测试工具：<ul class="- topic/ul ul" id="sdmc_test_guide__ul_qnv_yqt_c1c" data-ofbid="sdmc_test_guide__ul_qnv_yqt_c1c">
+                    <li class="- topic/li li" data-ofbid="d44181e91__20250123155200"><strong class="+ topic/ph hi-d/b ph b"><code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code></strong><div class="- topic/p p" data-ofbid="d44181e95__20250123155200">在 Luban 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make
+                                kernel-menuconfig</span>，进入 kernel
+                                的功能配置，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_yhx_5qt_c1c" data-ofbid="sdmc_test_guide__codeblock_yhx_5qt_c1c"><code>Linux
+    Device Drivers
+        &lt;*&gt; MMC/SD/SDIO card support
+            &lt; &gt;   MMC block device driver
+            &lt;*&gt;   MMC host test driver</code></pre><div class="- topic/note note note note_note" id="sdmc_test_guide__note_vbv_wqt_c1c" data-ofbid="sdmc_test_guide__note_vbv_wqt_c1c"><span class="note__title">注：</span> <div class="note__body">mmc_test 必须要关闭 Block 选项，否则 test
+                                模块不会被内核加载。</div></div></div></li>
+                    <li class="- topic/li li" data-ofbid="d44181e105__20250123155200"><strong class="+ topic/ph hi-d/b ph b"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code></strong><div class="- topic/p p" data-ofbid="d44181e109__20250123155200">在 Luban 根目录，运行
+                                <span class="+ topic/keyword sw-d/cmdname keyword cmdname">menuconfig</span>，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_htk_1rt_c1c" data-ofbid="sdmc_test_guide__codeblock_htk_1rt_c1c"><code>Third-party packages
+    [*] iozone</code></pre></div></li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="sdmc_test_guide__section_x2p_ydb_ndc" data-ofbid="sdmc_test_guide__section_x2p_ydb_ndc"><h2 class="- topic/title title sectiontitle"><code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 测试</h2>
+            
+            <p class="- topic/p p" data-ofbid="d44181e126__20250123155200"><code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 的主要功能是测试符合 MMC 子系统的 Host 驱动功能，源码详见
+                    <span class="+ topic/ph sw-d/filepath ph filepath">driversmmccoremmc_test.c</span>。</p>
+            <p class="- topic/p p" data-ofbid="d44181e134__20250123155200">按照下列步骤，执行 <code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 测试：</p>
+            <ol class="- topic/ol ol" id="sdmc_test_guide__ol_xfd_m2b_ndc" data-ofbid="sdmc_test_guide__ol_xfd_m2b_ndc">
+                <li class="- topic/li li" data-ofbid="d44181e142__20250123155200"><strong class="+ topic/ph hi-d/b ph b">打开 <code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 功能</strong><div class="- topic/note note note note_note" id="sdmc_test_guide__note_kjy_l2b_ndc" data-ofbid="sdmc_test_guide__note_kjy_l2b_ndc"><span class="note__title">注：</span> <div class="note__body"><code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 必须要关闭 Block 选项，否则测试模块不会被内核加载。</div></div><div class="- topic/p p" data-ofbid="d44181e152__20250123155200">在
+                        Luban 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make kernel-menuconfig</span>，进入 kernel
+                        的功能配置，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_jjy_l2b_ndc" data-ofbid="sdmc_test_guide__codeblock_jjy_l2b_ndc"><code>Linux
+    Device Drivers
+        &lt;*&gt; MMC/SD/SDIO card support
+            &lt; &gt;   MMC block device driver
+            &lt;*&gt;   MMC host test driver</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d44181e160__20250123155200">
+                    <p class="- topic/p p" data-ofbid="d44181e162__20250123155200">板子在启动到 Shell 后，挂载 debugfs 文件系统，并查看 test 的测试节点：</p>
+                    <div class="- topic/p p" data-ofbid="d44181e165__20250123155200"><span class="+ topic/keyword sw-d/cmdname keyword cmdname">test_wdt</span>
+                        的帮助信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_fh5_brt_c1c" data-ofbid="sdmc_test_guide__codeblock_fh5_brt_c1c"><code>mount -t debugfs none /sys/kernel/debug/</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_xfv_zcs_5dc" data-ofbid="sdmc_test_guide__codeblock_xfv_zcs_5dc"><code>cd /sys/kernel/debug/mmc0/mmc0\:<span class="hl-number">0001</span>/</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_vmb_1ds_5dc" data-ofbid="sdmc_test_guide__codeblock_vmb_1ds_5dc"><code>ls</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_ynh_1ds_5dc" data-ofbid="sdmc_test_guide__codeblock_ynh_1ds_5dc"><code>state     test      testlist</code></pre></div>
+                    <div class="- topic/p p" data-ofbid="d44181e178__20250123155200">打印测试选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_d4m_1ds_5dc" data-ofbid="sdmc_test_guide__codeblock_d4m_1ds_5dc"><code>cat testlist</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_sdt_1ds_5dc" data-ofbid="sdmc_test_guide__codeblock_sdt_1ds_5dc"><code><span class="hl-number">0</span>:      Run all tests
+<span class="hl-number">1</span>:      Basic write (no data verification)
+<span class="hl-number">2</span>:      Basic read (no data verification)
+<span class="hl-number">3</span>:      Basic write (with data verification)
+<span class="hl-number">4</span>:      Basic read (with data verification)
+<span class="hl-number">5</span>:      Multi-block write
+<span class="hl-number">6</span>:      Multi-block read
+<span class="hl-number">7</span>:      Power of two block writes
+<span class="hl-number">8</span>:      Power of two block reads
+<span class="hl-number">9</span>:      Weird sized block writes
+<span class="hl-number">10</span>:     Weird sized block reads
+<span class="hl-number">11</span>:     Badly aligned write
+<span class="hl-number">12</span>:     Badly aligned read
+<span class="hl-number">13</span>:     Badly aligned multi-block write
+<span class="hl-number">14</span>:     Badly aligned multi-block read
+<span class="hl-number">15</span>:     Correct xfer_size at write (start failure)
+<span class="hl-number">16</span>:     Correct xfer_size at read (start failure)
+<span class="hl-number">17</span>:     Correct xfer_size at write (midway failure)
+<span class="hl-number">18</span>:     Correct xfer_size at read (midway failure)
+<span class="hl-number">19</span>:     Highmem write
+<span class="hl-number">20</span>:     Highmem read
+<span class="hl-number">21</span>:     Multi-block highmem write
+<span class="hl-number">22</span>:     Multi-block highmem read
+<span class="hl-number">23</span>:     Best-<strong class="hl-keyword">case</strong> read performance
+<span class="hl-number">24</span>:     Best-<strong class="hl-keyword">case</strong> write performance
+<span class="hl-number">25</span>:     Best-<strong class="hl-keyword">case</strong> read performance into scattered pages
+<span class="hl-number">26</span>:     Best-<strong class="hl-keyword">case</strong> write performance from scattered pages
+<span class="hl-number">27</span>:     Single read performance by transfer size
+<span class="hl-number">28</span>:     Single write performance by transfer size
+<span class="hl-number">29</span>:     Single trim performance by transfer size
+<span class="hl-number">30</span>:     Consecutive read performance by transfer size
+<span class="hl-number">31</span>:     Consecutive write performance by transfer size
+<span class="hl-number">32</span>:     Consecutive trim performance by transfer size
+<span class="hl-number">33</span>:     Random read performance by transfer size
+<span class="hl-number">34</span>:     Random write performance by transfer size
+<span class="hl-number">35</span>:     Large sequential read into scattered pages
+<span class="hl-number">36</span>:     Large sequential write from scattered pages
+<span class="hl-number">37</span>:     Write performance with blocking req <span class="hl-number">4</span>k to <span class="hl-number">4</span>MB
+<span class="hl-number">38</span>:     Write performance with non-blocking req <span class="hl-number">4</span>k to <span class="hl-number">4</span>MB
+<span class="hl-number">39</span>:     Read performance with blocking req <span class="hl-number">4</span>k to <span class="hl-number">4</span>MB
+<span class="hl-number">40</span>:     Read performance with non-blocking req <span class="hl-number">4</span>k to <span class="hl-number">4</span>MB
+<span class="hl-number">41</span>:     Write performance blocking req <span class="hl-number">1</span> to <span class="hl-number">512</span> sg elems
+<span class="hl-number">42</span>:     Write performance non-blocking req <span class="hl-number">1</span> to <span class="hl-number">512</span> sg elems
+<span class="hl-number">43</span>:     Read performance blocking req <span class="hl-number">1</span> to <span class="hl-number">512</span> sg elems
+<span class="hl-number">44</span>:     Read performance non-blocking req <span class="hl-number">1</span> to <span class="hl-number">512</span> sg elems
+<span class="hl-number">45</span>:     Reset test
+<span class="hl-number">46</span>:     Commands during read - no Set Block Count (CMD23)
+<span class="hl-number">47</span>:     Commands during write - no Set Block Count (CMD23)
+<span class="hl-number">48</span>:     Commands during read - use Set Block Count (CMD23)
+<span class="hl-number">49</span>:     Commands during write - use Set Block Count (CMD23)
+<span class="hl-number">50</span>:     Commands during non-blocking read - use Set Block Count (CMD23)
+<span class="hl-number">51</span>:     Commands during non-blocking write - use Set Block Count (CMD23)us</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d44181e186__20250123155200">
+                    <div class="- topic/p p" data-ofbid="d44181e188__20250123155200">根据需求，选一个测试项，将其编号写入 <code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 节点，如使用测试项
+                        1：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_ps2_drt_c1c" data-ofbid="sdmc_test_guide__codeblock_ps2_drt_c1c"><code>echo <span class="hl-number">1</span> &gt; test</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_usg_cds_5dc" data-ofbid="sdmc_test_guide__codeblock_usg_cds_5dc"><code>[  <span class="hl-number">162.185679</span>] mmc0: Starting tests of card mmc0:<span class="hl-number">0001.</span>..
+[  <span class="hl-number">162.190820</span>] mmc0: Test <strong class="hl-keyword">case</strong> <span class="hl-number">1.</span> Basic write (no data verification)...
+[  <span class="hl-number">162.209563</span>] mmc0: Result: OK
+[  <span class="hl-number">162.212462</span>] mmc0: Tests completed.</code></pre></div>
+                    <div class="- topic/p p" data-ofbid="d44181e198__20250123155200">为了方便测试，可以通过以下脚本 批量运行完所有的 mmc_test
+                        测试项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_xrn_2rt_c1c" data-ofbid="sdmc_test_guide__codeblock_xrn_2rt_c1c"><code>#!/bin/sh
+
+run_one_testcase()
+{
+    echo $<span class="hl-number">1</span> &gt; test
+    <strong class="hl-keyword">if</strong> [ $? -ne <span class="hl-number">0</span> ]; then
+        echo ERROR: Testcase $i failed!
+        exit <span class="hl-number">110</span>
+    fi
+}
+
+run_memtest()
+{
+
+    echo Prepare the debugfs ...
+    mount -t debugfs none /sys/kernel/debug/
+    cd /sys/kernel/debug/mmc0/mmc0:<span class="hl-number">0001</span>
+
+    echo
+    echo Run memtest ...
+    echo
+
+    CNT=<span class="hl-number">1</span>
+    <strong class="hl-keyword">while</strong> true
+    <strong class="hl-keyword">do</strong>
+        echo
+        echo ----------------------------------------------------------
+        echo Run all the testcase, count $CNT ...
+        echo ----------------------------------------------------------
+
+        echo
+        echo Run in order sequence ...
+        echo
+
+        <strong class="hl-keyword">for</strong> i in `seq <span class="hl-number">0</span> <span class="hl-number">51</span>`;
+        <strong class="hl-keyword">do</strong>
+            run_one_testcase $i
+        done
+
+        echo
+        echo Run in random sequence ...
+        echo
+
+        <strong class="hl-keyword">for</strong> i in `seq <span class="hl-number">0</span> <span class="hl-number">51</span>`;
+        <strong class="hl-keyword">do</strong>
+            $TMP=`expr $RANDOM % <span class="hl-number">52</span>`
+            run_one_testcase $TMP
+        done
+
+        CNT=`expr $CNT + <span class="hl-number">1</span>`
+    done
+}
+
+run_memtest()</code></pre></div>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="sdmc_test_guide__section_ibj_12b_ndc" data-ofbid="sdmc_test_guide__section_ibj_12b_ndc"><h2 class="- topic/title title sectiontitle"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 测试</h2>
+            
+            <div class="- topic/p p" data-ofbid="d44181e213__20250123155200">
+                <ol class="- topic/ol ol" id="sdmc_test_guide__ol_sdm_52b_ndc" data-ofbid="sdmc_test_guide__ol_sdm_52b_ndc">
+                    <li class="- topic/li li" data-ofbid="d44181e217__20250123155200"><strong class="+ topic/ph hi-d/b ph b"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code></strong><div class="- topic/p p" data-ofbid="d44181e221__20250123155200">在 Luban 根目录，运行
+                                <span class="+ topic/keyword sw-d/cmdname keyword cmdname">menuconfig</span>，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_wrh_52b_ndc" data-ofbid="sdmc_test_guide__codeblock_wrh_52b_ndc"><code>Third-party packages
+    [*] iozone</code></pre></div></li>
+                    <li class="- topic/li li" data-ofbid="d44181e229__20250123155200">
+                        <div class="- topic/p p" data-ofbid="d44181e231__20250123155200"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 测试需要用到块设备，必须要将内核中的 MMC Block
+                            打开：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__pre_czx_frt_c1c" data-ofbid="sdmc_test_guide__pre_czx_frt_c1c"><code>Linux
+    Device Drivers
+        &lt;*&gt; MMC/SD/SDIO card support
+            &lt;*&gt;   MMC block device driver
+</code></pre></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d44181e239__20250123155200">
+                        <p class="- topic/p p" data-ofbid="d44181e241__20250123155200">除了执行性能测试外，<code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 还可以用作稳定性测试，只需使用脚本长时间循环运行
+                                <code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 测试即可。</p>
+                        <div class="- topic/p p" data-ofbid="d44181e250__20250123155200">详细的测试步骤如下所示：<ol class="- topic/ol ol" type="a" id="sdmc_test_guide__ol_dzx_frt_c1c" data-ofbid="sdmc_test_guide__ol_dzx_frt_c1c">
+                                <li class="- topic/li li" data-ofbid="d44181e254__20250123155200">将 MMC 或 SDCard 块设备格式化为 ext4 文件系统。</li>
+                                <li class="- topic/li li" data-ofbid="d44181e257__20250123155200">将格式化后的块设备挂载到一个特定路径。</li>
+                                <li class="- topic/li li" data-ofbid="d44181e260__20250123155200">在该路径中运行 <code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 工具。<p class="- topic/p p" data-ofbid="d44181e265__20250123155200"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code>
+                                        运行过程中会在当前目录下创建一个临时文件，该文件的大小会根据测试数据粒度而自动调整。</p></li>
+                            </ol><div class="- topic/note note note note_note" id="sdmc_test_guide__note_azc_3rt_c1c" data-ofbid="sdmc_test_guide__note_azc_3rt_c1c"><span class="note__title">注：</span> <div class="note__body"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code>
+                                支持将性能数据作为结果存储到一个 Excel 文件中，方便查看。</div></div></div>
+                        <div class="- topic/p p" data-ofbid="d44181e275__20250123155200">以下是调用 iozone
+                            的循环测试脚本：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="sdmc_test_guide__codeblock_rnd_krt_c1c" data-ofbid="sdmc_test_guide__codeblock_rnd_krt_c1c"><code>#!/bin/sh
+
+<strong class="hl-keyword">if</strong> [ ! -z $<span class="hl-number">1</span> ] &amp;&amp; [ ! -z $<span class="hl-number">2</span> ]; then
+    FILE_MIN_SIZE=$<span class="hl-number">1</span>
+    FILE_MAX_SIZE=$<span class="hl-number">2</span>
+<strong class="hl-keyword">else</strong>
+    FILE_MIN_SIZE=<span class="hl-number">16</span>m
+    FILE_MAX_SIZE=<span class="hl-number">128</span>m
+fi
+
+RESULT_FILE=iozone_result.xls
+TMP_FILE=iozone.tmp
+
+run_cmd()
+{
+    echo
+    echo $<span class="hl-number">1</span>
+    echo
+    eval $<span class="hl-number">1</span>
+}
+
+mount_mmc()
+{
+    HOSTNAME=`hostname`
+    <strong class="hl-keyword">if</strong> [ $HOSTNAME = <span class="hl-string">"Artinchip"</span> ]; then
+        WORKSPACE_DIR=/mnt/sdcard
+        MMC_DEV=/dev/mmcblk0p9
+
+        echo Mount $MMC_DEV ...
+        <strong class="hl-keyword">if</strong> [ <span class="hl-string">"$1"</span> != <span class="hl-string">"debug"</span> ]; then
+            # mkfs.vfat $MMC_DEV <span class="hl-number">2048000</span>
+            mount -t vfat $MMC_DEV $WORKSPACE_DIR
+        fi
+        <strong class="hl-keyword">if</strong> [ $? -ne <span class="hl-number">0</span> ]; then
+            echo ERR: Failed to mount $MMC_DEV
+            exit <span class="hl-number">100</span>
+        fi
+    <strong class="hl-keyword">else</strong>
+        WORKSPACE_DIR=./mnt/sdcard
+        echo Use the local path: $WORKSPACE_DIR
+    fi
+}
+
+mount_udisk()
+{
+    WORKSPACE_DIR=/mnt/usb
+    UDISK_DEV=/dev/sda1
+
+    echo Mount $UDISK_DEV ...
+    mount -t vfat $UDISK_DEV $WORKSPACE_DIR
+    <strong class="hl-keyword">if</strong> [ $? -ne <span class="hl-number">0</span> ]; then
+        echo ERR: Failed to mount $UDISK_DEV
+        exit <span class="hl-number">100</span>
+    fi
+}
+
+mount_mtd()
+{
+    WORKSPACE_DIR=/mnt/mtd
+    <strong class="hl-keyword">if</strong> [ ! -d $WORKSPACE_DIR ]; then
+        mkdir -p $WORKSPACE_DIR
+    fi
+}
+
+umount_all()
+{
+    cd -
+    umount -f $WORKSPACE_DIR
+}
+
+check_stop()
+{
+    echo
+    echo Press \<span class="hl-string">'any key\' + \'EnterKey\' to stop testing
+</span>    read -t <span class="hl-number">5</span> CMD
+    <strong class="hl-keyword">if</strong> [ ! -z $CMD ]; then
+        umount_all
+        exit <span class="hl-number">100</span>
+    fi
+}
+
+<strong class="hl-keyword">if</strong> [ -b /dev/sda ]; then
+    mount_udisk
+elif [ -b /dev/mmcblk0 ]; then
+    mount_mmc $<span class="hl-number">1</span>
+elif [ -c /dev/mtd0 ]; then
+    mount_mtd
+<strong class="hl-keyword">else</strong>
+    echo There is no block device in the board!
+    exit <span class="hl-number">110</span>
+fi
+
+echo Enter workspace $WORKSPACE_DIR
+cd $WORKSPACE_DIR
+
+CNT=<span class="hl-number">1</span>
+<strong class="hl-keyword">while</strong> true
+<strong class="hl-keyword">do</strong>
+    echo
+    echo ----------------------------------------------------------
+    echo iozone test, count $CNT
+    echo ----------------------------------------------------------
+    date
+
+    run_cmd <span class="hl-string">"iozone -a -V -n $FILE_MIN_SIZE -g $FILE_MAX_SIZE -q 16m -w -b $RESULT_FILE -f $TMP_FILE"</span>
+
+    check_stop
+
+    CNT=`expr $CNT + <span class="hl-number">1</span>`
+done
+</code></pre></div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#sdmc_test_guide__section_rxz_vdb_ndc" data-tocid="sdmc_test_guide__section_rxz_vdb_ndc">测试环境</a></div></li><li class="section-item"><div class="section-title"><a href="#sdmc_test_guide__section_x2p_ydb_ndc" data-tocid="sdmc_test_guide__section_x2p_ydb_ndc"><code class="+ topic/ph pr-d/codeph ph codeph">mmc_test</code> 测试</a></div></li><li class="section-item"><div class="section-title"><a href="#sdmc_test_guide__section_ibj_12b_ndc" data-tocid="sdmc_test_guide__section_ibj_12b_ndc"><code class="+ topic/ph pr-d/codeph ph codeph">iozone</code> 测试</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

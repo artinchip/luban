@@ -139,8 +139,6 @@ s32 ram_fwc_data_write(struct fwc_info *fwc, u8 *buf, s32 len)
 
 	fwc->trans_size += len;
 	fwc->calc_partition_crc = crc32(fwc->calc_partition_crc, buf, len);
-	fwc->burn_result = 0;
-	fwc->run_result = 0;
 
 	debug("%s, data len %d, trans len %d\n", __func__, len, fwc->trans_size);
 

@@ -19,6 +19,7 @@ struct panel_priv {
 	struct udevice *supply;
 	struct udevice *backlight;
 	struct gpio_desc enable_gpio;
+	struct gpio_desc gpiod_switch;
 	struct display_timing timing;
 	bool use_dt_timing;
 };

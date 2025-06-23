@@ -1,0 +1,17 @@
+#!/bin/sh
+# Run the swupdate daemon
+
+case "$1" in
+        start)
+		echo -n "Starting swupdate... "
+		# obtain ota emmc block number
+
+		mkdir -p /mnt/ota
+		mount /dev/mmcblk0p11 /mnt/ota
+		;;
+	stop)
+                echo -n "Stopping swupdate... "
+                umount /mnt/ota
+                ;;
+esac
+

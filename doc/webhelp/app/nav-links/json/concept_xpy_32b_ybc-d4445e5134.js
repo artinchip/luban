@@ -1,0 +1,1 @@
+oxy_webhelp_navlinks = {"concept_xpy_32b_ybc-d4445e5134":{"topics":[{"title":"场景选择","href":"topics\/sdk\/display\/display_fb_roatate_buffer_choice.html","attributes":{"data-id":"display_choices"},"menu":{"hasChildren":false},"tocID":"display_choices-d4445e5148","topics":[]}]}};

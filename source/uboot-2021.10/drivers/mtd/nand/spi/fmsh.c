@@ -84,7 +84,8 @@ static int fm25s01_ecc_get_status(struct spinand_device *spinand,
 }
 
 static const struct spinand_info fmsh_spinand_table[] = {
-	SPINAND_INFO("FM25S01", 0xA1,
+	SPINAND_INFO("FM25S01",
+		     SPINAND_ID(0xA1),
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(1, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -93,7 +94,8 @@ static const struct spinand_info fmsh_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&fm25s01_ooblayout, fm25s01_ecc_get_status),
 			 SPINAND_SELECT_TARGET(fm25s01_select_target)),
-	SPINAND_INFO("FM25S01A", 0xE4,
+	SPINAND_INFO("FM25S01A",
+		     SPINAND_ID(0xE4),
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(1, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -126,7 +128,7 @@ static int fmsh_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, fmsh_spinand_table,
 				     ARRAY_SIZE(fmsh_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * ADCIM driver of Artinchip SoC
+ * ADCIM driver of ArtInChip SoC
  *
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 #include <linux/platform_device.h>
@@ -30,13 +30,14 @@
 #define ADCIM_CALCSR_CALVAL_MASK	GENMASK(27, 16)
 #define ADCIM_CALCSR_ADC_ACQ_SHIFT	8
 #define ADCIM_CALCSR_ADC_ACQ_MASK	GENMASK(15, 8)
-#define ADCIM_CALCSR_DCAL_MASK		BIT(1)
+#define ADCIM_CALCSR_DCAL		BIT(1)
 #define ADCIM_CALCSR_CAL_ENABLE		BIT(0)
 #define ADCIM_FIFOSTS_ADC_ARBITER_IDLE	BIT(6)
 #define ADCIM_FIFOSTS_FIFO_ERR		BIT(5)
 #define ADCIM_FIFOSTS_CTR_MASK		GENMASK(4, 0)
-#define ADCDM_CAL_ADC_STANDARD_VAL      0x800
-#define ADCIM_CAL_ADC_VAL_OFFSET        0X32
+#define ADCDM_CAL_ADC_STANDARD_VAL	0x800
+#define ADCIM_CAL_ADC_VAL_OFFSET	0x32
+#define ADCIM_CALCSR_NUM		6
 
 #ifdef CONFIG_ARTINCHIP_ADCIM_DM
 #define ADCDM_RTP_CFG	0x03F0
@@ -82,6 +83,7 @@ struct adcim_dev {
 	int usr_cnt;
 };
 static struct adcim_dev *g_adcim_dev;
+static int g_adcim_caled_param;
 
 static DEFINE_SPINLOCK(user_lock);
 
@@ -105,7 +107,7 @@ int adcim_set_calibration(unsigned int val)
 {
 	int cal;
 
-	if (val > 2048) {
+	if (val > 4095) {
 		pr_err("The calibration value %d is too big\n", val);
 		return -EINVAL;
 	}
@@ -121,6 +123,17 @@ int adcim_set_calibration(unsigned int val)
 	return 0;
 }
 EXPORT_SYMBOL(adcim_set_calibration);
+
+static int adcim_set_dcalmask(void)
+{
+	int val;
+
+	val = readl(g_adcim_dev->regs + ADCIM_CALCSR);
+	val = val | ADCIM_CALCSR_DCAL | ADCIM_CALCSR_ADC_ACQ_MASK;
+	writel(val, g_adcim_dev->regs + ADCIM_CALCSR);
+	val = readl(g_adcim_dev->regs + ADCIM_CALCSR);
+	return val;
+}
 
 static ssize_t status_show(struct device *dev,
 				 struct device_attribute *devattr,
@@ -231,28 +244,51 @@ static ssize_t calibration_store(struct device *dev,
 }
 static DEVICE_ATTR_RW(calibration);
 
-u16 adcim_auto_calibration(u16 adc_val, struct device *dev)
+u16 adcim_get_cali_param(void)
 {
 	u32 flag = 1;
 	u32 data = 0;
-	u16 caled_adc_value;
 	int count = 0;
+	int max = 0;
+	int min = 0;
+	int i;
 	void __iomem *regs = g_adcim_dev->regs;
+	u32 cal_array[ADCIM_CALCSR_NUM];
 
-	writel(0x083F2f03, regs + ADCIM_CALCSR);//auto cal
-	do {
-		flag = readl(regs + ADCIM_CALCSR) & 0x00000001;
-		count++;
-		if (count > 10000) {
-			dev_err(dev, "Adcim auto calibration parameter acquisition timeout");
-			return adc_val;
-		}
-	} while (flag);
+	for (i = 0; i < ADCIM_CALCSR_NUM; i++) {
+		writel(0x08002f03, regs + ADCIM_CALCSR);//auto cal
+		do {
+			flag = readl(regs + ADCIM_CALCSR) & 0x00000001;
+			count++;
+			if (count > 10000) {
+				dev_err(&g_adcim_dev->pdev->dev, "Adcim auto calibration parameter acquisition timeout");
+				return -1;
+			}
+		} while (flag);
 
-	data = (readl(regs + ADCIM_CALCSR) >> ADCIM_CALCSR_CALVAL_SHIFT) & 0xfff;
-	caled_adc_value = adc_val + ADCDM_CAL_ADC_STANDARD_VAL - data + ADCIM_CAL_ADC_VAL_OFFSET;
+		cal_array[i] = (readl(regs + ADCIM_CALCSR) >> ADCIM_CALCSR_CALVAL_SHIFT) & 0xfff;
+		if (cal_array[i] > max)
+			max = cal_array[i];
 
-	return caled_adc_value;
+		if (i == 0)
+			min = cal_array[0];
+		else if (cal_array[i] < min)
+			min = cal_array[i];
+
+		data += cal_array[i];
+	}
+	g_adcim_caled_param = (data - min - max) / (ADCIM_CALCSR_NUM - 2);
+
+	return 0;
+}
+EXPORT_SYMBOL(adcim_get_cali_param);
+
+u16 adcim_auto_calibration(u16 *adc_val, struct device *dev)
+{
+	*adc_val = *adc_val + ADCDM_CAL_ADC_STANDARD_VAL - g_adcim_caled_param
+		   + ADCIM_CAL_ADC_VAL_OFFSET;
+
+	return 0;
 }
 EXPORT_SYMBOL(adcim_auto_calibration);
 
@@ -464,6 +500,8 @@ static int adcim_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "Artinchip ADCIM Loaded\n");
 	platform_set_drvdata(pdev, adcim);
 	g_adcim_dev = adcim;
+	adcim_set_dcalmask();
+	adcim_get_cali_param();
 	return 0;
 
 disable_rst:

@@ -25,7 +25,7 @@
 #define FLOW_RX				1
 #define FLOW_TX				2
 #define FLOW_AUTO			(FLOW_TX | FLOW_RX)
-#define TC_DEFAULT			64
+#define TC_DEFAULT			256
 #define	DEFAULT_BUFSIZE			1536
 
 #define AICMAC_CHAIN_MODE		0x1

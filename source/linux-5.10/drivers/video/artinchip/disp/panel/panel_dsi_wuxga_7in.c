@@ -152,9 +152,6 @@ static int panel_bind(struct device *dev, struct device *master, void *data)
 	if (panel_parse_dts(p, dev) < 0)
 		return -1;
 
-	if (!of_property_read_string(np, "dsi,mode", &str))
-		dsi.mode = panel_dsi_str2mode(str);
-
 	p->panel.dsi = &dsi;
 	panel_init(p, dev, &panel_vm, &panel_funcs, wuxga);
 

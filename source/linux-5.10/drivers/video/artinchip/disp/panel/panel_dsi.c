@@ -126,16 +126,3 @@ int panel_dsi_str2fmt(const s8 *str)
 	return DSI_FMT_RGB888;
 }
 
-int panel_dsi_str2mode(const s8 *str)
-{
-	s32 i;
-	s8 *mode[] = {"video-pulse", "video-event", "video-burst",
-			"command-mode"};
-
-	for (i = 0; i < ARRAY_SIZE(mode); i++)
-		if (strncasecmp(str, mode[i], strlen(mode[i])) == 0)
-			return i;
-
-	pr_err("Invalid mode: %s", str);
-	return DSI_MOD_VID_BURST;
-}

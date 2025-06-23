@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -24,7 +24,7 @@
 #include <linux/dma-buf.h>
 #endif
 
-#include "aic_com.h"
+#include "aic_fb.h"
 #include "video/artinchip_fb.h"
 #include "hw/de_hw.h"
 
@@ -65,6 +65,7 @@ struct aic_de_comp {
 	bool vm_flag;
 	bool init_flag;
 	int vsync_flag;
+	u32 scaler_active;
 	wait_queue_head_t vsync_wait;
 	spinlock_t slock;
 	const struct aic_de_configs *config;
@@ -112,6 +113,12 @@ static irqreturn_t aic_de_handler(int irq, void *ctx)
 		spin_unlock_irqrestore(&comp->slock, flags);
 
 		wake_up_interruptible(&comp->vsync_wait);
+	}
+
+	if (comp->scaler_active & SCALER0_CTRL_ACTIVE) {
+		comp->scaler_active = comp->scaler_active & 0xF;
+
+		de_scaler0_active_handle(comp->regs, comp->scaler_active);
 	}
 
 	if (status & TIMING_INIT_UNDERFLOW_FLAG)
@@ -189,6 +196,27 @@ static inline bool need_update_csc(struct aic_de_comp *comp, int color_space)
 		return true;
 
 	return false;
+}
+
+static inline void de_check_scaler0_active(struct aic_de_comp *comp,
+					u32 input_w, u32 input_h,
+					u32 output_w, u32 output_h)
+{
+	int step = (input_h << 16) / output_h;
+	u32 scaler_active = comp->scaler_active & 0xF;
+	u32 index = 0;
+
+	if (step <= 0x18000)
+		index = 0;
+	else if (step <= 0x20000)
+		index = 1;
+	else if (step <= 0x2C000)
+		index = 2;
+	else
+		index = 3;
+
+	if (scaler_active != index)
+		comp->scaler_active = index | SCALER0_CTRL_ACTIVE;
 }
 
 static inline bool is_ui_layer(struct aic_de_comp *comp, u32 layer_id)
@@ -352,11 +380,12 @@ static int aic_de_timing_enable(u32 flags)
 	de_set_qos(comp->regs);
 	de_set_blending_size(comp->regs, active_w, active_h);
 	de_set_ui_layer_size(comp->regs, active_w, active_h, 0, 0);
+	de_scaler0_active_handle(comp->regs, 0);
 
 	if (!comp->init_flag) {
 		comp->alpha[1].layer_id = AICFB_LAYER_TYPE_UI;
 		comp->alpha[1].enable = 1;
-		comp->alpha[1].mode = 0;
+		comp->alpha[1].mode = AICFB_PIXEL_ALPHA_MODE;
 		comp->alpha[1].value = 0xff;
 		comp->init_flag = true;
 	}
@@ -1204,6 +1233,9 @@ static int config_video_layer(struct aic_de_comp *comp,
 			de_set_scaler0_channel(comp->regs,
 					       in_w_ch1, in_h_ch1,
 					       scaler_w, scaler_h, 1);
+
+			de_check_scaler0_active(comp, in_w_ch1, in_h_ch1,
+						scaler_w, scaler_h);
 		}
 
 		de_scaler0_enable(comp->regs, 1);

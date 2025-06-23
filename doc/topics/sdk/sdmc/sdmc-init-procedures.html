@@ -1,0 +1,261 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="MMC 子系统的初始化包括 MMC 块设备、MMC 子系统、MMC 控制器驱动、card 设备等几条线，初始化顺序： MMC 核心初始化 MC 控制器驱动初始化完成后才会对 card 设备进行初始化 MMC 块设备初始化没有严格的先后顺序 MMC 块设备驱动初始化 MMC 在使用中，会将其抽象成一个块设备挂载到通用块层当中，通过 module_init(mmc_blk_init) ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-key_procedures.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-key_procedures.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-request-processing-procedures.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="sdmc_init_procedures"/><meta name="DC.language" content="zh-CN"/><title>初始化流程</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="sdmc_init_procedures-d4445e4155"/><meta name="wh-source-relpath" content="topics/sdk/sdmc/sdmc-init-procedures.dita"/><meta name="wh-out-relpath" content="topics/sdk/sdmc/sdmc-init-procedures.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="sdmc_init_procedures" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-memory"><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html">SDMC 使用指南</a></div></div></li><li><div class="topicref" data-id="sdmc_design_intro"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-design-guide.html">设计说明</a></div></div></li><li><div class="topicref" data-id="sdmc_key_procedures"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-key_procedures.html">关键流程设计</a></div></div></li><li class="active"><div class="topicref" data-id="sdmc_init_procedures"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-init-procedures.html">初始化流程</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/sdmc/sdmc-key_procedures.html" title="关键流程设计" aria-label="上一主题: 关键流程设计" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/sdmc/sdmc-request-processing-procedures.html" title="请求处理流程" aria-label="下一主题: 请求处理流程" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e4071" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4071-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html" id="id-d4445e4071-link">SDMC 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="sdmc_configuration-d4445e4085" class="topicref" data-id="sdmc_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-config.html" id="sdmc_configuration-d4445e4085-link">SDMC 配置</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_debug_guide-d4445e4099" class="topicref" data-id="sdmc_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-debug_guide.html" id="sdmc_debug_guide-d4445e4099-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_test_guide-d4445e4113" class="topicref" data-id="sdmc_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-test-guide.html" id="sdmc_test_guide-d4445e4113-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="sdmc_design_intro-d4445e4127" class="topicref" data-id="sdmc_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action sdmc_design_intro-d4445e4127-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-design-guide.html" id="sdmc_design_intro-d4445e4127-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="sdmc_key_procedures-d4445e4141" class="topicref" data-id="sdmc_key_procedures" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action sdmc_key_procedures-d4445e4141-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-key_procedures.html" id="sdmc_key_procedures-d4445e4141-link">关键流程设计</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="sdmc_init_procedures-d4445e4155" class="topicref" data-id="sdmc_init_procedures" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-init-procedures.html" id="sdmc_init_procedures-d4445e4155-link">初始化流程</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_request_processing_procedures-d4445e4169" class="topicref" data-id="sdmc_request_processing_procedures" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-request-processing-procedures.html" id="sdmc_request_processing_procedures-d4445e4169-link">请求处理流程</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_interrupt_processing_procedures-d4445e4183" class="topicref" data-id="sdmc_interrupt_processing_procedures" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-interrupt-processing-procedures.html" id="sdmc_interrupt_processing_procedures-d4445e4183-link">中断处理流程</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="sdmc_data_structure_design-d4445e4197" class="topicref" data-id="sdmc_data_structure_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-data_structure_design.html" id="sdmc_data_structure_design-d4445e4197-link">数据结构设计</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_interface_design-d4445e4211" class="topicref" data-id="sdmc_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-interface_design.html" id="sdmc_interface_design-d4445e4211-link">接口设计</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="id-d4445e4225" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-faq.html" id="id-d4445e4225-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nand_user_guide-d4445e4239" class="topicref" data-id="spi_nand_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nand_user_guide-d4445e4239-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinand/spi-nand-user-guide.html" id="spi_nand_user_guide-d4445e4239-link">SPI NAND 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nor_user_guide-d4445e4297" class="topicref" data-id="spi_nor_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nor_user_guide-d4445e4297-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html" id="spi_nor_user_guide-d4445e4297-link">SPI NOR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_n3v_ttw_bzb-d4445e4354" class="topicref" data-id="concept_n3v_ttw_bzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_n3v_ttw_bzb-d4445e4354-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html" id="concept_n3v_ttw_bzb-d4445e4354-link">文件系统使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/sdmc/sdmc-init-procedures.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">初始化流程</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 1 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d44607e33__20250123155200">MMC 子系统的初始化包括 MMC 块设备、MMC 子系统、MMC 控制器驱动、card 设备等几条线，初始化顺序：</p>
+        <ol class="- topic/ol ol" id="sdmc_init_procedures__ul_jnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ul_jnz_yrt_c1c">
+            <li class="- topic/li li" data-ofbid="d44607e38__20250123155200">MMC 核心初始化</li>
+            <li class="- topic/li li" data-ofbid="d44607e41__20250123155200">MC 控制器驱动初始化完成后才会对 card 设备进行初始化</li>
+            <li class="- topic/li li" data-ofbid="d44607e44__20250123155200">MMC 块设备初始化没有严格的先后顺序</li>
+        </ol>
+        <section class="- topic/section section" id="sdmc_init_procedures__section_knz_yrt_c1c" data-ofbid="sdmc_init_procedures__section_knz_yrt_c1c"><h2 class="- topic/title title sectiontitle">MMC 块设备驱动初始化</h2>
+            
+            <p class="- topic/p p" data-ofbid="d44607e53__20250123155200">MMC 在使用中，会将其抽象成一个块设备挂载到通用块层当中，通过 module_init(mmc_blk_init) 完成注册和初始化的操作，主要步骤如下：</p>
+            <ol class="- topic/ol ol" id="sdmc_init_procedures__ol_lnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ol_lnz_yrt_c1c">
+                <li class="- topic/li li" data-ofbid="d44607e58__20250123155200">注册总线（bus_register）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e61__20250123155200">将块设备名 ”mmc” 和主设备注册到块层中（register_blkdev）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e64__20250123155200">将 driver 设备驱动注册到驱动模型中（mmc_register_driver）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e67__20250123155200">块设备的初始化及磁盘分区的注册（mmc_blk_probe）。</li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="sdmc_init_procedures__section_mnz_yrt_c1c" data-ofbid="sdmc_init_procedures__section_mnz_yrt_c1c"><h2 class="- topic/title title sectiontitle">MMC 子系统核心初始化</h2>
+            
+            <p class="- topic/p p" data-ofbid="d44607e77__20250123155200">MMC 子系统的核心层负责处理 block 下达的请求，其中关于 MMC 协议的逻辑主要在此实现，通过 subsys_initcall(mmc_init)
+                完成初始化，其步骤如下：</p>
+            <ol class="- topic/ol ol" id="sdmc_init_procedures__ol_nnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ol_nnz_yrt_c1c">
+                <li class="- topic/li li" data-ofbid="d44607e82__20250123155200">MMC 类型总线注册（mmc_register_bus）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e85__20250123155200">为控制器设备注册一个类（mmc_register_host_class）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e88__20250123155200">SDIO 类型总线类型注册（sdio_register_b）。</li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="sdmc_init_procedures__section_onz_yrt_c1c" data-ofbid="sdmc_init_procedures__section_onz_yrt_c1c"><h2 class="- topic/title title sectiontitle">card 设备注册与初始化</h2>
+            
+            <p class="- topic/p p" data-ofbid="d44607e98__20250123155200">MMC 驱动的访问对象为外设，在子系统中会将外设抽象成一个 card 设备，在每次探测外设的时候都会判断该设备是否需要被注册，所以 card 设备注册介绍分为探测时机和注册过程两部分：</p>
+            <ol class="- topic/ol ol" id="sdmc_init_procedures__ol_pnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ol_pnz_yrt_c1c">
+                <li class="- topic/li li" data-ofbid="d44607e103__20250123155200">探测时机：<ul class="- topic/ul ul" id="sdmc_init_procedures__ul_rnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ul_rnz_yrt_c1c">
+                        <li class="- topic/li li" data-ofbid="d44607e107__20250123155200">mmc 控制器启动时</li>
+                        <li class="- topic/li li" data-ofbid="d44607e110__20250123155200">热插拔时</li>
+                        <li class="- topic/li li" data-ofbid="d44607e113__20250123155200">mmc 控制器从 suspend 转为 resume 时</li>
+                        <li class="- topic/li li" data-ofbid="d44607e116__20250123155200">上述三种情况均会进行一次探测，都会调用到函数 mmc_detect_change</li>
+                    </ul></li>
+                <li class="- topic/li li" data-ofbid="d44607e120__20250123155200">注册过程：<div class="- topic/p p" data-ofbid="d44607e122__20250123155200">在探测时调用的函数 mmc_detect_change，该函数会调用 card 设备的注册函数 mmc_rescan，以 SD
+                            卡为例,其注册和初始化过程如下：<ul class="- topic/ul ul" id="sdmc_init_procedures__ul_tnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ul_tnz_yrt_c1c">
+                            <li class="- topic/li li" data-ofbid="d44607e126__20250123155200">判断当前卡是否被注册</li>
+                            <li class="- topic/li li" data-ofbid="d44607e129__20250123155200">若卡已经注册，则确认卡是否存在，存在则提前跳出，若不存在则释放相关资源</li>
+                            <li class="- topic/li li" data-ofbid="d44607e132__20250123155200">若卡未注册，则启动控制器进行卡的初始化步骤</li>
+                            <li class="- topic/li li" data-ofbid="d44607e135__20250123155200">为控制器绑定具体总线的操作函数（mmc_attach_bus(host, &amp;mmc_sd_ops)）</li>
+                            <li class="- topic/li li" data-ofbid="d44607e138__20250123155200">适配卡的工作电压（mmc_select_voltage）</li>
+                            <li class="- topic/li li" data-ofbid="d44607e142__20250123155200">根据 MMC 协议初始化卡，使卡进入传输模式化（mmc_sd_init_card）</li>
+                            <li class="- topic/li li" data-ofbid="d44607e145__20250123155200">注册卡设备（mmc_add_card）</li>
+                        </ul></div></li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="sdmc_init_procedures__section_unz_yrt_c1c" data-ofbid="sdmc_init_procedures__section_unz_yrt_c1c"><h2 class="- topic/title title sectiontitle">控制器驱动注册与初始化</h2>
+            
+            <p class="- topic/p p" data-ofbid="d44607e157__20250123155200">MMC 控制器驱动通过对控制器进行操作完成核心层的请求，控制器驱动也是实现和外设进行通信的软件最底层驱动，该层驱动根据厂商不同而不同，D211 的 SDMC
+                模块的控制器驱动通过 module_platform_driver(artinchip_mmc_aic_pltfm_driver) 实现，其主要步骤如下：</p>
+            <ol class="- topic/ol ol" id="sdmc_init_procedures__ol_vnz_yrt_c1c" data-ofbid="sdmc_init_procedures__ol_vnz_yrt_c1c">
+                <li class="- topic/li li" data-ofbid="d44607e162__20250123155200">使能时钟（artinchip_mmc_clk_enable）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e165__20250123155200">初始化计时机制，该机制实现发送命令和数据传输的 timeout 机制（timer_setup）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e168__20250123155200">初始化保护锁（spin_lock_init）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e171__20250123155200">初始化 tasklet，在驱动中很多流程的处理会在 tasklet 中（tasklet_init）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e174__20250123155200">初始化 DMA（artinchip_mmc_init_dma）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e178__20250123155200">中断初始化和注册（devm_request_irq）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e181__20250123155200">注册具体的控制器（mmc_alloc_host + mmc_add_host）。</li>
+                <li class="- topic/li li" data-ofbid="d44607e184__20250123155200">初始化具体控制器，包括接口函数、工作电压、传输能力等。</li>
+            </ol>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#sdmc_init_procedures__section_knz_yrt_c1c" data-tocid="sdmc_init_procedures__section_knz_yrt_c1c">MMC 块设备驱动初始化</a></div></li><li class="section-item"><div class="section-title"><a href="#sdmc_init_procedures__section_mnz_yrt_c1c" data-tocid="sdmc_init_procedures__section_mnz_yrt_c1c">MMC 子系统核心初始化</a></div></li><li class="section-item"><div class="section-title"><a href="#sdmc_init_procedures__section_onz_yrt_c1c" data-tocid="sdmc_init_procedures__section_onz_yrt_c1c">card 设备注册与初始化</a></div></li><li class="section-item"><div class="section-title"><a href="#sdmc_init_procedures__section_unz_yrt_c1c" data-tocid="sdmc_init_procedures__section_unz_yrt_c1c">控制器驱动注册与初始化</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

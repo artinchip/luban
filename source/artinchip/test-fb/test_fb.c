@@ -1,19 +1,21 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2025 Artinchip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
 #include <linux/fb.h>
 #include <artinchip/sample_base.h>
 #include <video/artinchip_fb.h>
+#include <stdbool.h>
+#include <sys/time.h>
 
 /* Global macro and variables */
 
 #define AICFB_LAYER_MAX_NUM	2
 #define FB_DEV "/dev/fb0"
 
-static const char sopts[] = "nscflLaAkKedi:w:h:m:v:bu";
+static const char sopts[] = "nscflLaAkKedC:i:w:h:m:v:bru";
 static const struct option lopts[] = {
 	{"get_layer_num",	no_argument, NULL, 'n'},
 	{"get_screen_size",	no_argument, NULL, 's'},
@@ -27,12 +29,14 @@ static const struct option lopts[] = {
 	{"set_ck_cfg",	  required_argument, NULL, 'K'},
 	{"enable",		no_argument, NULL, 'e'},
 	{"disable",		no_argument, NULL, 'd'},
+	{"crop_enable",   required_argument, NULL, 'C'},
 	{"id",		  required_argument, NULL, 'i'},
 	{"width",	  required_argument, NULL, 'w'},
 	{"height",	  required_argument, NULL, 'h'},
 	{"mode",	  required_argument, NULL, 'm'},
 	{"value",	  required_argument, NULL, 'v'},
 	{"colorblock",		no_argument, NULL, 'b'},
+	{"repeat",		no_argument, NULL, 'r'},
 	{"usage",		no_argument, NULL, 'u'},
 	{0, 0, 0, 0}
 };
@@ -47,25 +51,83 @@ void usage(char *program)
 	printf("\t -c, --get_layer_cap \n");
 	printf("\t -f, --get_fb_layer \n");
 	printf("\t -l, --get_layer \n");
-	printf("\t -L, --set_layer\tneed other options: -i x -e/d -w y -h z\n");
+	printf("\t -L, --set_layer\tneed other options: -i x -e/d -w y -h z -C 1/0\n");
 	printf("\t -a, --get_alpha \n");
 	printf("\t -A, --set_alpha\tneed other options: -e/d -m x -v y \n");
 	printf("\t -k, --get_ck_cfg \n");
 	printf("\t -K, --set_ck_cfg\tneed other options: -e/d -v x \n");
 	printf("\t -e, --enable \n");
 	printf("\t -d, --disable \n");
+	printf("\t -C, --crop_en \n");
 	printf("\t -i, --id\t\tneed an integer argument of Layer ID [0, 1]\n");
 	printf("\t -w, --width\t\tneed an integer argument\n");
 	printf("\t -h, --height\t\tneed an integer argument\n");
 	printf("\t -m, --mode\t\tneed an integer argument [0, 2]\n");
 	printf("\t -v, --value\t\tneed an integer argument [0, 255]\n");
 	printf("\t -b, --colorblock\tshow a color-block image\n");
+	printf("\t -r, --repeat\ttest vsync repeatedly\n");
 	printf("\t -u, --usage \n");
 	printf("\n");
 	printf("Example: %s -l\n", program);
-	printf("Example: %s -L -i 1 -e -w 800 -h 480\n", program);
+	printf("Example: %s -L -i 1 -e -w 800 -h 480 -C 1\n", program);
 	printf("Example: %s -A -e -w 800 -h 480\n", program);
 	printf("Example: %s -K -e -v 0x3F\n", program);
+}
+
+struct video_data_format {
+	enum mpp_pixel_format format;
+	char f_str[15];
+	int pixel_bytes;
+};
+
+struct video_data_format g_vformat[] = {
+	{MPP_FMT_XRGB_8888, "xrgb8888", 4},
+	{MPP_FMT_ARGB_8888, "argb8888", 4},
+	{MPP_FMT_ARGB_4444, "argb4444", 2},
+	{MPP_FMT_ARGB_1555, "argb1555", 2},
+	{MPP_FMT_RGB_565,   "rgb565"  , 2},
+	{MPP_FMT_RGB_888,   "rgb888"  , 3},
+};
+
+static inline bool is_yuv_format(enum mpp_pixel_format format)
+{
+	switch (format) {
+	case MPP_FMT_YUYV:
+	case MPP_FMT_YVYU:
+	case MPP_FMT_UYVY:
+	case MPP_FMT_VYUY:
+	case MPP_FMT_NV12:
+	case MPP_FMT_NV21:
+	case MPP_FMT_NV16:
+	case MPP_FMT_NV61:
+	case MPP_FMT_YUV400:
+	case MPP_FMT_YUV420P:
+	case MPP_FMT_YUV422P:
+	case MPP_FMT_YUV420_128x16_TILE:
+	case MPP_FMT_YUV420_64x32_TILE:
+	case MPP_FMT_YUV422_128x16_TILE:
+	case MPP_FMT_YUV422_64x32_TILE:
+		return true;
+	default:
+		break;
+	}
+	return false;
+}
+
+static inline bool is_rgb_format(enum mpp_pixel_format format)
+{
+	switch (format) {
+	case MPP_FMT_XRGB_8888:
+	case MPP_FMT_ARGB_8888:
+	case MPP_FMT_ARGB_4444:
+	case MPP_FMT_ARGB_1555:
+	case MPP_FMT_RGB_888:
+	case MPP_FMT_RGB_565:
+		return true;
+	default:
+		break;
+	}
+	return false;
 }
 
 /* Open a device file to be needed. */
@@ -175,40 +237,77 @@ int get_layer_cfg(int fd)
 	return 0;
 }
 
-int set_layer_cfg(int fd, int id, int enable, int width, int height)
+int set_layer_cfg(int fd, int id, int enable, int width, int height, int crop_enable)
 {
 	int ret = 0;
 	struct aicfb_layer_data layer = {0};
+	struct video_data_format vlayer = {0};
 
-	if ((id != AICFB_LAYER_TYPE_UI) || (enable < 0) ||
+	if ((id != AICFB_LAYER_TYPE_UI && id != AICFB_LAYER_TYPE_VIDEO) || (enable < 0) ||
 	    (width < 0) || (height < 0)) {
 		ERR("Invalid argument.\n");
 		return -1;
 	}
 
-	/* Get the current configuration of UI layer */
-	layer.layer_id = id;
-	ret = ioctl(fd, AICFB_GET_FB_LAYER_CONFIG, &layer);
-	if (ret < 0) {
-		ERR("ioctl() return %d\n", ret);
-		return ret;
-	}
-	if (width > layer.buf.size.width || height > layer.buf.size.height) {
-		ERR("Width %d x Height %d is out of range.\n", width, height);
-		return -1;
+	if(id == AICFB_LAYER_TYPE_UI) {
+		/* Get the current configuration of UI layer */
+		layer.layer_id = id;
+		ret = ioctl(fd, AICFB_GET_FB_LAYER_CONFIG, &layer);
+		if (ret < 0) {
+			ERR("ioctl() return %d\n", ret);
+			return ret;
+		}
+		if (width > layer.buf.size.width || height > layer.buf.size.height) {
+			ERR("Width %d x Height %d is out of range.\n", width, height);
+			return -1;
+		}
+
+		/* Set the configuration of UI layer */
+		layer.enable      = enable;
+		layer.buf.crop_en = crop_enable;
+		layer.buf.crop.x  = 0;
+		layer.buf.crop.y  = 0;
+		layer.buf.crop.width = width;
+		layer.buf.crop.height = height;
+		ret = ioctl(fd, AICFB_UPDATE_LAYER_CONFIG, &layer);
+		if (ret < 0)
+			ERR("ioctl() return %d\n", ret);
 	}
 
-	/* Set the configuration of UI layer */
-	layer.enable      = enable;
-	layer.buf.crop_en = 1;
-	layer.buf.crop.x  = 0;
-	layer.buf.crop.y  = 0;
-	layer.buf.crop.width = width;
-	layer.buf.crop.height = height;
-	ret = ioctl(fd, AICFB_UPDATE_LAYER_CONFIG, &layer);
-	if (ret < 0)
-		ERR("ioctl() return %d\n", ret);
+	if(id == AICFB_LAYER_TYPE_VIDEO) {
+		/* Get the current configuration of Video layer */
+		layer.layer_id = id;
+		ret = ioctl(fd, AICFB_GET_LAYER_CONFIG, &layer);
+		if (ret < 0) {
+			ERR("ioctl() return %d\n", ret);
+			return ret;
+		}
+		if (width > layer.buf.size.width || height > layer.buf.size.height) {
+			ERR("Width %d x Height %d is out of range.\n", width, height);
+			return -1;
+		}
 
+		/* Get the current configuration of Video layer */
+		if(is_yuv_format(layer.buf.format)) {
+			layer.scale_size.width  = width;
+			layer.scale_size.height = height;
+		}
+
+		if(is_rgb_format(layer.buf.format)) {
+			layer.buf.stride[0] = width * vlayer.pixel_bytes;
+		}
+
+		layer.enable      = enable;
+		layer.buf.crop_en = crop_enable;
+		layer.buf.crop.x  = 0;
+		layer.buf.crop.y  = 0;
+		layer.buf.crop.width  = width;
+		layer.buf.crop.height = height;
+
+		ret = ioctl(fd, AICFB_UPDATE_LAYER_CONFIG, &layer);
+		if (ret < 0)
+			ERR("ioctl() return %d\n", ret);
+	}
 	return ret;
 }
 
@@ -326,8 +425,8 @@ int show_color_block(int fd)
 	int i, j, color, step, blk_line, pixel_size, width, height, blk_height;
 	int colors24[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF};
 	int steps24[]  = {0x010000, 0x000100, 0x000001, 0x010101};
-	int colors16[] = {0xF800, 0x07E0, 0x001F, 0xFFFF};
-	int steps16[]  = {0x0800, 0x0020, 0x0001, 0x0821};
+	int colors16[] = {0xF800, 0x07E0, 0x001F, 0xFFDF};
+	int steps16[]  = {0x0800, 0x0020, 0x0001, 0x0841};
 	int *colors = colors24;
 	int *steps  = steps24;
 	char *fb_buf = NULL, *line1 = NULL, *line2 = NULL;
@@ -345,8 +444,6 @@ int show_color_block(int fd)
 	if (pixel_size == 2) {
 		colors = colors16;
 		steps  = steps16;
-	} else {
-		pixel_size = 4;
 	}
 
 	fb_buf = (char *)mmap(NULL, fix.smem_len,
@@ -359,7 +456,7 @@ int show_color_block(int fd)
 
 	width  = var.xres;
 	height = var.yres;
-	printf("Framebuf: size %d, width %d, height %d, bits per pixel %d\n", 
+	printf("Framebuf: size %d, width %d, height %d, bits per pixel %d\n",
 		fix.smem_len, width, height, var.bits_per_pixel);
 
 	blk_height = height / 4;
@@ -370,10 +467,20 @@ int show_color_block(int fd)
 		step = steps[blk_line];
 		for (j = 0; j < width; j++) {
 			memcpy(&line1[j * pixel_size], &color, pixel_size);
-			color -= step;
+
+			if (pixel_size == 2) {
+			if (j && (j % 4 == 0)) /* Enlarge the step range for RGB564 */
+				color -= step;
+			} else {
+				color -= step;
+			}
+
 			if (color == 0) {
 				color = colors[blk_line];
-				j++;
+				if (pixel_size == 2)
+					j += 4;
+				else
+					j++;
 			}
 		}
 		line1 += width * pixel_size;
@@ -401,6 +508,29 @@ int show_color_block(int fd)
 	return 0;
 }
 
+static int test_vsync_repeat(int fd)
+{
+	int ret, i = 0;
+	struct timeval start, end;
+	unsigned long time_us;
+
+	do {
+		gettimeofday(&start, NULL);
+		ret = ioctl(fd, AICFB_WAIT_FOR_VSYNC, NULL);
+		if (ret) {
+			ERR("ioctl WAIT_FOR_VSYNC timeout, DE not working\n");
+			break;
+		}
+		gettimeofday(&end, NULL);
+
+		time_us = (end.tv_sec - start.tv_sec) * 1000000 +
+			  (end.tv_usec - start.tv_usec);
+		DBG("wait vsync time %ld us\n", time_us);
+	} while (i++ < 5);
+
+	return ret;
+}
+
 int main(int argc, char **argv)
 {
 	int dev_fd = -1;
@@ -412,6 +542,7 @@ int main(int argc, char **argv)
 	int width = 0;
 	int height = 0;
 	int value = 0;
+	int crop_enable = 0;
 
 	dev_fd = device_open(FB_DEV, O_RDWR);
 	if (dev_fd < 0) {
@@ -457,6 +588,9 @@ int main(int argc, char **argv)
 		case 'h':
 			height = str2int(optarg);
 			continue;
+		case 'C':
+			crop_enable = str2int(optarg);
+			continue;
 		case 'm':
 			mode = str2int(optarg);
 			continue;
@@ -465,6 +599,9 @@ int main(int argc, char **argv)
 			continue;
 		case 'b':
 			show_color_block(dev_fd);
+			goto end;
+		case 'r':
+			ret = test_vsync_repeat(dev_fd);
 			goto end;
 		case 'u':
 			usage(argv[0]);
@@ -478,7 +615,7 @@ int main(int argc, char **argv)
 	while ((c = getopt_long(argc, argv, sopts, lopts, NULL)) != -1) {
 		switch (c) {
 		case 'L':
-			ret = set_layer_cfg(dev_fd, layer_id, enable, width, height);
+			ret = set_layer_cfg(dev_fd, layer_id, enable, width, height, crop_enable);
 			goto end;
 		case 'A':
 			ret = set_layer_alpha(dev_fd, enable, mode, value);

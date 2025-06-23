@@ -1,0 +1,294 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="使用 mk_image.py 制作烧录镜像时，需要提供 image_cfg.json 镜像配置文件。 通过嵌套对象的方式， image_cfg.json 描述了一个待生成的镜像文件所包含的信息和数据，如下列代码所示，该描述文件分为以下部分： 镜像烧录的目标设备描述，详情可查看 分区表描述 。 最终 Image 文件描述 ，包括信息和内容排布，由 info 数据， updater 数据和 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/advanced/image_burn_and_config.html"/><meta name="DC.relation" content="../../../topics/sdk/advanced/fs_image_2.html"/><meta name="DC.relation" content="../../../topics/sdk/linux/burn-image-partition-table_2.html"/><meta name="DC.relation" content="../../../topics/sdk/linux/burn-image-partition-table_2.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/image-file-intro_2.html"/><meta name="DC.relation" content="../../../topics/sdk/advanced/sdk-guide-temp-file_2.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="burn-cfg-file"/><title>烧录镜像配置文件</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="burn-cfg-file-d4445e3070"/><meta name="wh-source-relpath" content="topics/sdk/advanced/burn-cfg-file.dita"/><meta name="wh-out-relpath" content="topics/sdk/advanced/burn-cfg-file_2.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="burn-cfg-file" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mtx_tk3_pzb"><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html">Linux</a></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/advanced/image_burn_and_config.html">配置烧录镜像</a></div></div></li><li class="active"><div class="topicref" data-id="burn-cfg-file"><div class="title"><a href="../../../topics/sdk/advanced/burn-cfg-file_2.html">烧录镜像配置文件</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/advanced/fs_image_2.html" title="烧录镜像格式和工具" aria-label="上一主题: 烧录镜像格式和工具" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/linux/burn-image-partition-table_2.html" title="分区表描述" aria-label="下一主题: 分区表描述" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e3042" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e3042-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/image_burn_and_config.html" id="id-d4445e3042-link">配置烧录镜像</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="burn-image-and-tool-d4445e3056" class="topicref" data-id="burn-image-and-tool" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/fs_image_2.html" id="burn-image-and-tool-d4445e3056-link">烧录镜像格式和工具</a></div></div></li><li role="treeitem" aria-expanded="true" class="active"><div data-tocid="burn-cfg-file-d4445e3070" class="topicref" data-id="burn-cfg-file" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action burn-cfg-file-d4445e3070-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/burn-cfg-file_2.html" id="burn-cfg-file-d4445e3070-link">烧录镜像配置文件</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="concept_mtx_tk3_pzb-d4445e3084" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/burn-image-partition-table_2.html" id="concept_mtx_tk3_pzb-d4445e3084-link">分区表描述</a></div></div></li><li role="treeitem"><div data-tocid="image-d4445e3098" class="topicref" data-id="image" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/image-file-intro_2.html" id="image-d4445e3098-link">Image 文件描述</a></div></div></li><li role="treeitem"><div data-tocid="concept_nyn_gn3_pzb-d4445e3112" class="topicref" data-id="concept_nyn_gn3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/sdk-guide-temp-file_2.html" id="concept_nyn_gn3_pzb-d4445e3112-link">中间文件描述</a></div></div></li></ul></li></ul></li><li role="treeitem"><div data-tocid="luban_self_defined_package_dir-d4445e3126" class="topicref" data-id="luban_self_defined_package_dir" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/luban-self-defined-package-dir.html" id="luban_self_defined_package_dir-d4445e3126-link">自定义包目录</a></div></div></li><li role="treeitem"><div data-tocid="_51-d4445e3140" class="topicref" data-id="_51" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-login-info.html" id="_51-d4445e3140-link">设置登录信息</a></div></div></li><li role="treeitem"><div data-tocid="set-login-password-d4445e3154" class="topicref" data-id="set-login-password" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-login-password.html" id="set-login-password-d4445e3154-link">设置密码登录</a></div></div></li><li role="treeitem"><div data-tocid="concept_w15_pl3_pzb-d4445e3168" class="topicref" data-id="concept_w15_pl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-timezone.html" id="concept_w15_pl3_pzb-d4445e3168-link">设置时区</a></div></div></li><li role="treeitem"><div data-tocid="aic_test-d4445e3182" class="topicref" data-id="aic_test" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/aic-test.html" id="aic_test-d4445e3182-link">烤机测试</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/advanced/burn-cfg-file.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">烧录镜像配置文件</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d190263e33__20250123155220">使用 <span class="+ topic/ph sw-d/filepath ph filepath">mk_image.py</span> 制作烧录镜像时，需要提供 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+            镜像配置文件。</p>
+        <div class="- topic/p p" data-ofbid="d190263e42__20250123155220">通过嵌套对象的方式，<span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                描述了一个待生成的镜像文件所包含的信息和数据，如下列代码所示，该描述文件分为以下部分：<ul class="- topic/ul ul simple" id="burn-cfg-file__ul_wr4_pcr_3dc" data-ofbid="burn-cfg-file__ul_wr4_pcr_3dc">
+                <li class="- topic/li li" data-ofbid="d190263e49__20250123155220">
+                    <p class="- topic/p p" data-ofbid="d190263e51__20250123155220">镜像烧录的目标设备描述，详情可查看<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="../linux/burn-image-partition-table.html">分区表描述</a>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d190263e59__20250123155220">
+                    <p class="- topic/p p" data-ofbid="d190263e61__20250123155220">最终<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="../boot/image-file-intro.html">Image 文件描述</a>，包括信息和内容排布，由 <code class="+ topic/ph pr-d/codeph ph codeph">info</code>
+                            数据，<code class="+ topic/ph pr-d/codeph ph codeph">updater</code> 数据和 <code class="+ topic/ph pr-d/codeph ph codeph">target</code> 数据组成。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d190263e78__20250123155220">
+                    <p class="- topic/p p" data-ofbid="d190263e80__20250123155220"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="sdk-guide-temp-file.html">中间文件描述</a>，制作 <span class="+ topic/ph sw-d/filepath ph filepath">image</span> 的过程中需要生成和使用的临时文件。</p>
+                </li>
+            </ul></div>
+        <div class="- topic/p p" data-ofbid="d190263e91__20250123155220">
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn-cfg-file__codeblock_ycn_hdr_3dc" data-ofbid="burn-cfg-file__codeblock_ycn_hdr_3dc"><code>{
+    <span class="hl-string">"spi-nand"</span>: { <em class="hl-comment">// Device, The name should be the same with string in image:info:media:type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"128m"</span>, <em class="hl-comment">// Size of SPI NAND</em>
+        <span class="hl-string">"partitions"</span>: {
+            <span class="hl-string">"spl"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"1m"</span> },
+            <span class="hl-string">"os"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"2m"</span> },
+            <span class="hl-string">"rodata"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"4m"</span> },
+            <span class="hl-string">"data"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"28m"</span> },
+        },
+    },
+    <span class="hl-string">"image"</span>: {
+        <span class="hl-string">"info"</span>: { <em class="hl-comment">// Header information about image</em>
+            <span class="hl-string">"platform"</span>: <span class="hl-string">"d21x"</span>,
+            <span class="hl-string">"product"</span>: <span class="hl-string">"demo128_nand"</span>,
+            <span class="hl-string">"version"</span>: <span class="hl-string">"1.0.0"</span>,
+            <span class="hl-string">"media"</span>: {
+                <span class="hl-string">"type"</span>: <span class="hl-string">"spi-nand"</span>,
+                <span class="hl-string">"device_id"</span>: <span class="hl-number">0</span>,
+                <span class="hl-string">"array_organization"</span>: [
+                    { <span class="hl-string">"page"</span>: <span class="hl-string">"2k"</span>, <span class="hl-string">"block"</span>: <span class="hl-string">"128k"</span>, <span class="hl-string">"oob"</span>: <span class="hl-string">"64"</span> },
+        <em class="hl-comment">//            { "page": "4k", "block": "256k", "oob": "128" },</em>
+                ],
+            }
+        },
+        <span class="hl-string">"updater"</span>: { <em class="hl-comment">// Image writer which is downloaded to RAM by USB</em>
+            <span class="hl-string">"ddr"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"usbupg-ddr-init.aic"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"required"</span>, <span class="hl-string">"run"</span>],
+                <span class="hl-string">"ram"</span>: <span class="hl-string">"0x00103000"</span>
+            },
+            <span class="hl-string">"bootloader"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.aic"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"required"</span>, <span class="hl-string">"run"</span>],
+                <span class="hl-string">"ram"</span>: <span class="hl-string">"0x41000000"</span>
+            },
+        },
+        <span class="hl-string">"target"</span>: { <em class="hl-comment">// Image components which will be burn to device's partitions</em>
+            <span class="hl-string">"bootloader"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.aic"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
+                <span class="hl-string">"part"</span>: [<span class="hl-string">"spl"</span>]
+            },
+            <span class="hl-string">"os"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"os.aic"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
+                <span class="hl-string">"part"</span>: [<span class="hl-string">"os"</span>]
+            },
+            <span class="hl-string">"res"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"app.fatfs"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"optional"</span>],
+                <span class="hl-string">"part"</span>: [<span class="hl-string">"rodata"</span>]
+            },
+            <span class="hl-string">"app"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"page_2k_block_128k_oob_64_data.uffs"</span>,
+                <span class="hl-string">"attr"</span>: [<span class="hl-string">"uffs"</span>, <span class="hl-string">"optional"</span>],
+                <span class="hl-string">"part"</span>: [<span class="hl-string">"data"</span>]
+            },
+        },
+    },
+    <span class="hl-string">"temporary"</span>: { <em class="hl-comment">// Pre-proccess to generate image components from raw data</em>
+        <span class="hl-string">"aicboot"</span>: {
+            <span class="hl-string">"usbupg-ddr-init.aic"</span>: { <em class="hl-comment">// No loader, only PreBootProgram to initialize DDR</em>
+                <span class="hl-string">"head_ver"</span>: <span class="hl-string">"0x00010001"</span>,
+                <span class="hl-string">"resource"</span>: {
+                    <span class="hl-string">"private"</span>: <span class="hl-string">"ddr_init.bin"</span>,
+                    <span class="hl-string">"pbp"</span>: <span class="hl-string">"d21x.pbp"</span>,
+                },
+            },
+            <span class="hl-string">"bootloader.aic"</span>: {
+                <span class="hl-string">"head_ver"</span>: <span class="hl-string">"0x00010001"</span>,
+                <span class="hl-string">"loader"</span>: {
+                    <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.bin"</span>,
+                    <span class="hl-string">"load address"</span>: <span class="hl-string">"0x42000000"</span>,
+                    <span class="hl-string">"entry point"</span>:  <span class="hl-string">"0x42000100"</span>,
+                },
+                <span class="hl-string">"resource"</span>: {
+                    <span class="hl-string">"private"</span>: <span class="hl-string">"ddr_init.bin"</span>,
+                    <span class="hl-string">"pbp"</span>: <span class="hl-string">"d21x.pbp"</span>,
+                },
+            },
+            <span class="hl-string">"os.aic"</span>: {
+                <span class="hl-string">"head_ver"</span>: <span class="hl-string">"0x00010001"</span>,
+                <span class="hl-string">"loader"</span>: {
+                    <span class="hl-string">"file"</span>: <span class="hl-string">"d21x.bin"</span>,
+                    <span class="hl-string">"load address"</span>: <span class="hl-string">"0x40000000"</span>,
+                    <span class="hl-string">"entry point"</span>:  <span class="hl-string">"0x40000100"</span>,
+                    <span class="hl-string">"run in dram"</span>: <span class="hl-string">"false"</span>,
+                }
+            },
+        },
+    },
+}</code></pre>
+        </div>
+    </div>
+</article></main></div>
+                        
+                        <div class=" wh_child_links d-print-none "><nav aria-label="Child Links" role="navigation" class="- topic/related-links related-links"><ul class="ullinks"><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/linux/burn-image-partition-table_2.html">分区表描述</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/boot/image-file-intro_2.html">Image 文件描述</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/advanced/sdk-guide-temp-file_2.html">中间文件描述</a></strong></li></ul></nav></div>
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

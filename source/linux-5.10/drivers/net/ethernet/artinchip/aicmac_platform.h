@@ -159,23 +159,14 @@ struct aicmac_channel {
 };
 
 struct aicmac_rx_queue {
-	u32 rx_count_frames;
-	u32 queue_index;
-	struct page_pool *page_pool;
-	struct aicmac_rx_buffer *buf_pool;
-	struct aicmac_priv *priv_data;
-	struct dma_extended_desc *dma_erx;
+	dma_addr_t *rx_skbuff_dma;
+	struct sk_buff **rx_skbuff;
 	unsigned int cur_rx;
 	unsigned int dirty_rx;
-	u32 rx_zeroc_thresh;
 	dma_addr_t dma_rx_phy;
-	u32 rx_tail_addr;
-	unsigned int state_saved;
-	struct {
-		struct sk_buff *skb;
-		unsigned int len;
-		unsigned int error;
-	} state;
+	struct aicmac_priv *priv_data;
+	struct dma_extended_desc *dma_erx;
+	unsigned int rx_buff_size;
 };
 
 /* Frequently used values are kept adjacent for cache effect */

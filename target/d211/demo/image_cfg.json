@@ -3,12 +3,16 @@
 		"size": "8G", // Size of SD/eMMC
 		"partitions": { // Partition table apply to device
 			"spl":    { "offset": "0x4400", "size": "495k" },
+			"userid": { "size": "256k" },
 			"uboot":  { "size": "1m" },
 			"env":    { "size": "256k" },
+			"env_r":  { "size": "256k" },
 			"falcon": { "size": "256k" },
 			"logo":   { "size": "512k" },
 			"kernel": { "size": "16m" },
+			"recovery": { "size": "16m" },
 			"rootfs": { "size": "72m" },
+			//"ota": { "size": "96m" },
 			"user":   { "size": "-" },
 		},
 	},
@@ -65,6 +69,11 @@
 				"attr": ["block", "required"],
 				"part": ["env"]
 			},
+			"env_r": {
+				"file": "env.bin",
+				"attr": ["block", "required"],
+				"part": ["env_r"]
+			},
 			"logo": {
 				"file": "logo.itb",
 				"attr": ["block", "required"],
@@ -75,11 +84,21 @@
 				"attr": ["block", "required"],
 				"part": ["kernel"]
 			},
+			"recovery": {
+				"file": "recovery.itb",
+				"attr": ["block", "optional"],
+				"part": ["recovery"]
+			},
 			"rootfs": {
 				"file": "rootfs.ext4",
 				"attr": ["block", "required"],
 				"part": ["rootfs"]
 			},
+			//"ota": {
+				//"file": "ota.ext4",
+				//"attr": ["block", "optional"],
+				//"part": ["ota"]
+			//},
 			"app": {
 				"file": "userfs1.ext4",
 				"attr": ["block", "optional"],
@@ -93,8 +112,8 @@
 			}
 		},
 	},
-	"temporary": { // Pre-proccess to generate image components from raw data
-		"aicboot": {
+	"pre-process": { // Pre-proccess to generate image components from raw data
+		"aicimage": { // Create aic boot image
 			"usbupg-ddr-init.aic": { // No loader, only PreBootProgram to initialize DDR
 				"head_ver": "0x00010001",
 				"resource": {
@@ -102,26 +121,38 @@
 					"pbp": "d211.pbp",
 				},
 			},
-			"u-boot-spl-dtb.aic": {
+			"pbp_ext.aic": {
+				"head_ver": "0x00010001",
+				"resource": {
+					"pbp": "d211.pbp",
+					"private": "ddr_init.bin",
+				},
+				// combine to use with spl.aic
+				"with_ext": "true",
+			},
+			"spl.aic": {
 				"head_ver": "0x00010001",
 				"loader": {
 					"file": "u-boot-spl-dtb.bin",
 					"load address": "0x42000000",
-					"entry point":  "0x42000100",
+					"entry point":  "0x42000100", // 256 byte aic header
 				},
 				"resource": {
 					"private": "ddr_init.bin",
-					"pbp": "d211.pbp",
 				},
 			},
 		},
-		"uboot_env": {
+		"concatenate": { // cat files in order
+			"u-boot-spl-dtb.aic": ["pbp_ext.aic", "spl.aic"],
+		},
+		"uboot_env": { // Create env data from txt
 			"env.bin": {
 				"file": "env.txt",
 				"size": "0x4000",
+				"redundant": "enable",
 			},
 		},
-		"itb": {
+		"itb": { // Create itb image from its
 			"u-boot.itb": {
 				"its": "u-boot.its"
 			},
@@ -131,12 +162,16 @@
 			"kernel.itb": {
 				"its": "kernel.its"
 			},
+			"recovery.itb": {
+				"its": "recovery.its"
+			},
 		},
 
 		"extension": {
 			"extension.tar": {
 				"exfiles": ["image_cfg.json",
 					    "u-boot.its",
+					    "logo.its",
 					    "kernel.its",
 					    "recovery.its",
 					    "u-boot.dtb",
@@ -148,9 +183,10 @@
 					    "ddr_init.bin",
 					    "d211.pbp",
 					    "Image",
+					    "Recovery.gz",
 					    "fw_dynamic.bin",
 					    "u-boot-nodtb.bin"],
-				"exdirs": ["dts"],
+				"exdirs": ["dts", "logo"],
 			},
 		},
 	},

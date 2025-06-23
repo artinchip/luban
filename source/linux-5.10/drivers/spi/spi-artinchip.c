@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2021, Artinchip Technology Co., Ltd
+ * Copyright (c) 2021-2025, Artinchip Technology Co., Ltd
  * Author: Dehuang Wu <dehuang.wu@artinchip.com>
  */
 
@@ -99,9 +99,6 @@ static ssize_t aic_spi_status_show(struct device *dev,
 static s32 spi_ctlr_set_cs_num(u32 chipselect, void __iomem *base_addr)
 {
 	u32 val;
-
-	if (chipselect != 0)
-		return -EINVAL;
 
 	val = readl(base_addr + SPI_REG_TCR);
 	val &= ~TCR_BIT_SS_SEL_MSK;
@@ -859,10 +856,7 @@ static void aic_spi_dma_cb_rx(void *data)
 
 static void aic_spi_dma_cb_tx(void *data)
 {
-	struct aic_spi *aicspi = (struct aic_spi *)data;
-
-	spi_ctlr_dma_irq_disable(FCR_BIT_TX_DMA_EN, aicspi->base_addr);
-	spi_finalize_current_transfer(aicspi->ctlr);
+	/* do nothing */
 }
 
 static int aic_spi_dma_rx_cfg(struct aic_spi *aicspi, struct scatterlist *sgl,
@@ -1046,30 +1040,41 @@ static int spi_ctlr_cfg_xfer(struct aic_spi *aicspi, struct spi_device *spi,
 	return 0;
 }
 
+static bool spi_check_timeout_one_seconed(unsigned long jiffies0)
+{
+	unsigned long timeout;
+
+	timeout = jiffies0 + msecs_to_jiffies(1000);
+
+	return time_after(jiffies, timeout);
+}
+
+#define check_timeout_1s(a)								\
+		do {									\
+			if (spi_check_timeout_one_seconed(a)) {				\
+				dev_err(aicspi->dev, "%d cpu transfer data time out!\n", __LINE__);	\
+				return -1;						\
+			}								\
+		} while (0)
+
 static int spi_ctlr_fifo_read(struct aic_spi *aicspi, unsigned char *rx_buf,
 			      unsigned int rx_len)
 {
 	void __iomem *base_addr = aicspi->base_addr;
-	unsigned int poll_time = 0x7ffffff;
+	unsigned long jiffies0;
 	unsigned int dolen;
 
 	while (rx_len) {
+		jiffies0 = jiffies;
+		while (!spi_ctlr_rxfifo_query(base_addr))
+			check_timeout_1s(jiffies0);
+
 		dolen = spi_ctlr_rxfifo_query(base_addr);
-		if (dolen == 0) {
-			poll_time--;
-			if (poll_time == 0)
-				break;
-			continue;
-		}
 		while (dolen) {
 			*rx_buf++ = readb(base_addr + SPI_REG_RXDATA);
 			--dolen;
 			--rx_len;
 		}
-	}
-	if (poll_time == 0) {
-		dev_err(aicspi->dev, "cpu receive data time out!\n");
-		return -1;
 	}
 
 	return 0;
@@ -1079,16 +1084,19 @@ static int spi_ctlr_fifo_write(struct aic_spi *aicspi,
 			       const unsigned char *tx_buf, unsigned int tx_len)
 {
 	void __iomem *base_addr = aicspi->base_addr;
-	unsigned int poll_time = 0x7ffffff;
-	unsigned int dolen;
 	unsigned long flags = 0;
+	unsigned long jiffies0;
 	unsigned int fifo_len;
+	unsigned int dolen;
+
 
 	spin_lock_irqsave(&aicspi->lock, flags);
 
 	while (tx_len) {
+		jiffies0 = jiffies;
 		while (spi_ctlr_txfifo_query(base_addr) > (SPI_FIFO_DEPTH / 2))
-			;
+			check_timeout_1s(jiffies0);
+
 		fifo_len = SPI_FIFO_DEPTH - spi_ctlr_txfifo_query(base_addr);
 		dolen = min(fifo_len, tx_len);
 		while (dolen) {
@@ -1099,13 +1107,56 @@ static int spi_ctlr_fifo_write(struct aic_spi *aicspi,
 	}
 
 	spin_unlock_irqrestore(&aicspi->lock, flags);
-	poll_time = 0x7ffffff;
-	while (spi_ctlr_txfifo_query(base_addr) && (--poll_time > 0))
-		;
-	if (poll_time <= 0) {
-		dev_err(aicspi->dev, "cpu transfer data time out!\n");
-		return -1;
+
+	jiffies0 = jiffies;
+	while (spi_ctlr_txfifo_query(base_addr))
+		check_timeout_1s(jiffies0);
+
+	return 0;
+}
+
+
+
+static int spi_ctlr_fifo_write_read(struct aic_spi *aicspi,
+			       const unsigned char *tx_buf, unsigned char *rx_buf, unsigned int len)
+{
+	void __iomem *base_addr = aicspi->base_addr;
+	unsigned int dolen, temp_cnt;
+	unsigned long flags = 0;
+	unsigned long jiffies0;
+	unsigned int free_len;
+
+	spin_lock_irqsave(&aicspi->lock, flags);
+
+	while (len) {
+		jiffies0 = jiffies;
+		while (spi_ctlr_txfifo_query(base_addr) > (SPI_FIFO_DEPTH / 2))
+			check_timeout_1s(jiffies0);
+
+		free_len = SPI_FIFO_DEPTH - spi_ctlr_txfifo_query(base_addr);
+		dolen = min(free_len, len);
+		temp_cnt = dolen;
+		while (temp_cnt) {
+			writeb(*tx_buf++, base_addr + SPI_REG_TXDATA);
+			temp_cnt--;
+		}
+
+		temp_cnt = dolen;
+		jiffies0 = jiffies;
+		while (spi_ctlr_rxfifo_query(base_addr) != dolen)
+			check_timeout_1s(jiffies0);
+
+		while (temp_cnt) {
+			*rx_buf++ = readb(base_addr + SPI_REG_RXDATA);
+			temp_cnt--;
+			len--;
+		}
 	}
+
+	spin_unlock_irqrestore(&aicspi->lock, flags);
+	jiffies0 = jiffies;
+	while (spi_ctlr_txfifo_query(base_addr))
+		check_timeout_1s(jiffies0);
 
 	return 0;
 }
@@ -1214,8 +1265,7 @@ static int aic_spi_data_xfer(struct spi_device *spi, struct spi_transfer *t)
 		} else {
 			dev_dbg(aicspi->dev, "rx and tx -> by fifo\n");
 			spi_ctlr_start_xfer(base_addr);
-			spi_ctlr_fifo_write(aicspi, t->tx_buf, t->len);
-			spi_ctlr_fifo_read(aicspi, t->rx_buf, t->len);
+			spi_ctlr_fifo_write_read(aicspi, t->tx_buf, t->rx_buf, t->len);
 		}
 		break;
 	}
@@ -1244,6 +1294,9 @@ static irqreturn_t aic_spi_handle_irq(int irq, void *dev_id)
 		dev_dbg(aicspi->dev, "spi-%d: SPI TC comes\n",
 			aicspi->ctlr->bus_num);
 		spi_ctlr_irq_disable(ISR_BIT_TC | ISR_BIT_ERRS, base_addr);
+
+		/* the callback of tx dma done is slower disable TF_DREQ_EN now */
+		spi_ctlr_dma_irq_disable(FCR_BIT_TX_DMA_EN, aicspi->base_addr);
 
 		spi_finalize_current_transfer(aicspi->ctlr);
 		spin_unlock_irqrestore(&aicspi->lock, flags);
@@ -1338,12 +1391,6 @@ static int aic_spi_setup(struct spi_device *spi)
 	/* Only support 8 bits per word */
 	if (spi->bits_per_word != 8) {
 		dev_err(aicspi->dev, "bits_per_word is not supportted.\n");
-		return -EINVAL;
-	}
-
-	if (spi->chip_select != 0) {
-		dev_err(aicspi->dev, "spi-%d: not support cs-%d\n",
-			spi->master->bus_num, spi->chip_select);
 		return -EINVAL;
 	}
 
@@ -1630,7 +1677,7 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	aicspi = spi_controller_get_devdata(mem->spi->controller);
 	base_addr = aicspi->base_addr;
 
-	head_len = op->cmd.nbytes + op->addr.nbytes;
+	head_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 
 	tx_buf = NULL;
 	tx_dlen = 0;
@@ -1655,7 +1702,7 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 					(8 * (op->addr.nbytes - i - 1));
 	}
 	if (op->dummy.nbytes)
-		memset(tx_head + head_len, 0, op->dummy.nbytes);
+		memset(tx_head + op->cmd.nbytes + op->addr.nbytes, 0, op->dummy.nbytes);
 
 	if (op->cmd.buswidth == 4)
 		mode = QPI_MODE;
@@ -1677,55 +1724,45 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 	switch (mode) {
 	case SINGLE_MODE:
 		dev_dbg(aicspi->dev, "Single mode\n");
-		/*
-		 * dummy bytes is not included in (tx_total, tx_single).
-		 * dummy will be processed by spi controller.
-		 */
 		tx_single = tx_total;
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_disable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	case DUAL_OUTPUT_MODE:
 		dev_dbg(aicspi->dev, "DUAL OUTPUT\n");
-		tx_single = op->cmd.nbytes + op->addr.nbytes;
+		tx_single = head_len;
 		spi_ctlr_quad_disable(base_addr);
 		spi_ctlr_dual_enable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	case DUAL_IO_MODE:
 		dev_dbg(aicspi->dev, "DUAL I/O\n");
 		tx_single = op->cmd.nbytes;
 		spi_ctlr_quad_disable(base_addr);
 		spi_ctlr_dual_enable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	case QUAD_OUTPUT_MODE:
 		dev_dbg(aicspi->dev, "QUAD OUTPUT\n");
-		tx_single = op->cmd.nbytes + op->addr.nbytes;
+		tx_single = head_len;//op->cmd.nbytes + op->addr.nbytes;
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	case QUAD_IO_MODE:
 		dev_dbg(aicspi->dev, "QUAD I/O\n");
 		tx_single = op->cmd.nbytes;
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	case QPI_MODE:
 		dev_dbg(aicspi->dev, "QPI\n");
 		tx_single = 0;
 		spi_ctlr_dual_disable(base_addr);
 		spi_ctlr_quad_enable(base_addr);
-		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single,
-				      op->dummy.nbytes);
+		spi_ctlr_set_xfer_cnt(base_addr, tx_total, rx_dlen, tx_single, 0);
 		break;
 	}
 
@@ -1743,13 +1780,14 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 		if (ret)
 			goto out;
 
-		/* FIFO mode xfer head, then enalbe dma to xfer data */
-		spi_ctlr_irq_disable(ICR_BIT_TC, base_addr);
 		spi_ctlr_start_xfer(base_addr);
 		if (head_len)
 			spi_ctlr_fifo_write(aicspi, tx_head, head_len);
 
 		if (rx_buf) {
+			/* FIFO mode xfer head, then enalbe dma to xfer data */
+			spi_ctlr_irq_disable(ICR_BIT_TC, base_addr);
+
 			spi_ctlr_dma_rx_enable(aicspi->base_addr);
 			ret = aic_spi_dma_rx_cfg(aicspi, sg.sgl, sg.nents);
 			if (ret < 0)
@@ -1784,9 +1822,11 @@ static int aic_spi_mem_exec_op(struct spi_mem *mem, const struct spi_mem_op *op)
 			spi_ctlr_fifo_read(aicspi, rx_buf, rx_dlen);
 	}
 
-	tmo = 8LL * (tx_total + rx_dlen);
+	tmo = 8LL * (tx_total + rx_dlen) * MSEC_PER_SEC;
 	do_div(tmo, mem->spi->max_speed_hz);
-	tmo += 200;
+	tmo += tmo + 200;
+	if (tmo > UINT_MAX)
+		tmo = UINT_MAX;
 	if (!wait_for_completion_timeout(&aicspi->ctlr->xfer_completion,
 					 msecs_to_jiffies(tmo))) {
 		dev_err(aicspi->dev, "wait data xfer done timeout.\n");
@@ -1833,6 +1873,7 @@ static int aic_spi_probe(struct platform_device *pdev)
 	struct resource	*mem_res;
 	struct aic_spi *aicspi;
 	const char *dly;
+	u32 num_cs = 0;
 
 	if (!np) {
 		dev_err(&pdev->dev, "failed to get of_node\n");
@@ -1864,8 +1905,13 @@ static int aic_spi_probe(struct platform_device *pdev)
 		goto err0;
 	}
 
-	/* Only support 1 spi device on bus */
-	pdata->cs_num = 1;
+	err = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
+	if (err) {
+		/* Default: only support 1 spi device on bus */
+		pdata->cs_num = 1;
+	} else {
+		pdata->cs_num = num_cs;
+	}
 
 	ctlr = spi_alloc_master(&pdev->dev, sizeof(struct aic_spi));
 	if (ctlr == NULL) {
@@ -1923,6 +1969,7 @@ static int aic_spi_probe(struct platform_device *pdev)
 	ctlr->bus_num = pdev->id;
 	ctlr->num_chipselect = pdata->cs_num;
 	ctlr->setup = aic_spi_setup;
+	ctlr->use_gpio_descriptors = true;
 	ctlr->set_cs = aic_spi_set_cs;
 	ctlr->transfer_one = aic_spi_transfer_one;
 	ctlr->mem_ops = &aic_spi_mem_ops;
@@ -1945,6 +1992,8 @@ static int aic_spi_probe(struct platform_device *pdev)
 		goto err2;
 	}
 
+	spin_lock_init(&aicspi->lock);
+
 	snprintf(aicspi->dev_name, sizeof(aicspi->dev_name),
 		 AIC_SPI_DEV_NAME "%d", pdev->id);
 	err = request_irq(aicspi->irq, aic_spi_handle_irq, 0, aicspi->dev_name,
@@ -1964,8 +2013,6 @@ static int aic_spi_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "spi hw init failed!\n");
 		goto err4;
 	}
-
-	spin_lock_init(&aicspi->lock);
 
 	if (spi_register_controller(ctlr)) {
 		dev_err(&pdev->dev, "cannot register spi controller\n");

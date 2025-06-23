@@ -432,7 +432,7 @@ DEBUGFS_READ_FILE_OPS(acsinfo);
 
 static ssize_t asr_dbgfs_fw_dbg_read(struct file *file, char __user * user_buf, size_t count, loff_t * ppos)
 {
-	char help[] = "usage: [MOD:<ALL|KE|DBG|IPC|DMA|MM|TX|RX|PHY>]* " "[DBG:<NONE|CRT|ERR|WRN|INF|VRB>]\n";
+	char help[] = "usage: [MOD:<ALL|KE|DBG|IPC|DMA|MM|TX|RX|PHY|HOST|FW>]* " "[DBG:<NONE|CRT|ERR|WRN|INF|VRB>]\n";
 
 	return simple_read_from_buffer(user_buf, count, ppos, help, sizeof(help));
 }
@@ -475,6 +475,8 @@ static ssize_t asr_dbgfs_fw_dbg_write(struct file *file, const char __user * use
 			ASR_MOD_TOKEN("TX", BIT(5));
 			ASR_MOD_TOKEN("RX", BIT(6));
 			ASR_MOD_TOKEN("PHY", BIT(7));
+			ASR_MOD_TOKEN("HOST", BIT(14));
+			ASR_MOD_TOKEN("FW", BIT(15));
 			idx++;
 		} else if (strncmp(&buf[idx], "DBG:", 4) == 0) {
 			u32 dbg = 0;
@@ -1077,6 +1079,7 @@ struct st {
 	unsigned int r_idx;
 };
 
+#if 0
 static int compare_idx(const void *st1, const void *st2)
 {
 	int index1 = ((struct st *)st1)->r_idx;
@@ -1089,6 +1092,7 @@ static int compare_idx(const void *st1, const void *st2)
 
 	return 0;
 }
+#endif
 
 static const int ru_size[] = {
 	26,
@@ -1400,7 +1404,7 @@ static ssize_t asr_dbgfs_rc_stats_read(struct file *file, char __user * user_buf
 			 " #  type       rate            tpt  eprob     ok(   tot) skipped nRetry\n");
 
 	// add sorted statistics to the buffer
-	sort(st, no_samples, sizeof(st[0]), compare_idx, NULL);
+	//sort(st, no_samples, sizeof(st[0]), compare_idx, NULL);
 	for (i = 0; i < no_samples; i++) {
 		len += scnprintf(&buf[len], bufsz - len, "%s\n", st[i].line);
 	}
@@ -1598,8 +1602,8 @@ static ssize_t asr_dbgfs_last_rx_read(struct file *file, char __user * user_buf,
 		nss = last_rx->ht.mcs / 8;
 		gi = last_rx->ht.short_gi;
 	} else {
-		//BUG_ON((mcs = legrates_lut[last_rx->leg_rate]) == -1);
-		BUG_ON(1);
+		BUG_ON((mcs = legrates_lut[last_rx->leg_rate]) == -1);
+		//BUG_ON(1);
 		nss = 0;
 		gi = 0;
 	}
@@ -1641,8 +1645,8 @@ static ssize_t asr_dbgfs_last_rx_read(struct file *file, char __user * user_buf,
 		mcs = last_rx->mcs;
 		nss = last_rx->stbc ? last_rx->stbc : last_rx->n_sts;
 	} else {
-		//BUG_ON((mcs = legrates_lut[last_rx->leg_rate]) == -1);
-		BUG_ON(1);
+		BUG_ON((mcs = legrates_lut[last_rx->leg_rate]) == -1);
+		//BUG_ON(1);
 		nss = 0;
 	}
 

@@ -95,6 +95,7 @@ save_boot_params_ret:
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
 call_board_init_f:
+
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	li	t0, CONFIG_SPL_STACK
 #else

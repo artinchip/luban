@@ -182,6 +182,10 @@ static int usbh_portchange_wait(int id)
 	u32 usbsts, pending, regval, retry = 1000;
 	volatile struct ehci_hcor_s *hcor;
 
+#ifdef CONFIG_UPDATE_UDISK_CHECK_TIMEOUT
+	// Some Udisk need to wait for more than 1s
+	retry = max(retry, (u32)CONFIG_UPDATE_UDISK_CHECK_TIMEOUT);
+#endif
 	hcor = (struct ehci_hcor_s *)USB_EHCI_HCOR_BASE(id);
 	do {
 		/* Read Interrupt Status and mask out interrupts that are not enabled. */

@@ -1,0 +1,341 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="U-Boot 配置 进入 SDK 顶层目录，执行下列命令进入 U-boot 配置界面： make uboot-menuconfig 在 U-Boot 的配置界面中，使能 Cipher 相关的 U-Boot 驱动配置： Boot options ---&gt; Boot images ---&gt; [*] Enable ciphering data in a FIT uImages [*] Enable ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/secure/chapter-secure.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/chapter-secure.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/hw_authorization.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="firmware-encryption-for-luban"/><meta name="DC.language" content="zh-CN"/><title>Linux 固件加密使用说明</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="firmware-encryption-for-luban-d4445e1621"/><meta name="wh-source-relpath" content="topics/sdk/secure/firmware_encryption_for_luban.dita"/><meta name="wh-out-relpath" content="topics/sdk/secure/firmware_encryption_for_luban.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="firmware-encryption-for-luban" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html">安全方案</a></div></div></li><li class="active"><div class="topicref" data-id="firmware-encryption-for-luban"><div class="title"><a href="../../../topics/sdk/secure/firmware_encryption_for_luban.html">Linux 固件加密使用说明</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/secure/chapter-secure.html" title="安全方案" aria-label="上一主题: 安全方案" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/secure/hw_authorization.html" title="硬件授权认证" aria-label="下一主题: 硬件授权认证" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="firmware-encryption-for-luban-d4445e1621" class="topicref" data-id="firmware-encryption-for-luban" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/firmware_encryption_for_luban.html" id="firmware-encryption-for-luban-d4445e1621-link">Linux 固件加密使用说明</a></div></div></li><li role="treeitem"><div data-tocid="hw_authentication-d4445e1635" class="topicref" data-id="hw_authentication" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/hw_authorization.html" id="hw_authentication-d4445e1635-link">硬件授权认证 </a></div></div></li><li role="treeitem"><div data-tocid="burn_efuse-d4445e1649" class="topicref" data-id="burn_efuse" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html" id="burn_efuse-d4445e1649-link">烧写 eFuse</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/secure/firmware_encryption_for_luban.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Linux 固件加密使用说明</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body body"><section class="- topic/section section" id="firmware-encryption-for-luban__section_dps_ssw_fdc" data-ofbid="firmware-encryption-for-luban__section_dps_ssw_fdc"><h2 class="- topic/title title sectiontitle">U-Boot 配置</h2>
+            
+            
+            <ol class="- topic/ol ol" id="firmware-encryption-for-luban__ol_ddz_dxd_ndc" data-ofbid="firmware-encryption-for-luban__ol_ddz_dxd_ndc">
+                <li class="- topic/li li" data-ofbid="d119399e40__20250123155210">进入 SDK 顶层目录，执行下列命令进入 U-boot
+                    配置界面：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell0" data-ofbid="firmware-encryption-for-luban__codecell0"><code>make uboot-menuconfig
+</code></pre></li>
+                <li class="- topic/li li" data-ofbid="d119399e45__20250123155210">
+                    <div class="- topic/p p" data-ofbid="d119399e47__20250123155210">在 U-Boot 的配置界面中，使能 Cipher 相关的 U-Boot
+                        驱动配置：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell1" data-ofbid="firmware-encryption-for-luban__codecell1"><code>Boot options  ---&gt;
+    Boot images  ---&gt;
+        [*]   Enable ciphering data in a FIT uImages
+        [*]   Enable ciphering data in a FIT uImages within SPL
+
+SPL / TPL  ---&gt;
+    [*] Support crypto drivers
+
+Device Drivers  ---&gt;
+    Hardware crypto devices  ---&gt;
+        [*] ArtInChip<span class="hl-string">'s crypto engine driver
+</span></code></pre></div>
+                    <p class="- topic/p p" data-ofbid="d119399e52__20250123155210">配置完成后，SPL 会在启动过程中解密 U-Boot 再加载运行，U-Boot 启动过程中会解密 Kernel 再加载运行。</p>
+                </li>
+            </ol>
+        </section><section class="- topic/section section" id="firmware-encryption-for-luban__section_eps_ssw_fdc" data-ofbid="firmware-encryption-for-luban__section_eps_ssw_fdc"><h2 class="- topic/title title sectiontitle">DTS 配置</h2>
+                
+            <ol class="- topic/ol ol" id="firmware-encryption-for-luban__ul_hsc_sxd_ndc" data-ofbid="firmware-encryption-for-luban__ul_hsc_sxd_ndc">
+                <li class="- topic/li li" data-ofbid="d119399e64__20250123155210">
+                    <div class="- topic/p p" data-ofbid="d119399e66__20250123155210">配置芯片级
+                        DTS：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell2" data-ofbid="firmware-encryption-for-luban__codecell2"><code>crypto: crypto-engine@<span class="hl-number">10020000</span> {
+            compatible = <span class="hl-string">"artinchip,aic-crypto-v1.0"</span>;
+            reg = &lt;<span class="hl-number">0x0</span> <span class="hl-number">0x10020000</span> <span class="hl-number">0x0</span> <span class="hl-number">0x1000</span>&gt;;
+            interrupts-extended = &lt;&amp;plic0 <span class="hl-number">33</span> IRQ_TYPE_LEVEL_HIGH&gt;;
+            clocks = &lt;&amp;cmu CLK_CE&gt;;
+            resets = &lt;&amp;rst RESET_CE&gt;;
+            clock-rate = &lt;<span class="hl-number">200000000</span>&gt;;
+            status = <span class="hl-string">"disabled"</span>;
+};
+</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d119399e72__20250123155210">
+                    <div class="- topic/p p" data-ofbid="d119399e74__20250123155210">在板级的<span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 配置文件中，使能 crypto 模块。如需在 SPL 中使用
+                        CRYPTO，需设置标记
+                        <code class="+ topic/ph pr-d/codeph ph codeph">u-boot,dm-pre-reloc</code>：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell3" data-ofbid="firmware-encryption-for-luban__codecell3"><code>&amp;crypto {
+   status = <span class="hl-string">"okay"</span>;
+   u-boot,dm-pre-reloc;
+};
+</code></pre></div>
+                </li>
+            </ol>
+            </section><section class="- topic/section section" id="firmware-encryption-for-luban__section_fps_ssw_fdc" data-ofbid="firmware-encryption-for-luban__section_fps_ssw_fdc"><h2 class="- topic/title title sectiontitle">ITS 配置</h2>
+                
+            <ol class="- topic/ol ol" id="firmware-encryption-for-luban__ol_tdc_zxd_ndc" data-ofbid="firmware-encryption-for-luban__ol_tdc_zxd_ndc">
+                <li class="- topic/li li" data-ofbid="d119399e94__20250123155210">
+                    <div class="- topic/p p" data-ofbid="d119399e96__20250123155210">对于需加密的固件，如 <code class="+ topic/ph pr-d/codeph ph codeph">uboot</code> 与 <code class="+ topic/ph pr-d/codeph ph codeph">dtb</code> ，需要在
+                            <span class="+ topic/ph sw-d/filepath ph filepath">u-boot.its.dtsi</span> 文件中添加 cipher 节点，配置加密 "key" 与 "iv"
+                        值。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell4" data-ofbid="firmware-encryption-for-luban__codecell4"><code>uboot {
+            description = <span class="hl-string">"U-Boot"</span>;
+            type = <span class="hl-string">"standalone"</span>;
+            os = <span class="hl-string">"u-boot"</span>;
+            arch = <span class="hl-string">"riscv"</span>;
+            compression = <span class="hl-string">"none"</span>;
+            load = &lt;CONFIG_SYS_TEXT_BASE&gt;;
+            entry = &lt;CONFIG_SYS_TEXT_BASE&gt;;
+            data = /incbin/(<span class="hl-string">"u-boot-nodtb.bin"</span>);
+            cipher {
+                algo = <span class="hl-string">"aes128"</span>;
+                key-name-hint = <span class="hl-string">"key"</span>;
+                iv-name-hint = <span class="hl-string">"iv"</span>;
+            };
+        };
+fdt-<span class="hl-number">1</span>{
+            description = <span class="hl-string">"DTB"</span>;
+            type = <span class="hl-string">"flat_dt"</span>;
+            compression = <span class="hl-string">"none"</span>;
+            data = /incbin/(<span class="hl-string">"u-boot.dtb"</span>);
+            cipher {
+                algo = <span class="hl-string">"aes128"</span>;
+                key-name-hint = <span class="hl-string">"key"</span>;
+                iv-name-hint = <span class="hl-string">"iv"</span>;
+            };
+        };
+</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d119399e111__20250123155210">
+                    <div class="- topic/p p" data-ofbid="d119399e113__20250123155210">对于需加密的固件，如 <code class="+ topic/ph pr-d/codeph ph codeph">kernel</code> 与 <code class="+ topic/ph pr-d/codeph ph codeph">dtb</code> ，在
+                            <span class="+ topic/ph sw-d/filepath ph filepath">kernel.its.dtsi</span> 文件中添加 <code class="+ topic/ph pr-d/codeph ph codeph">cipher</code>
+                        节点，配置加密 "key" 与 "iv"
+                        值。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell5" data-ofbid="firmware-encryption-for-luban__codecell5"><code>kernel {
+            description = <span class="hl-string">"Artinchip Linux kernel"</span>;
+            data = /incbin/(<span class="hl-string">"./Image"</span>);
+            type = <span class="hl-string">"kernel"</span>;
+            arch = <span class="hl-string">"riscv"</span>;
+            compression = <span class="hl-string">"none"</span>;
+            os = <span class="hl-string">"linux"</span>;
+            load =  &lt;<span class="hl-number">0x40000000</span>&gt;;
+            entry = &lt;<span class="hl-number">0x40000000</span>&gt;;
+            cipher {
+                algo = <span class="hl-string">"aes128"</span>;
+                key-name-hint = <span class="hl-string">"key"</span>;
+                iv-name-hint = <span class="hl-string">"iv"</span>;
+            };
+        };
+
+fdt-<span class="hl-number">1</span> {
+            description = <span class="hl-string">"Flattened Device Tree blob"</span>;
+            data = /incbin/(<span class="hl-string">"./u-boot.dtb"</span>);
+            type = <span class="hl-string">"flat_dt"</span>;
+            arch = <span class="hl-string">"riscv"</span>;
+            load = &lt;<span class="hl-number">0x43F00000</span>&gt;;
+            compression = <span class="hl-string">"none"</span>;
+            cipher {
+                algo = <span class="hl-string">"aes128"</span>;
+                key-name-hint = <span class="hl-string">"key"</span>;
+                iv-name-hint = <span class="hl-string">"iv"</span>;
+            };
+        };
+</code></pre></div>
+                </li>
+            </ol>
+            </section><section class="- topic/section section" id="firmware-encryption-for-luban__section_gps_ssw_fdc" data-ofbid="firmware-encryption-for-luban__section_gps_ssw_fdc"><h2 class="- topic/title title sectiontitle">密钥配置</h2>
+                
+                <p class="- topic/p p" data-ofbid="d119399e137__20250123155210">在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 文件中，指定加密 "key" 与 "iv" 存放的路径。</p>
+                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="firmware-encryption-for-luban__codecell6" data-ofbid="firmware-encryption-for-luban__codecell6"><code><span class="hl-string">"itb"</span>: {
+            <span class="hl-string">"kernel.itb"</span>: {
+                <span class="hl-string">"its"</span>: <span class="hl-string">"kernel.its"</span>,
+                <span class="hl-string">"dtb"</span>: <span class="hl-string">"u-boot.dtb"</span>,
+                <span class="hl-string">"keydir"</span>: <span class="hl-string">"keys/kernel"</span>,
+            },
+            <span class="hl-string">"u-boot.itb"</span>: {
+                <span class="hl-string">"its"</span>: <span class="hl-string">"u-boot.its"</span>,
+                <span class="hl-string">"dtb"</span>: <span class="hl-string">"u-boot-spl.dtb"</span>,
+                <span class="hl-string">"keydir"</span>: <span class="hl-string">"keys/u-boot"</span>,
+                <span class="hl-string">"bin"</span>: {
+                    <span class="hl-string">"src"</span>: <span class="hl-string">"u-boot-spl-nodtb.bin"</span>,
+                    <span class="hl-string">"dst"</span>: <span class="hl-string">"u-boot-spl-dtb.bin"</span>,
+                },
+            },
+            <span class="hl-string">"logo.itb"</span>: {
+                <span class="hl-string">"its"</span>: <span class="hl-string">"logo.its"</span>
+            },
+        },
+</code></pre>
+                <p class="- topic/p p" data-ofbid="d119399e146__20250123155210">编译完成后烧录固件。</p>
+            </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#firmware-encryption-for-luban__section_dps_ssw_fdc" data-tocid="firmware-encryption-for-luban__section_dps_ssw_fdc">U-Boot 配置</a></div></li><li class="section-item"><div class="section-title"><a href="#firmware-encryption-for-luban__section_eps_ssw_fdc" data-tocid="firmware-encryption-for-luban__section_eps_ssw_fdc">DTS 配置</a></div></li><li class="section-item"><div class="section-title"><a href="#firmware-encryption-for-luban__section_fps_ssw_fdc" data-tocid="firmware-encryption-for-luban__section_fps_ssw_fdc">ITS 配置</a></div></li><li class="section-item"><div class="section-title"><a href="#firmware-encryption-for-luban__section_gps_ssw_fdc" data-tocid="firmware-encryption-for-luban__section_gps_ssw_fdc">密钥配置</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

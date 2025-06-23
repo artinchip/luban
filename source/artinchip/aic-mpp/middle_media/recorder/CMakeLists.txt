@@ -3,7 +3,7 @@ include_directories(../include ../base/include ../audio_decoder/include ../../ba
 
 add_executable(muxer_demo muxer_demo.c)
 
-target_link_libraries(muxer_demo mpp_base openmax_base)
+target_link_libraries(muxer_demo mpp_base mm_base)
 
 target_link_libraries(muxer_demo pthread)
 
@@ -19,7 +19,7 @@ endif() # CMAKE_INSTALL_FULL_LIBDIR
 add_library(media_recorder SHARED
 	aic_recorder.c
 )
-target_link_libraries(media_recorder mpp_base openmax)
+target_link_libraries(media_recorder mpp_base mm_component)
 
 target_link_libraries(media_recorder pthread)
 
@@ -32,11 +32,11 @@ if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
 endif() # CMAKE_INSTALL_FULL_LIBDIR
 
 
-include_directories(./include ../openmax/include ../base/include ../audio_decoder/include ../../base/include)
+include_directories(./include ../component/include ../base/include ../audio_decoder/include ../../base/include)
 
 add_executable(recorder_demo recorder_demo.c )
 
-target_link_libraries(recorder_demo mpp_base openmax_base openmax media_recorder cjson)
+target_link_libraries(recorder_demo mpp_base mm_base mm_component media_recorder cjson)
 
 target_link_libraries(recorder_demo pthread)
 

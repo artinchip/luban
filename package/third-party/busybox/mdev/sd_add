@@ -20,8 +20,12 @@ if [ -e "/dev/${MDEV}" ]; then
 		MFLAG="YES"
 	fi
 	if [ "${MFLAG}" == "YES" ]; then
-		echo "Mount /dev/${MDEV} to /mnt/sdcard"  > /dev/console
-		mkdir -p /mnt/sdcard
-		mount -rw /dev/${MDEV}  /mnt/sdcard
+		BLOCK="${MDEV%p*}"
+		if [ -e /sys/block/${BLOCK}/device/type ] && \
+		[ "$(cat /sys/block/${BLOCK}/device/type)" = "SD" ]; then
+			echo "Mount /dev/${MDEV} to /mnt/sdcard"  > /dev/console
+			mkdir -p /mnt/sdcard
+			mount -rw /dev/${MDEV}  /mnt/sdcard
+		fi
 	fi
 fi

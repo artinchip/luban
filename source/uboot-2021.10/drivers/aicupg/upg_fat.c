@@ -1,12 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2021 ArtInChip Technology Co., Ltd
+ * Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
  * Author: Jianfeng Li <jianfeng.li@artinchip.com>
+ * Author: Dehuang Wu <dehuang.wu@artinchip.com>
  */
 
 #include <common.h>
 #include <artinchip/aicupg.h>
 #include "upg_internal.h"
+
+static u32 image_size;
+static u64 write_size;
+
+static progress_cb g_progress_cb;
+void aicupg_fat_set_process_cb(progress_cb cb)
+{
+	g_progress_cb = cb;
+}
 
 static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 {
@@ -16,6 +26,7 @@ static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 	s32 total_len = 0;
 	int offset, write_once_size, len, remaining_size;
 	loff_t actread;
+	u32 percent;
 
 	fwc = NULL;
 	buf = NULL;
@@ -29,17 +40,17 @@ static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 
 	printf("Firmware component: %s\n", pmeta->name);
 	printf("    partition: %s programming ...\n", pmeta->partition);
-	/*config fwc */
+	/* config fwc */
 	fwc_meta_config(fwc, pmeta);
 
-	/*start write data*/
+	/* start write data */
 	media_data_write_start(fwc);
-	/*config write size once*/
+	/* config write size once */
 	write_once_size = DATA_WRITE_ONCE_SIZE;
 	if (write_once_size % fwc->block_size)
 		write_once_size = (write_once_size / fwc->block_size) * fwc->block_size;
 
-	/*malloc buf memory*/
+	/* malloc buf memory */
 	buf = (u8 *)memalign(ARCH_DMA_MINALIGN, write_once_size);
 	if (!buf) {
 		pr_err("Error: malloc  buf failed.\n");
@@ -61,7 +72,7 @@ static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 			printf("Error:read file failed!\n");
 			goto err;
 		}
-		/*write data to media*/
+		/* write data to media */
 		ret = media_data_write(fwc, buf, len);
 		if (ret == 0) {
 			pr_err("Error: media write failed!..\n");
@@ -69,10 +80,21 @@ static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 		}
 		total_len += ret;
 		offset += len;
+
+		write_size += ret;
+		percent = write_size * 100 / image_size;
+		if (g_progress_cb)
+			g_progress_cb(percent);
 	}
-	/*write data end*/
+	/* write data end*/
 	media_data_write_end(fwc);
-	/*check data */
+	/* check partition crc */
+	if (fwc->calc_partition_crc != pmeta->crc) {
+		pr_err("calc partition crc:0x%x, expect partition crc:0x%x\n",
+		       fwc->calc_partition_crc, pmeta->crc);
+		goto err;
+	}
+
 	printf("    partition: %s programming done\n", pmeta->partition);
 	if (buf)
 		free(buf);
@@ -80,6 +102,7 @@ static s32 media_device_write(char *image_name, struct fwc_meta *pmeta)
 		free(fwc);
 	return total_len;
 err:
+	printf("    Partition: %s programming failed.\n", pmeta->partition);
 	if (buf)
 		free(buf);
 	if (fwc)
@@ -123,6 +146,11 @@ s32 aicupg_fat_write(char *image_name, char *protection,
 		goto err;
 	}
 
+	if (g_progress_cb)
+		g_progress_cb(0);
+
+	image_size = header->file_size;
+
 	p = pmeta;
 	cnt = header->meta_size / sizeof(struct fwc_meta);
 	for (i = 0; i < cnt; i++) {
@@ -142,6 +170,9 @@ s32 aicupg_fat_write(char *image_name, char *protection,
 		write_len += ret;
 	}
 
+	if (g_progress_cb)
+		g_progress_cb(100);
+
 	printf("All firmware components programming done.\n");
 	free(pmeta);
 	return write_len;
@@ -150,4 +181,3 @@ err:
 		free(pmeta);
 	return 0;
 }
-

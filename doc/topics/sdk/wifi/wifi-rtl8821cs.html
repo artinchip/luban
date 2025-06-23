@@ -1,0 +1,444 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="本节描述了在 Linux 内核中添加和配置 Realtek RTL8821CS SDIO WiFi 驱动程序的详细步骤。 Luban 的 Kernel 版本为 5.10， 建议获取官方最新驱动版本，使用 Kernel 5.10 或更高版本。 执行下列步骤获取源码： 在 source/linux-5.10/drivers/net/wireless/realtek 中创建 rtl8821CS ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/wifi/wifi-debug-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/wifi/wifi-debug-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/keyadc/device-keyboards-user-guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="wifi_rtl8821cs"/><meta name="DC.language" content="zh-CN"/><title>rtl8821CS</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="wifi_rtl8821cs-d4445e1932"/><meta name="wh-source-relpath" content="topics/sdk/wifi/wifi-rtl8821cs.dita"/><meta name="wh-out-relpath" content="topics/sdk/wifi/wifi-rtl8821cs.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="wifi_rtl8821cs" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="wifi"><div class="title"><a href="../../../topics/sdk/wifi/wifi-debug-guide.html">WiFi</a></div></div></li><li class="active"><div class="topicref" data-id="wifi_rtl8821cs"><div class="title"><a href="../../../topics/sdk/wifi/wifi-rtl8821cs.html">rtl8821CS</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/wifi/wifi-debug-guide.html" title="WiFi" aria-label="上一主题: WiFi" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/keyadc/device-keyboards-user-guide.html" title="按键矩阵" aria-label="下一主题: 按键矩阵" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="touch_screen_debug_guide-d4445e1697" class="topicref" data-id="touch_screen_debug_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action touch_screen_debug_guide-d4445e1697-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/touch-screen-debug-guide.html" id="touch_screen_debug_guide-d4445e1697-link">触摸屏</a><div class="wh-tooltip"><p class="shortdesc">RTP 和 CTP 调试示例流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="_59-d4445e1743" class="topicref" data-id="_59" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _59-d4445e1743-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html" id="_59-d4445e1743-link">显示屏</a><div class="wh-tooltip"><p class="shortdesc">Panel 类型详细介绍，以及参数和功能配置描述。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="wifi-d4445e1918" class="topicref" data-id="wifi" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action wifi-d4445e1918-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/wifi/wifi-debug-guide.html" id="wifi-d4445e1918-link">WiFi</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="wifi_rtl8821cs-d4445e1932" class="topicref" data-id="wifi_rtl8821cs" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/wifi/wifi-rtl8821cs.html" id="wifi_rtl8821cs-d4445e1932-link">rtl8821CS</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="concept_s4m_zk3_pzb-d4445e1946" class="topicref" data-id="concept_s4m_zk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/keyadc/device-keyboards-user-guide.html" id="concept_s4m_zk3_pzb-d4445e1946-link">按键矩阵</a><div class="wh-tooltip"><p class="shortdesc">此章节介绍按键矩阵的使用方法以及相关配置。</p></div></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/wifi/wifi-rtl8821cs.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">rtl8821CS</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 7 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d162470e33__20250123155216">本节描述了在 Linux 内核中添加和配置 Realtek RTL8821CS SDIO WiFi 驱动程序的详细步骤。</p>
+        <div class="- topic/p p" data-ofbid="d162470e36__20250123155216">Luban 的 Kernel 版本为 5.10， 建议获取官方最新驱动版本，使用 Kernel 5.10 或更高版本。<ol class="- topic/ol ol" id="wifi_rtl8821cs__ul_tqw_42s_sdc" data-ofbid="wifi_rtl8821cs__ul_tqw_42s_sdc">
+                <li class="- topic/li li" data-ofbid="d162470e40__20250123155216">执行下列步骤获取源码：<ol class="- topic/ol ol" type="a" id="wifi_rtl8821cs__ul_r2k_p4s_21c" data-ofbid="wifi_rtl8821cs__ul_r2k_p4s_21c">
+                        <li class="- topic/li li" data-ofbid="d162470e44__20250123155216">
+                            <p class="- topic/p p" data-ofbid="d162470e46__20250123155216">在 <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/net/wireless/realtek</span>
+                                中创建 <span class="+ topic/ph sw-d/filepath ph filepath">rtl8821CS</span> 目录，并复制驱动源码到此目录。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d162470e56__20250123155216">
+                            <div class="- topic/p p" data-ofbid="d162470e58__20250123155216">在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/net/wireless/realtek/Kconfig</span>
+                                中添加对 <code class="+ topic/ph pr-d/codeph ph codeph">rtl8821CS</code>
+                                模块的索引：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_n53_s4s_21c" data-ofbid="wifi_rtl8821cs__codeblock_n53_s4s_21c"><code>source <span class="hl-string">"drivers/net/wireless/realtek/rtl8821/Kconfig"</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d162470e70__20250123155216">
+                            <div class="- topic/p p" data-ofbid="d162470e72__20250123155216">在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/net/wireless/realtek/Makefile</span>
+                                中添加对 <code class="+ topic/ph pr-d/codeph ph codeph">rtl8821CS</code>
+                                模块的索引：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_u2k_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_u2k_p4s_21c"><code>obj-$(CONFIG_RTL8821CS)                += rtl8821CS/</code></pre></div>
+                        </li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d162470e85__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d162470e87__20250123155216">在  <span class="+ topic/ph sw-d/filepath ph filepath">drivers/net/wireless/realtek/rtl8821/Kconfig</span> 中，调整
+                            <code class="+ topic/ph pr-d/codeph ph codeph">help</code> 字段以匹配 Luban 的解析格式： </p>
+                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_dbx_t4s_21c" data-ofbid="wifi_rtl8821cs__codeblock_dbx_t4s_21c"><code>config RTL8821CS
+    tristate <span class="hl-string">"Realtek 8821C SDIO WiFi"</span>
+-    ---help---
++       help</code></pre>
+                    <p class="- topic/p p" data-ofbid="d162470e99__20250123155216">基于版本的差异，Luban 对 Kconfig 中 help 字段的解析可能和驱动原生的格式有差异，确保 Kconfig 修改正确。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d162470e103__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d162470e105__20250123155216">执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make kernel-menuconfig</span> 命令进入内核配置界面，并勾选
+                            <code class="+ topic/ph pr-d/codeph ph codeph">rtl8821CS</code> 模块。</p>
+                    <p class="- topic/p p" data-ofbid="d162470e114__20250123155216">勾选 <code class="+ topic/ph pr-d/codeph ph codeph">rtl8821CS</code> 模块后，可以尝试解决编译错误。</p>
+                </li>
+            </ol></div>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_x2k_p4s_21c" data-ofbid="wifi_rtl8821cs__section_x2k_p4s_21c"><h2 class="- topic/title title sectiontitle">添加 <span class="+ topic/ph sw-d/filepath ph filepath">include</span> 目录</h2>
+            
+            <p class="- topic/p p" data-ofbid="d162470e130__20250123155216">在 <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span> 中添加额外的头文件目录引用，确保编译时能找到所需的 <code class="+ topic/ph pr-d/codeph ph codeph">.h</code> 文件。</p>
+            <div class="- topic/p p" data-ofbid="d162470e139__20250123155216">大部分 WiFi 驱动为了增强兼容性，驱动中会有一些存放 <span class="+ topic/ph sw-d/filepath ph filepath">.h</span> 文件的目录，在
+                    <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span> 中进行引用。因为版本的差异，
+                    此类目录的引用方法可能不一样，从而导致出错。以下为一种报错的示例及解决方法：<div class="- topic/note note trouble note_trouble" id="wifi_rtl8821cs__note_vzb_dbt_ldc" data-ofbid="wifi_rtl8821cs__note_vzb_dbt_ldc"><span class="note__title">故障：</span> <div class="note__body">
+                    <div class="- topic/p p" data-ofbid="d162470e149__20250123155216"><strong class="+ topic/ph hi-d/b ph b">出错现象：</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_usj_w4s_21c" data-ofbid="wifi_rtl8821cs__codeblock_usj_w4s_21c"><code>fatal error: drv_types.h: No such file or directory
+<span class="hl-number">17</span> | #include &lt;drv_types.h&gt;</code></pre></div>
+                    <p class="- topic/p p" data-ofbid="d162470e155__20250123155216"><strong class="+ topic/ph hi-d/b ph b">解决方案:</strong></p>
+                    <div class="- topic/p p" data-ofbid="d162470e159__20250123155216">在
+                            <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/net/wireless/realtek/rtl8821cs/Makefile</span>
+                            中修改如下：<ol class="- topic/ol ol" id="wifi_rtl8821cs__ul_afk_p4s_21c" data-ofbid="wifi_rtl8821cs__ul_afk_p4s_21c">
+                            <li class="- topic/li li" data-ofbid="d162470e166__20250123155216">
+                                <p class="- topic/p p" data-ofbid="d162470e168__20250123155216">修改引用方式，添加 <code class="+ topic/ph pr-d/codeph ph codeph">srctree</code> 前缀。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d162470e175__20250123155216">
+                                <p class="- topic/p p" data-ofbid="d162470e177__20250123155216">添加额外的目录：</p>
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_bfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_bfk_p4s_21c"><code>-EXTRA_CFLAGS += -I$(src)/include
++EXTRA_CFLAGS += -I$(srctree)/$(src)/include
++EXTRA_CFLAGS += -I$(srctree)/$(src)/hal/phydm
++EXTRA_CFLAGS += -I$(srctree)/$(src)/hal/btc
++EXTRA_CFLAGS += -I$(srctree)/$(src)/platform</code></pre>
+                            </li>
+                        </ol></div>
+                </div></div></div>
+        </section>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_cfk_p4s_21c" data-ofbid="wifi_rtl8821cs__section_cfk_p4s_21c"><h2 class="- topic/title title sectiontitle">添加 Makefile 编译优化</h2>
+            
+            <p class="- topic/p p" data-ofbid="d162470e192__20250123155216">在
+                    <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/net/wireless/realtek/rtl8821cs/Makefile</span>
+                中，将编译优化标志从 <code class="+ topic/ph pr-d/codeph ph codeph">-O1</code> 改为 <code class="+ topic/ph pr-d/codeph ph codeph">-Os</code>，以提高代码的运行效率：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_dfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_dfk_p4s_21c"><code>-EXTRA_CFLAGS += -O1
++EXTRA_CFLAGS += -Os</code></pre>
+        </section>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_efk_p4s_21c" data-ofbid="wifi_rtl8821cs__section_efk_p4s_21c"><h2 class="- topic/title title sectiontitle">内核配置</h2>
+            
+            <div class="- topic/p p" data-ofbid="d162470e213__20250123155216">在 <code class="+ topic/ph pr-d/codeph ph codeph">menuconfig</code> 功能配置界面，进行如下功能配置：<ol class="- topic/ol ol" id="wifi_rtl8821cs__ul_qkv_y4s_21c" data-ofbid="wifi_rtl8821cs__ul_qkv_y4s_21c">
+                    <li class="- topic/li li" data-ofbid="d162470e220__20250123155216">无线配置<p class="- topic/p p" data-ofbid="d162470e222__20250123155216">如需使用 WiFi ，必须要在 Kernel 中打开 <code class="+ topic/ph pr-d/codeph ph codeph">cfg80211</code> 和
+                                <code class="+ topic/ph pr-d/codeph ph codeph">mac80211</code>
+                        的支持：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_gfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_gfk_p4s_21c"><code>Networking support &gt; Wireless
+
+--- Wireless
+&lt;*&gt;   cfg80211 - wireless configuration API
+[ ]     nl80211 testmode command (NEW)
+[ ]     enable developer warnings (NEW)
+[ ]     cfg80211 certification onus (NEW)
+[*]     enable powersave by <strong class="+ topic/ph hi-d/b ph b"><strong class="hl-keyword">default</strong></strong>(NEW)
+[ ]     cfg80211 DebugFS entries (NEW)
+[*]     support CRDA (NEW)
+[*]     cfg80211 wireless extensions compatibility
+&lt;*&gt;   Generic IEEE <span class="hl-number">802.11</span> Networking Stack (mac80211)
+[*]   Minstrel (NEW)
+      Default rate control algorithm (Minstrel)  ---&gt;
+[ ]   Enable mac80211 mesh networking support (NEW)
+[ ]   Export mac80211 internals in DebugFS (NEW)
+[ ]   Trace all mac80211 debug messages (NEW)
+[ ]   Select mac80211 debugging features (NEW)
+</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d162470e239__20250123155216">蓝牙配置<p class="- topic/p p" data-ofbid="d162470e241__20250123155216">BT 的使用必须要在 Kernel 中打开 bluetooth
+                        子系统相关配置：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_ifk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_ifk_p4s_21c"><code>Networking support &gt; Bluetooth subsystem support &gt; Bluetooth device drivers
+
+&lt; &gt; HCI USB driver
+&lt; &gt; HCI SDIO driver
+&lt;*&gt; HCI UART driver
+[*]   UART (H4) protocol support
+&lt; &gt;   UART Nokia H4+ protocol support
+[ ]   BCSP protocol support
+[ ]   Atheros AR300x serial support
+[ ] HCILL protocol support
+-*- Three-wire UART (H5) protocol support
+[ ] Intel protocol support
+[ ] Broadcom protocol support
+[*] Realtek protocol support
+[ ] Qualcomm Atheros protocol support
+[ ] Intel AG6XX protocol support
+[ ] Marvell protocol support
+&lt; &gt; HCI BCM203x USB driver
+&lt; &gt; HCI BPA10x USB driver
+&lt; &gt; HCI BlueFRITZ! USB driver
+&lt; &gt; HCI VHCI (Virtual HCI device) driver
+&lt; &gt; Marvell Bluetooth driver support
+&lt; &gt; MediaTek HCI SDIO driver
+&lt; &gt; MediaTek HCI UART driver
+</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d162470e246__20250123155216">RFKILL 配置<p class="- topic/p p" data-ofbid="d162470e248__20250123155216">RFKILL 的使用必须要在 Kernel
+                        中打开相关配置</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_kfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_kfk_p4s_21c"><code>Networking support &gt; RF <strong class="hl-keyword">switch</strong> subsystem support
+
+ --- RF <strong class="hl-keyword">switch</strong> subsystem support
+ [ ]   RF <strong class="hl-keyword">switch</strong> input support
+ &lt;*&gt;   GPIO RFKILL driver
+</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d162470e253__20250123155216">驱动选择<p class="- topic/p p" data-ofbid="d162470e255__20250123155216">要使用 8821C 驱动，需要在 Kernel
+                        中打开该驱动</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_mfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_mfk_p4s_21c"><code>Device Drivers &gt; Network device support &gt; Wireless LAN
+
+[*]   Realtek devices
+&lt; &gt;     Realtek <span class="hl-number">8187</span> and <span class="hl-number">8187</span>B USB support
+&lt; &gt;     Realtek rtlwifi family of devices  ----
+&lt; &gt;     RTL8723AU/RTL8188[CR]U/RTL819[<span class="hl-number">12</span>]CU (mac80211) support
+&lt; &gt;     Realtek <span class="hl-number">802.11</span>ac wireless chips support  ----
+&lt;*&gt;     Realtek <span class="hl-number">8821</span>C SDIO WiFi
+</code></pre></li>
+                </ol></div>
+        </section>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_nfk_p4s_21c" data-ofbid="wifi_rtl8821cs__section_nfk_p4s_21c"><h2 class="- topic/title title sectiontitle">DTS 配置</h2>
+            
+            <div class="- topic/p p" data-ofbid="d162470e268__20250123155216">在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中配置各个子节点：<ol class="- topic/ol ol" id="wifi_rtl8821cs__ol_gml_bps_21c" data-ofbid="wifi_rtl8821cs__ol_gml_bps_21c">
+                    <li class="- topic/li li" data-ofbid="d162470e275__20250123155216">WIFI<ol class="- topic/ol ol" type="a" id="wifi_rtl8821cs__ol_oyz_bps_21c" data-ofbid="wifi_rtl8821cs__ol_oyz_bps_21c">
+                            <li class="- topic/li li" data-ofbid="d162470e279__20250123155216">打开对应的
+                                SDMC：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_xf4_cps_21c" data-ofbid="wifi_rtl8821cs__codeblock_xf4_cps_21c"><code>&amp;sdmc1 {
+    pinctrl-names = <span class="hl-string">"default"</span>;
+    pinctrl-<span class="hl-number">0</span> = &lt;&amp;sdmc1_pins_a&gt;;<em class="hl-comment">//核对引脚是否和原理图一致</em>
+    bus-width = &lt;<span class="hl-number">4</span>&gt;;
+    no-mmc;
+    no-sd;
+    non-removalbe;
+    cap-sdio-irq;
+    status = <span class="hl-string">"okay"</span>;
+};</code></pre></li>
+                            <li class="- topic/li li" data-ofbid="d162470e284__20250123155216">配置控制引脚：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_szz_cps_21c" data-ofbid="wifi_rtl8821cs__codeblock_szz_cps_21c"><code>rfkill_wlan {
+    compatible = <span class="hl-string">"rfkill-gpio"</span>;
+    rfkill-name = <span class="hl-string">"wlan"</span>;
+    rfkill-type = &lt;<span class="hl-number">1</span>&gt;;
+    reset-gpios = &lt;&amp;gpio_e <span class="hl-number">4</span> GPIO_ACTIVE_HIGH&gt;;<em class="hl-comment">//模组 WiFi 使能引脚，根据实际原理图配置</em>
+    shutdown-gpios = &lt;&amp;gpio_d <span class="hl-number">8</span> GPIO_ACTIVE_LOW&gt;;<em class="hl-comment">//电源控制引脚，根据实际原理图配置</em>
+    status = <span class="hl-string">"okay"</span>;
+};</code></pre></li>
+                        </ol></li>
+                    <li class="- topic/li li" data-ofbid="d162470e290__20250123155216">BT<ol class="- topic/ol ol" type="a" id="wifi_rtl8821cs__ol_swv_2ps_21c" data-ofbid="wifi_rtl8821cs__ol_swv_2ps_21c">
+                            <li class="- topic/li li" data-ofbid="d162470e294__20250123155216">打开对应
+                                UART：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_oj2_fps_21c" data-ofbid="wifi_rtl8821cs__codeblock_oj2_fps_21c"><code>&amp;uart6 {
+    pinctrl-names = <span class="hl-string">"default"</span>;
+    pinctrl-<span class="hl-number">0</span> = &lt;&amp;uart6_pins_a&gt;, &lt;&amp;uart6_rts_pins_a&gt;, &lt;&amp;uart6_rts_pins_b&gt;;<em class="hl-comment">//须和原理图保持一致</em>
+   status = <span class="hl-string">"okay"</span>;
+};</code></pre></li>
+                            <li class="- topic/li li" data-ofbid="d162470e299__20250123155216">配置控制引脚：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__codeblock_sff_gps_21c" data-ofbid="wifi_rtl8821cs__codeblock_sff_gps_21c"><code>rfkill_bt {
+    compatible = <span class="hl-string">"rfkill-gpio"</span>;
+    rfkill-name = <span class="hl-string">"bluetooth"</span>;
+    rfkill-type = &lt;<span class="hl-number">2</span>&gt;;
+    reset-gpios = &lt;&amp;gpio_c <span class="hl-number">6</span> GPIO_ACTIVE_HIGH&gt;;<em class="hl-comment">//模组蓝牙使能引脚，须和原理图保持一致</em>
+    status = <span class="hl-string">"okay"</span>;
+};</code></pre></li>
+                        </ol></li>
+                </ol></div>
+        </section>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_rfk_p4s_21c" data-ofbid="wifi_rtl8821cs__section_rfk_p4s_21c"><h2 class="- topic/title title sectiontitle">模组配置文件</h2>
+            
+            <div class="- topic/p p" data-ofbid="d162470e312__20250123155216">蓝牙固件和下载工具，可以从模组厂获取，存放于 <span class="+ topic/ph sw-d/filepath ph filepath">overylay</span>
+                目录。目录结构如下所示：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_vfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_vfk_p4s_21c"><code>├── lib
+│   └── firmware
+│       └── rtlbt
+│           ├── rtl8821c_config<em class="hl-comment">//模组配置文件，最好从模组厂获取</em>
+│           └── rtl8821c_fw<em class="hl-comment">//模组固件，最好从模组厂获取</em>
+├── usr
+│   └── bin
+│       └── rtk_hciattach<em class="hl-comment">//模组蓝牙固件下载工具，最好从模组厂获取</em>
+</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="wifi_rtl8821cs__section_ufk_p4s_21c" data-ofbid="wifi_rtl8821cs__section_ufk_p4s_21c"><h2 class="- topic/title title sectiontitle">功能测试和调试</h2>
+            
+            <ol class="- topic/ol ol" id="wifi_rtl8821cs__ol_dvc_kps_21c" data-ofbid="wifi_rtl8821cs__ol_dvc_kps_21c">
+                <li class="- topic/li li" data-ofbid="d162470e328__20250123155216">在 menuconfig
+                    进行功能配置，添加相关工具包：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_xfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_xfk_p4s_21c"><code>[*] wireless tools  ---&gt;
+[*] bluez-utils  ---&gt;
+    [ ]   use prebuilt binary instead of building from <strong class="+ topic/ph hi-d/b ph b">source</strong>
+    [ ]   build OBEX support
+    [ ]   build CLI client
+    [ ]   build monitor utility
+    [*]   build tools
+    [*]     install deprecated tools
+    [ ]   build experimental tools
+    [ ]   build audio plugins (a2dp and avrcp)
+    [ ]   build health plugin
+    [ ]   build hid plugin
+    [ ]   build hog plugin
+    [ ]   build mesh plugin
+    [ ]   build midi plugin
+    [*]   build network plugin
+    [ ]   build nfc plugin
+    [ ]   build sap plugin
+          *** sixaxis plugin needs udev /dev management ***
+    [ ]   install test scripts
+          *** hid2hci tool needs udev /dev management ***
+</code></pre></li>
+                <li class="- topic/li li" data-ofbid="d162470e336__20250123155216">测试<ol class="- topic/ol ol" type="a" id="wifi_rtl8821cs__ol_d1f_lps_21c" data-ofbid="wifi_rtl8821cs__ol_d1f_lps_21c">
+                        <li class="- topic/li li" data-ofbid="d162470e340__20250123155216">WiFi<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_zfk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_zfk_p4s_21c"><code>insmod rtl8821.ko
+ifconfig wlan0 up
+iwlist wlan0 scan
+</code></pre></li>
+                        <li class="- topic/li li" data-ofbid="d162470e345__20250123155216">BT<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_agk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_agk_p4s_21c"><code>echo0 &gt; /sys/class/rfkill/rfkill0/state
+echo1 &gt; /sys/class/rfkill/rfkill0/state
+rtk_hciattach -n -s <span class="hl-number">115200</span> /dev/ttyS6 rtk_h5 &amp;
+hciconfig hci0 up
+hcitool scan
+</code></pre></li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d162470e351__20250123155216">调试<ul class="- topic/ul ul" id="wifi_rtl8821cs__ul_bgk_p4s_21c" data-ofbid="wifi_rtl8821cs__ul_bgk_p4s_21c">
+                        <li class="- topic/li li" data-ofbid="d162470e355__20250123155216">
+                            <p class="- topic/p p" data-ofbid="d162470e357__20250123155216">核对并测试硬件信号的连通性。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d162470e361__20250123155216">
+                            <p class="- topic/p p" data-ofbid="d162470e363__20250123155216">查看系统启动日志和模组驱动加载日志是否有异常并排查。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d162470e367__20250123155216">
+                            <div class="- topic/p p" data-ofbid="d162470e369__20250123155216">WIFI 模组驱动日志配置方法如下，在 <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span>
+                                中：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="wifi_rtl8821cs__pre_cgk_p4s_21c" data-ofbid="wifi_rtl8821cs__pre_cgk_p4s_21c"><code>CONFIG_RTW_DEBUG = n<em class="hl-comment">//debug 开关</em>
+CONFIG_RTW_LOG_LEVEL = <span class="hl-number">4</span><em class="hl-comment">//debug level</em>
+</code></pre></div>
+                        </li>
+                    </ul></li>
+            </ol>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_x2k_p4s_21c" data-tocid="wifi_rtl8821cs__section_x2k_p4s_21c">添加 <span class="+ topic/ph sw-d/filepath ph filepath">include</span> 目录</a></div></li><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_cfk_p4s_21c" data-tocid="wifi_rtl8821cs__section_cfk_p4s_21c">添加 Makefile 编译优化</a></div></li><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_efk_p4s_21c" data-tocid="wifi_rtl8821cs__section_efk_p4s_21c">内核配置</a></div></li><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_nfk_p4s_21c" data-tocid="wifi_rtl8821cs__section_nfk_p4s_21c">DTS 配置</a></div></li><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_rfk_p4s_21c" data-tocid="wifi_rtl8821cs__section_rfk_p4s_21c">模组配置文件</a></div></li><li class="section-item"><div class="section-title"><a href="#wifi_rtl8821cs__section_ufk_p4s_21c" data-tocid="wifi_rtl8821cs__section_ufk_p4s_21c">功能测试和调试</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

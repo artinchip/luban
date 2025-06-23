@@ -12,7 +12,7 @@
 #include <linux/backlight.h>
 #include <video/videomode.h>
 
-#include "../aic_com.h"
+#include "../aic_fb.h"
 
 struct panel_comp {
 	struct aic_panel panel;
@@ -22,6 +22,7 @@ struct panel_comp {
 	struct regulator *supply;
 	struct gpio_desc *enable_gpio;
 	struct gpio_desc *sleep_gpio;
+	struct gpio_desc *gpio_switch;
 };
 
 

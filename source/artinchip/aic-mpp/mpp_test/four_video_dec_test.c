@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: four 640x480 video decode test
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: four 640x480 video decode test
+ */
 
 #define LOG_TAG "dec_test"
 

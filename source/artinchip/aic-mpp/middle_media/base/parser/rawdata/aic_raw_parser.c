@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: parser for H.264/H.265 raw data
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: parser for H.264/H.265 raw data
+ */
 
 #include <unistd.h>
 #include <string.h>
@@ -243,6 +245,7 @@ s32 aic_raw_parser_create(unsigned char *uri, struct aic_parser **parser)
 	impl->base.get_media_info	= raw_get_media_info;
 	impl->base.peek			= raw_peek;
 	impl->base.read			= raw_read;
+	impl->base.control		= NULL;
 	impl->base.destroy		= raw_destroy;
 	impl->base.seek			= raw_seek;
 	impl->base.init			= raw_init;

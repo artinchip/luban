@@ -12,6 +12,7 @@
 #include <linux/interrupt.h>
 #include <media/rc-core.h>
 #include <linux/delay.h>
+#include <linux/bits.h>
 
 #define AIC_IR_DEV	"aic-ir"
 #define DEFAULT_FREQ	38000
@@ -50,8 +51,8 @@
 #define CIR_TXSTAT_TX_STA		(16)
 #define CIR_TXSTAT_TXFIFO_ERR		(10)
 #define CIR_TXSTAT_TXFIFO_FULL		(9)
-#define CIR_TXSTAT_TXFIFO_EMPTY		(8)
-#define CIR_TXSTAT_TXFIFO_DLEN		(0)
+#define CIR_TXSTAT_TXFIFO_EMPTY 	BIT(8)
+#define CIR_TXSTAT_TXFIFO_DLEN_MASK	GENMASK(6, 0)
 
 #define CIR_RXSTAT_REG			0x10
 #define CIR_RXSTAT_RX_STA		(16)
@@ -97,6 +98,8 @@
 #define CIR_TXFIFO_REG			0x80
 #define CIR_VERSION_REG			0xFFC
 
+#define CIR_TXFIFO_SIZE 		0x80
+
 struct aic_ir {
 	spinlock_t	ir_lock;
 	struct rc_dev	*rc;
@@ -108,7 +111,80 @@ struct aic_ir {
 	int		irq;
 	u32		rx_level;  /* Indicates the idle level of RX */
 	u8		rx_flag;   /* Indicates if rxfifo has received data */
+	unsigned int 	*tx_buf;
+	u32		tx_size;
+	u32		tx_idx;
+	struct completion tx_complete;
+
 };
+
+void aic_tx_fifo_clear(struct aic_ir *ir)
+{
+	unsigned int val;
+
+	val = readl(ir->base + CIR_MCR_REG);
+	val |= CIR_MCR_TXFIFO_CLR;
+	writel(val, ir->base + CIR_MCR_REG);
+}
+
+void aic_tx_int_enable(struct aic_ir *ir)
+{
+	unsigned int val;
+
+	val = readl(ir->base + CIR_INTEN_REG);
+	val |= CIR_INTEN_TXB_AVL_EN | CIR_INTEN_TXEND_EN | CIR_INTEN_TX_UNF_EN;
+	writel(val, ir->base + CIR_INTEN_REG);
+}
+
+void aic_tx_int_disable(struct aic_ir *ir)
+{
+	unsigned int val;
+
+	val = readl(ir->base + CIR_INTEN_REG);
+	val &= ~(CIR_INTEN_TXB_AVL_EN |
+		 CIR_INTEN_TXEND_EN | CIR_INTEN_TX_UNF_EN);
+	writel(val, ir->base + CIR_INTEN_REG);
+}
+
+void aic_cir_tx_handle(struct aic_ir *ir)
+{
+	unsigned int tx_status, tx_dlen, free_space, i;
+	unsigned int rlc_max, val, duration;
+
+	tx_status = readl(ir->base + CIR_TXSTAT_REG);
+	tx_dlen = tx_status & CIR_TXSTAT_TXFIFO_DLEN_MASK;
+
+	if (tx_status & CIR_TXSTAT_TXFIFO_EMPTY)
+		free_space = CIR_TXFIFO_SIZE;
+	else
+		free_space = CIR_TXFIFO_SIZE - tx_dlen - 1;
+
+	rlc_max = 128 * ir->rc->tx_resolution;
+	/*
+	 * For each level toggle, generate RLC code according to
+	 * tx_buf[i] value
+	 */
+	for (i = ir->tx_idx; (i < ir->tx_size) && free_space; i++) {
+		duration = ir->tx_buf[i];
+
+		if (DIV_ROUND_UP(duration, rlc_max) > free_space)
+			break;
+
+		while (duration > rlc_max) {
+			val = (((i & 1) == 0) << 7) | 0x7F;
+			writel(val, ir->base + CIR_TXFIFO_REG);
+			free_space--;
+			duration -= rlc_max;
+		}
+
+		duration = duration / ir->rc->tx_resolution;
+		val = (((i & 1) == 0) << 7) | duration;
+		writel(val, ir->base + CIR_TXFIFO_REG);
+		free_space--;
+	}
+
+	ir->tx_idx = i;
+}
 
 static irqreturn_t aic_ir_irq(int irqno, void *dev_id)
 {
@@ -120,7 +196,7 @@ static irqreturn_t aic_ir_irq(int irqno, void *dev_id)
 	struct ir_raw_event rawir = {};
 
 	spin_lock(&ir->ir_lock);
-	int_status = readl(ir->base + CIR_INTR_REG) & 0x7;
+	int_status = readl(ir->base + CIR_INTR_REG);
 	rx_status = readl(ir->base + CIR_RXSTAT_REG);
 
 	/* clear all pending status */
@@ -150,6 +226,14 @@ static irqreturn_t aic_ir_irq(int irqno, void *dev_id)
 		ir_raw_event_set_idle(ir->rc, true);
 		ir_raw_event_handle(ir->rc);
 		ir->rx_flag = 0;
+	}
+
+	if (int_status & CIR_INTR_TXB_AVL_INT)
+		aic_cir_tx_handle(ir);
+
+	if (int_status & CIR_INTR_TXEND_INT) {
+		aic_tx_int_disable(ir);
+		complete(&ir->tx_complete);
 	}
 
 	spin_unlock(&ir->ir_lock);
@@ -210,36 +294,31 @@ static int aic_set_tx_carrier(struct rc_dev *rcdev, u32 carrier)
 static int aic_tx_ir(struct rc_dev *rcdev, unsigned int *txbuf,
 		    unsigned int count)
 {
-	unsigned int i;
-	unsigned int rlc_max;
-	unsigned int rlc_val;
-	unsigned int duration;
-	unsigned int val = 0;
+	ssize_t ret = 0;
+	unsigned long timeout;
+	unsigned int val;
 	struct aic_ir *ir = rcdev->priv;
 
-	rlc_max = 128 * rcdev->tx_resolution;
-	/* For each level toggle, generate RLC code according to
-	 * txbuf[i] value
-	 */
-	for (i = 0; i < count; i++) {
-		duration = txbuf[i];
-		while (duration > rlc_max) {
-			rlc_val = (((i & 1) == 0) << 7) | 0x7F;
-			writel(rlc_val, ir->base + CIR_TXFIFO_REG);
-			duration -= rlc_max;
-		}
+	ir->tx_size = count;
+	ir->tx_idx  = 0;
+	ir->tx_buf  = txbuf;
+	aic_tx_fifo_clear(ir);
+	aic_cir_tx_handle(ir);
 
-		duration = duration / rcdev->tx_resolution;
-		rlc_val = (((i & 1) == 0) << 7) | duration;
-		writel(rlc_val, ir->base + CIR_TXFIFO_REG);
-	}
+	/* TX Interrupt Enable */
+	aic_tx_int_enable(ir);
 
 	/* Start to transfer */
 	val = readl(ir->base + CIR_MCR_REG);
-	val |= (1 << 8);
+	val |= CIR_MCR_TX_START;
 	writel(val, ir->base + CIR_MCR_REG);
 
-	return 0;
+	timeout = wait_for_completion_timeout(&ir->tx_complete,
+					      msecs_to_jiffies(2000));
+	if (!timeout)
+		ret = -EIO;
+
+	return ret;
 }
 
 static int aic_cir_probe(struct platform_device *pdev)
@@ -328,13 +407,22 @@ static int aic_cir_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	/* Set Noise threshold and RX level */
+	if (of_property_read_bool(dn, "tx-invert")) {
+		val = readl(ir->base + CIR_TX_CFG_REG);
+		val |= CIR_TX_CFG_TX_INVERT;
+		writel(val, ir->base + CIR_TX_CFG_REG);
+	}
+
+	/* Set RX CFG */
+	val = ir->rx_level << 1;
+	if (of_property_read_bool(dn, "rx-invert"))
+		val |= CIR_RX_CFG_RX_INVERT;
+
 	if (of_device_is_compatible(dn, "artinchip,aic-cir-v1.0"))
-		writel((CIR_RX_CFG_NOISE_LEVEL_V1(RX_NOISE_LEVEL_V1) |
-			(ir->rx_level << 1)), ir->base + CIR_RX_CFG_REG);
+		val |= CIR_RX_CFG_NOISE_LEVEL_V1(RX_NOISE_LEVEL_V1);
 	else
-		writel((CIR_RX_CFG_NOISE_LEVEL(RX_NOISE_LEVEL) |
-			(ir->rx_level << 1)), ir->base + CIR_RX_CFG_REG);
+		val |= CIR_RX_CFG_NOISE_LEVEL(RX_NOISE_LEVEL);
+	writel(val, ir->base + CIR_RX_CFG_REG);
 	/* Set RX active and idle threshold */
 	writel((CIR_RX_THRES_ACTIVE_LEVEL(0x10) |
 		CIR_RX_THRES_IDLE_LEVEL(0x400)),
@@ -376,6 +464,8 @@ static int aic_cir_probe(struct platform_device *pdev)
 		dev_err(dev, "Failed to request irq\n");
 		goto exit_free_dev;
 	}
+
+	init_completion(&ir->tx_complete);
 
 	/* Enable Receiver and Transmitter */
 	val = readl(ir->base + CIR_MCR_REG);

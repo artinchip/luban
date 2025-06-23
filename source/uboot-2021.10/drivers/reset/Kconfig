@@ -163,8 +163,13 @@ if RESET_ARTINCHIP
 			help
 			reset driver for ArtInChip SoCs
 
-		config RESET_ARTINCHIP_V1_3
-			bool "aic-reset-v1.3"
+		config RESET_ARTINCHIP_V2_0
+			bool "aic-reset-v2.0"
+			help
+			reset driver for ArtInChip SoCs
+
+		config RESET_ARTINCHIP_V3_0
+			bool "aic-reset-v3.0"
 			help
 			reset driver for ArtInChip SoCs
 	endchoice

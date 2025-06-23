@@ -16,6 +16,8 @@
 
 #define PHY0_SLEEP              (1 << 5)
 #define AIC_MAX_HW_ENDPOINTS	16
+#define DIS_EP_TIMOUT		100
+#define EP0_RW_WAIT_COUNT	100000
 
 struct aic_plat_udc_data {
 	void		*priv;
@@ -46,8 +48,11 @@ int aic_udc_probe(struct aic_plat_udc_data *pdata);
 #define EP_FIFO_SIZE		512
 #define EP_FIFO_SIZE2		1024
 /* ep0-control, ep1in-bulk, ep2out-bulk, ep3in-int */
+#ifdef CONFIG_AIC_USB_UDC_V10
 #define AIC_MAX_ENDPOINTS	4
-
+#else
+#define AIC_MAX_ENDPOINTS	16
+#endif
 #define WAIT_FOR_SETUP          0
 #define DATA_STATE_XMIT         1
 #define DATA_STATE_NEED_ZLP     2
@@ -108,6 +113,8 @@ struct aic_udc {
 	unsigned char usb_address;
 
 	unsigned req_pending:1, req_std:1;
+
+	u32 tx_fifo_map;
 };
 
 #define ep_is_in(EP) (((EP)->bEndpointAddress &  USB_DIR_IN) == USB_DIR_IN)
@@ -122,7 +129,7 @@ struct ep_fifo {
 	u8  res[4092];
 };
 
-struct aic_udc_reg {
+struct aic_udc_reg_v10 {
 	u32 ahbbasic;		/* 0x0000: AHBBASIC */
 	u32 usbdevinit;		/* 0x0004: USBDEVINIT */
 	u32 usbphyif;		/* 0x0008: USBPHYIF */
@@ -166,6 +173,47 @@ struct aic_udc_reg {
 	u32 dtknqr2;		/* 0x0364: DTKNQR2 */
 	u32 dtknqr3;		/* 0x0368: DTKNQR3 */
 	u32 dtknqr4;		/* 0x036C: DTKNQR4 */
+};
+
+struct aic_udc_reg_v20 {
+	u32 ahbbasic;			/* 0x0000: AHBBASIC */
+	u32 usbdevinit;			/* 0x0004: USBDEVINIT */
+	u32 usbphyif;			/* 0x0008: USBPHYIF */
+	u32 usbulpiphy;			/* 0x000C: USBULPIPHY */
+	u32 usbintsts;			/* 0x0010: USBINTSTS */
+	u32 usbintmsk;			/* 0x0014: USBINTMSK */
+	u32 rxfifosiz;			/* 0x0018: RXFIFOSIZ */
+	u32 rxfifosts;			/* 0x001C: RXFIFOSTS */
+	u32 ietxfifosiz;		/* 0x0020: IETXFIFO0_SIZ */
+	u32 thr_ctl;			/* 0x0024: THR_CTL */
+	u8  res0[0x8];
+	u32 rxfifosts_dbg;		/* 0x0030: RXFIFOSTS_DBG */
+	u8  res1[0xc];
+	u32 phyclkctl;			/* 0x0040: RXFIFOSTS_DBG */
+	u8  res2[0x1c];
+	u32 txfifosiz[AIC_MAX_ENDPOINTS - 1];	/* 0x0060 - 0x0098: TXFIFOSIZ() */
+	u8  res3[0x164];
+	u32 usbdevconf;			/* 0x0200: USBDEVCONF */
+	u32 usbdevfunc;			/* 0x0204: USBDEVFUNC */
+	u32 usblinests;			/* 0x0208: USBLINESTS */
+	u32 inepintmsk;			/* 0x020C: INEPINTMSK */
+	u32 outepintmsk;		/* 0x0210: OUTEPINTMSK */
+	u32 usbepint;			/* 0x0214: USBEPINT */
+	u32 usbepintmsk;		/* 0x0218: USBEPINTMSK */
+	u8  res4[0x4];
+	u32 inepcfg[AIC_MAX_ENDPOINTS];		/* 0x0220 - 0x0260: INEPCFG() */
+	u32 outepcfg[AIC_MAX_ENDPOINTS];	/* 0x0260 - 0x02A0: OUTEPCFG() */
+	u32 inepint[AIC_MAX_ENDPOINTS];		/* 0x02A0 - 0x02E0: INEPINT() */
+	u32 outepint[AIC_MAX_ENDPOINTS];	/* 0x02E0 - 0x0320: OUTEPINT() */
+	u32 ineptsfsiz[AIC_MAX_ENDPOINTS];	/* 0x0320 - 0x0360: INEPTSFSIZ() */
+	u32 outeptsfsiz[AIC_MAX_ENDPOINTS];	/* 0x0360 - 0x03A0: OUTEPTSFSIZ() */
+	u32 inepdmaaddr[AIC_MAX_ENDPOINTS];	/* 0x03A0 - 0x03E0: INEPDMAADDR() */
+	u32 outepdmaaddr[AIC_MAX_ENDPOINTS];	/* 0x03E0 - 0x0420: OUTEPDMAADDR() */
+	u32 ineptxsts[AIC_MAX_ENDPOINTS];	/* 0x0420 - 0x0460: INEPTXSTS() */
+	u32 dtknqr1;			/* 0x0360: DTKNQR1 */
+	u32 dtknqr2;			/* 0x0364: DTKNQR2 */
+	u32 dtknqr3;			/* 0x0368: DTKNQR3 */
+	u32 dtknqr4;			/* 0x036C: DTKNQR4 */
 };
 
 /*===================================================================== */
@@ -244,7 +292,11 @@ struct aic_udc_reg {
 
 /* fifo size configure */
 #define EPS_NUM				5
-#define PERIOD_IN_EP_NUM		2
+#ifdef CONFIG_AIC_USB_UDC_V10
+#define TX_FIFO_NUM			3 /* Non-periodic:1 Periodic:2 */
+#else
+#define TX_FIFO_NUM			16
+#endif
 #define TOTAL_FIFO_SIZE			0x3f6
 #define AIC_RX_FIFO_SIZE		0x119
 #define AIC_NP_TX_FIFO_SIZE		0x100
@@ -343,7 +395,8 @@ struct aic_udc_reg {
 			| INT_RESET | INT_SUSPEND)
 #define DOEPMSK_INIT	(CTRL_OUT_EP_SETUP_PHASE_DONE |\
 			 AHB_ERROR | TRANSFER_DONE)
-#define DIEPMSK_INIT	(NON_ISO_IN_EP_TIMEOUT | AHB_ERROR | TRANSFER_DONE)
+#define DIEPMSK_INIT	(NON_ISO_IN_EP_TIMEOUT | AHB_ERROR | TRANSFER_DONE \
+			| INTKNEPMIS)
 #define GAHBCFG_INIT	(USBDEVINIT_DMA_EN | USBDEVINIT_GLBL_INTR_EN\
 			 | (USBDEVINIT_HBSTLEN_INCR4 <<\
 			 USBDEVINIT_HBSTLEN_SHIFT))

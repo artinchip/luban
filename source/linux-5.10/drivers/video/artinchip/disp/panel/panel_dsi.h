@@ -38,6 +38,5 @@ int panel_dsi_dcs_enter_sleep_mode(struct aic_panel *panel);
 void panel_dsi_send_perpare(struct aic_panel *panel);
 void panel_dsi_setup_realmode(struct aic_panel *panel);
 int panel_dsi_str2fmt(const s8 *str);
-int panel_dsi_str2mode(const s8 *str);
 
 #endif /* _PANEL_DSI_H_ */

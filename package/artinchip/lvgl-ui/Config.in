@@ -3,7 +3,62 @@ menuconfig BR2_PACKAGE_LVGL_UI
 	default n
 
 if BR2_PACKAGE_LVGL_UI
+
+choice
+	prompt "Select LVGL Version"
+	default BR2_LVGL_V_8
+
+	config BR2_LVGL_V_8
+		bool "LVGL V8"
+
+	config BR2_LVGL_V_9
+		bool "LVGL V9"
+endchoice
+
+choice
+	prompt "Select LVGL Driver Framework"
+	default BR2_LVGL_FBDEV
+
+	config BR2_LVGL_FBDEV
+		bool "LVGL FBDEV"
+
+	config BR2_LVGL_DRM
+		bool "LVGL DRM"
+		depends on BR2_LVGL_V_9
+		select BR2_PACKAGE_LIBDRM
+endchoice
+
 config BR2_TEST_LVGL_USE_RTP
 	bool "use RTP"
 	default n
+
+config BR2_LVGL_FB_DMA_NONCOHERENT
+	bool "use dma noncoherent framebuffer"
+	default y
+	help
+		framebuffer cacheable
+
+config BR2_LVGL_DISPLAY_ROTATE_EN
+    bool "LVGL enable display rotation"
+    default n
+
+if BR2_LVGL_DISPLAY_ROTATE_EN
+	choice
+		prompt "LVGL rotation degree"
+		default BR2_LVGL_ROTATE_0
+
+		config BR2_LVGL_ROTATE_0
+			bool "0"
+
+		config BR2_LVGL_ROTATE_90
+			bool "90"
+
+		config BR2_LVGL_ROTATE_180
+			bool "180"
+
+		config BR2_LVGL_ROTATE_270
+			bool "270"
+	endchoice
+endif
+
 endif

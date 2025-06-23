@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: h264 decoder interface
-*
-*/
+ * Copyright (C) 2020-2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: h264 decoder interface
+ *
+ */
 
 #define LOG_TAG "h264_decoder"
 #include <stdlib.h>
@@ -55,7 +57,7 @@ static int find_startcode(unsigned char* buf, int len)
 * @len: [in]  length of input buffer
 * return: remove bytes number
 */
-static int remove_eptb(unsigned char* dst, int* offset, unsigned char* src, int len )
+static int remove_eptb(unsigned char* dst, int* offset, unsigned char* src, int len)
 {
 	int si = 0;
 	int di = 0;
@@ -159,8 +161,7 @@ static int procese_nalu(struct h264_dec_ctx *s, unsigned char* buf, int len, int
 
 	s->idr_pic_flag = 0;
 	switch(s->nal_unit_type) {
-		case NAL_TYPE_IDR:
-		{
+		case NAL_TYPE_IDR: {
 			logd("idr frame");
 			s->idr_pic_flag = 1;
 			s->prev_frame_num = s->prev_frame_num_offset = 0;
@@ -174,8 +175,7 @@ static int procese_nalu(struct h264_dec_ctx *s, unsigned char* buf, int len, int
 			for (i = 0; i < MAX_DELAYED_PIC_COUNT; i++)
 				s->frame_info.last_pocs[i] = INT_MIN;
 		}
-		case NAL_TYPE_SLICE:
-		{
+		case NAL_TYPE_SLICE: {
 			logd("decode slice");
 			ret = h264_decode_slice_header(s);
 			if (ret) {
@@ -192,18 +192,22 @@ static int procese_nalu(struct h264_dec_ctx *s, unsigned char* buf, int len, int
 			*use_len = len;
 			break;
 		}
-		case NAL_TYPE_SPS:
-		{
+		case NAL_TYPE_SPS: {
 			logd("sps");
 			ret = h264_decode_sps(s);
+			if (ret) {
+				s->error = H264_DECODER_ERROR_SPS;
+			}
 			*use_len = read_bits_count(&s->gb) / 8 +
 				s->sc_byte_offset + s->remove_bytes;
 			break;
 		}
-		case NAL_TYPE_PPS:
-		{
+		case NAL_TYPE_PPS: {
 			logd("pps");
 			ret = h264_decode_pps(s);
+			if (ret) {
+				s->error = H264_DECODER_ERROR_PPS;
+			}
 			*use_len = read_bits_count(&s->gb) / 8 +
 				s->sc_byte_offset + s->remove_bytes;
 			break;
@@ -215,14 +219,16 @@ static int procese_nalu(struct h264_dec_ctx *s, unsigned char* buf, int len, int
 			return 0;
 	}
 
-	if(s->nal_unit_type != NAL_TYPE_IDR && s->nal_unit_type != NAL_TYPE_SLICE)
+	if(s->nal_unit_type != NAL_TYPE_IDR && s->nal_unit_type != NAL_TYPE_SLICE) {
 		return ret;
+	}
 
 	s->prev_poc_lsb = s->sh.poc_lsb;
 	s->prev_poc_msb = s->sh.poc_msb;
 	s->prev_frame_num = s->sh.frame_num;
 	s->prev_frame_num_offset = s->frame_num_offset;
 
+	s->nal_ref_idc_pre = s->nal_ref_idc;
 	if ((s->decode_mb_num >= s->mbs_in_pic || error_flag) && s->nal_ref_idc) {
 		// execute_ref_pic
 		execute_ref_pic_marking(s);
@@ -274,16 +280,16 @@ int __h264_decode_frame(struct mpp_decoder *ctx)
 	struct h264_dec_ctx *s = (struct h264_dec_ctx*)ctx;
 	s->slice_offset = 0;
 
-	//* 1. get a packet data
+	// 1. get a packet data
 	s->curr_packet = pm_dequeue_ready_packet(s->decoder.pm);
 	if(s->curr_packet == NULL) {
 		loge("pm_dequeue_ready_packet error, ready_packet num: %d", pm_get_ready_packet_num(s->decoder.pm));
 		return DEC_NO_READY_PACKET;
 	}
-
+	s->error = H264_DECODER_ERROR_NONE;
 	s->eos = s->curr_packet->flag & PACKET_FLAG_EOS;
 
-	//* 2. process extra data
+	// 2. process extra data
 	if(s->curr_packet->flag & PACKET_FLAG_EXTRA_DATA) {
 		s->avcc = 1;
 		ret = process_extradata(s, s->curr_packet->data, s->curr_packet->size);
@@ -291,18 +297,14 @@ int __h264_decode_frame(struct mpp_decoder *ctx)
 		return ret;
 	}
 
-	//* 3. process this packet
+	// 3. process this packet
 	while (s->slice_offset+4 < s->curr_packet->size) {
 		int use_len = 0;
 		unsigned char* pos = s->curr_packet->data + s->slice_offset;
 		ret = procese_nalu(s, s->curr_packet->data + s->slice_offset,
 			s->curr_packet->size - s->slice_offset, &use_len);
-		if(ret) {
-			if(ret == DEC_NO_EMPTY_FRAME)
-				pm_reclaim_ready_packet(s->decoder.pm, s->curr_packet);
-			else
-				pm_enqueue_empty_packet(s->decoder.pm, s->curr_packet);
-			return ret;
+		if (ret) {
+			break;
 		}
 
 		if (s->avcc)
@@ -313,14 +315,20 @@ int __h264_decode_frame(struct mpp_decoder *ctx)
 		logi("offset: %d 0x%x", s->slice_offset, s->slice_offset);
 	}
 
-	pm_enqueue_empty_packet(s->decoder.pm, s->curr_packet);
-
 	if(s->curr_packet->flag & PACKET_FLAG_EOS) {
 		render_all_delayed_frame(s);
 	}
+
+	if (s->error == H264_DECODER_ERROR_NOEMPTYFRAME) {
+		pm_reclaim_ready_packet(s->decoder.pm, s->curr_packet);
+	} else {
+		pm_enqueue_empty_packet(s->decoder.pm, s->curr_packet);
+	}
+
+
 	logd("__h264_decode_frame end");
 
-	return 0;
+	return ret;
 }
 
 int __h264_decode_destroy(struct mpp_decoder *ctx)
@@ -370,6 +378,8 @@ int __h264_decode_reset(struct mpp_decoder *ctx)
 	render_all_delayed_frame(s);
 	// refresh reference frame
 	reference_refresh(s);
+	//force reclaim all frame used by decoder avoid frame lost
+	fm_decoder_reclaim_all_used_frame(s->decoder.fm);
 	s->next_output_poc = INT_MIN;
 	for (i = 0; i < MAX_DELAYED_PIC_COUNT; i++)
 		s->frame_info.last_pocs[i] = INT_MIN;
@@ -403,6 +413,7 @@ struct mpp_decoder* create_h264_decoder()
 		return NULL;
 	}
 	s->regs_base = ve_get_reg_base();
+	logd("ve_reg_base: %lx", s->regs_base);
 
 #ifdef SAVE_REG
 	s->fp_reg = fopen("/usr/reg_trace.txt", "wb");

@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_mov_parser
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_mov_parser
+ */
 #define LOG_TAG "mov"
 
 #include <malloc.h>
@@ -149,6 +151,7 @@ s32 aic_mov_parser_create(unsigned char *uri, struct aic_parser **parser)
 	mov_parser->base.get_media_info = mov_get_media_info;
 	mov_parser->base.peek = mov_peek;
 	mov_parser->base.read = mov_read;
+	mov_parser->base.control = NULL;
 	mov_parser->base.destroy = mov_destroy;
 	mov_parser->base.seek = mov_seek;
 	mov_parser->base.init = mov_init;

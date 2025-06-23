@@ -1,9 +1,4 @@
-// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
-/*
- * libfdt - Flat Device Tree manipulation
- * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
- * Copyright (C) 2018 embedded brains GmbH
- */
+// SPDX-License-Identifier: Apache-2.0
 #include "libfdt_env.h"
 
 #include <fdt.h>

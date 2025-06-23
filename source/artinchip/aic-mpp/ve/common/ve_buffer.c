@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: allocator of physic continuous buffer used by ve
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: allocator of physic continuous buffer used by ve
+ */
 
 #define LOG_TAG "ve_buffer"
 #include <pthread.h>

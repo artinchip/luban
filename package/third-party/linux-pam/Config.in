@@ -1,0 +1,26 @@
+menuconfig BR2_PACKAGE_LINUX_PAM
+	bool "linux-pam"
+	depends on BR2_ENABLE_LOCALE
+	depends on BR2_USE_WCHAR
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_USE_MMU # fork()
+	select BR2_PACKAGE_FLEX
+	help
+	  A Security Framework that Provides Authentication for
+	  Applications
+
+	  http://linux-pam.org
+
+
+if BR2_PACKAGE_LINUX_PAM
+
+config BR2_PACKAGE_LINUX_PAM_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif
+
+comment "linux-pam needs a toolchain w/ wchar, locale, dynamic library"
+	depends on BR2_USE_MMU
+	depends on !BR2_ENABLE_LOCALE || !BR2_USE_WCHAR \
+		|| BR2_STATIC_LIBS

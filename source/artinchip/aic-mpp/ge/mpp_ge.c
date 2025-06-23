@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2022-2023 ArtinChip Technology Co., Ltd.
+ * Copyright (C) 2022-2024 ArtinChip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -35,6 +38,17 @@ static enum ge_mode ge_get_mode(int fd)
 	return mode;
 }
 
+static unsigned int ge_get_version_id(int fd)
+{
+	u32 version;
+
+	int ret = ioctl(fd, IOC_GE_VERSION, &version);
+	if (ret < 0)
+		printf("ioctl() return %d\n", ret);
+
+	return (unsigned int)(version & 0xffff);
+}
+
 struct mpp_ge *mpp_ge_open()
 {
 	int ret;
@@ -57,6 +71,7 @@ struct mpp_ge *mpp_ge_open()
 
 	pthread_mutex_init(&ge->lock, NULL);
 	ge->mode = ge_get_mode(ge->dev_fd);
+	ge->version_id = ge_get_version_id(ge->dev_fd);
 	ge->ops = ge_ops_lists[ge->mode];
 
 	pthread_mutex_lock(&ge->lock);

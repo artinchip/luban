@@ -10,5 +10,9 @@ fi
 GTC_TICK=`devmem $GTC_REG`
 BTIME_S=`echo "scale=6;$((GTC_TICK)) / 4000000" | bc`
 
-echo "Startup time: $(printf "%.3f" ${BTIME_S}) sec (from Power-On-Reset)"
+echo "Startup: $(printf "%.3f" ${BTIME_S}) sec (from Power-On-Reset)"
+
+if [ -f usr/bin/version ]; then
+	version
+fi
 

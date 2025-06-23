@@ -40,8 +40,9 @@ static const struct of_device_id aic_codec_analog_match[] = {
 	{
 		.compatible = "artinchip,codec-analog",
 	},
+	{}
 };
-MODULE_DEVICE_TABLE(of, aic_codec_match);
+MODULE_DEVICE_TABLE(of, aic_codec_analog_match);
 
 static struct platform_driver aic_codec_analog_driver = {
 	.probe = aic_codec_analog_probe,

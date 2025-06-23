@@ -1,0 +1,152 @@
+From 206a0bdff21c4625a675e8228b85c2af99329ce5 Mon Sep 17 00:00:00 2001
+From: "jun.ma" <jun.ma@artinchip.com>
+Date: Thu, 13 Jun 2024 16:16:10 +0800
+Subject: [PATCH] fix complie error
+
+---
+ BasicUsageEnvironment/BasicTaskScheduler.cpp |   2 +-
+ preGenMakefiles.sh                           | 116 +++++++++++++++++++
+ 2 files changed, 117 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 BasicUsageEnvironment/BasicTaskScheduler.cpp
+ create mode 100755 preGenMakefiles.sh
+
+diff --git a/BasicUsageEnvironment/BasicTaskScheduler.cpp b/BasicUsageEnvironment/BasicTaskScheduler.cpp
+old mode 100644
+new mode 100755
+index 416317d..0c2e937
+--- a/BasicUsageEnvironment/BasicTaskScheduler.cpp
++++ b/BasicUsageEnvironment/BasicTaskScheduler.cpp
+@@ -188,7 +188,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
+       if (mask == 0) mask = EVENT_TRIGGER_ID_HIGH_BIT;
+ 
+ #ifndef NO_STD_LIB
+-      if (fTriggersAwaitingHandling[i].test()) {
++      if (fTriggersAwaitingHandling[i].test_and_set()) {
+ 	fTriggersAwaitingHandling[i].clear();
+ #else
+       if (fTriggersAwaitingHandling[i]) {
+diff --git a/preGenMakefiles.sh b/preGenMakefiles.sh
+new file mode 100755
+index 0000000..6a701f4
+--- /dev/null
++++ b/preGenMakefiles.sh
+@@ -0,0 +1,116 @@
++#!/bin/bash
++
++CONFIG_FILE=config.linux-with-shared-libraries
++
++CONFIG_FILE_TMP=${CONFIG_FILE}-tmp
++
++MAKEFILE_TAIL=Makefile.tail
++
++MAKEFILE_TAIL_TMP=${MAKEFILE_TAIL}-tmp
++
++GEN_MAKEFILES=genMakefiles
++
++GEN_MAKEFILES_TMP=${GEN_MAKEFILES}-tmp
++
++
++SUB_DIR="liveMedia groupsock UsageEnvironment BasicUsageEnvironment testProgs mediaServer proxyServer hlsProxy"
++
++
++rm -rf ${CONFIG_FILE_TMP}
++
++cp -rf ${CONFIG_FILE} ${CONFIG_FILE_TMP}
++
++rm -rf ${MAKEFILE_TAIL_TMP}
++
++cp -rf ${MAKEFILE_TAIL} ${MAKEFILE_TAIL_TMP}
++
++rm -rf ${GEN_MAKEFILES_TMP}
++
++cp -rf ${GEN_MAKEFILES} ${GEN_MAKEFILES_TMP}
++
++
++sed -i "/^C_COMPILER/iCC = riscv64-unknown-linux-gnu-gcc" ${CONFIG_FILE_TMP}
++
++sed -i "/^CPLUSPLUS_COMPILER/iCXX = riscv64-unknown-linux-gnu-g++" ${CONFIG_FILE_TMP}	
++
++
++for arg in $@; 
++do
++	if [ ${arg} == "-shared" ] 
++	then
++		echo "make ${arg} lib"
++		break;
++	elif [ ${arg} == "-static" ]
++	then 
++		echo "make ${arg} lib"
++		sed -i '/^COMPILE_OPTS/cCOMPILE_OPTS = $(INCLUDES) -I/usr/local/include -I. -O2 -DSOCKLEN_T=socklen_t -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64 '  ${CONFIG_FILE_TMP}
++		sed -i "/^LIBRARY_LINK =/cLIBRARY_LINK = riscv64-unknown-linux-gnu-ar cr "  ${CONFIG_FILE_TMP}
++		sed -i "/^LIB_SUFFIX/cLIB_SUFFIX = a"  ${CONFIG_FILE_TMP}
++		sed -i "/^LIBRARY_LINK_OPTS/cLIBRARY_LINK_OPTS ="  ${CONFIG_FILE_TMP}
++		sed -i "/^SHORT_LIB_SUFFIX/d"  ${CONFIG_FILE_TMP}
++		sed -i "/^INSTALL2/d"  ${CONFIG_FILE_TMP}
++		sed -i "/^LIBS_FOR_LIVEMEDIA_LIB/d"  ${CONFIG_FILE_TMP}
++		break;
++	fi
++done
++
++while [ $# != 0 ]; do
++	opt=$1;
++	shift;
++	case $opt in
++		-enable-debug)
++			echo "-enable-debug"
++			sed -i "/-O2/s/-O2/-g -O0/g" ${CONFIG_FILE_TMP}
++			;;
++		-enable-sanitize)
++			echo "-enable-sanitize"
++			sed -i "/^COMPILE_OPTS/s/$/ -fsanitize=address/" ${CONFIG_FILE_TMP}
++			;;
++		-disable-ssl)
++			echo "-disable-ssl"
++			sed -i "/^COMPILE_OPTS/s/$/ -DNO_OPENSSL=1/" ${CONFIG_FILE_TMP}
++			sed -i "/^LIBS_FOR_CONSOLE_APPLICATION/cLIBS_FOR_CONSOLE_APPLICATION =" ${CONFIG_FILE_TMP}
++			sed -i "/^LIBS_FOR_LIVEMEDIA_LIB/cLIBS_FOR_LIVEMEDIA_LIB =" ${CONFIG_FILE_TMP}
++			;;
++		-disable-testProgs)
++			sed -i "/TESTPROGS_DIR/d"  ${MAKEFILE_TAIL_TMP}
++			SUB_DIR=${SUB_DIR/testProgs/}
++			echo ${SUB_DIR}
++			;;
++		-disable-mediaServer)
++			sed -i "/MEDIA_SERVER_DIR/d" ${MAKEFILE_TAIL_TMP}
++			SUB_DIR=${SUB_DIR/mediaServer/}
++			echo ${SUB_DIR}
++			;;
++		-disable-proxyServer)
++			sed -i "/PROXY_SERVER_DIR/d" ${MAKEFILE_TAIL_TMP}
++			SUB_DIR=${SUB_DIR/proxyServer/}
++			echo ${SUB_DIR}
++			;;
++		-disable-hlsProxy)
++			sed -i "/HLS_PROXY_DIR/d"  ${MAKEFILE_TAIL_TMP}
++			SUB_DIR=${SUB_DIR/hlsProxy/}
++			echo ${SUB_DIR}
++			;;
++		--)
++			break;
++	esac
++done
++
++#delete space
++SUB_DIR=$(echo ${SUB_DIR} | sed "s/[[:space:]]*$//" )
++
++sed -i "/^subdirs/csubdirs=\"${SUB_DIR}\"" ${GEN_MAKEFILES_TMP}
++
++sed -i "/^cat Makefile.head/ccat Makefile.head config.\$1 Makefile.tail-tmp > Makefile"  ${GEN_MAKEFILES_TMP}
++
++
++./${GEN_MAKEFILES_TMP}  ${CONFIG_FILE_TMP#*.}
++
++
++
++
++
++
++
++
+-- 
+2.29.0
+

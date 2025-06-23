@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_audio_render
-*/
+ * Copyright (C) 2020-2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_audio_render
+ */
 
 #ifndef __AIC_AUDIO_RENDER_H__
 #define __AIC_AUDIO_RENDER_H__
@@ -11,7 +13,7 @@
 #include "mpp_dec_type.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 
 struct aic_audio_render_attr {
@@ -53,13 +55,13 @@ struct aic_audio_render
 	    ((struct aic_audio_render*)render)->destroy(render)
 
 #define aic_audio_render_set_attr(render,attr)\
-	    ((struct aic_audio_render*)render)->destory(render,attr)
+	    ((struct aic_audio_render*)render)->set_attr(render,attr)
 
 #define aic_audio_render_get_attr(render,attr)\
-	    ((struct aic_audio_render*)render)->destory(render,attr)
+	    ((struct aic_audio_render*)render)->get_attr(render,attr)
 
 #define aic_audio_render_rend(render,pData,nDataSize)\
-	    ((struct aic_audio_render*)render)->destory(render,pData,nDataSize)
+	    ((struct aic_audio_render*)render)->rend(render,pData,nDataSize)
 
 #define aic_audio_render_get_cached_time(render)\
 			((struct aic_audio_render*)render)->get_cached_time(render)

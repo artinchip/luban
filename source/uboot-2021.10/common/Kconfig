@@ -771,6 +771,11 @@ config UPDATE_USB_CONTROLLER_ID_ARTINCHIP
 	int "USB ID to be used for udisk"
 	default 0
 	depends on UPDATE_UDISK_FATFS_ARTINCHIP
+
+config UPDATE_UDISK_CHECK_TIMEOUT
+	int "Set timeout value(us) for udisk check"
+	default 1000
+	depends on UPDATE_UDISK_FATFS_ARTINCHIP
 endmenu
 
 menu "Blob list"

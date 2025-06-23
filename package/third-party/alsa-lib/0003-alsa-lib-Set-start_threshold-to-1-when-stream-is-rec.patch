@@ -1,0 +1,29 @@
+From bdac277cee73c821549ecc083a5d359e8411da3b Mon Sep 17 00:00:00 2001
+From: "weijie.ding" <weijie.ding@artinchip.com>
+Date: Fri, 2 Feb 2024 14:10:17 +0800
+Subject: [PATCH] alsa-lib: Set start_threshold to 1 when stream is record
+
+---
+ src/pcm/pcm.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/pcm/pcm.c b/src/pcm/pcm.c
+index 9aec52d..aab8e2d 100644
+--- a/src/pcm/pcm.c
++++ b/src/pcm/pcm.c
+@@ -8755,8 +8755,11 @@ int snd_pcm_set_params(snd_pcm_t *pcm,
+ 	 * start the transfer when the buffer is almost full:
+ 	 * (buffer_size / avail_min) * avail_min
+ 	 */
+-	err = snd_pcm_sw_params_set_start_threshold(pcm, &swparams,
++	if (snd_pcm_stream(pcm) == SND_PCM_STREAM_PLAYBACK)
++		err = snd_pcm_sw_params_set_start_threshold(pcm, &swparams,
+ 				(buffer_size / period_size) * period_size);
++	else
++		err = snd_pcm_sw_params_set_start_threshold(pcm, &swparams, 1);
+ 	if (err < 0) {
+ 		SNDERR("Unable to set start threshold mode for %s: %s",
+ 		       s, snd_strerror(err));
+-- 
+2.29.0
+

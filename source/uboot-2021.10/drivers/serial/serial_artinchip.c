@@ -81,6 +81,7 @@ static int aic_serial_probe(struct udevice *dev)
 
 static const struct udevice_id aic_serial_ids[] = {
 	{ .compatible = "artinchip,aic-uart-v1.0" },
+	{ .compatible = "artinchip,aic-uart-v1.1" },
 	{ }
 };
 

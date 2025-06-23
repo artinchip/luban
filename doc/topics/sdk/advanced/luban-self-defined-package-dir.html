@@ -1,0 +1,338 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Luban SDK 支持在 SDK 之外管理自主开发的模块和应用，包括使用独立的仓库进行版本管理，并能便捷接入 Luban SDK 进行编译。 本节以创建一个 MYCOMPANY/ 自定义包目录为例进行详细说明，示例目录结构如下所示。其中 MYCOMPANY 目录即为用户自定义包目录，可以用来独立管理相关的包配置和源码。与 LUBAN_SDK 中的其他包一样， MYCOMPANY ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/linux/chapter_linux.html"/><meta name="DC.relation" content="../../../topics/sdk/advanced/sdk-guide-temp-file_2.html"/><meta name="DC.relation" content="../../../topics/sdk/advanced/set-login-info.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="luban_self_defined_package_dir"/><meta name="DC.language" content="zh-CN"/><title>自定义包目录</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="luban_self_defined_package_dir-d4445e3126"/><meta name="wh-source-relpath" content="topics/sdk/advanced/luban-self-defined-package-dir.dita"/><meta name="wh-out-relpath" content="topics/sdk/advanced/luban-self-defined-package-dir.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="luban_self_defined_package_dir" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mtx_tk3_pzb"><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html">Linux</a></div></div></li><li class="active"><div class="topicref" data-id="luban_self_defined_package_dir"><div class="title"><a href="../../../topics/sdk/advanced/luban-self-defined-package-dir.html">自定义包目录</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/advanced/sdk-guide-temp-file_2.html" title="中间文件描述" aria-label="上一主题: 中间文件描述" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/advanced/set-login-info.html" title="设置登录信息" aria-label="下一主题: 设置登录信息" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e3042" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e3042-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/image_burn_and_config.html" id="id-d4445e3042-link">配置烧录镜像</a></div></div></li><li role="treeitem" class="active"><div data-tocid="luban_self_defined_package_dir-d4445e3126" class="topicref" data-id="luban_self_defined_package_dir" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/luban-self-defined-package-dir.html" id="luban_self_defined_package_dir-d4445e3126-link">自定义包目录</a></div></div></li><li role="treeitem"><div data-tocid="_51-d4445e3140" class="topicref" data-id="_51" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-login-info.html" id="_51-d4445e3140-link">设置登录信息</a></div></div></li><li role="treeitem"><div data-tocid="set-login-password-d4445e3154" class="topicref" data-id="set-login-password" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-login-password.html" id="set-login-password-d4445e3154-link">设置密码登录</a></div></div></li><li role="treeitem"><div data-tocid="concept_w15_pl3_pzb-d4445e3168" class="topicref" data-id="concept_w15_pl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/set-timezone.html" id="concept_w15_pl3_pzb-d4445e3168-link">设置时区</a></div></div></li><li role="treeitem"><div data-tocid="aic_test-d4445e3182" class="topicref" data-id="aic_test" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/aic-test.html" id="aic_test-d4445e3182-link">烤机测试</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/advanced/luban-self-defined-package-dir.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">自定义包目录</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d156132e33__20250123155215">Luban SDK 支持在 SDK 之外管理自主开发的模块和应用，包括使用独立的仓库进行版本管理，并能便捷接入 Luban SDK 进行编译。</p>
+        <div class="- topic/p p" data-ofbid="d156132e36__20250123155215">本节以创建一个 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/</span> 自定义包目录为例进行详细说明，示例目录结构如下所示。其中
+                <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span> 目录即为用户自定义包目录，可以用来独立管理相关的包配置和源码。与
+                <span class="+ topic/ph sw-d/filepath ph filepath">LUBAN_SDK</span> 中的其他包一样，<span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span>
+            目录包可以使用相同的添加包和编译操作规则：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__codeblock_sdx_n2s_2bc" data-ofbid="luban_self_defined_package_dir__codeblock_sdx_n2s_2bc"><code>LUBAN_SDK/
+        ├── dl
+        ├── Makefile
+        ├── output
+        ├── package
+        ├── prebuilt
+        ├── source
+        ├── target
+        ├── toolchain
+        └── tools
+
+MYCOMPANY/
+        ├── package/
+        │       ├── mod1
+        │       ├── mod2
+        │       └── app1
+        └── source
+                ├── mod1
+                ├── mod2
+                └── app1</code></pre></div>
+        <div class="- topic/p p" data-ofbid="d156132e53__20250123155215">
+            <div class="- topic/note note note note_note" id="luban_self_defined_package_dir__note_upz_42s_2bc" data-ofbid="luban_self_defined_package_dir__note_upz_42s_2bc"><span class="note__title">注：</span> <div class="note__body"><span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span> 目录可以放在任意其他目录，建议放在与
+                    <span class="+ topic/ph sw-d/filepath ph filepath">LUBAN_SDK</span> 同级或者 <span class="+ topic/ph sw-d/filepath ph filepath">LUBAN_SDK</span> 的根目录。</div></div>
+        </div>
+        <div class="- topic/p p" data-ofbid="d156132e67__20250123155215">Luban SDK 支持自定义包方案并提供了相关的参考设置。按照下列流程自定义包目录：<ol class="- topic/ol ol" id="luban_self_defined_package_dir__ol_pfj_q2s_2bc" data-ofbid="luban_self_defined_package_dir__ol_pfj_q2s_2bc">
+                <li class="- topic/li li" data-ofbid="d156132e71__20250123155215">建立 External Tree<div class="- topic/p p" data-ofbid="d156132e73__20250123155215"><span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span> 目录即为一个 External Tree，建立一个
+                        External Tree 需遵循一定的规则。以下提供了一个 External Tree 示例参考，方便用户根据示例创建自己的
+                        Tree：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__codeblock_tsj_r2s_2bc" data-ofbid="luban_self_defined_package_dir__codeblock_tsj_r2s_2bc"><code>package/external/example_tree/
+├── Config.in
+├── external.desc
+├── external.mk
+├── package
+│   └── example_mod
+│       ├── Config.in
+│       └── example_mod.mk
+└── source
+        └── example_mod
+                ├── CMakeLists.txt
+                └── main.c</code></pre></div><ol class="- topic/ol ol" type="a" id="luban_self_defined_package_dir__ol_ary_m2s_2bc" data-ofbid="luban_self_defined_package_dir__ol_ary_m2s_2bc">
+                        <li class="- topic/li li" data-ofbid="d156132e81__20250123155215">
+                            <p class="- topic/p p" data-ofbid="d156132e83__20250123155215">复制 <span class="+ topic/ph sw-d/filepath ph filepath">package/external/example_tree</span> 目录，并将其重命名为
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span>。</p>
+                            <div class="- topic/p p" data-ofbid="d156132e92__20250123155215">例如 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY</span>  与 <span class="+ topic/ph sw-d/filepath ph filepath">LUBAN_SDK</span>
+                                并列：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_cry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_cry_m2s_2bc"><code>LUBAN_SDK/
+MYCOMPANY/</code></pre></div>
+                            <p class="- topic/p p" data-ofbid="d156132e103__20250123155215">用户自定义目录名时，需确保目录名仅包含大小写字母、数字和下划线。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d156132e107__20250123155215">
+                            <p class="- topic/p p" data-ofbid="d156132e109__20250123155215">在 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/external.desc</span> 文件中，修改下列配置项：</p>
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_ery_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_ery_m2s_2bc"><code>name: EXAMPLE_TREE
+desc: Exampe External Tree</code></pre>
+                            <div class="- topic/p p" data-ofbid="d156132e118__20250123155215">
+                                <ul class="- topic/ul ul" id="luban_self_defined_package_dir__ul_t1z_tzd_ndc" data-ofbid="luban_self_defined_package_dir__ul_t1z_tzd_ndc">
+                                    <li class="- topic/li li" data-ofbid="d156132e122__20250123155215">
+                                        <p class="- topic/p p" data-ofbid="d156132e124__20250123155215"><span class="+ topic/keyword pr-d/parmname keyword parmname">name</span>：使用与 MYCOMPANY
+                                            目录相同的名称，建议使用大写。</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d156132e130__20250123155215">
+                                        <p class="- topic/p p" data-ofbid="d156132e132__20250123155215"><span class="+ topic/keyword pr-d/parmname keyword parmname">desc</span>：填写简要的描述，应为 ASCII 字符。</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="- topic/p p" data-ofbid="d156132e140__20250123155215">示例如下：</p>
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_fry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_fry_m2s_2bc"><code>name: MYCOMPANY
+desc: Packages <strong class="hl-keyword">for</strong> MyCompany</code></pre>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d156132e147__20250123155215">
+                            <p class="- topic/p p" data-ofbid="d156132e149__20250123155215">在 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/external.mk</span> 文件中，将
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">BR2_EXTERNAL_EXAMPLE_TREE_PATH</span>
+                                修改为与新目录相匹配的名字。</p>
+                            <div class="- topic/p p" data-ofbid="d156132e158__20250123155215">
+                                <ul class="- topic/ul ul" id="luban_self_defined_package_dir__ul_sr2_112_ndc" data-ofbid="luban_self_defined_package_dir__ul_sr2_112_ndc">
+                                    <li class="- topic/li li" data-ofbid="d156132e162__20250123155215">修改前：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_hry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_hry_m2s_2bc"><code>include $(sort $(wildcard $(BR2_EXTERNAL_EXAMPLE_TREE_PATH)/package<em class="hl-comment">/*/*.mk))</em></code></pre></li>
+                                    <li class="- topic/li li" data-ofbid="d156132e167__20250123155215">
+                                        <div class="- topic/p p" data-ofbid="d156132e169__20250123155215">修改后：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_iry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_iry_m2s_2bc"><code>include $(sort $(wildcard $(BR2_EXTERNAL_MYCOMPANY_PATH)/package<em class="hl-comment">/*/*.mk))</em></code></pre></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d156132e178__20250123155215">
+                            <div class="- topic/p p" data-ofbid="d156132e180__20250123155215">在 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/Config.in</span> 文件中，将
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">BR2_EXTERNAL_EXAMPLE_TREE_PATH</span>
+                                    修改为与新目录相匹配的名字：<ul class="- topic/ul ul" id="luban_self_defined_package_dir__ul_j1v_d12_ndc" data-ofbid="luban_self_defined_package_dir__ul_j1v_d12_ndc">
+                                    <li class="- topic/li li" data-ofbid="d156132e190__20250123155215">
+                                        <div class="- topic/p p" data-ofbid="d156132e192__20250123155215">修改前：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_kry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_kry_m2s_2bc"><code>menu <span class="hl-string">"Example"</span>
+
+source <span class="hl-string">"$BR2_EXTERNAL_EXAMPLE_TREE_PATH/package/example_mod/Config.in"</span>
+
+endmenu</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d156132e198__20250123155215">
+                                        <div class="- topic/p p" data-ofbid="d156132e200__20250123155215">修改后：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_lry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_lry_m2s_2bc"><code>menu <span class="hl-string">"MyCompany"</span>
+
+source <span class="hl-string">"$BR2_EXTERNAL_MYCOMPANY_PATH/package/example_mod/Config.in"</span>
+
+endmenu</code></pre></div>
+                                    </li>
+                                </ul></div>
+                        </li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d156132e209__20250123155215">添加一个 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY Tree</span> 中的源码包：<ol class="- topic/ol ol" type="a" id="luban_self_defined_package_dir__ol_nry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__ol_nry_m2s_2bc">
+                        <li class="- topic/li li" data-ofbid="d156132e216__20250123155215">
+                            <p class="- topic/p p" data-ofbid="d156132e218__20250123155215">参考 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/package/example_mod</span>
+                                文件，在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/package/</span> 中添加新包的编译配置。</p>
+                            <p class="- topic/p p" data-ofbid="d156132e229__20250123155215">可以使用 autotools 等其他编译方式，具体规则与 Luban SDK
+                                中的其他包相同。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d156132e234__20250123155215">
+                            <p class="- topic/p p" data-ofbid="d156132e236__20250123155215">参考 <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/package/example_mod</span> 文件，在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/source/</span> 中添加新包的源码。</p>
+                            <p class="- topic/p p" data-ofbid="d156132e245__20250123155215">源码包名应与 <span class="+ topic/ph sw-d/filepath ph filepath">package</span> 文件夹中的包名相同，如果包配置中配置了版本号，则源码目录的名字应为
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/source/example_mod-&lt;ver&gt;</span>。
+                                    同时，<span class="+ topic/ph sw-d/filepath ph filepath">MYCOMPANY/source/</span> 目录仅保存源码，编译输出文件则存放在具体的
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">build</span> 目录下，具体规则与 SDK 其他包相同。</p>
+                        </li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d156132e262__20250123155215">复制 <span class="+ topic/ph sw-d/filepath ph filepath">package/external/external.mk</span> 并将其添加到 Luban SDK 的根目录
+                        <span class="+ topic/ph sw-d/filepath ph filepath">LUBAN_SDK/external.mk</span>，并在里面添加：<div class="- topic/p p" data-ofbid="d156132e270__20250123155215">
+                        
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_rry_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_rry_m2s_2bc"><code>LUBAN_EXTERNAL=../MYCOMPANY</code></pre>
+                    </div><p class="- topic/p p" data-ofbid="d156132e278__20250123155215">添加时，可以使用绝对路径，也可以使用相对路径。</p></li>
+                <li class="- topic/li li" data-ofbid="d156132e281__20250123155215">配置所需参数：<ol class="- topic/ol ol" type="a" id="luban_self_defined_package_dir__ul_w2v_wzs_sdc" data-ofbid="luban_self_defined_package_dir__ul_w2v_wzs_sdc">
+                        <li class="- topic/li li" data-ofbid="d156132e285__20250123155215">
+                            <div class="- topic/p p" data-ofbid="d156132e287__20250123155215">执行下列命令，应用项目文件：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_try_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_try_m2s_2bc"><code>make <var class="+ topic/keyword sw-d/varname keyword varname">xxx</var>_defconfig</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d156132e296__20250123155215">
+                            <div class="- topic/p p" data-ofbid="d156132e298__20250123155215">执行下列命令，配置 menuconfig
+                                界面参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__codeblock_ukz_vys_sdc" data-ofbid="luban_self_defined_package_dir__codeblock_ukz_vys_sdc"><code>make menuconfig</code></pre></div>
+                            <div class="- topic/p p" data-ofbid="d156132e303__20250123155215">此时可在 menuconfig 中看到 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">External options</span>
+                                选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="luban_self_defined_package_dir__pre_ury_m2s_2bc" data-ofbid="luban_self_defined_package_dir__pre_ury_m2s_2bc"><code>Target options  ---&gt;
+Toolchain  ---&gt;
+Build options  ---&gt;
+System configuration  ---&gt;
+Filesystem images  ---&gt;
+BootLoader  ---&gt;
+Linux kernel  ---&gt;
+ArtInChip packages  ---&gt;
+Vendor packages  ---&gt;
+Third-party packages  ---&gt;
+Host utilities  ---&gt;
+Firmwares  ----
+External options  ---&gt;
+</code></pre></div>
+                        </li>
+                    </ol><p class="- topic/p p" data-ofbid="d156132e312__20250123155215">进入 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">External options</span>，可以看到相关包的配置，其编译方法与 SDK
+                        其他包一致。</p></li>
+            </ol></div>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

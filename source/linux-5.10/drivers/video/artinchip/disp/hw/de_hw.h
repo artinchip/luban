@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -81,6 +81,8 @@
 #define SCALER0_CTRL_CH0_H_COEF_LUT_EN        BIT(4)
 #define SCALER0_CTRL_BILINEAR_SELECT          BIT(2)
 #define SCALER0_CTRL_EN                       BIT(0)
+
+#define SCALER0_CTRL_ACTIVE		      BIT(4)
 
 #define SCALER0_INPUT_SIZE_SET(w, h)          ((((h) & 0x1fff) << 16) \
 					       | (((w) & 0x1fff) << 0))
@@ -352,6 +354,8 @@ void de_ui_layer_rect_enable(void __iomem *base_addr, u32 index, u32 enable);
 
 void de_set_scaler0_channel(void __iomem *base_addr, u32 input_w, u32 input_h,
 			    u32 output_w, u32 output_h, u32 channel);
+
+void de_scaler0_active_handle(void __iomem *base_addr, u32 index);
 
 void de_scaler0_enable(void __iomem *base_addr, u32 enable);
 

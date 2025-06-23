@@ -103,6 +103,7 @@ endif
 
 obj-$(CONFIG_$(SPL_TPL_)EVENT) += event.o
 
+obj-y += log_buf.o
 obj-y += image.o
 obj-$(CONFIG_$(SPL_TPL_)HASH) += hash.o
 obj-$(CONFIG_ANDROID_AB) += android_ab.o

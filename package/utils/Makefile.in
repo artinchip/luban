@@ -437,3 +437,4 @@ include package/utils/pkg-qt5qmake.mk
 include package/utils/pkg-meson.mk
 include package/utils/pkg-virtual.mk
 include package/utils/pkg-download.mk
+include package/utils/pkg-golang.mk

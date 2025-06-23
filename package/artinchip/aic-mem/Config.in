@@ -1,0 +1,8 @@
+menuconfig BR2_PACKAGE_AIC_MEM
+	bool "aic-mem"
+	default y
+if BR2_PACKAGE_AIC_MEM
+config BR2_PACKAGE_AIC_MEM_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

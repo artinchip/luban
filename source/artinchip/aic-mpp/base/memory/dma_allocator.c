@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: qi.xu@artinchip.com
-*  Desc: dma-buf allocator
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: qi.xu@artinchip.com
+ *  Desc: dma-buf allocator
+ */
 
 #define LOG_TAG "dma_allocator"
 

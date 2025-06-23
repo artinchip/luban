@@ -127,12 +127,14 @@ int mbox_send(struct mbox_chan *chan, const void *data)
 int mbox_recv(struct mbox_chan *chan, void *data, ulong timeout_us)
 {
 	struct mbox_ops *ops = mbox_dev_ops(chan->dev);
+#ifdef CONFIG_AIC_MBOX_TIMOUT_MECHANISM
 	ulong start_time;
+#endif
 	int ret;
 
 	debug("%s(chan=%p, data=%p, timeout_us=%ld)\n", __func__, chan, data,
 	      timeout_us);
-
+#ifdef CONFIG_AIC_MBOX_TIMOUT_MECHANISM
 	start_time = timer_get_us();
 	/*
 	 * Account for partial us ticks, but if timeout_us is 0, ensure we
@@ -140,13 +142,15 @@ int mbox_recv(struct mbox_chan *chan, void *data, ulong timeout_us)
 	 */
 	if (timeout_us)
 		timeout_us++;
-
+#endif
 	for (;;) {
 		ret = ops->recv(chan, data);
 		if (ret != -ENODATA)
 			return ret;
+#ifdef CONFIG_AIC_MBOX_TIMOUT_MECHANISM
 		if ((timer_get_us() - start_time) >= timeout_us)
 			return -ETIMEDOUT;
+#endif
 	}
 }
 

@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2020-2023 ArtInChip Technology Co., Ltd.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  <qi.xu@artinchip.com>
  *
  *            mpp_frame

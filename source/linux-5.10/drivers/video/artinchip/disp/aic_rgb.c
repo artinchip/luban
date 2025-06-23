@@ -23,7 +23,7 @@
 
 #include "hw/rgb_reg.h"
 #include "hw/reg_util.h"
-#include "aic_com.h"
+#include "aic_fb.h"
 
 struct aic_rgb_comp {
 	/* di_funcs must be the first member */

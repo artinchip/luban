@@ -20,7 +20,7 @@ include_directories(../include ../base/include ../../base/include)
 
 add_executable(audio_decoder_render_test audio_decoder_render_test.c pcm2wav.c)
 
-target_link_libraries(audio_decoder_render_test mpp_base openmax_base mpp_audio_decoder)
+target_link_libraries(audio_decoder_render_test mpp_base mm_base mpp_audio_decoder)
 
 target_link_libraries(audio_decoder_render_test pthread)
 

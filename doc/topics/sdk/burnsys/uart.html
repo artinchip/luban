@@ -1,0 +1,269 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="串口线可以借助 AiBurn 进行刷机，但具有下列限制： 一般情况下，串口烧录速度比较慢，烧录速度在几个到几十个 KB 之间。 使用普通的 USB 转串口，建议使用 115200 的波特率。 仅 uart0 支持串口烧录。 设置 AiBurn 工具 在正式烧录之前，按照下列流程设置 AiBurn 工具： 选择连接方式：串口 选择串口号：PC 上的烧录串口的设备号 设置波特率：支持 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/burnsys/burnsys_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/burnsys/usb.html"/><meta name="DC.relation" content="../../../topics/sdk/burnsys/sdcard.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>串口线</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1449"/><meta name="wh-source-relpath" content="topics/sdk/burnsys/uart.dita"/><meta name="wh-out-relpath" content="topics/sdk/burnsys/uart.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html">系统更新</a></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/burnsys/uart.html">串口线</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/burnsys/usb.html" title="USB 线" aria-label="上一主题: USB 线" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/burnsys/sdcard.html" title="SD 卡" aria-label="下一主题: SD 卡" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="id-d4445e1391" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/statis.html" id="id-d4445e1391-link">平台升级方式</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1405" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/flow.html" id="id-d4445e1405-link">系统更新流程</a></div></div></li><li role="treeitem"><div data-tocid="nedium-d4445e1419" class="topicref" data-id="nedium" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/medium.html" id="nedium-d4445e1419-link">系统更新媒介</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1435" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/usb.html" id="id-d4445e1435-link">USB 线</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1449" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/uart.html" id="id-d4445e1449-link">串口线</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1463" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/sdcard.html" id="id-d4445e1463-link">SD 卡</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1477" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/udisk.html" id="id-d4445e1477-link">U 盘</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/burnsys/uart.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">串口线</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 1 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="- topic/p p" data-ofbid="d96111e28__20250123155207">串口线可以借助 AiBurn 进行刷机，但具有下列限制：<ul class="- topic/ul ul simple" id="id__ul_pgh_rnz_qdc" data-ofbid="id__ul_pgh_rnz_qdc">
+                <li class="- topic/li li" data-ofbid="d96111e32__20250123155207">
+                    <p class="- topic/p p" data-ofbid="d96111e34__20250123155207">一般情况下，串口烧录速度比较慢，烧录速度在几个到几十个 KB 之间。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d96111e38__20250123155207">
+                    <p class="- topic/p p" data-ofbid="d96111e40__20250123155207">使用普通的 USB 转串口，建议使用 115200 的波特率。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d96111e44__20250123155207">
+                    <p class="- topic/p p" data-ofbid="d96111e46__20250123155207">仅 uart0 支持串口烧录。</p>
+                </li>
+            </ul></div>
+        <section class="- topic/section section" id="id__section_iqr_wmz_qdc" data-ofbid="id__section_iqr_wmz_qdc"><h2 class="- topic/title title sectiontitle">设置 AiBurn 工具</h2>
+                
+                <div class="- topic/p p" id="id__p_z3y_g2z_qdc" data-ofbid="id__p_z3y_g2z_qdc">在正式烧录之前，按照下列流程设置 AiBurn 工具：<ol class="- topic/ol ol simple" id="id__ul_mw2_d2z_qdc" data-ofbid="id__ul_mw2_d2z_qdc">
+                        <li class="- topic/li li" data-ofbid="d96111e60__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e62__20250123155207">选择连接方式：串口</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e66__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e68__20250123155207">选择串口号：PC 上的烧录串口的设备号</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e72__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e74__20250123155207">设置波特率：支持 115200、921600、1M 和 3M 配置。</p>
+                            <p class="- topic/p p" data-ofbid="d96111e77__20250123155207">波特率越高，升级越快，但对串口设备的性能要求越高。设置之前，确认所使用的串口线是否支持选中的波特率。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e81__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e83__20250123155207">固件：串口烧录对固件不做特殊更改</p>
+                        </li>
+                    </ol></div>
+                <div class="- topic/p p" data-ofbid="d96111e88__20250123155207">
+                    <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_vbx_3vz_21c" src="../../../reusables/reused-topics/../../images/tool/burn_serial.png" width="576" alt="burn_serial"/></div><br/>
+                </div>
+            </section>
+        <section class="- topic/section section" id="id__section_nwt_vfz_qdc" data-ofbid="id__section_nwt_vfz_qdc"><h2 class="- topic/title title sectiontitle">烧录镜像（串口）</h2>
+                
+                <div class="- topic/div div" id="id__div_sfh_cfz_qdc">
+                    <p class="- topic/p p" data-ofbid="d96111e105__20250123155207">如需进行串口烧写，设备需使用单独的电源，不能通过 PC 的 USB 口或者 HUB 供电，否则 PC 会将其识别为 USB 设备。</p>
+                    <p class="- topic/p p" data-ofbid="d96111e108__20250123155207">按照下列步骤流程，打开串口并进行烧录：</p>
+                    <ol class="- topic/ol ol simple" id="id__ol_gkk_125_4dc" data-ofbid="id__ol_gkk_125_4dc">
+                        <li class="- topic/li li" data-ofbid="d96111e113__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e115__20250123155207">使开发板进入刷机模式。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e119__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e121__20250123155207">打开 AiBurn 工具的烧写镜像界面。</p>
+                            <p class="- topic/p p" data-ofbid="d96111e124__20250123155207">详细操作，可参考<a class="- topic/xref xref" href="../../../reusables/reused-topics/../../topics/tools/AiBurn-burn-image.html">烧写镜像 (USB)</a>。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e132__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e134__20250123155207">点击<span class="+ topic/ph ui-d/uicontrol ph uicontrol">连接</span>按钮，建立 AiBurn 到开发板的通路，通过串口获取设备硬件信息。</p>
+                            <div class="- topic/p p" data-ofbid="d96111e140__20250123155207">如果右下角显示下列设备硬件信息，表示连接成功：<pre class="+ topic/pre sw-d/msgblock pre msgblock" id="id__msgblock_epd_325_4dc" data-ofbid="id__msgblock_epd_325_4dc">ArtInChip 设备已连接</pre></div>
+                            <div class="- topic/p p" data-ofbid="d96111e145__20250123155207">
+                                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_wbx_3vz_21c" src="../../../reusables/reused-topics/../../images/tool/burn_serial_hdinfo.png" width="576" alt="burn_serial_hdinfo"/></div><br/>
+                            </div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d96111e155__20250123155207">
+                            <p class="- topic/p p" data-ofbid="d96111e157__20250123155207">连接成功后，点击<span class="+ topic/ph ui-d/uicontrol ph uicontrol">开始</span>，执行烧写流程。</p>
+                        </li>
+                    </ol>
+                    <figure class="- topic/fig fig fignone" id="id__fig_tb2_g2z_qdc" data-ofbid="id__fig_tb2_g2z_qdc">
+                        <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_ub2_g2z_qdc" src="../../../reusables/reused-topics/../../images/burnsys/uart_burnsys1.png" width="576" alt="uart_burnsys1"/></div><br/>
+                    </figure>
+                </div>
+            </section>
+        <section class="- topic/section section" id="id__id4" data-ofbid="id__id4"><h2 class="- topic/title title sectiontitle">工具推荐</h2>
+            
+            <p class="- topic/p p" data-ofbid="d96111e181__20250123155207">串口线的品质对烧录的影响比较大，下图为测试的不同工具的性能和稳定性，推荐 CH343 的型号： <a class="- topic/xref xref reference external" href="https://detail.tmall.com/item.htm?_u=u3eibcm9050&amp;id=677699341024&amp;spm=a1z09.2.0.0.43da2e8diEP1l3" target="_blank" rel="external noopener">https://detail.tmall.com/item.htm?_u=u3eibcm9050&amp;id=677699341024&amp;spm=a1z09.2.0.0.43da2e8diEP1l3</a></p>
+            <div class="- topic/p p" data-ofbid="d96111e187__20250123155207">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_obw_bxp_gdc" src="../../../images/burnsys/uart-test.jpg" alt="uart-test"/></div><br/>
+            </div>
+        </section>
+
+
+
+
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_iqr_wmz_qdc" data-tocid="id__section_iqr_wmz_qdc">设置 AiBurn 工具</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_nwt_vfz_qdc" data-tocid="id__section_nwt_vfz_qdc">烧录镜像（串口）</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id4" data-tocid="id__id4">工具推荐</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

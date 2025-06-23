@@ -1,0 +1,344 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="U-Boot 中烧录 在 U-Boot 中配置和使用 eFuse 驱动，可以按照以下步骤进行： 使能 eFuse 驱动 确保在 U-Boot 的配置文件中使能 SPI_ENC 相关的 U-Boot 驱动。在 SDK 根目录中，执行 make uboot-menuconfig 命令进入配置菜单，按照如下操作进行选择： make uboot-menuconfig Device Drivers ---&gt; ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/secure/chapter-secure.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/hw_authorization.html"/><meta name="DC.relation" content="../../../topics/sdk/burnsys/burner_offline.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="burn_efuse"/><meta name="DC.language" content="zh-CN"/><title>烧写 eFuse</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="burn_efuse-d4445e1649"/><meta name="wh-source-relpath" content="topics/sdk/secure/burn-eFuse-with-upgcmd.dita"/><meta name="wh-out-relpath" content="topics/sdk/secure/burn-eFuse-with-upgcmd.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="burn_efuse" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html">安全方案</a></div></div></li><li class="active"><div class="topicref" data-id="burn_efuse"><div class="title"><a href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html">烧写 eFuse</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/secure/hw_authorization.html" title="硬件授权认证" aria-label="上一主题: 硬件授权认证" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/burnsys/burner_offline.html" title="离线烧录" aria-label="下一主题: 离线烧录" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="firmware-encryption-for-luban-d4445e1621" class="topicref" data-id="firmware-encryption-for-luban" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/firmware_encryption_for_luban.html" id="firmware-encryption-for-luban-d4445e1621-link">Linux 固件加密使用说明</a></div></div></li><li role="treeitem"><div data-tocid="hw_authentication-d4445e1635" class="topicref" data-id="hw_authentication" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/hw_authorization.html" id="hw_authentication-d4445e1635-link">硬件授权认证 </a></div></div></li><li role="treeitem" class="active"><div data-tocid="burn_efuse-d4445e1649" class="topicref" data-id="burn_efuse" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html" id="burn_efuse-d4445e1649-link">烧写 eFuse</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/secure/burn-eFuse-with-upgcmd.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">烧写 eFuse</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 9 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <section class="- topic/section section" id="burn_efuse__section_jls_1fp_kdc" data-ofbid="burn_efuse__section_jls_1fp_kdc"><h2 class="- topic/title title sectiontitle">U-Boot 中烧录</h2>
+            
+            <div class="- topic/p p" data-ofbid="d173968e33__20250123155218">在 U-Boot 中配置和使用 eFuse 驱动，可以按照以下步骤进行：<ol class="- topic/ol ol" id="burn_efuse__ol_tdz_xhp_kdc" data-ofbid="burn_efuse__ol_tdz_xhp_kdc">
+                    <li class="- topic/li li" data-ofbid="d173968e37__20250123155218">
+                        <p class="- topic/p p" data-ofbid="d173968e39__20250123155218"><strong class="+ topic/ph hi-d/b ph b">使能 eFuse 驱动</strong></p>
+                        <div class="- topic/p p" data-ofbid="d173968e43__20250123155218">确保在 U-Boot 的配置文件中使能 SPI_ENC 相关的 U-Boot 驱动。在 SDK 根目录中，执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make
+                                uboot-menuconfig</span>
+                            命令进入配置菜单，按照如下操作进行选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_rr2_cfp_kdc" data-ofbid="burn_efuse__codeblock_rr2_cfp_kdc"><code>make uboot-menuconfig</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_dvs_j5w_5dc" data-ofbid="burn_efuse__codeblock_dvs_j5w_5dc"><code>Device Drivers  ---&gt;
+Multifunction device drivers  ---&gt;
+[*] Enable Driver Model <strong class="hl-keyword">for</strong> Misc drivers
+[*] ArtInChip SID(eFuse) support
+
+SPL / TPL  ---&gt;
+[*] Support misc drivers</code></pre></div>
+                        <p class="- topic/p p" data-ofbid="d173968e53__20250123155218">保存并退出配置菜单，eFuse 驱动使能。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d173968e57__20250123155218">
+                        <p class="- topic/p p" data-ofbid="d173968e59__20250123155218"><strong class="+ topic/ph hi-d/b ph b">使用 eFuse 命令配置相关参数</strong></p>
+                        <p class="- topic/p p" data-ofbid="d173968e63__20250123155218">启动设备并进入 U-Boot 命令行界面</p>
+                        <div class="- topic/p p" data-ofbid="d173968e66__20250123155218">使用以下 eFuse
+                            相关命令配置相关参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_ygz_2fp_kdc" data-ofbid="burn_efuse__codeblock_ygz_2fp_kdc"><code>efuse help</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_tkt_m5w_5dc" data-ofbid="burn_efuse__codeblock_tkt_m5w_5dc"><code><span class="hl-string">"ArtInChip eFuse read/write command"</span>    
+                            
+efuse list                             : List all banks/bits name   
+efuse fake     addr                    : Set RAM address as fake eFuse space <strong class="hl-keyword">for</strong> testing
+                                         Set to <span class="hl-number">0</span> to use real eFuse 
+efuse dump     bank offset size        : Dump data in bank          
+efuse read     bank offset size addr   : Read data in bank to RAM address
+efuse write    bank offset size addr   : Write data to bank from RAM address
+efuse writehex bank offset data        : Write data to bank from input hex string
+efuse writestr bank offset data        : Write data to bank from input string
+efuse dump     bitsname                : Dump data in bitsname      
+efuse set      bitsname value          : Set bitsname to the specific value;</code></pre></div>
+                        <p class="- topic/p p" data-ofbid="d173968e73__20250123155218">关于 eFuse 命令的详细描述，可查看<a class="- topic/xref xref" href="burn-eFuse-with-upgcmd.html#burn_efuse__section_ihx_jfp_kdc">eFuse 命令说明</a>。</p>
+                    </li>
+                </ol></div>
+        </section>
+        <section class="- topic/section section" id="burn_efuse__section_plg_tfp_kdc" data-ofbid="burn_efuse__section_plg_tfp_kdc"><h2 class="- topic/title title sectiontitle"><span class="+ topic/keyword sw-d/cmdname keyword cmdname">upgcmd</span> 命令烧录</h2>
+            
+            <div class="- topic/p p" data-ofbid="d173968e90__20250123155218">在 bootloader 中打开 efuse 驱动后，可以在借助 upgcmd 命令烧录 efuse，upgcmd 命令在 AiBurn 的安装目录下。<ol class="- topic/ol ol" id="burn_efuse__ul_nfh_5fp_kdc" data-ofbid="burn_efuse__ul_nfh_5fp_kdc">
+                    <li class="- topic/li li" data-ofbid="d173968e94__20250123155218">在 <span class="+ topic/ph sw-d/filepath ph filepath">images</span> 目录下得到 <span class="+ topic/ph sw-d/filepath ph filepath">xx.img</span> 文件。</li>
+                    <li class="- topic/li li" data-ofbid="d173968e103__20250123155218">在上位机中执行命令 <code class="+ topic/ph pr-d/codeph ph codeph">upgcmd image <var class="+ topic/keyword sw-d/varname keyword varname">xx.img</var></code>。</li>
+                    <li class="- topic/li li" data-ofbid="d173968e111__20250123155218">Device 将运行到 U-Boot 阶段。</li>
+                    <li class="- topic/li li" data-ofbid="d173968e114__20250123155218">通过下面命令调用下位机 efuse 命令完成 efuse 读写等操作。<ul class="- topic/ul ul" id="burn_efuse__ul_m4r_p3p_kdc" data-ofbid="burn_efuse__ul_m4r_p3p_kdc">
+                            <li class="- topic/li li" data-ofbid="d173968e118__20250123155218"><strong class="+ topic/ph hi-d/b ph b">读
+                                efuse</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_ovz_wfp_kdc" data-ofbid="burn_efuse__codeblock_ovz_wfp_kdc"><code>upgcmd shcmd <span class="hl-string">"efuse dump psk0 0x0 0x10"</span>&#xD;</code></pre></li>
+                            <li class="- topic/li li" data-ofbid="d173968e124__20250123155218"><strong class="+ topic/ph hi-d/b ph b">写
+                                efuse</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_ffr_xfp_kdc" data-ofbid="burn_efuse__codeblock_ffr_xfp_kdc"><code>upgcmd shcmd <span class="hl-string">"efuse writestr psk0 ArtInChip"</span>&#xD;
+upgcmd shcmd <span class="hl-string">"efuse write customer 6968436E49747241"</span>&#xD;</code></pre></li>
+                        </ul></li>
+                </ol></div>
+        </section>
+        <section class="- topic/section section" id="burn_efuse__section_l41_zfp_kdc" data-ofbid="burn_efuse__section_l41_zfp_kdc"><h2 class="- topic/title title sectiontitle">查看 efuse 信息</h2>
+            
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_sq3_yfp_kdc" data-ofbid="burn_efuse__codeblock_sq3_yfp_kdc"><code>upgcmd shcmd <span class="hl-string">"efuse read customer 0x43000010 0 64"</span>&#xD;
+upgcmd hexdump <span class="hl-number">0x43000010</span> <span class="hl-number">64</span>&#xD;</code></pre>
+        </section>
+        <section class="- topic/section section" id="burn_efuse__section_ihx_jfp_kdc" data-ofbid="burn_efuse__section_ihx_jfp_kdc"><h2 class="- topic/title title sectiontitle">eFuse 命令说明</h2>
+            
+            <div class="- topic/p p" data-ofbid="d173968e147__20250123155218">
+                <ul class="- topic/ul ul" id="burn_efuse__ul_ppz_v5w_5dc" data-ofbid="burn_efuse__ul_ppz_v5w_5dc">
+                    <li class="- topic/li li" data-ofbid="d173968e151__20250123155218"><code class="+ topic/ph pr-d/codeph ph codeph">efuse
+                        list</code><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_qpz_v5w_5dc" data-ofbid="burn_efuse__codeblock_qpz_v5w_5dc"><code>efuse list
+bank list:
+  disread			: <span class="hl-number">0x00</span> ~ <span class="hl-number">0x07</span>
+  diswrite			: <span class="hl-number">0x08</span> ~ <span class="hl-number">0x0F</span>
+  chipid_main			: <span class="hl-number">0x10</span> ~ <span class="hl-number">0x1F</span>
+  chipid_sub			: <span class="hl-number">0x20</span> ~ <span class="hl-number">0x27</span>
+  cali				: <span class="hl-number">0x28</span> ~ <span class="hl-number">0x2F</span>
+  brom				: <span class="hl-number">0x30</span> ~ <span class="hl-number">0x37</span>
+  secure			: <span class="hl-number">0x38</span> ~ <span class="hl-number">0x3F</span>
+  rotpk				: <span class="hl-number">0x40</span> ~ <span class="hl-number">0x4F</span>
+  ssk				: <span class="hl-number">0x50</span> ~ <span class="hl-number">0x5F</span>
+  huk				: <span class="hl-number">0x60</span> ~ <span class="hl-number">0x6F</span>
+  psk0				: <span class="hl-number">0x70</span> ~ <span class="hl-number">0x77</span>
+  psk1				: <span class="hl-number">0x78</span> ~ <span class="hl-number">0x7F</span>
+  psk2				: <span class="hl-number">0x80</span> ~ <span class="hl-number">0x87</span>
+  psk3				: <span class="hl-number">0x88</span> ~ <span class="hl-number">0x8F</span>
+  nvcntr			: <span class="hl-number">0x90</span> ~ <span class="hl-number">0x9F</span>
+  spienc_key			: <span class="hl-number">0xA0</span> ~ <span class="hl-number">0xAF</span>
+  spienc_nonce			: <span class="hl-number">0xB0</span> ~ <span class="hl-number">0xB7</span>
+  pnk				: <span class="hl-number">0xB8</span> ~ <span class="hl-number">0xBF</span>
+  customer			: <span class="hl-number">0xC0</span> ~ <span class="hl-number">0xFF</span>
+  
+bits list:
+  brom.primary  : <span class="hl-number">1</span>(NAND), <span class="hl-number">2</span>(NOR), <span class="hl-number">3</span>(eMMC), <span class="hl-number">4</span>(SDCard)
+  brom.secondary: <span class="hl-number">1</span>(NAND), <span class="hl-number">2</span>(NOR), <span class="hl-number">3</span>(eMMC), <span class="hl-number">4</span>(SDCard)
+  brom.skip_sd_phase
+  brom.checksum_dis
+  brom.spi_boot_intf
+  secure.jtag_lock
+  secure.secure_boot_en
+  secure.encrypt_boot_en
+  secure.anti_rollback_en
+  secure.spi_enc_en</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d173968e157__20250123155218">
+                        <div class="- topic/p p" data-ofbid="d173968e159__20250123155218"><code class="+ topic/ph pr-d/codeph ph codeph">efuse
+                            dump</code><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_rpz_v5w_5dc" data-ofbid="burn_efuse__codeblock_rpz_v5w_5dc"><code>efuse dump customer <span class="hl-number">0</span> <span class="hl-number">64</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_jh1_yww_5dc" data-ofbid="burn_efuse__codeblock_jh1_yww_5dc"><code>customer:
+EE DF DF <span class="hl-number">10</span> BB <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">13</span> C1 <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">01</span> <span class="hl-number">00</span> <span class="hl-number">0F</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|</code></pre></div>
+                        <p class="- topic/p p" data-ofbid="d173968e167__20250123155218">####字符串写入</p>
+                        <p class="- topic/p p" data-ofbid="d173968e170__20250123155218">写一串字符串到 efuse</p>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_spz_v5w_5dc" data-ofbid="burn_efuse__codeblock_spz_v5w_5dc"><code>efuse writestr customer <span class="hl-number">32</span> ArtInChip</code></pre>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_imn_yww_5dc" data-ofbid="burn_efuse__codeblock_imn_yww_5dc"><code>efuse dump customer <span class="hl-number">0</span> <span class="hl-number">64</span></code></pre>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_sb1_zww_5dc" data-ofbid="burn_efuse__codeblock_sb1_zww_5dc"><code>customer:
+EE DF DF <span class="hl-number">10</span> BB <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">13</span> C1 <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">01</span> <span class="hl-number">00</span> <span class="hl-number">0F</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|ArtInChip.......|
+<span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|</code></pre>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d173968e184__20250123155218">
+                        <p class="- topic/p p" data-ofbid="d173968e186__20250123155218">裸数据写入</p>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_tpz_v5w_5dc" data-ofbid="burn_efuse__codeblock_tpz_v5w_5dc"><code>efuse write customer <span class="hl-number">32</span> <span class="hl-number">6968436E49747241</span></code></pre>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_npy_zww_5dc" data-ofbid="burn_efuse__codeblock_npy_zww_5dc"><code>efuse dump customer <span class="hl-number">0</span> <span class="hl-number">64</span></code></pre>
+                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_vyl_1xw_5dc" data-ofbid="burn_efuse__codeblock_vyl_1xw_5dc"><code>customer:
+EE DF DF <span class="hl-number">10</span> BB <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">13</span> C1 <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">01</span> <span class="hl-number">00</span> <span class="hl-number">0F</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|ArtInChip.......|
+<span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|</code></pre>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d173968e199__20250123155218">
+                        <p class="- topic/p p" data-ofbid="d173968e201__20250123155218">地址写入</p>
+                        <div class="- topic/p p" data-ofbid="d173968e204__20250123155218">先写数据到到内存中，再把内存中的数据一次写入时 eFuse efuse write bank addr offset
+                            size<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_upz_v5w_5dc" data-ofbid="burn_efuse__codeblock_upz_v5w_5dc"><code>mw.q <span class="hl-number">0x43000000</span> <span class="hl-number">6968436E49747241</span> <span class="hl-number">1</span> </code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_cdf_hww_5dc" data-ofbid="burn_efuse__codeblock_cdf_hww_5dc"><code>md.b <span class="hl-number">0x43000000</span>        </code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_ab2_3ww_5dc" data-ofbid="burn_efuse__codeblock_ab2_3ww_5dc"><code><span class="hl-number">43000000</span>: <span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> ff ff ff ff ff ff ff ff  ArtInChi........
+<span class="hl-number">43000010</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+<span class="hl-number">43000020</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+<span class="hl-number">43000030</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_kny_3ww_5dc" data-ofbid="burn_efuse__codeblock_kny_3ww_5dc"><code>mw.q <span class="hl-number">0x43000008</span> <span class="hl-number">0000000000000070</span> <span class="hl-number">1</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_c33_jww_5dc" data-ofbid="burn_efuse__codeblock_c33_jww_5dc"><code>md.b <span class="hl-number">0x43000000</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_jz4_jww_5dc" data-ofbid="burn_efuse__codeblock_jz4_jww_5dc"><code><span class="hl-number">43000000</span>: <span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> ff ff ff ff ff ff ff  ArtInChip.......
+<span class="hl-number">43000010</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+<span class="hl-number">43000020</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+<span class="hl-number">43000030</span>: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_vf2_kww_5dc" data-ofbid="burn_efuse__codeblock_vf2_kww_5dc"><code>efuse write customer <span class="hl-number">0x43000000</span> <span class="hl-number">48</span> <span class="hl-number">9</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_ctr_kww_5dc" data-ofbid="burn_efuse__codeblock_ctr_kww_5dc"><code>efuse dump customer <span class="hl-number">0</span> <span class="hl-number">64</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_hs2_lww_5dc" data-ofbid="burn_efuse__codeblock_hs2_lww_5dc"><code>customer:
+EE DF DF <span class="hl-number">10</span> BB <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">13</span> C1 <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">01</span> <span class="hl-number">00</span> <span class="hl-number">0F</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|................|
+<span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|ArtInChip.......|
+<span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> 	|ArtInChip.......|</code></pre></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d173968e226__20250123155218">
+                        <p class="- topic/p p" data-ofbid="d173968e228__20250123155218"><code class="+ topic/ph pr-d/codeph ph codeph">efuse read</code></p>
+                        <div class="- topic/p p" data-ofbid="d173968e232__20250123155218">读取 eFuse
+                            数据到内存<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_vpz_v5w_5dc" data-ofbid="burn_efuse__codeblock_vpz_v5w_5dc"><code>efuse read customer <span class="hl-number">0x43000010</span> <span class="hl-number">0</span> <span class="hl-number">64</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_es2_mww_5dc" data-ofbid="burn_efuse__codeblock_es2_mww_5dc"><code>md.b <span class="hl-number">43000010</span></code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="burn_efuse__codeblock_mcq_mww_5dc" data-ofbid="burn_efuse__codeblock_mcq_mww_5dc"><code><span class="hl-number">43000010</span>: ee df df <span class="hl-number">10</span> bb <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span>  ................
+<span class="hl-number">43000020</span>: <span class="hl-number">13</span> c1 <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">01</span> <span class="hl-number">00</span> <span class="hl-number">0f</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span>  ................
+<span class="hl-number">43000030</span>: <span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span>  ArtInChip.......
+<span class="hl-number">43000040</span>: <span class="hl-number">41</span> <span class="hl-number">72</span> <span class="hl-number">74</span> <span class="hl-number">49</span> <span class="hl-number">6E</span> <span class="hl-number">43</span> <span class="hl-number">68</span> <span class="hl-number">69</span> <span class="hl-number">70</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span> <span class="hl-number">00</span>  ArtInChip.......</code></pre></div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#burn_efuse__section_jls_1fp_kdc" data-tocid="burn_efuse__section_jls_1fp_kdc">U-Boot 中烧录</a></div></li><li class="section-item"><div class="section-title"><a href="#burn_efuse__section_plg_tfp_kdc" data-tocid="burn_efuse__section_plg_tfp_kdc"><span class="+ topic/keyword sw-d/cmdname keyword cmdname">upgcmd</span> 命令烧录</a></div></li><li class="section-item"><div class="section-title"><a href="#burn_efuse__section_l41_zfp_kdc" data-tocid="burn_efuse__section_l41_zfp_kdc">查看 efuse 信息</a></div></li><li class="section-item"><div class="section-title"><a href="#burn_efuse__section_ihx_jfp_kdc" data-tocid="burn_efuse__section_ihx_jfp_kdc">eFuse 命令说明</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

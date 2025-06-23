@@ -1,0 +1,388 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="配置 Uboot 在 Luban 根目录下执行 make um ，进入 uboot 的功能配置界面，使能显示模块驱动： Device Drivers Graphics support ArtInChip Graphics ---&gt; [*] Enable ArtInChip Video Support [*] ArtInChip display rgb support [ ] ArtInChip ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-display-screen-configuration.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-display-screen-configuration.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-lvds-display-config.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="bringup_rgbDisplayConfig"/><meta name="DC.language" content="zh-CN"/><title>RGB</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="bringup_rgbDisplayConfig-d4445e2068"/><meta name="wh-source-relpath" content="topics/sdk/bringup/bringup-rgb-display-config.dita"/><meta name="wh-out-relpath" content="topics/sdk/bringup/bringup-rgb-display-config.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="bringup_rgbDisplayConfig" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li><div class="topicref" data-id="bringup_displayScreenConfiguration"><div class="title"><a href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html">屏幕配置</a></div></div></li><li class="active"><div class="topicref" data-id="bringup_rgbDisplayConfig"><div class="title"><a href="../../../topics/sdk/bringup/bringup-rgb-display-config.html">RGB</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html" title="屏幕配置" aria-label="上一主题: 屏幕配置" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/bringup/bringup-lvds-display-config.html" title="LVDS" aria-label="下一主题: LVDS" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="id-d4445e1981" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/lite-bringup-prepare.html" id="id-d4445e1981-link">准备工作</a></div></div></li><li role="treeitem"><div data-tocid="bringup_memoryConfiguration-d4445e1997" class="topicref" data-id="bringup_memoryConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-memory-config.html" id="bringup_memoryConfiguration-d4445e1997-link">存储配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_debugPortsConfiguration-d4445e2011" class="topicref" data-id="bringup_debugPortsConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-debug-ports-configuration.html" id="bringup_debugPortsConfiguration-d4445e2011-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_刷机-d4445e2025" class="topicref" data-id="bringup_刷机" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-boot.html" id="bringup_刷机-d4445e2025-link">刷机</a></div></div></li><li role="treeitem"><div data-tocid="bringup_icConfiguration-d4445e2039" class="topicref" data-id="bringup_icConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-ic-configuration.html" id="bringup_icConfiguration-d4445e2039-link">IC 配置</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="bringup_displayScreenConfiguration-d4445e2054" class="topicref" data-id="bringup_displayScreenConfiguration" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action bringup_displayScreenConfiguration-d4445e2054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html" id="bringup_displayScreenConfiguration-d4445e2054-link">屏幕配置</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="bringup_rgbDisplayConfig-d4445e2068" class="topicref" data-id="bringup_rgbDisplayConfig" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-rgb-display-config.html" id="bringup_rgbDisplayConfig-d4445e2068-link">RGB</a></div></div></li><li role="treeitem"><div data-tocid="bringup_lvdsDisplayConfig-d4445e2082" class="topicref" data-id="bringup_lvdsDisplayConfig" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-lvds-display-config.html" id="bringup_lvdsDisplayConfig-d4445e2082-link">LVDS</a></div></div></li><li role="treeitem"><div data-tocid="bringup_mipiDisplayConfig-d4445e2096" class="topicref" data-id="bringup_mipiDisplayConfig" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-mipi-display-config.html" id="bringup_mipiDisplayConfig-d4445e2096-link">MIPI</a></div></div></li><li role="treeitem"><div data-tocid="bringup_背光配置-d4445e2110" class="topicref" data-id="bringup_背光配置" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-back-light-config.html" id="bringup_背光配置-d4445e2110-link">背光配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_display_debug_guide-d4445e2124" class="topicref" data-id="bringup_display_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-display-debug-guide.html" id="bringup_display_debug_guide-d4445e2124-link">屏幕调试</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="bringup_demo-d4445e2138" class="topicref" data-id="bringup_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-demo.html" id="bringup_demo-d4445e2138-link">Demo</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/bringup/bringup-rgb-display-config.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">RGB</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="bringup_rgbDisplayConfig__section_pwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__section_pwf_vzb_d1c"><h2 class="- topic/title title sectiontitle">配置 Uboot </h2>
+            
+            <div class="- topic/p p" data-ofbid="d184257e38__20250123155219">在 Luban 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make um</span>，进入 uboot
+                的功能配置界面，使能显示模块驱动：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__codeblock_bcr_zzb_d1c" data-ofbid="bringup_rgbDisplayConfig__codeblock_bcr_zzb_d1c"><code>Device Drivers
+    Graphics support
+        ArtInChip Graphics  ---&gt;
+            [*]   Enable ArtInChip Video Support
+            [*]   ArtInChip display rgb support
+            [ ]   ArtInChip display lvds support
+            [ ]   ArtInChip display mipi-dsi support
+            &lt;*&gt;   ArtInChip Panel Drivers (ArtInChip general RGB panel)  ---&gt;
+</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="bringup_rgbDisplayConfig__section_rwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__section_rwf_vzb_d1c"><h2 class="- topic/title title sectiontitle">配置 Kernel </h2>
+            
+            <p class="- topic/p p" data-ofbid="d184257e52__20250123155219">在 Luban 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make km</span>，进入 Kernel 的功能配置界面，使能显示模块驱动：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__pre_swf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__pre_swf_vzb_d1c"><code>Device Drivers
+    Graphics support
+        ArtInChip Graphics  ---&gt;
+            &lt;*&gt; ArtInChip Framebuffer support
+            [*]   ArtInChip display rgb support
+            [ ]   ArtInChip display lvds support
+            [ ]   ArtInChip display mipi-dsi support
+            &lt;*&gt;   ArtInChip Panel Drivers (ArtInChip general RGB panel)  ---&gt;
+</code></pre>
+        </section>
+        <section class="- topic/section section" id="bringup_rgbDisplayConfig__section_twf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__section_twf_vzb_d1c"><h2 class="- topic/title title sectiontitle">uboot
+                dts</h2><p class="- topic/p p" data-ofbid="d184257e65__20250123155219">Uboot
+                如果要进行显示，则声明相应的配置为预加载，以 <span class="+ topic/ph sw-d/filepath ph filepath">demo88_nand</span> 工程为例，文件为
+                    <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/demo88_nand/board-u-boot.dtsi</span></p><strong class="+ topic/ph hi-d/b ph b">声明通路</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__pre_uwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__pre_uwf_vzb_d1c"><code>&amp;disp {
+    u-boot,dm-pre-reloc;
+    fb0: fb@<span class="hl-number">0</span> {
+        u-boot,dm-pre-reloc;
+        port {
+            fb0_out: endpoint {
+                u-boot,dm-pre-reloc;
+            }
+        };
+    };
+};
+
+&amp;de0 {
+    u-boot,dm-pre-reloc;
+    port@<span class="hl-number">0</span> {
+        de0_in: endpoint {
+            u-boot,dm-pre-reloc;
+        };
+    };
+
+    port@<span class="hl-number">1</span> {
+        de0_out: endpoint {
+            u-boot,dm-pre-reloc;
+        };
+    };
+};
+&amp;rgb0 {                             <em class="hl-comment">//RGB</em>
+    u-boot,dm-pre-reloc;
+    port@<span class="hl-number">0</span> {
+        rgb0_in: endpoint {
+            u-boot,dm-pre-reloc;
+        };
+    };
+
+    port@<span class="hl-number">1</span> {
+        rgb0_out: endpoint {
+            u-boot,dm-pre-reloc;
+        };
+    };
+};
+</code></pre><strong class="+ topic/ph hi-d/b ph b">声明屏幕参数</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__pre_vwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__pre_vwf_vzb_d1c"><code>panel_rgb {
+    u-boot,dm-pre-reloc;
+    port {
+        panel_rgb_in: endpoint {
+        u-boot,dm-pre-reloc;
+        };
+    };
+
+    display-timings {
+        u-boot,dm-pre-reloc;
+        timing0: <span class="hl-number">1024</span>x600 {
+            u-boot,dm-pre-reloc;
+        };
+    };
+};</code></pre><strong class="+ topic/ph hi-d/b ph b">声明屏幕引脚</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__pre_wwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__pre_wwf_vzb_d1c"><code>lcd_rgb565_ld_pins: lcd-<span class="hl-number">1</span> {
+    u-boot,dm-pre-reloc;
+    pins {
+        u-boot,dm-pre-reloc;
+    };
+};</code></pre></section>
+        <section class="- topic/section section" id="bringup_rgbDisplayConfig__section_xwf_vzb_d1c" data-ofbid="bringup_rgbDisplayConfig__section_xwf_vzb_d1c"><h2 class="- topic/title title sectiontitle">系统 dts</h2>
+            
+            <div class="- topic/p p" data-ofbid="d184257e94__20250123155219">系统的 dts 将进行完整的功能配置，以 <span class="+ topic/ph sw-d/filepath ph filepath">demo88_nand</span> 工程为例，文件为<span class="+ topic/ph sw-d/filepath ph filepath">
+                    target/d211/demo88_nand/board.dts </span>：<ol class="- topic/ol ol" id="bringup_rgbDisplayConfig__ol_szc_p1c_d1c" data-ofbid="bringup_rgbDisplayConfig__ol_szc_p1c_d1c">
+                    <li class="- topic/li li" data-ofbid="d184257e104__20250123155219">配置通路<div class="- topic/p p" data-ofbid="d184257e106__20250123155219">通过 port 和 status
+                            结点，定义一条数据通道：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__codeblock_q3t_q1c_d1c" data-ofbid="bringup_rgbDisplayConfig__codeblock_q3t_q1c_d1c"><code>fb       |      de    |     |     rgb    |     panel
+port  --&gt; port0   port1 --&gt;  port0   port1 --&gt;  port
+&amp;fb0 {
+    port {
+        fb0_out: endpoint {
+            remote-endpoint = &lt;&amp;de0_in&gt;;
+        };
+    };
+};
+
+&amp;de0 {
+    status = <span class="hl-string">"okay"</span>;
+    port@<span class="hl-number">0</span> {
+        reg = &lt;<span class="hl-number">0</span>&gt;;
+        de0_in: endpoint {
+        remote-endpoint = &lt;&amp;fb0_out&gt;;
+    };
+
+    port@<span class="hl-number">1</span> {
+        reg = &lt;<span class="hl-number">1</span>&gt;;
+        de0_out: endpoint {
+            remote-endpoint = &lt;&amp;rgb0_in&gt;;   <em class="hl-comment">//RGB</em>
+        }
+    };
+};
+
+&amp;rgb0 {
+    pinctrl-names = <span class="hl-string">"default"</span>, <span class="hl-string">"sleep"</span>;
+    pinctrl-<span class="hl-number">0</span> = &lt;&amp;lcd_rgb565_ld_pins&gt;;          <em class="hl-comment">//RGB</em>
+    pinctrl-<span class="hl-number">1</span> = &lt;&amp;lcd_rgb565_ld_sleep_pins&gt;;
+    status = <span class="hl-string">"okay"</span>;
+    port@<span class="hl-number">0</span> {
+        reg = &lt;<span class="hl-number">0</span>&gt;;
+        rgb0_in: endpoint {
+            remote-endpoint = &lt;&amp;de0_out&gt;;
+        }
+    };
+
+    port@<span class="hl-number">1</span> {
+        reg = &lt;<span class="hl-number">1</span>&gt;;
+        rgb0_out: endpoint {
+            remote-endpoint = &lt;&amp;panel_rgb_in&gt;;  <em class="hl-comment">//RGB</em>
+        };
+    };
+}</code></pre></div></li>
+                    <li class="- topic/li li" data-ofbid="d184257e111__20250123155219">配置屏幕参数<p class="- topic/p p" data-ofbid="d184257e113__20250123155219">其中类似 <span class="+ topic/keyword pr-d/parmname keyword parmname">enable-gpios</span> 控制引脚需要根据实际显示屏的需要增加或减少，驱动中做相应修改，
+                        <span class="+ topic/keyword pr-d/parmname keyword parmname">rgb-mode</span> 和 <span class="+ topic/keyword pr-d/parmname keyword parmname">interface-format</span>
+                        需要从规格书中获取， <span class="+ topic/keyword pr-d/parmname keyword parmname">data-order</span>
+                        <span class="+ topic/keyword pr-d/parmname keyword parmname">data-mirror</span> 需要根据板级走线的顺序设置相关参数。
+                        <span class="+ topic/keyword pr-d/parmname keyword parmname">clock-phase</span> 需要根据最终实际的显示效果做相应调整。 关于参数详细的解析，参考 <a class="- topic/xref xref" href="../display/display_parameter_panel_rgb.html">Panel_RGB</a>
+                        的配置说明。</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__codeblock_kjc_s1c_d1c" data-ofbid="bringup_rgbDisplayConfig__codeblock_kjc_s1c_d1c"><code>panel_rgb {
+compatible = <span class="hl-string">"artinchip,aic-general-rgb-panel"</span>;
+status = <span class="hl-string">"okay"</span>;
+
+enable-gpios = &lt;&amp;gpio_e <span class="hl-number">19</span> GPIO_ACTIVE_HIGH&gt;;
+sleep-gpios = &lt;&amp;gpio_e <span class="hl-number">15</span> GPIO_ACTIVE_HIGH&gt;;
+rgb-mode = &lt;PRGB&gt;;
+interface-format = &lt;PRGB_<span class="hl-number">16</span>BIT_LD&gt;;
+clock-phase = &lt;DEGREE_<span class="hl-number">0</span>&gt;;
+data-order = &lt;RGB&gt;;
+disp-dither = &lt;DITHER_RGB565&gt;;
+
+port {
+    panel_rgb_in: endpoint {
+    remote-endpoint = &lt;&amp;rgb0_out&gt;;
+    };
+};
+
+display-timings {
+    native-mode = &lt;&amp;timing0&gt;;
+    timing0: <span class="hl-number">1024</span>x600 {
+        lock-frequency = &lt;<span class="hl-number">52000000</span>&gt;;
+        hactive = &lt;<span class="hl-number">1024</span>&gt;;
+        vactive = &lt;<span class="hl-number">600</span>&gt;;
+        hback-porch = &lt;<span class="hl-number">160</span>&gt;;
+        hfront-porch = &lt;<span class="hl-number">160</span>&gt;;
+        hsync-len = &lt;<span class="hl-number">20</span>&gt;;
+        vback-porch = &lt;<span class="hl-number">12</span>&gt;;
+        vfront-porch = &lt;<span class="hl-number">20</span>&gt;;
+        vsync-len = &lt;<span class="hl-number">3</span>&gt;;
+        de-active = &lt;<span class="hl-number">1</span>&gt;;
+        pixelclk-active = &lt;<span class="hl-number">1</span>&gt;;
+    };
+};</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d184257e141__20250123155219">配置引脚<p class="- topic/p p" data-ofbid="d184257e143__20250123155219">引脚的配置统一在 <span class="+ topic/ph sw-d/filepath ph filepath">d211-pinctrl.dtsi</span> 中完成，在
+                                <span class="+ topic/keyword pr-d/parmname keyword parmname">rgb0</span>
+                        节点中直接进行了引用：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_rgbDisplayConfig__codeblock_x4l_t1c_d1c" data-ofbid="bringup_rgbDisplayConfig__codeblock_x4l_t1c_d1c"><code>&amp;rgb0 {
+    pinctrl-names = <span class="hl-string">"default"</span>, <span class="hl-string">"sleep"</span>;
+    pinctrl-<span class="hl-number">0</span> = &lt;&amp;lcd_rgb565_ld_pins&gt;;
+    pinctrl-<span class="hl-number">1</span> = &lt;&amp;lcd_rgb565_ld_sleep_pins&gt;;
+    status = <span class="hl-string">"okay"</span>;
+    ......
+};</code></pre></li>
+                </ol></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#bringup_rgbDisplayConfig__section_pwf_vzb_d1c" data-tocid="bringup_rgbDisplayConfig__section_pwf_vzb_d1c">配置 Uboot </a></div></li><li class="section-item"><div class="section-title"><a href="#bringup_rgbDisplayConfig__section_rwf_vzb_d1c" data-tocid="bringup_rgbDisplayConfig__section_rwf_vzb_d1c">配置 Kernel </a></div></li><li class="section-item"><div class="section-title"><a href="#bringup_rgbDisplayConfig__section_twf_vzb_d1c" data-tocid="bringup_rgbDisplayConfig__section_twf_vzb_d1c">uboot
+                dts</a></div></li><li class="section-item"><div class="section-title"><a href="#bringup_rgbDisplayConfig__section_xwf_vzb_d1c" data-tocid="bringup_rgbDisplayConfig__section_xwf_vzb_d1c">系统 dts</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

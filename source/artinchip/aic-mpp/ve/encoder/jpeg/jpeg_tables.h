@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg table
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg table
+ */
 
 #ifndef JPEG_TABLES_H
 #define JPEG_TABLES_H

@@ -1,0 +1,399 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="由于驱动支持非命令队列和命令队列两种模式，在提供的用户态 MPP 接口中，对调用驱动的接口进行了封装，保持了统一的调用 API， 建议用户统一使用 MPP 中间层 API。在命令队列模式下，task 会先缓存在用户态的 cmd buffer 中，当调用 mpp_ge_emit 后， 会通过 write 接口把命令写入内核的 ring buffer。 图 1 . 应用调用 MPP 框架 表 1 . ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/ge/ge_design.html"/><meta name="DC.relation" content="../../../topics/sdk/ge/ge_interface.html"/><meta name="DC.relation" content="../../../topics/sdk/ge/ge_blit.html"/><meta name="DC.relation" content="../../../topics/sdk/ge/ge_blit.html"/><meta name="DC.relation" content="../../../topics/sdk/ge/ge_rotate.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="ge_mpp_api"/><meta name="DC.language" content="zh-CN"/><title>MPP 对 GE 接口的封装</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="ge_mpp_api-d4445e4595"/><meta name="wh-source-relpath" content="topics/sdk/ge/ge_mpp_api.dita"/><meta name="wh-out-relpath" content="topics/sdk/ge/ge_mpp_api.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="ge_mpp_api" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="ge"><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html">GE 使用指南</a></div></div></li><li><div class="topicref" data-id="ge_design_intro"><div class="title"><a href="../../../topics/sdk/ge/ge_design.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="ge_mpp_api"><div class="title"><a href="../../../topics/sdk/ge/ge_mpp_api.html">MPP 对 GE 接口的封装</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/ge/ge_interface.html" title="接口设计" aria-label="上一主题: 接口设计" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/ge/ge_blit.html" title="位块搬移" aria-label="下一主题: 位块搬移" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ge_configuration-d4445e4469" class="topicref" data-id="ge_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_config.html" id="ge_configuration-d4445e4469-link">GE 配置</a></div></div></li><li role="treeitem"><div data-tocid="ge_debug_guide-d4445e4483" class="topicref" data-id="ge_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_debug.html" id="ge_debug_guide-d4445e4483-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="ge_test_guide-d4445e4497" class="topicref" data-id="ge_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_test.html" id="ge_test_guide-d4445e4497-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="ge_design_intro-d4445e4511" class="topicref" data-id="ge_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ge_design_intro-d4445e4511-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_design.html" id="ge_design_intro-d4445e4511-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ge_normal_mode-d4445e4525" class="topicref" data-id="ge_normal_mode" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_normal_mode.html" id="ge_normal_mode-d4445e4525-link">非命令队列模式</a></div></div></li><li role="treeitem"><div data-tocid="ge_command_queue_mode-d4445e4539" class="topicref" data-id="ge_command_queue_mode" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_cmdq_mode.html" id="ge_command_queue_mode-d4445e4539-link">命令队列模式</a></div></div></li><li role="treeitem"><div data-tocid="ge-compare-mode-d4445e4553" class="topicref" data-id="ge-compare-mode" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_compare_mode.html" id="ge-compare-mode-d4445e4553-link">非命令队列和命令队列对比</a></div></div></li><li role="treeitem"><div data-tocid="ge_data_structure-d4445e4567" class="topicref" data-id="ge_data_structure" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_data_structure.html" id="ge_data_structure-d4445e4567-link">数据结构设计</a></div></div></li><li role="treeitem"><div data-tocid="ge_interface_design-d4445e4581" class="topicref" data-id="ge_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_interface.html" id="ge_interface_design-d4445e4581-link">接口设计</a></div></div></li><li role="treeitem" aria-expanded="true" class="active"><div data-tocid="ge_mpp_api-d4445e4595" class="topicref" data-id="ge_mpp_api" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ge_mpp_api-d4445e4595-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_mpp_api.html" id="ge_mpp_api-d4445e4595-link">MPP 对 GE 接口的封装</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ge_位块搬移-d4445e4609" class="topicref" data-id="ge_位块搬移" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_blit.html" id="ge_位块搬移-d4445e4609-link">位块搬移</a></div></div></li><li role="treeitem"><div data-tocid="ge_任意角度旋转_0-d4445e4623" class="topicref" data-id="ge_任意角度旋转_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_rotate.html" id="ge_任意角度旋转_0-d4445e4623-link">任意角度旋转</a></div></div></li></ul></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/ge/ge_mpp_api.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">MPP 对 GE 接口的封装</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/div div">
+            <p class="- topic/p p" data-ofbid="d143679e35__20250123155213">由于驱动支持非命令队列和命令队列两种模式，在提供的用户态 MPP 接口中，对调用驱动的接口进行了封装，保持了统一的调用 API， 建议用户统一使用 MPP 中间层
+                API。在命令队列模式下，task 会先缓存在用户态的 cmd  buffer 中，当调用 mpp_ge_emit 后， 会通过 write 接口把命令写入内核的
+                ring buffer。</p>
+            <figure class="- topic/fig fig fignone" id="ge_mpp_api__fig_ddt_g2b_d1c" data-ofbid="ge_mpp_api__fig_ddt_g2b_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="ge_mpp_api__image_eg3_g2b_d1c" src="../../../images/ge/ge_function_call_mpp.png" width="480" alt="ge_call_mpp"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">应用调用 MPP 框架</span></figcaption></figure>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ge_mpp_api__table_kly_z1p_bcc" data-ofbid="ge_mpp_api__table_kly_z1p_bcc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">MPP 封装接口语法</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_kly_z1p_bcc__entry__1">接口名称</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_kly_z1p_bcc__entry__2">语法</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_open</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_lly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_lly_z1p_bcc"><code><strong class="hl-keyword">struct</strong> mpp_ge *mpp_ge_open();</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_close</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_mly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_mly_z1p_bcc"><code><strong class="hl-keyword">void</strong> mpp_ge_close(<strong class="hl-keyword">struct</strong> mpp_ge *ge);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_get_mode</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_nly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_nly_z1p_bcc"><code><strong class="hl-keyword">enum</strong> ge_mode mpp_ge_get_mode(<strong class="hl-keyword">struct</strong> mpp_ge *ge);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_add_dmabuf</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_oly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_oly_z1p_bcc"><code><strong class="hl-keyword">int</strong> mpp_ge_add_dmabuf(<strong class="hl-keyword">struct</strong> mpp_ge *ge, <strong class="hl-keyword">int</strong> dma_fd);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_rm_dmabuf</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_qly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_qly_z1p_bcc"><code><strong class="hl-keyword">int</strong> mpp_ge_rm_dmabuf(<strong class="hl-keyword">struct</strong> mpp_ge *ge, <strong class="hl-keyword">int</strong> dma_fd);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_fillrect</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_sly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_sly_z1p_bcc"><code><strong class="hl-keyword">int</strong> mpp_ge_fillrect(<strong class="hl-keyword">struct</strong> mpp_ge *ge, <strong class="hl-keyword">struct</strong> ge_fillrect *fillrect);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_bitblt</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_vly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_vly_z1p_bcc"><code><strong class="hl-keyword">int</strong> mpp_ge_bitblt(<strong class="hl-keyword">struct</strong> mpp_ge *ge, <strong class="hl-keyword">struct</strong> ge_bitblt *blt);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_rotate</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_yly_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_yly_z1p_bcc"><code><strong class="hl-keyword">int</strong> mpp_ge_rotate(<strong class="hl-keyword">struct</strong> mpp_ge *ge, <strong class="hl-keyword">struct</strong> ge_rotation *rot);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_emit</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_bmy_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_bmy_z1p_bcc"><code>nt mpp_ge_emit(<strong class="hl-keyword">struct</strong> mpp_ge *ge);</code></pre>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__1">mpp_ge_sync</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_kly_z1p_bcc__entry__2">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ge_mpp_api__codeblock_dmy_z1p_bcc" data-ofbid="ge_mpp_api__codeblock_dmy_z1p_bcc"><code>iint mpp_ge_sync(<strong class="hl-keyword">struct</strong> mpp_ge *ge);</code></pre>
+                            </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ge_mpp_api__table_cft_dfb_d1c" data-ofbid="ge_mpp_api__table_cft_dfb_d1c" data-cols="5"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">MPP 封装接口功能描述</span></caption><colgroup><col style="width:12.531328320802004%"/><col style="width:17.042606516290725%"/><col style="width:17.167919799498748%"/><col style="width:17.293233082706767%"/><col style="width:35.96491228070175%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_cft_dfb_d1c__entry__1">接口名称</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_cft_dfb_d1c__entry__2">功能说明</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_cft_dfb_d1c__entry__3">参数定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_cft_dfb_d1c__entry__4">返回值</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="ge_mpp_api__table_cft_dfb_d1c__entry__5">注意事项</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_open</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">打开 ge 设备</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <p class="- topic/p p" data-ofbid="d143679e253__20250123155213">struct mpp_ge 结构体指针</p>
+                                <p class="- topic/p p" data-ofbid="d143679e256__20250123155213">NULL：失败</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_close</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">关闭 ge 设备</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_get_mode</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">获取 GE 模式</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <p class="- topic/p p" data-ofbid="d143679e295__20250123155213">enum ge_mode 枚举类型</p>
+                                <p class="- topic/p p" data-ofbid="d143679e298__20250123155213">通过返回值可以获取 GE 是否工作在命令队列模式</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_add_dmabuf</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">添加 DMA buffer</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge：struct mpp_ge 结构体指针<p class="- topic/p p" data-ofbid="d143679e316__20250123155213">dma_fd：dma buffer fd</p></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_cj2_hgb_d1c" data-ofbid="ge_mpp_api__ul_cj2_hgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e323__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e326__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_rm_dmabuf</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">删除 DMA buffer</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge：struct mpp_ge 结构体指针<p class="- topic/p p" data-ofbid="d143679e345__20250123155213">dma_fd：dma buffer fd</p></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_klv_jgb_d1c" data-ofbid="ge_mpp_api__ul_klv_jgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e352__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e355__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_fillrect</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">矩形填充</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针<p class="- topic/p p" data-ofbid="d143679e375__20250123155213">fillrect:struct ge_fillrect
+                                结构体指针</p></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_oh3_kgb_d1c" data-ofbid="ge_mpp_api__ul_oh3_kgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e382__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e385__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">normal（非命令队列）模式此接口是同步的。命令队列模式此接口是异步的：<ul class="- topic/ul ul" id="ge_mpp_api__ul_up1_lgb_d1c" data-ofbid="ge_mpp_api__ul_up1_lgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e394__20250123155213">当用户态的缓存 buffer 足够时候仅把命令缓存在用户态。</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e397__20250123155213">当用户态的缓存空间不够的时候，先通过 write 接口，把缓存的命令全部写入驱动，然后再把当前命令缓存到用户态
+                                        buffer。</li>
+                                </ul></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_bitblt</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2"><a class="- topic/xref xref" href="ge_blit.html">位块搬移</a></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针<p class="- topic/p p" data-ofbid="d143679e414__20250123155213">blt:struct ge_bitblt 结构体指针</p></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_jqh_4gb_d1c" data-ofbid="ge_mpp_api__ul_jqh_4gb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e421__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e424__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">normal（非命令队列）模式此接口是同步的。命令队列模式此接口是异步的：<ul class="- topic/ul ul" id="ge_mpp_api__ul_uch_pgb_d1c" data-ofbid="ge_mpp_api__ul_uch_pgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e433__20250123155213">当用户态的缓存 buffer 足够时候仅把命令缓存在用户态。</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e436__20250123155213">当用户态的缓存空间不够的时候，先通过 write 接口，把缓存的命令全部写入驱动，然后再把当前命令缓存到用户态
+                                        buffer。</li>
+                                </ul></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_rotate</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2"><a class="- topic/xref xref" href="ge_rotate.html">任意角度旋转</a></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针<p class="- topic/p p" data-ofbid="d143679e453__20250123155213">rot:struct ge_rotation
+                                结构体指针</p></td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_v4x_qgb_d1c" data-ofbid="ge_mpp_api__ul_v4x_qgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e460__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e463__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">normal（非命令队列）模式此接口是同步的。命令队列模式此接口是异步的：<ul class="- topic/ul ul" id="ge_mpp_api__ul_dbg_rgb_d1c" data-ofbid="ge_mpp_api__ul_dbg_rgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e472__20250123155213">当用户态的缓存 buffer 足够时候仅把命令缓存在用户态。</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e475__20250123155213">当用户态的缓存空间不够的时候，先通过 write 接口，把缓存的命令全部写入驱动，然后再把当前命令缓存到用户态
+                                        buffer。</li>
+                                </ul></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_emit</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">向驱动发送命令</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_zy1_sgb_d1c" data-ofbid="ge_mpp_api__ul_zy1_sgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e495__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e498__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">normal（非命令队列）模式此接口为空，不产生任何作用。<p class="- topic/p p" data-ofbid="d143679e505__20250123155213">命令队列模式此接口通过 write 接口，把用户态 buffer
+                                    中缓存的命令都写入驱动。</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__1">mpp_ge_sync</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__2">阻塞等待所有任务执行完成</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__3">ge: struct mpp_ge 结构体指针</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__4">
+                                <ul class="- topic/ul ul" id="ge_mpp_api__ul_bc2_sgb_d1c" data-ofbid="ge_mpp_api__ul_bc2_sgb_d1c">
+                                    <li class="- topic/li li" data-ofbid="d143679e524__20250123155213">0：成功</li>
+                                    <li class="- topic/li li" data-ofbid="d143679e527__20250123155213">&lt;0：失败</li>
+                                </ul>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="ge_mpp_api__table_cft_dfb_d1c__entry__5">normal（非命令队列）模式此接口为空，不产生任何作用。<p class="- topic/p p" data-ofbid="d143679e534__20250123155213">命令队列模式此接口通过调用 SYNC
+                                    接口，等待所有任务都完成。</p></td>
+                        </tr>
+                    </tbody></table></div>
+        </div>
+    </div>
+</article></main></div>
+                        
+                        <div class=" wh_child_links d-print-none "><nav aria-label="Child Links" role="navigation" class="- topic/related-links related-links"><ul class="ullinks"><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/ge/ge_blit.html">位块搬移</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/ge/ge_rotate.html">任意角度旋转</a></strong></li></ul></nav></div>
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

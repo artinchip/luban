@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ * Copyright (C) 2020-2025 ArtInChip Technology Co., Ltd.
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -820,6 +820,14 @@ static int aic_ge_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	init_waitqueue_head(&data->wait);
+
+	mutex_init(&data->lock);
+	spin_lock_init(&data->hw_lock);
+
+	INIT_LIST_HEAD(&data->free);
+	INIT_LIST_HEAD(&data->ready);
+	INIT_LIST_HEAD(&data->client_list);
+
 	dev_set_drvdata(&pdev->dev, data);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -851,10 +859,6 @@ static int aic_ge_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Couldn't request graphics engine IRQ\n");
 		return ret;
 	}
-
-	INIT_LIST_HEAD(&data->free);
-	INIT_LIST_HEAD(&data->ready);
-	INIT_LIST_HEAD(&data->client_list);
 
 	for (i = 0; i < MAX_BATCH_NUM; i++) {
 		ret = ge_alloc_batch_buffer(&pdev->dev, data);
@@ -899,9 +903,6 @@ static int aic_ge_probe(struct platform_device *pdev)
 	data->dev = &pdev->dev;
 
 	aic_ge_sysfs_create(&pdev->dev);
-
-	mutex_init(&data->lock);
-	spin_lock_init(&data->hw_lock);
 
 	g_data = data;
 	return 0;

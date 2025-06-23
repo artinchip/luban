@@ -9,4 +9,4 @@ obj-$(CONFIG_AIC_DISP_LVDS) += aic_lvds.o
 obj-$(CONFIG_AIC_DISP_MIPI_DSI_V1_0) += hw/dsi_hw_v1.0.o aic_dsi.o
 
 obj-$(CONFIG_ARTINCHIP_FB) += aic_disp.o  panel/
-aic_disp-y += aic_fb.o hw/de_hw.o aic_de.o
+aic_disp-y += aic_fb.o aic_fb_ioctl.o hw/de_hw.o aic_de.o

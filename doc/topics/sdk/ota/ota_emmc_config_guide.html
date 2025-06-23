@@ -1,0 +1,582 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="eMMC OTA 主要涉及以下参数配置，以 d211_demo 的配置流程为例： 主系统 ：配置文件 d211_demo_defconfig 。 1. target/d211/demo/image_cfg.json //分区配置和烧录 2. target/d211/common/env.txt //U-Boot 环境变量 3. ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/ota/ota_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/ota/ota_introduction_lb.html"/><meta name="DC.relation" content="../../../topics/sdk/ota/ota_emmc_test_guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><title>eMMC OTA 参数配置</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1523"/><meta name="wh-source-relpath" content="topics/sdk/ota/ota_emmc_config_guide.dita"/><meta name="wh-out-relpath" content="topics/sdk/ota/ota_emmc_config_guide.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html">OTA 方案</a></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/ota/ota_emmc_config_guide.html">eMMC OTA 参数配置</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/ota/ota_introduction_lb.html" title="模块介绍" aria-label="上一主题: 模块介绍" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/ota/ota_emmc_test_guide.html" title="eMMC 平台测试指南" aria-label="下一主题: eMMC 平台测试指南" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="id-d4445e1509" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_introduction_lb.html" id="id-d4445e1509-link">模块介绍</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1523" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_emmc_config_guide.html" id="id-d4445e1523-link">eMMC OTA 参数配置</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1537" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_emmc_test_guide.html" id="id-d4445e1537-link">eMMC 平台测试指南</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1551" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_spinand_config_guide.html" id="id-d4445e1551-link">SPINAND OTA 参数配置</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1565" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_spinand_test_guide.html" id="id-d4445e1565-link">SPI NAND 平台测试指南</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1579" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_design.html" id="id-d4445e1579-link">Luban OTA 升级包制作过程</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1593" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_faq.html" id="id-d4445e1593-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/ota/ota_emmc_config_guide.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">eMMC OTA 参数配置</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 8 minute(s)
+                </div>
+    <div class="- topic/body body">
+            <div class="- topic/p p" data-ofbid="d101071e28__20250123155208">eMMC OTA 主要涉及以下参数配置，以 <code class="+ topic/ph pr-d/codeph ph codeph">d211_demo</code> 的配置流程为例：<ul class="- topic/ul ul" id="id__ul_mpk_d24_hdc" data-ofbid="id__ul_mpk_d24_hdc">
+                <li class="- topic/li li" data-ofbid="d101071e35__20250123155208">
+                    <div class="- topic/p p" data-ofbid="d101071e37__20250123155208"><a class="- topic/xref xref" href="ota_emmc_config_guide.html#id__section_kns_zg4_hdc">主系统</a>：配置文件
+                            <span class="+ topic/ph sw-d/filepath ph filepath">d211_demo_defconfig</span>。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_kmq_nqw_fdc" data-ofbid="id__codeblock_kmq_nqw_fdc"><code><span class="hl-number">1.</span> target/d211/demo/image_cfg.json <em class="hl-comment">//分区配置和烧录</em>
+<span class="hl-number">2.</span> target/d211/common/env.txt <em class="hl-comment">//U-Boot 环境变量</em>
+<span class="hl-number">3.</span> target/d211/demo/rootfs_overlay/etc/fw_env.config <em class="hl-comment">//环境变量分区信息</em>
+<span class="hl-number">4.</span> target/d211/demo/rootfs_overlay/etc/swupdate_main <em class="hl-comment">//挂载 OTA 本地升级文件系统</em>
+<span class="hl-number">5.</span> target/d211/demo/swupdate/sw-description <em class="hl-comment">//OTA 策略描述文件</em>
+<span class="hl-number">6.</span> target/d211/demo/swupdate/sw-images.cfg <em class="hl-comment">//打包相应文件到 OTA 升级包中</em>
+<span class="hl-number">7.</span> target/configs/d211_demo_defconfig <em class="hl-comment">//板级配置文件</em></code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d101071e49__20250123155208">
+                    <div class="- topic/p p" data-ofbid="d101071e51__20250123155208"><a class="- topic/xref xref" href="ota_emmc_config_guide.html#id__section_qlk_1h4_hdc">Recovery
+                        系统</a>：配置文件
+                        <span class="+ topic/ph sw-d/filepath ph filepath">d211_ota_emmc_defconfig</span>。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_fsw_nqw_fdc" data-ofbid="id__codeblock_fsw_nqw_fdc"><code><span class="hl-number">1.</span> target/d211/ota_emmc/rootfs_overlay/etc/fw_env.config <em class="hl-comment">//环境变量分区信息</em>
+<span class="hl-number">2.</span> target/d211/ota_emmc/rootfs_overlay/etc/init.d/S91swupdate_ota <em class="hl-comment">//开机自动挂载 OTA 分区与启动 OTA 升级程序</em>
+<span class="hl-number">3.</span> target/configs/d211_ota_emmc_defconfig <em class="hl-comment">//OTA 配置文件</em></code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d101071e63__20250123155208">
+                    <p class="- topic/p p" data-ofbid="d101071e65__20250123155208">主系统与 Recovery 系统启动脚本文件
+                            <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/swupdate/S90swupdate</span>，开机后台执行
+                        SWUpdate 程序。</p>
+                </li>
+            </ul></div>
+            <section class="- topic/section section" id="id__section_qlk_1h4_hdc" data-ofbid="id__section_qlk_1h4_hdc"><h2 class="- topic/title title sectiontitle">Recovery 系统配置</h2>
+            
+            <p class="- topic/p p" data-ofbid="d101071e78__20250123155208">为了简化使用，Recovery 系统的 OTA 相关配置已打开，用户无需手动开启。</p>
+            <ol class="- topic/ol ol" id="id__ol_zth_j24_hdc" data-ofbid="id__ol_zth_j24_hdc">
+                <li class="- topic/li li" data-ofbid="d101071e83__20250123155208"><strong class="+ topic/ph hi-d/b ph b">配置 SWUpdate 包</strong>
+                    <p class="- topic/p p" data-ofbid="d101071e87__20250123155208">Recovery 系统配置文件路径为
+                            <span class="+ topic/ph sw-d/filepath ph filepath">target/configs/d211_ota_emmc_defconfig</span>。</p><ol class="- topic/ol ol" type="a" id="id__ol_eh4_z24_hdc" data-ofbid="id__ol_eh4_z24_hdc">
+                        <li class="- topic/li li" data-ofbid="d101071e94__20250123155208">执行下列命令进入 Recovery 系统 SDK
+                            生产环境：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_n4j_j24_hdc" data-ofbid="id__pre_n4j_j24_hdc"><code>lunch ota_emmc</code></pre></li>
+                        <li class="- topic/li li" data-ofbid="d101071e99__20250123155208">
+                            <div class="- topic/p p" data-ofbid="d101071e101__20250123155208">在 Luban SDK
+                                根目录下，执行下列命令进入功能配置界面：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_brc_dzr_ldc" data-ofbid="id__codeblock_brc_dzr_ldc"><code>make m</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d101071e107__20250123155208">
+                            <div class="- topic/p p" data-ofbid="d101071e109__20250123155208">在 Luban SDK
+                                功能配置界面，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_p4j_j24_hdc" data-ofbid="id__pre_p4j_j24_hdc"><code>Third-party packages  ---&gt;
+    -*- libubootenv  ---&gt;
+    -*- libconfig  ---&gt;
+    -*- libcurl  ---&gt;
+    [*] swupdate  ---&gt;</code></pre></div>
+                        </li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d101071e116__20250123155208"><strong class="+ topic/ph hi-d/b ph b">配置 RootFS 为 initramfs</strong>
+                    <ol class="- topic/ol ol" type="a" id="id__ol_uzr_2f4_hdc" data-ofbid="id__ol_uzr_2f4_hdc">
+                        <li class="- topic/li li" data-ofbid="d101071e122__20250123155208">
+                            <p class="- topic/p p" data-ofbid="d101071e124__20250123155208">默认切换
+                                <span class="+ topic/ph ui-d/uicontrol ph uicontrol">RootFS images</span> 为<span class="+ topic/ph ui-d/uicontrol ph uicontrol">initial RAM
+                                    filesystem (initramfs)</span>，执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make m</span>
+                                命令 。</p>
+                            <div class="- topic/p p" data-ofbid="d101071e139__20250123155208">配置如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_jzm_j24_hdc" data-ofbid="id__pre_jzm_j24_hdc"><code>Filesystem images  ---&gt;
+    RootFS images  ---&gt;
+        -*- cpio the root filesystem (<strong class="hl-keyword">for</strong> use as an initial RAM filesystem)
+            Compression method (gzip)  ---&gt;
+    [*] initial RAM filesystem linked into linux kernel</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d101071e145__20250123155208">
+                            <p class="- topic/p p" data-ofbid="d101071e147__20250123155208">默认将
+                                initramfs 编译进 Kernel，执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make km</span> 命令。</p>
+                            <div class="- topic/p p" data-ofbid="d101071e156__20250123155208">配置如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_lzm_j24_hdc" data-ofbid="id__pre_lzm_j24_hdc"><code>General setup  ---&gt;
+    [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
+    [*]   Support initial ramdisk/ramfs compressed using gzip</code></pre></div>
+                        </li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d101071e163__20250123155208">
+                    <div class="- topic/div div section" id="id__id1">
+                        <strong class="+ topic/ph hi-d/b ph b">编译 Recovery 系统</strong>
+                        <ol class="- topic/ol ol" type="a" id="id__ul_ct3_cg1_rdc" data-ofbid="id__ul_ct3_cg1_rdc">
+                            <li class="- topic/li li" data-ofbid="d101071e172__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e174__20250123155208">检查或配置完成后，执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make m</span> 命令编译 Recovery 系统。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e181__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e183__20250123155208">编译完成后，将 <span class="+ topic/ph sw-d/filepath ph filepath">Recovery.gz</span> 从
+                                        <span class="+ topic/ph sw-d/filepath ph filepath">output/d211_ota_emmc/images</span> 目录拷贝到
+                                        <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/common</span> 目录下。</p>
+                                <div class="- topic/p p" data-ofbid="d101071e195__20250123155208">各板级文件编译时会打包 <span class="+ topic/ph sw-d/filepath ph filepath">Recovery.gz</span> 到最终的镜像文件中，从而烧录到
+                                        <code class="+ topic/ph pr-d/codeph ph codeph">recovery 分区</code> 中。<ul class="- topic/ul ul arabic simple" id="id__ol_rgr_j24_hdc" data-ofbid="id__ol_rgr_j24_hdc">
+                                        <li class="- topic/li li" data-ofbid="d101071e205__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e207__20250123155208"><span class="+ topic/ph sw-d/filepath ph filepath">Recovery.gz</span>：Recovery 系统打包镜像文件，为
+                                                  <code class="+ topic/ph pr-d/codeph ph codeph">d211 eMMC</code> 平台通用 Recovery 系统。</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d101071e216__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e218__20250123155208"><span class="+ topic/ph sw-d/filepath ph filepath">output/d211_ota_emmc/images</span>：存放生成的
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">Recovery.gz</span> 文件。</p>
+                                        </li>
+                                    </ul></div>
+                            </li>
+                        </ol></div>
+                </li>
+            </ol>
+        </section>
+            <section class="- topic/section section" id="id__section_kns_zg4_hdc" data-ofbid="id__section_kns_zg4_hdc"><h2 class="- topic/title title sectiontitle">主系统配置</h2>
+            
+            <ol class="- topic/ol ol" id="id__ol_omv_j24_hdc" data-ofbid="id__ol_omv_j24_hdc">
+                <li class="- topic/li li" data-ofbid="d101071e240__20250123155208">
+                    <div class="- topic/div div section" id="id__id3">
+                        <strong class="+ topic/ph hi-d/b ph b">配置 SWUpdate 包参数</strong>
+                        <div class="- topic/note note note note_note" id="id__note_rxq_zxr_ldc" data-ofbid="id__note_rxq_zxr_ldc"><span class="note__title">注：</span> <div class="note__body">如果需要重新配置 SWUpdate 参数，必须先关掉 SWUpdate 预编译功能，修改的
+                            SWUpdate 配置才能够生效。</div></div><ol class="- topic/ol ol" type="a" id="id__ol_jbw_m24_hdc" data-ofbid="id__ol_jbw_m24_hdc">
+                            <li class="- topic/li li" data-ofbid="d101071e251__20250123155208">
+                                <div class="- topic/p p" data-ofbid="d101071e253__20250123155208">执行下列命令进入主系统 SDK
+                                    生产环境：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_yc1_k24_hdc" data-ofbid="id__pre_yc1_k24_hdc"><code>lunch d211_demo</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e259__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e261__20250123155208">在 Luban SDK 根目录下执行下列命令，进入功能配置界面：</p>
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_zc1_k24_hdc" data-ofbid="id__pre_zc1_k24_hdc"><code>make m</code></pre>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e268__20250123155208">
+                                <div class="- topic/p p" data-ofbid="d101071e270__20250123155208">在 Luban SDK
+                                    功能配置，按如下选择：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_ad1_k24_hdc" data-ofbid="id__pre_ad1_k24_hdc"><code>Third-party packages  ---&gt;
+    -*- libubootenv  ---&gt;
+    -*- libconfig  ---&gt;
+    -*- libcurl  ---&gt;
+    [*] swupdate  ---&gt;</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e276__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e278__20250123155208">查看并修改 SWUpdate 库相关配置。</p>
+                                <p class="- topic/p p" data-ofbid="d101071e281__20250123155208">关于 SWUpdate 包的参数描述，可查看<a class="- topic/xref xref" href="ota_introduction_lb.html#id__table_bd1_k24_hdc">SWUpdate 包重要配置描述</a>。</p>
+                                <div class="- topic/p p" data-ofbid="d101071e288__20250123155208">示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_zmj_nrw_fdc" data-ofbid="id__codeblock_zmj_nrw_fdc"><code>[*]   use prebuilt binary instead of building from source
+(package/third-party/swupdate/luban_swupdate.config) swupdate configuration file
+[*]   swupdate webserver</code></pre></div>
+                                <ol class="- topic/ol ol" type="i" id="id__ol_kyx_34t_hdc" data-ofbid="id__ol_kyx_34t_hdc">
+                                    <li class="- topic/li li" data-ofbid="d101071e295__20250123155208">
+                                        <div class="- topic/p p" data-ofbid="d101071e297__20250123155208">取消勾选下列选项，关闭 SWUpdate
+                                            预编译功能：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_gcv_nrw_fdc" data-ofbid="id__codeblock_gcv_nrw_fdc"><code>[ ]   use prebuilt binary instead of building from source</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d101071e303__20250123155208">
+                                        <div class="- topic/p p" data-ofbid="d101071e305__20250123155208">执行下列命令查看和修改 SWUpdate
+                                            相关配置：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_t5h_4rw_fdc" data-ofbid="id__codeblock_t5h_4rw_fdc"><code>make swupdate-menuconfig</code></pre></div>
+                                    </li>
+                                </ol>
+                            </li>
+                        </ol></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d101071e315__20250123155208">
+                    <div class="- topic/div div section" id="id__id4">
+                        <strong class="+ topic/ph hi-d/b ph b">增加 <code class="+ topic/ph pr-d/codeph ph codeph">recovery</code> 分区并烧录系统镜像程序</strong>
+                        <div class="- topic/p p" data-ofbid="d101071e325__20250123155208">在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 中：<ol class="- topic/ol ol" type="a" id="id__ol_hzp_ch1_rdc" data-ofbid="id__ol_hzp_ch1_rdc">
+                                <li class="- topic/li li" data-ofbid="d101071e332__20250123155208">
+                                    <div class="- topic/p p" data-ofbid="d101071e334__20250123155208">添加 <code class="+ topic/ph pr-d/codeph ph codeph">recovery</code>
+                                        分区：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_hg2_dh1_rdc" data-ofbid="id__codeblock_hg2_dh1_rdc"><code><span class="hl-string">"kernel"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"12m"</span> },
++ <span class="hl-string">"recovery"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"16m"</span> },          <em class="hl-comment">//在 kernel 分区后面增加 recovery 分区</em></code></pre></div>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d101071e343__20250123155208">
+                                    <div class="- topic/p p" data-ofbid="d101071e345__20250123155208">确保 <span class="+ topic/ph sw-d/filepath ph filepath">kernel.its</span> 和
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">recovery.its</span>
+                                        文件存在并正确配置：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_dwr_prw_fdc" data-ofbid="id__codeblock_dwr_prw_fdc"><code><span class="hl-string">"kernel"</span>: {
+        <span class="hl-string">"file"</span>: <span class="hl-string">"kernel.itb"</span>,
+        <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],      <em class="hl-comment">//在 kernel 镜像烧录配置后面添加 recovery 镜像烧录配置</em>
+        <span class="hl-string">"part"</span>: [<span class="hl-string">"kernel"</span>]
+},
++ <span class="hl-string">"recovery"</span>: {
++    <span class="hl-string">"file"</span>: <span class="hl-string">"recovery.itb"</span>,              <em class="hl-comment">//将 recovery.itb 镜像文件烧录到 recovery 分区里面</em>
++    <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
++    <span class="hl-string">"part"</span>: [<span class="hl-string">"recovery"</span>]
++ },
+
+<span class="hl-string">"kernel.itb"</span>: {
+        <span class="hl-string">"its"</span>: <span class="hl-string">"kernel.its"</span>               <em class="hl-comment">//在 kernel 镜像生成方法后面增加 recovery 镜像生成方法</em>
+
+},
++ <span class="hl-string">"recovery.itb"</span>: {
++    <span class="hl-string">"its"</span>: <span class="hl-string">"recovery.its"</span>                <em class="hl-comment">//配置 recovery.itb 文件通过 recovery.its 指导编译完成</em>
++ },</code></pre></div>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d101071e357__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d101071e359__20250123155208">在 <span class="+ topic/ph sw-d/filepath ph filepath">image</span> 目录中<strong class="+ topic/ph hi-d/b ph b">检查
+                                                <span class="+ topic/ph sw-d/filepath ph filepath">recovery.itb</span> 文件是否生成</strong>。</p>
+                                    <p class="- topic/p p" data-ofbid="d101071e371__20250123155208">通过升级信息判断 <span class="+ topic/ph sw-d/filepath ph filepath">recovery.itb</span> 是否烧录到 recovery
+                                        分区。</p>
+                                </li>
+                            </ol></div></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d101071e380__20250123155208">
+                    <div class="- topic/div div section" id="id__ota-ota">
+                        <strong class="+ topic/ph hi-d/b ph b">增加 OTA 分区并烧录 OTA 升级包</strong>，用于验证本地 OTA 使用。<p class="- topic/p p" data-ofbid="d101071e387__20250123155208">如使用网络 OTA 或 SD 卡
+                            OTA，可略过此步。</p><ol class="- topic/ol ol" type="a" id="id__ol_qrq_pf4_hdc" data-ofbid="id__ol_qrq_pf4_hdc">
+                            <li class="- topic/li li" data-ofbid="d101071e391__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e393__20250123155208">在 <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/demo/image_cfg.json</span> 文件中，增加 OTA
+                                    分区配置：</p>
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_msy_qrw_fdc" data-ofbid="id__codeblock_msy_qrw_fdc"><code><span class="hl-string">"partitions"</span>: { <em class="hl-comment">// Partition table apply to device</em>
+        <span class="hl-string">"rootfs"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"72m"</span> },
++       <span class="hl-string">"ota"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"96m"</span> },
+},
+
+<span class="hl-string">"rootfs"</span>: {
+    <span class="hl-string">"file"</span>: <span class="hl-string">"rootfs.ext4"</span>,
+    <span class="hl-string">"attr"</span>: [<span class="hl-string">"block"</span>, <span class="hl-string">"required"</span>],
+    <span class="hl-string">"part"</span>: [<span class="hl-string">"rootfs"</span>]
+},
++ <span class="hl-string">"ota"</span>: {
++    <span class="hl-string">"file"</span>: <span class="hl-string">"ota.ext4"</span>,
++    <span class="hl-string">"attr"</span>: [<span class="hl-string">"block"</span>, <span class="hl-string">"required"</span>],
++    <span class="hl-string">"part"</span>: [<span class="hl-string">"ota"</span>]
++ },</code></pre>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e403__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e405__20250123155208">将 OTA 升级包下载到 <code class="+ topic/ph pr-d/codeph ph codeph">ota 分区</code>，方便测试 OTA 本地升级功能。</p>
+                                <p class="- topic/p p" data-ofbid="d101071e411__20250123155208">关于 <code class="+ topic/ph pr-d/codeph ph codeph">ota 分区</code>说明，可查看 <a class="- topic/xref xref" href="ota_introduction_lb.html#id__luban-ota">Luban OTA 方案介绍</a>。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e422__20250123155208">
+                                <div class="- topic/p p" data-ofbid="d101071e424__20250123155208">执行下列命令进入主系统 SDK
+                                    生产环境：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_nhh_k24_hdc" data-ofbid="id__pre_nhh_k24_hdc"><code>lunch d211_demo</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e430__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e432__20250123155208">在 Luban SDK 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make m</span> 命令。</p>
+                                <div class="- topic/p p" data-ofbid="d101071e438__20250123155208">配置如下：
+                                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_phh_k24_hdc" data-ofbid="id__pre_phh_k24_hdc"><code>Filesystem images  ---&gt;
+    [*] UserFS <span class="hl-number">1</span>  ---&gt;
+    (ota) Name
+        FS Type (Ext4)  ---&gt;
+    [*]   generate sparse format filesystem
+    (<span class="hl-number">96</span>M) Size
+    (<span class="hl-number">0</span>)   Number of inodes (leave at <span class="hl-number">0</span> <strong class="hl-keyword">for</strong> <strong class="hl-keyword">auto</strong> calculation)
+    (<span class="hl-number">5</span>)   Reserved blocks percentage
+    (-O ^<span class="hl-number">64</span>bit) Additional mke2fs options
+    (target/$(LUBAN_CHIP_NAME)/$(LUBAN_BOARD_NAME)/ota) Overlay directory</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d101071e446__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d101071e448__20250123155208">将
+                                        <span class="+ topic/ph sw-d/filepath ph filepath">target/$(LUBAN_CHIP_NAME)/$(LUBAN_BOARD_NAME)/ota</span>
+                                    目录里的内容生成 <span class="+ topic/ph sw-d/filepath ph filepath">ota.ext4</span> 镜像文件，之后将整个文件烧录到
+                                        <code class="+ topic/ph pr-d/codeph ph codeph">ota </code> 分区中。</p>
+                            </li>
+                        </ol></div>
+                </li>
+            </ol>
+        </section>
+            <section class="- topic/section section" id="id__u-boot" data-ofbid="id__u-boot"><h2 class="- topic/title title sectiontitle">U-Boot 环境变量配置</h2>
+            
+            <p class="- topic/p p" data-ofbid="d101071e470__20250123155208">为了简化使用，U-Boot 环境变量的 OTA 相关配置已添加和开启，无需用户手动配置。</p>
+            <div class="- topic/p p" data-ofbid="d101071e473__20250123155208">通过环境变量 <code class="+ topic/ph pr-d/codeph ph codeph">boot_partition</code> 确定从 <code class="+ topic/ph pr-d/codeph ph codeph">kernel 分区</code>还是
+                    <code class="+ topic/ph pr-d/codeph ph codeph">recovery 分区</code>引导启动。<ol class="- topic/ol ol" id="id__ul_pwn_vf4_hdc" data-ofbid="id__ul_pwn_vf4_hdc">
+                    <li class="- topic/li li" data-ofbid="d101071e486__20250123155208">
+                        <div class="- topic/p p" data-ofbid="d101071e488__20250123155208">修改 <span class="+ topic/ph sw-d/filepath ph filepath"><var class="+ topic/keyword sw-d/varname keyword varname">project
+                                directory</var>/common/env.txt</span> 文件中的相关参数，以
+                                <span class="+ topic/ph sw-d/filepath ph filepath">d211/common/env.txt</span>
+                            为例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_esv_vf4_hdc" data-ofbid="id__pre_esv_vf4_hdc"><code>+ set_commonargs_recovery=setenv bootargs earlycon=${earlycon} earlyprintk console=${console} rdinit=/linuxrc
++  <em class="hl-comment">//从 Recovery 系统启动, 引导 initramfs 启动</em>
+
++ set_mmc_bootargs_recovery=run set_commonargs_recovery; \ <em class="hl-comment">//设置环境变量 set_mmc_bootargs_recovery</em>
+                      run set_mmc_root; \
+                      setenv bootargs <span class="hl-string">"${bootargs}"</span>;
+
++ boot_partition=kernel   <em class="hl-comment">//初始化环境变量 boot_partition 从 kernel 分区启动</em>
+
++ run set_mmc_bootargs_recovery; \
++ loadknl mmc ${boot_devnum} recovery ${knl_addr}; \
++ bootm ${knl_addr};      <em class="hl-comment">//mmc_boot 环境变量增加从 recovery 分区引导启动</em></code></pre></div>
+                        <p class="- topic/p p" data-ofbid="d101071e501__20250123155208">手动配置环境变量 <code class="+ topic/ph pr-d/codeph ph codeph">boot_partition</code> 后保存并重启，测试 U-Boot 是否能够引导 Recovery
+                            系统启动，以此判断配置文件是否生效。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d101071e508__20250123155208">在分区表中，增加 env 备份分区，保障 env 数据掉电安全。<p class="- topic/p p" data-ofbid="d101071e510__20250123155208">在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                            配置修改如下：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_abf_wf4_hdc" data-ofbid="id__pre_abf_wf4_hdc"><code><span class="hl-string">"env"</span>:      { <span class="hl-string">"size"</span>: <span class="hl-string">"256k"</span> },
++ <span class="hl-string">"env_r"</span>:    { <span class="hl-string">"size"</span>: <span class="hl-string">"256k"</span> },         <em class="hl-comment">//在 env 分区后面增加 env_r 分区</em>
+
+<span class="hl-string">"env"</span>: {
+    <span class="hl-string">"file"</span>: <span class="hl-string">"env.bin"</span>,
+    <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
+-    <span class="hl-string">"part"</span>: [<span class="hl-string">"env"</span>]
++    <span class="hl-string">"part"</span>: [<span class="hl-string">"env"</span>,<span class="hl-string">"env_r"</span>]             <em class="hl-comment">//将 env.bin 文件同时烧录到 env、env_r 分区</em>
+},</code></pre><p class="- topic/p p" data-ofbid="d101071e517__20250123155208">通过升级串口打印信息可以判断 <span class="+ topic/ph sw-d/filepath ph filepath">env.bin</span> 文件是否烧录到
+                                <code class="+ topic/ph pr-d/codeph ph codeph">env_r</code> 分区，判断配置是否生效。</p></li>
+                    <li class="- topic/li li" data-ofbid="d101071e526__20250123155208">
+                        <div class="- topic/div div section" id="id__u-boot-env-redundant">
+                            <strong class="+ topic/ph hi-d/b ph b">U-Boot 中使能 Redundant Environment </strong>机制<p class="- topic/p p" data-ofbid="d101071e533__20250123155208">执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make
+                                    um</span> 进入功能配置界面，并按如下选择使能 Redundant Environment 机制：</p><div class="- topic/div div highlight-kconfig notranslate">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_rg3_wf4_hdc" data-ofbid="id__pre_rg3_wf4_hdc"><code>Environment  ---&gt;
+    [*] Enable redundant environment support
+    (<span class="hl-number">0x200000</span>) Redundant environment offset</code></pre>
+                            </div><ul class="- topic/ul ul arabic simple" id="id__ol_tg3_wf4_hdc" data-ofbid="id__ol_tg3_wf4_hdc">
+                                <li class="- topic/li li" data-ofbid="d101071e545__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d101071e547__20250123155208">当升级过程中掉电时，其中一份环境变量如果被破坏，另外一份环境变量还能够继续引导启动。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d101071e551__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d101071e553__20250123155208">用户可以手动擦除其中一份环境变量，测试系统能否正常启动，写入保存环境变量后，被擦除的环境变量是否能够恢复。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d101071e557__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d101071e559__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">CONFIG_ENV_OFFSET_REDUND</span> 为 <code class="+ topic/ph pr-d/codeph ph codeph">env_r
+                                            分区</code>的偏移值，需要与分区表匹配。</p>
+                                </li>
+                            </ul><div class="- topic/note note trouble note_trouble" id="id__note_tbl_3hy_3dc" data-ofbid="id__note_tbl_3hy_3dc"><span class="note__title">故障：</span> <div class="note__body">
+                                <div class="- topic/div div">
+                                    <div class="- topic/p p" data-ofbid="d101071e572__20250123155208">当使能了 Redundant
+                                        机制，编译后烧录程序时，可能会出现如下错误信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_yzk_jzr_ldc" data-ofbid="id__codeblock_yzk_jzr_ldc"><code>Loading Environment from RAM... *** Warning - bad CRC, using <strong class="hl-keyword">default</strong> environment</code></pre></div>
+                                    <div class="- topic/p p" data-ofbid="d101071e577__20250123155208">因为 U-Boot 解析的方法发生了改变，解析数据格式增加了一个字节，判断哪一份 env 数据最新，具体可以通过
+                                        redundant 宏查看对应的程序。 可在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                                        中做如下修改进行解决：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_vg3_wf4_hdc" data-ofbid="id__pre_vg3_wf4_hdc"><code>    <span class="hl-string">"uboot_env"</span>: {
+        <span class="hl-string">"env.bin"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"env.txt"</span>,
+            <span class="hl-string">"size"</span>: <span class="hl-string">"0x4000"</span>,
++           <span class="hl-string">"redundant"</span>: <span class="hl-string">"enable"</span>,
+        },
+    },</code></pre></div>
+                                    <div class="- topic/note note note note_note admonition" id="id__note_wg3_wf4_hdc" data-ofbid="id__note_wg3_wf4_hdc"><span class="note__title">注：</span> <div class="note__body">
+                                        <p class="- topic/p p" data-ofbid="d101071e587__20250123155208">不使能 env 备份区域，设置 “redundant” 为 “disable” 或者不设置。</p>
+                                    </div></div>
+                                </div>
+                            </div></div></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d101071e594__20250123155208">
+                        
+                        <div class="- topic/div div section" id="id__fw-env-config">配置
+                                <span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config</span>
+                            <p class="- topic/p p" data-ofbid="d101071e603__20250123155208">在 OTA 升级过程中，主系统和 Recovery 系统都使用到 SWUpdate 命令。SWUpdate 依赖 U-Boot
+                                环境变量，需要在 Linux 中配置 U-Boot 环境变量索引路径。<code class="+ topic/ph pr-d/codeph ph codeph">fw_env.config</code> 和
+                                    <span class="+ topic/keyword sw-d/cmdname keyword cmdname">fw_setenv</span> 命令默认会读取
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">/etc/fw_env.config</span> 文件来获取环境变量的分区信息。</p><ol class="- topic/ol ol" type="a" id="id__ol_vft_mhy_3dc" data-ofbid="id__ol_vft_mhy_3dc">
+                                <li class="- topic/li li" data-ofbid="d101071e616__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d101071e618__20250123155208">编辑 <span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config</span> 文件，添加 eMMC 的分区信息。</p>
+                                    <ul class="- topic/ul ul" id="id__ul_w4z_tcs_ldc" data-ofbid="id__ul_w4z_tcs_ldc">
+                                        <li class="- topic/li li" data-ofbid="d101071e626__20250123155208"><span class="+ topic/ph sw-d/filepath ph filepath">fw_printenv/fw_setenv</span> 命令默认索引路径为
+                                                <span class="+ topic/ph sw-d/filepath ph filepath">/etc/fw_env.config</span>。<p class="- topic/p p" data-ofbid="d101071e633__20250123155208">因为使用到了
+                                                  <code class="+ topic/ph pr-d/codeph ph codeph">env_r</code>
+                                                  备份分区，<span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config</span> 需要包含
+                                                  <code class="+ topic/ph pr-d/codeph ph codeph">env</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">env_r</code>
+                                                分区信息。</p><p class="- topic/p p" data-ofbid="d101071e647__20250123155208">如果用户修改了 <code class="+ topic/ph pr-d/codeph ph codeph">env</code> 和
+                                                  <code class="+ topic/ph pr-d/codeph ph codeph">env_r</code> 分区信息，确保主系统和 Recovery 系统的
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config</span>
+                                            文件同步更新。</p></li>
+                                        <li class="- topic/li li" data-ofbid="d101071e659__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e661__20250123155208">Recovery 系统 SDK 生产环境默认存储在
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config</span> 文件中，路径为
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/ota_emmc/rootfs_overlay/etc/fw_env.config</span>。</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d101071e671__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e673__20250123155208">主系统 SDK 生产环境默认存储在 <span class="+ topic/ph sw-d/filepath ph filepath">fw_env.config
+                                                </span>文件中，路径为
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/demo/rootfs_overlay/etc/fw_env.config</span>。</p>
+                                        </li>
+                                    </ul>
+                                    <div class="- topic/p p" data-ofbid="d101071e684__20250123155208">eMMC
+                                        的默认的配置信息如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_grl_wf4_hdc" data-ofbid="id__pre_grl_wf4_hdc"><code><em class="hl-comment">//device name   Device offset   Env. size</em>
+/dev/mmcblk0    <span class="hl-number">0x1C0000</span>        <span class="hl-number">0x4000</span>
+/dev/mmcblk0    <span class="hl-number">0x200000</span>        <span class="hl-number">0x4000</span>
+</code></pre></div>
+                                    <ul class="- topic/ul ul arabic simple" id="id__ol_irl_wf4_hdc" data-ofbid="id__ol_irl_wf4_hdc">
+                                        <li class="- topic/li li" data-ofbid="d101071e691__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e693__20250123155208"><code class="+ topic/ph pr-d/codeph ph codeph">/dev/mmcblk0</code>： eMMC 分区的设备号</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d101071e699__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e701__20250123155208"><code class="+ topic/ph pr-d/codeph ph codeph">Device offset</code>：环境变量分区的偏移值</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d101071e707__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d101071e709__20250123155208"><code class="+ topic/ph pr-d/codeph ph codeph">Env. size</code>：实际环境变量的大小</p>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d101071e717__20250123155208">在 Linux 环境下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">fw_printenv/fw_setenv</span>
+                                    命令，测试能够正常打印 U-Boot
+                                    环境变量信息。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_sd2_ycs_ldc" data-ofbid="id__codeblock_sd2_ycs_ldc"><code>fw_printenv/fw_setenv</code></pre></li>
+                            </ol></div>
+                    </li>
+                </ol></div>
+        </section>
+            <section class="- topic/section section" id="id__id5" data-ofbid="id__id5"><h2 class="- topic/title title sectiontitle">启动脚本配置</h2>
+                
+                <div class="- topic/note note tip note_tip admonition tip" data-ofbid="d101071e735__20250123155208"><span class="note__title">提示：</span> <div class="note__body">
+                    
+                    <p class="- topic/p p" data-ofbid="d101071e737__20250123155208">为了简化使用，启动脚本配置一般无需修改即可使用。</p>
+                </div></div>
+            <ol class="- topic/ol ol" id="id__ol_bqy_wf4_hdc" data-ofbid="id__ol_bqy_wf4_hdc">
+                <li class="- topic/li li" data-ofbid="d101071e743__20250123155208">
+                    <div class="- topic/div div section" id="id__s90swupdate">
+                        <strong class="+ topic/ph hi-d/b ph b"><span class="+ topic/ph sw-d/filepath ph filepath">S90swupdate</span></strong>
+                        <p class="- topic/p p" data-ofbid="d101071e751__20250123155208">主系统 和 Recovery 系统默认启动脚本 <span class="+ topic/ph sw-d/filepath ph filepath">S90swupdate</span>，路径为
+                                <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/swupdate/S90swupdate</span>。</p><p class="- topic/p p" data-ofbid="d101071e759__20250123155208">在后台执行
+                                    <span class="+ topic/keyword sw-d/cmdname keyword cmdname">swupdate-progress</span> 命令，可以接受 SWUpdate
+                            传递的升级信息并打印到调试串口，用户也可以重定向到显示屏上：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_vhd_xf4_hdc" data-ofbid="id__pre_vhd_xf4_hdc"><code>exec /usr/bin/swupdate-progress -w -r &amp;</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d101071e768__20250123155208">
+                    <div class="- topic/div div section" id="id__s91swupdate-ota">
+                        <strong class="+ topic/ph hi-d/b ph b"><span class="+ topic/ph sw-d/filepath ph filepath">S91swupdate_ota</span></strong>
+                        <p class="- topic/p p" data-ofbid="d101071e776__20250123155208">Recovery 系统启动脚本路径为
+                                <span class="+ topic/ph sw-d/filepath ph filepath">target/d211/ota_emmc/rootfs_overlay/etc/init.d/S91swupdate_ota</span></p><p class="- topic/p p" data-ofbid="d101071e780__20250123155208">主要功能如下：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_zbg_xf4_hdc" data-ofbid="id__pre_zbg_xf4_hdc"><code>mkdir -p /mnt/ota
+mount /dev/mmcblk0p7 /mnt/ota               <em class="hl-comment">//挂载 ota 分区到 mnt/ota 目录下</em>
+./usr/lib/swupdate/swupdate_cmd.sh          <em class="hl-comment">//调用 swupdate_cmd.sh 脚本执行 OTA 升级程序</em></code></pre><div class="- topic/note note note note_note admonition" id="id__note_acg_xf4_hdc" data-ofbid="id__note_acg_xf4_hdc"><span class="note__title">注：</span> <div class="note__body">
+                            <p class="- topic/p p" data-ofbid="d101071e786__20250123155208">如需自定义分区，则对应的设备节点会有变更，此时需要修改对应的挂载方式。</p>
+                        </div></div></div>
+                </li>
+            </ol>
+            </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_qlk_1h4_hdc" data-tocid="id__section_qlk_1h4_hdc">Recovery 系统配置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_kns_zg4_hdc" data-tocid="id__section_kns_zg4_hdc">主系统配置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__u-boot" data-tocid="id__u-boot">U-Boot 环境变量配置</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id5" data-tocid="id__id5">启动脚本配置</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

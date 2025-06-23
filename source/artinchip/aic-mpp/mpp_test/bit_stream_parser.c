@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: bit stream parser
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: bit stream parser
+ */
 
 #define LOG_TAG "bs_parser"
 #include <stdlib.h>

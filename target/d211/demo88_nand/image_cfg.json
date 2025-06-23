@@ -11,7 +11,7 @@
 			"falcon":   { "size": "256k" },
 			"logo":     { "size": "768K" },
 			"kernel":   { "size": "12m" },
-			"recovery": { "size": "10m" },
+			"recovery": { "size": "16m" },
 			"ubiroot":  {
 				"size": "64m",
 				"ubi": { // Volume in UBI device
@@ -21,7 +21,7 @@
 			"ubisystem": {
 				"size": "-",
 				"ubi": { // Volume in UBI device
-					"ota":   { "size": "48m" },
+					"ota":   { "size": "32m" },
 					"user":   { "size": "-" },
 				},
 			},
@@ -116,8 +116,8 @@
 			},
 		},
 	},
-	"temporary": { // Pre-proccess to generate image components from raw data
-		"aicboot": {
+	"pre-process": { // Pre-proccess to generate image components from raw data
+		"aicimage": { // Create aic boot image
 			"usbupg-ddr-init.aic": { // No loader, only PreBootProgram to initialize DDR
 				"head_ver": "0x00010001",
 				"resource": {
@@ -125,27 +125,38 @@
 					"pbp": "d211.pbp",
 				},
 			},
-			"u-boot-spl-dtb.aic": {
+			"pbp_ext.aic": {
+				"head_ver": "0x00010001",
+				"resource": {
+					"pbp": "d211.pbp",
+					"private": "ddr_init.bin",
+				},
+				// combine to use with spl.aic
+				"with_ext": "true",
+			},
+			"spl.aic": {
 				"head_ver": "0x00010001",
 				"loader": {
 					"file": "u-boot-spl-dtb.bin",
 					"load address": "0x42000000",
-					"entry point":  "0x42000100",
+					"entry point":  "0x42000100", // 256 byte aic header
 				},
 				"resource": {
 					"private": "ddr_init.bin",
-					"pbp": "d211.pbp",
 				},
 			},
 		},
-		"uboot_env": {
+		"concatenate": { // cat files in order
+			"u-boot-spl-dtb.aic": ["pbp_ext.aic", "spl.aic"],
+		},
+		"uboot_env": { // Create env data from txt
 			"env.bin": {
 				"file": "env.txt",
 				"size": "0x4000",
 				"redundant": "enable",
 			},
 		},
-		"itb": {
+		"itb": { // Create itb image from its
 			"u-boot.itb": {
 				"its": "u-boot.its"
 			},

@@ -33,6 +33,7 @@
 #define FWC_ATTR_DEV_MTD     0x00000020
 #define FWC_ATTR_DEV_UBI     0x00000040
 
+#define ROUNDUP(x, y)	(((x) + ((y) - 1)) & ~((y) - 1))
 
 enum upg_cmd_state {
 	CMD_STATE_IDLE,

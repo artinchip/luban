@@ -1,0 +1,484 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="如无特殊说明，本节描述的 DE 驱动表示显示模块的驱动，包含显示引擎模块、显示接口模块以及 LCD 的 panel 驱动，并非仅指示显示引擎。 关于本节涉及的 Component、CMA 和 DMA-BUF 的详细设计描述，可查看 设计说明 。 打开 DE 调试开关 在 Luban 根目录下执行 make linux-menuconfig ，进入 kernel 的功能配置，打开 DE 模块的 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/display/display_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_parameter_display_fb0_2.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_test_guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="display_debug_guide"/><meta name="DC.language" content="zh-CN"/><title>调试指南</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="display_debug_guide-d4445e4965"/><meta name="wh-source-relpath" content="topics/sdk/display/display_debug.dita"/><meta name="wh-out-relpath" content="topics/sdk/display/display_debug.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="display_debug_guide" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html">Display 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="display_debug_guide"><div class="title"><a href="../../../topics/sdk/display/display_debug.html">调试指南</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/display/display_parameter_display_fb0_2.html" title="Display FB0" aria-label="上一主题: Display FB0" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/display/display_test_guide.html" title="测试指南" aria-label="下一主题: 测试指南" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="display_configuration-d4445e4791" class="topicref" data-id="display_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_configuration-d4445e4791-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_config.html" id="display_configuration-d4445e4791-link">Display 配置</a><div class="wh-tooltip"><p class="shortdesc">显示模块的参数配置，包括 menuconfig 配置 和 dts 配置。</p></div></div></div></li><li role="treeitem" class="active"><div data-tocid="display_debug_guide-d4445e4965" class="topicref" data-id="display_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_debug.html" id="display_debug_guide-d4445e4965-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="display_test_guide-d4445e4979" class="topicref" data-id="display_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_test_guide.html" id="display_test_guide-d4445e4979-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_design_intro-d4445e4993" class="topicref" data-id="display_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_design_intro-d4445e4993-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display-design_intro.html" id="display_design_intro-d4445e4993-link">设计说明</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_screen_configuration-d4445e5106" class="topicref" data-id="display_screen_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_screen_configuration-d4445e5106-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_panel_port.html" id="display_screen_configuration-d4445e5106-link">屏适配指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_xpy_32b_ybc-d4445e5134" class="topicref" data-id="concept_xpy_32b_ybc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_xpy_32b_ybc-d4445e5134-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_fb_rotation.html" id="concept_xpy_32b_ybc-d4445e5134-link">屏幕旋转</a></div></div></li><li role="treeitem"><div data-tocid="display_change_color-d4445e5162" class="topicref" data-id="display_change_color" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_color_property.html" id="display_change_color-d4445e5162-link">色彩调整</a></div></div></li><li role="treeitem"><div data-tocid="display_boot_logo-d4445e5176" class="topicref" data-id="display_boot_logo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_boot_logo.html" id="display_boot_logo-d4445e5176-link">Boot Logo</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_common_issues-d4445e5190" class="topicref" data-id="display_common_issues" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_common_issues-d4445e5190-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_faqs.html" id="display_common_issues-d4445e5190-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/display/display_debug.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">调试指南</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 10 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d200529e33__20250123155222">如无特殊说明，本节描述的 DE 驱动表示显示模块的驱动，包含显示引擎模块、显示接口模块以及 LCD 的 panel 驱动，并非仅指示显示引擎。</p>
+        <p class="- topic/p p" data-ofbid="d200529e36__20250123155222">关于本节涉及的 Component、CMA 和 DMA-BUF 的详细设计描述，可查看<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display-design_intro.html">设计说明</a>。</p>
+            <section class="- topic/section section" id="display_debug_guide__section_sqq_jyf_d1c" data-ofbid="display_debug_guide__section_sqq_jyf_d1c"><h2 class="- topic/title title sectiontitle">打开 DE 调试开关</h2>
+                
+                <div class="- topic/p p" data-ofbid="d200529e48__20250123155222">在 <span class="- topic/ph ph">Luban</span> 根目录下执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make linux-menuconfig</span>，进入 kernel 的功能配置，打开
+                DE 模块的 DEBUG
+                选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_m1n_kpn_f1c" data-ofbid="display_debug_guide__codeblock_m1n_kpn_f1c"><code>Linux
+    Kernel hacking
+        ArtInChip Debug
+            [*] DE driver debug</code></pre></div>
+            <div class="- topic/p p" data-ofbid="d200529e59__20250123155222">打开 DEBUG 选项后：<ul class="- topic/ul ul" id="display_debug_guide__ol_ucp_mss_c1c" data-ofbid="display_debug_guide__ol_ucp_mss_c1c">
+                    <li class="- topic/li li" data-ofbid="d200529e63__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e65__20250123155222">驱动以<code class="+ topic/ph pr-d/codeph ph codeph">-O0</code> 编译。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e72__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e74__20250123155222"><span class="+ topic/keyword pr-d/parmname keyword parmname">pr_dbg()</span> 和 <span class="+ topic/keyword pr-d/parmname keyword parmname">dev_dbg()</span> 调试信息会被编译。</p>
+                        <div class="- topic/p p" id="display_debug_guide__p_wvf_n3w_mdc" data-ofbid="display_debug_guide__p_wvf_n3w_mdc">在系统运行时，如果要打印 <span class="+ topic/keyword pr-d/parmname keyword parmname">pr_dbg()</span> 和
+                            <span class="+ topic/keyword pr-d/parmname keyword parmname">dev_dbg()</span> 信息，还需要调整 <span class="+ topic/keyword pr-d/parmname keyword parmname">loglevel</span> 为
+                                8，可以通过以下两种方式实现：<ul class="- topic/ul ul" id="display_debug_guide__ol_vcp_mss_c1c" data-ofbid="display_debug_guide__ol_vcp_mss_c1c">
+                                <li class="- topic/li li" data-ofbid="d200529e95__20250123155222">
+                                    <p class="- topic/p p" data-ofbid="d200529e97__20250123155222">在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中修改
+                                            <span class="+ topic/keyword pr-d/parmname keyword parmname">bootargs</span>，增加
+                                        <span class="+ topic/keyword pr-d/parmname keyword parmname">“loglevel=8”</span></p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d200529e109__20250123155222">
+                                    <div class="- topic/p p" data-ofbid="d200529e111__20250123155222">在板子启动到 Linux Shell
+                                        后，执行下列命令：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_wcp_mss_c1c" data-ofbid="display_debug_guide__pre_wcp_mss_c1c"><code>echo8 &gt; /proc/sys/kernel/printk</code></pre></div>
+                                </li>
+                            </ul></div>
+                    </li>
+                </ul></div>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_xqq_jyf_d1c" data-ofbid="display_debug_guide__section_xqq_jyf_d1c"><h2 class="- topic/title title sectiontitle">打开 CMA 调试开关</h2>
+                
+                <div class="- topic/p p" data-ofbid="d200529e126__20250123155222">
+                <ol class="- topic/ol ol" id="display_debug_guide__ol_dlx_5xl_sdc" data-ofbid="display_debug_guide__ol_dlx_5xl_sdc">
+                    <li class="- topic/li li" data-ofbid="d200529e130__20250123155222">
+                        <div class="- topic/div div">
+                <div class="- topic/p p" data-ofbid="d200529e134__20250123155222">在 SDK 根目录下，执行下列命令，进入 kernel
+                    的功能配置界面：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_wg1_3ml_sdc" data-ofbid="display_debug_guide__codeblock_wg1_3ml_sdc"><code>make kernel-menuconfig</code></pre></div>
+                <p class="- topic/p p" data-ofbid="d200529e139__20250123155222">或使用简写命令</p>
+                <div class="- topic/p p" data-ofbid="d200529e142__20250123155222">
+                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_uss_hml_sdc" data-ofbid="display_debug_guide__codeblock_uss_hml_sdc"><code>make km</code></pre>
+                </div>
+            </div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e150__20250123155222">
+                        <div class="- topic/p p" data-ofbid="d200529e152__20250123155222">在内核配置界面，按如下选择，打开 CMA 框架的 DEBUG
+                            选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_yqq_jyf_d1c" data-ofbid="display_debug_guide__pre_yqq_jyf_d1c"><code>Linux
+     Memory Management options
+         [*]   CMA debug messages (DEVELOPMENT)
+         [*]   CMA debugfs interface</code></pre></div>
+                    </li>
+                </ol>
+            </div>
+                <div class="- topic/p p" data-ofbid="d200529e160__20250123155222">打开 DEBUG 选项后：<ul class="- topic/ul ul" id="display_debug_guide__ol_zqq_jyf_d1c" data-ofbid="display_debug_guide__ol_zqq_jyf_d1c">
+                    <li class="- topic/li li" data-ofbid="d200529e164__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e166__20250123155222">CMA 框架中 pr_debug() 调试信息会被编译</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e170__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e172__20250123155222">debugfs 中会添加 cma 结点</p>
+                    </li>
+                </ul></div>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_arq_jyf_d1c" data-ofbid="display_debug_guide__section_arq_jyf_d1c"><h2 class="- topic/title title sectiontitle">查看组件注册信息</h2>
+                
+                <div class="- topic/p p" data-ofbid="d200529e183__20250123155222">通过以下命令查看组件的注册信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_g4j_t5j_ndc" data-ofbid="display_debug_guide__codeblock_g4j_t5j_ndc"><code>mount -t debugfs none /sys/kernel/debug/</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_xm2_twj_ndc" data-ofbid="display_debug_guide__codeblock_xm2_twj_ndc"><code>cat /sys/kernel/debug/device_component/soc:display-fb</code></pre></div>
+            <div class="- topic/p p" data-ofbid="d200529e190__20250123155222">组件信息输出示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_brq_jyf_d1c" data-ofbid="display_debug_guide__pre_brq_jyf_d1c"><code>master name                                            status
+-------------------------------------------------------------
+soc:display-fb                                          bound
+
+device name                                            status
+-------------------------------------------------------------
+<span class="hl-number">98</span>a00000.de                                             bound
+<span class="hl-number">98800000.</span>rgb                                            bound
+panel0                                                  bound</code></pre></div>
+                <p class="- topic/p p" data-ofbid="d200529e195__20250123155222">如果 bound 失败，控制台输出将显示 <samp class="+ topic/ph sw-d/systemoutput ph systemoutput sysout">not bound</samp>，如下所示：</p>
+                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_crq_jyf_d1c" data-ofbid="display_debug_guide__pre_crq_jyf_d1c"><code>master name                                            status
+-------------------------------------------------------------
+soc:display-fb                                      not bound
+
+device name                                            status
+-------------------------------------------------------------
+<span class="hl-number">18</span>a00000.de                                         not bound
+<span class="hl-number">18800000.</span>rgb                                        not bound
+(unknown)                                      not registered</code></pre>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_drq_jyf_d1c" data-ofbid="display_debug_guide__section_drq_jyf_d1c"><h2 class="- topic/title title sectiontitle">调试 CMA</h2>
+                
+                <p class="- topic/p p" data-ofbid="d200529e211__20250123155222">在 menuconfig 配置中使能 CMA debug 开关后，通过 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">debugfs</span> 调试 CMA。</p>
+                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_erq_jyf_d1c" data-ofbid="display_debug_guide__pre_erq_jyf_d1c"><code>mount -t debugfs none /sys/kernel/debug/</code></pre>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_wph_cvj_ndc" data-ofbid="display_debug_guide__codeblock_wph_cvj_ndc"><code>ls /sys/kernel/debug/cma/cma-reserved/</code></pre>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_ugr_cvj_ndc" data-ofbid="display_debug_guide__codeblock_ugr_cvj_ndc"><code>alloc          bitmap         free           order_per_bit
+base_pfn       count          maxchunk       used</code></pre>
+                <div class="- topic/p p" data-ofbid="d200529e227__20250123155222"><strong class="+ topic/ph hi-d/b ph b">CMA 调试接口</strong>：<ul class="- topic/ul ul" id="display_debug_guide__ul_frq_jyf_d1c" data-ofbid="display_debug_guide__ul_frq_jyf_d1c">
+                    <li class="- topic/li li" data-ofbid="d200529e233__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e235__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">alloc</span>：申请 cma 内存，以 page 为单位</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e241__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e243__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">free</span>：释放 cma 内存，以 page 为单位</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e249__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e251__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">base_pfn</span>：cma 内存起始页框号</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e257__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e259__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">count</span>：cma 总 page 数</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e265__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e267__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">maxchunk</span>：cma 最大连续 page 数</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e274__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e276__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">order_per_bit</span>：每个 bit 代表 2 ^ order_per_bit 个 page</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e282__20250123155222">
+                        <p class="- topic/p p" data-ofbid="d200529e284__20250123155222"><span class="+ topic/keyword pr-d/apiname keyword apiname">bitmap</span>：记录 cma page 使用情况的位图。1 表示占用，0 表示空闲</p>
+                    </li>
+                </ul></div>
+            <ul class="- topic/ul ul" id="display_debug_guide__ul_gnq_tvj_ndc" data-ofbid="display_debug_guide__ul_gnq_tvj_ndc">
+                <li class="- topic/li li" data-ofbid="d200529e293__20250123155222">查看 CMA page 使用情况：<ul class="- topic/ul ul" id="display_debug_guide__ul_dxp_5vj_ndc" data-ofbid="display_debug_guide__ul_dxp_5vj_ndc">
+                        <li class="- topic/li li" data-ofbid="d200529e297__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_hdk_kvj_ndc" data-ofbid="display_debug_guide__codeblock_hdk_kvj_ndc"><code>cat /sys/kernel/debug/cma/cma-reserved/bitmap</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e302__20250123155222">输出结果示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_nrq_jyf_d1c" data-ofbid="display_debug_guide__pre_nrq_jyf_d1c"><code><span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span>
+<span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span>
+<span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span>
+<span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span>
+<span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span>
+<span class="hl-number">4294967295</span> <span class="hl-number">4294967295</span> <span class="hl-number">2097151</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+<span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+<span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+<span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+<span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e308__20250123155222">
+                            <div class="- topic/p p" data-ofbid="d200529e310__20250123155222">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_j5p_pvj_ndc" data-ofbid="display_debug_guide__codeblock_j5p_pvj_ndc"><code>cat /sys/kernel/debug/cma/cma-reserved/count
+<span class="hl-number">8192</span></code></pre>
+                            </div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e318__20250123155222">
+                            <div class="- topic/p p" data-ofbid="d200529e320__20250123155222">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_hlq_qvj_ndc" data-ofbid="display_debug_guide__codeblock_hlq_qvj_ndc"><code>cat /sys/kernel/debug/cma/cma-reserved/used
+<span class="hl-number">1525</span></code></pre>
+                            </div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e327__20250123155222">
+                            <div class="- topic/p p" data-ofbid="d200529e329__20250123155222">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_qtq_rvj_ndc" data-ofbid="display_debug_guide__codeblock_qtq_rvj_ndc"><code>cat /sys/kernel/debug/cma/cma-reserved/base_pfn
+<span class="hl-number">548864</span></code></pre>
+                            </div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e336__20250123155222">
+                            <div class="- topic/p p" data-ofbid="d200529e338__20250123155222">
+                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_d3l_svj_ndc" data-ofbid="display_debug_guide__codeblock_d3l_svj_ndc"><code>cat /sys/kernel/debug/cma/cma-reserved/order_per_bit
+<span class="hl-number">0</span></code></pre>
+                            </div>
+                        </li>
+                    </ul><div class="- topic/p p" data-ofbid="d200529e346__20250123155222">sysfs 的 meminfo 结点亦可查看 CMA
+                        的使用情况：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_jm2_hwj_ndc" data-ofbid="display_debug_guide__codeblock_jm2_hwj_ndc"><code>cat /proc/meminfo</code></pre></div><div class="- topic/p p" data-ofbid="d200529e350__20250123155222">输出结果示例如下，已省略无关信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_qrq_jyf_d1c" data-ofbid="display_debug_guide__pre_qrq_jyf_d1c"><code>    ...
+    CmaTotal:          <span class="hl-number">32768</span> KB
+    CmaFree:           <span class="hl-number">29068</span> KB</code></pre><div class="- topic/note note note note_note" id="display_debug_guide__note_s55_4yf_d1c" data-ofbid="display_debug_guide__note_s55_4yf_d1c"><span class="note__title">注：</span> <div class="note__body">CmaFree 中记录的信息并不准确，推荐使用 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">debugfs</span> 中 cma 节点的
+                                <code class="+ topic/ph pr-d/codeph ph codeph">bitmap</code> 来查看 cma page 的使用情况。</div></div></div></li>
+                <li class="- topic/li li" data-ofbid="d200529e363__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d200529e365__20250123155222">手动申请 100 个 page</p>
+                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_orq_jyf_d1c" data-ofbid="display_debug_guide__pre_orq_jyf_d1c"><code>echo <span class="hl-number">100</span> &gt;  /sys/kernel/debug/cma/cma-reserved/alloc</code></pre>
+                </li>
+                <li class="- topic/li li" data-ofbid="d200529e372__20250123155222">
+                    <div class="- topic/p p" data-ofbid="d200529e374__20250123155222">手动释放 100 个
+                        page<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_prq_jyf_d1c" data-ofbid="display_debug_guide__pre_prq_jyf_d1c"><code>echo <span class="hl-number">100</span> &gt;  /sys/kernel/debug/cma/cma-reserved/free</code></pre></div>
+                </li>
+            </ul>
+            </section>
+        <section class="- topic/section section" id="display_debug_guide__section_rrq_jyf_d1c" data-ofbid="display_debug_guide__section_rrq_jyf_d1c"><h2 class="- topic/title title sectiontitle">查看 DMA-BUF 使用情况</h2><p class="- topic/p p" data-ofbid="d200529e385__20250123155222">在 <span class="+ topic/ph ui-d/uicontrol ph uicontrol">debugfs</span> 中查看当前 DMA-BUF 的使用情况：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_srq_jyf_d1c" data-ofbid="display_debug_guide__pre_srq_jyf_d1c"><code>mount -t debugfs none /sys/kernel/debug</code></pre>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_ogz_2wj_ndc" data-ofbid="display_debug_guide__codeblock_ogz_2wj_ndc"><code>cat /sys/kernel/debug/dma_buf/bufinfo</code></pre><div class="- topic/p p" data-ofbid="d200529e395__20250123155222"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="display_debug_guide__image_trq_jyf_d1c" src="../../../images/display/dma_buf.png" alt="dma_buf"/></div><br/></div></section>
+            <section class="- topic/section section" id="display_debug_guide__section_urq_jyf_d1c" data-ofbid="display_debug_guide__section_urq_jyf_d1c"><h2 class="- topic/title title sectiontitle">查看 <span class="+ topic/ph sw-d/filepath ph filepath">/dev/fb</span> 信息</h2>
+                
+            <ol class="- topic/ol ol" id="display_debug_guide__ol_l1j_yxj_ndc" data-ofbid="display_debug_guide__ol_l1j_yxj_ndc">
+                <li class="- topic/li li" data-ofbid="d200529e412__20250123155222">
+                    <div class="- topic/p p" data-ofbid="d200529e414__20250123155222">在 sysfs 中列示所有 <span class="+ topic/ph sw-d/filepath ph filepath">/dev/fb</span>
+                        相关信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_iyw_fwj_ndc" data-ofbid="display_debug_guide__codeblock_iyw_fwj_ndc"><code>ls /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/ -l</code></pre></div>
+                    <div class="- topic/p p" data-ofbid="d200529e422__20250123155222">输出结果示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_vrq_jyf_d1c" data-ofbid="display_debug_guide__pre_vrq_jyf_d1c"><code>-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> bits_per_pixel
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> blank
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> console
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> cursor
+-r--r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> dev
+lrwxrwxrwx    <span class="hl-number">1</span> root     root             <span class="hl-number">0</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> device -&gt; ../../../soc:display-fb
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> mode
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> modes
+-r--r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> name
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> pan
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> rotate
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> state
+-r--r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> stride
+lrwxrwxrwx    <span class="hl-number">1</span> root     root             <span class="hl-number">0</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> subsystem -&gt; ../../../../../../class/graphics
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> uevent
+-rw-r--r--    <span class="hl-number">1</span> root     root          <span class="hl-number">4096</span> Jan  <span class="hl-number">1</span> <span class="hl-number">00</span>:<span class="hl-number">01</span> virtual_size</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d200529e428__20250123155222">根据需求，查看具体信息。查看信息的命令和部分输出示例如下所示：<ul class="- topic/ul ul" id="display_debug_guide__ul_ykw_gyj_ndc" data-ofbid="display_debug_guide__ul_ykw_gyj_ndc">
+                        <li class="- topic/li li" data-ofbid="d200529e432__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_n4r_byj_ndc" data-ofbid="display_debug_guide__codeblock_n4r_byj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/bits_per_pixel</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e437__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_j1b_4yj_ndc" data-ofbid="display_debug_guide__codeblock_j1b_4yj_ndc"><code><span class="hl-number">32</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e443__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_zky_cyj_ndc" data-ofbid="display_debug_guide__codeblock_zky_cyj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/blank</code></pre>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e449__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_z43_dyj_ndc" data-ofbid="display_debug_guide__codeblock_z43_dyj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/console</code></pre>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e455__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_lmr_dyj_ndc" data-ofbid="display_debug_guide__codeblock_lmr_dyj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/dev</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e460__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_w4l_nyj_ndc" data-ofbid="display_debug_guide__codeblock_w4l_nyj_ndc"><code><span class="hl-number">29</span>:<span class="hl-number">0</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e466__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_ef1_2yj_ndc" data-ofbid="display_debug_guide__codeblock_ef1_2yj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/mode</code></pre>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e473__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_c2j_2yj_ndc" data-ofbid="display_debug_guide__codeblock_c2j_2yj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/pan</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e478__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_y5r_4yj_ndc" data-ofbid="display_debug_guide__codeblock_y5r_4yj_ndc"><code><span class="hl-number">0</span>,<span class="hl-number">0</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e484__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_rhs_2yj_ndc" data-ofbid="display_debug_guide__codeblock_rhs_2yj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/name</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e489__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_gkb_pyj_ndc" data-ofbid="display_debug_guide__codeblock_gkb_pyj_ndc"><code>aicfb0</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e495__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_s4y_2yj_ndc" data-ofbid="display_debug_guide__codeblock_s4y_2yj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/stride</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e500__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_fcn_pyj_ndc" data-ofbid="display_debug_guide__codeblock_fcn_pyj_ndc"><code><span class="hl-number">3200</span></code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d200529e506__20250123155222">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_crh_fyj_ndc" data-ofbid="display_debug_guide__codeblock_crh_fyj_ndc"><code>cat /sys/devices/platform/soc/soc\:display-fb/graphics/fb0/virtual_size</code></pre>
+                            <div class="- topic/p p" data-ofbid="d200529e511__20250123155222">输出示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_nkv_pyj_ndc" data-ofbid="display_debug_guide__codeblock_nkv_pyj_ndc"><code><span class="hl-number">800</span>,<span class="hl-number">480</span></code></pre></div>
+                        </li>
+                    </ul></li>
+            </ol>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_wrq_jyf_d1c" data-ofbid="display_debug_guide__section_wrq_jyf_d1c"><h2 class="- topic/title title sectiontitle">查看 Display Engine 信息</h2>
+                
+                <div class="- topic/p p" data-ofbid="d200529e525__20250123155222">在 sysfs 中查看当前 Display Engine 的相关信息，包括 Video Layer、UI Layer、UI
+                Rectangle、Tearing-effect、Display Dither、Display Timing、Display Pixelclock
+                ：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_zp5_qwj_ndc" data-ofbid="display_debug_guide__codeblock_zp5_qwj_ndc"><code>cat /sys/devices/platform/soc/<span class="hl-number">18</span>a00000.de/debug/display</code></pre></div>
+            <div class="- topic/p p" data-ofbid="d200529e530__20250123155222">输出示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_xrq_jyf_d1c" data-ofbid="display_debug_guide__pre_xrq_jyf_d1c"><code>Video Layer Enable       : <span class="hl-number">0</span>
+Video Layer Format       : <span class="hl-number">0</span>
+Video Layer Input Size   : <span class="hl-number">0</span> x <span class="hl-number">0</span>
+Video Layer Stride       : <span class="hl-number">0</span> <span class="hl-number">0</span>
+Scaler Output Size       : <span class="hl-number">0</span> x <span class="hl-number">0</span>
+UI Layer Control         : format: <span class="hl-number">0</span>, color key<a name="fnsrc_1" href="#fntarg_1" class=" topic/fn-call fn-call "><sup><span class="hl-number">1</span></sup></a>: <span class="hl-number">0</span>, alpha<a name="fnsrc_2" href="#fntarg_2" class=" topic/fn-call fn-call "><sup><span class="hl-number">2</span></sup></a>: <span class="hl-number">1</span>
+UI Layer Input Size      : <span class="hl-number">1024</span> x <span class="hl-number">600</span>
+UI Layer Color Key<a name="fnsrc_3" href="#fntarg_3" class=" topic/fn-call fn-call "><sup><span class="hl-number">3</span></sup></a>       : <span class="hl-number">0</span>
+UI Layer Alpha           : mode: <span class="hl-number">0</span>, g_alpha: <span class="hl-number">255</span>
+UI Rectangle Control     : <span class="hl-number">1</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+UI Rectangle Size        : (<span class="hl-number">1024</span>, <span class="hl-number">600</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>)
+UI Rectangle Offset      : (<span class="hl-number">0</span>, <span class="hl-number">0</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>) (<span class="hl-number">0</span>, <span class="hl-number">0</span>)
+UI Rectangle Stride      : <span class="hl-number">4096</span> <span class="hl-number">0</span> <span class="hl-number">0</span> <span class="hl-number">0</span>
+Tearing-effect           : TE mode: <span class="hl-number">0</span>, TE pulse width: <span class="hl-number">0</span>
+Display Dither           : dither_en: <span class="hl-number">0</span>, red depth: <span class="hl-number">0</span>, green depth: <span class="hl-number">0</span>, blue depth: <span class="hl-number">0</span>
+Display Timing           : hactive: <span class="hl-number">1024</span>, vactive: <span class="hl-number">600</span> hfp: <span class="hl-number">160</span> hbp: <span class="hl-number">140</span> vfp: <span class="hl-number">20</span> vbp: <span class="hl-number">12</span> hsync: <span class="hl-number">20</span> vsync: <span class="hl-number">3</span>
+Display Pixelclock       : <span class="hl-number">60000000</span> HZ</code></pre></div>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_yrq_jyf_d1c" data-ofbid="display_debug_guide__section_yrq_jyf_d1c"><h2 class="- topic/title title sectiontitle">调试 DE Color bar 模式</h2>
+                
+                <div class="- topic/p p" data-ofbid="d200529e550__20250123155222">在 sysfs 中使用 Display Engine 的 Color Bar 模式进行调试：<ul class="- topic/ul ul" id="display_debug_guide__ol_q12_fxj_ndc" data-ofbid="display_debug_guide__ol_q12_fxj_ndc">
+                    <li class="- topic/li li" data-ofbid="d200529e554__20250123155222">
+                        <div class="- topic/p p" data-ofbid="d200529e556__20250123155222">开启 Color Bar
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__codeblock_q2y_fxj_ndc" data-ofbid="display_debug_guide__codeblock_q2y_fxj_ndc"><code>echo <span class="hl-number">1</span> &gt;  /sys/devices/platform/soc/<span class="hl-number">18</span>a00000.de/debug/color_bar</code></pre></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d200529e562__20250123155222">
+                        <div class="- topic/p p" data-ofbid="d200529e564__20250123155222">关闭 Color Bar
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_zrq_jyf_d1c" data-ofbid="display_debug_guide__pre_zrq_jyf_d1c"><code>echo <span class="hl-number">0</span> &gt;  /sys/devices/platform/soc/<span class="hl-number">18</span>a00000.de/debug/color_bar</code></pre></div>
+                    </li>
+                </ul></div>
+            </section>
+            <section class="- topic/section section" id="display_debug_guide__section_asq_jyf_d1c" data-ofbid="display_debug_guide__section_asq_jyf_d1c"><h2 class="- topic/title title sectiontitle">获取 Framebuffer 截图</h2>
+                
+            <ol class="- topic/ol ol" id="display_debug_guide__ol_qzt_4xj_ndc" data-ofbid="display_debug_guide__ol_qzt_4xj_ndc">
+                <li class="- topic/li li" data-ofbid="d200529e579__20250123155222">
+                    <div class="- topic/p p" data-ofbid="d200529e581__20250123155222">拷贝 <span class="+ topic/ph sw-d/filepath ph filepath">/dev/fb0</span>
+                        裸数据。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_debug_guide__pre_bsq_jyf_d1c" data-ofbid="display_debug_guide__pre_bsq_jyf_d1c"><code>cp /dev/fb0 fb0.bgra</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d200529e590__20250123155222">
+                    <p class="- topic/p p" data-ofbid="d200529e592__20250123155222">使用 ADB pull 将 <span class="+ topic/ph sw-d/filepath ph filepath">fb0.bgra</span> 文件传输到 PC 上，并使用 RawViewer
+                        软件查看。</p>
+                    <div class="- topic/p p" data-ofbid="d200529e598__20250123155222">RawViewer 软件可在其官网免费下载。<div class="- topic/note note note note_note" id="display_debug_guide__note_jh4_txj_ndc" data-ofbid="display_debug_guide__note_jh4_txj_ndc"><span class="note__title">注：</span> <div class="note__body">
+                            <p class="- topic/p p" data-ofbid="d200529e602__20250123155222">使用 RawViewer 查看 <span class="+ topic/ph sw-d/filepath ph filepath">fb0.bgra</span> 文件，需要手工设置数据源的宽高，在开启双
+                                buffer 的场景下，需要将高度 * 2。</p>
+                        </div></div></div>
+                </li>
+            </ol>
+            </section>
+    </div>
+<div class="- topic/fn fn"><a name="fntarg_1" href="#fnsrc_1"><sup>1</sup></a>  表示 enable / disable 状态</div><div class="- topic/fn fn"><a name="fntarg_2" href="#fnsrc_2"><sup>2</sup></a>  表示 enable / disable 状态</div><div class="- topic/fn fn"><a name="fntarg_3" href="#fnsrc_3"><sup>3</sup></a>  表示 color value</div></article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_sqq_jyf_d1c" data-tocid="display_debug_guide__section_sqq_jyf_d1c">打开 DE 调试开关</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_xqq_jyf_d1c" data-tocid="display_debug_guide__section_xqq_jyf_d1c">打开 CMA 调试开关</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_arq_jyf_d1c" data-tocid="display_debug_guide__section_arq_jyf_d1c">查看组件注册信息</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_drq_jyf_d1c" data-tocid="display_debug_guide__section_drq_jyf_d1c">调试 CMA</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_rrq_jyf_d1c" data-tocid="display_debug_guide__section_rrq_jyf_d1c">查看 DMA-BUF 使用情况</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_urq_jyf_d1c" data-tocid="display_debug_guide__section_urq_jyf_d1c">查看 <span class="+ topic/ph sw-d/filepath ph filepath">/dev/fb</span> 信息</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_wrq_jyf_d1c" data-tocid="display_debug_guide__section_wrq_jyf_d1c">查看 Display Engine 信息</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_yrq_jyf_d1c" data-tocid="display_debug_guide__section_yrq_jyf_d1c">调试 DE Color bar 模式</a></div></li><li class="section-item"><div class="section-title"><a href="#display_debug_guide__section_asq_jyf_d1c" data-tocid="display_debug_guide__section_asq_jyf_d1c">获取 Framebuffer 截图</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

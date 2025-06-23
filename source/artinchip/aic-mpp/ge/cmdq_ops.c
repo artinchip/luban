@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2022-2023 ArtinChip Technology Co., Ltd.
+ * Copyright (C) 2022-2024 ArtinChip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -23,6 +26,9 @@ extern "C" {
 #include "ge_reg.h"
 #include "mpp_list.h"
 #include "mpp_ge.h"
+
+#define GE_VERSION_ID_1_0 0x100
+#define GE_VERSION_ID_1_1 0x101
 
 #define DEFAULT_CMD_SIZE (32*1024 / 4)
 #define CSC_COEFFS_NUM 12
@@ -368,6 +374,14 @@ static inline int is_rgb(enum mpp_pixel_format format)
 	default:
 		break;
 	}
+	return 0;
+}
+
+static inline int is_rgb_or_yuv400(enum mpp_pixel_format format)
+{
+	if (is_rgb(format) || format == MPP_FMT_YUV400)
+		return 1;
+
 	return 0;
 }
 
@@ -1024,10 +1038,7 @@ static inline int get_src_phy_addr(struct mpp_ge *ge,
 		}
 	} else {
 		for (i = 0; i < plane_num; i++) {
-
 			cmdq->data.src_phy_addr[i] = video_buf->phy_addr[i];
-			printf("src_phy_addr[%d] = %x\n", i, video_buf->phy_addr[i]);
-
 		}
 	}
 
@@ -1055,10 +1066,7 @@ static inline int get_dst_phy_addr(struct mpp_ge *ge,
 		}
 	} else {
 		for (i = 0; i < plane_num; i++) {
-
 			cmdq->data.dst_phy_addr[i] = video_buf->phy_addr[i];
-			printf("dst_phy_addr[%d] = %x\n", i, video_buf->phy_addr[i]);
-
 		}
 	}
 
@@ -1572,8 +1580,6 @@ static int update_basic_cmd(struct mpp_ge  *ge,
 	src_ctrl = data->src_ctrl;
 	out_ctrl = data->out_ctrl;
 
-	printf("%s(), src_addr = %x\n", __func__, src_addr[0]);
-
 	ge_buf_crop(src_addr, src_stride,
 		    src_buf->format,
 		    src_rect->x,
@@ -1885,6 +1891,13 @@ static int ge_fillrect(struct mpp_ge *ge, struct ge_fillrect *fill)
 	if (get_dst_phy_addr(ge, &fill->dst_buf) < 0)
 		return -1;
 
+	/* check rgb type */
+	if (ge->version_id == GE_VERSION_ID_1_1 &&
+		(!is_rgb_or_yuv400(fill->dst_buf.format))) {
+		printf("fill rectangle not support yuv format, except yuv400\n");
+		return -1;
+	}
+
 	make_cmd_buf_valid(cmdq, ge->dev_fd);
 	set_alpha_rules_and_premul(data, &fill->ctrl,
 				   src_fmt, fill->dst_buf.format,
@@ -1958,6 +1971,13 @@ static int ge_bitblt(struct mpp_ge *ge, struct ge_bitblt *blt)
 
 	if (!ge)
 		return -1;
+
+	/* check rgb type */
+	if (ge->version_id == GE_VERSION_ID_1_1 &&
+		(!is_rgb_or_yuv400(blt->src_buf.format) || !is_rgb(blt->dst_buf.format))) {
+		printf("bitblt not support yuv format, except yuv400\n");
+		return -1;
+	}
 
 	cmdq = to_cmdq(ge);
 	data = &cmdq->data;
@@ -2043,6 +2063,11 @@ static int ge_rotate(struct mpp_ge *ge, struct ge_rotation *rot)
 
 	if(!ge)
 		return -1;
+
+	if (MPP_SCAN_ORDER_GET(rot->ctrl.flags)) {
+		printf("rotate not support scan order");
+		return -1;
+	}
 
 	cmdq = to_cmdq(ge);
 	data = &cmdq->data;

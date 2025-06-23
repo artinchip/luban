@@ -18,17 +18,15 @@ state.aicSoundCard {
 	control.2 {
 		iface MIXER
 		name 'AUDIO Playback Volume'
-		value.0 160
-		value.1 160
+		value.0 32767
 		comment {
 			access 'read write'
 			type INTEGER
-			count 2
-			range '0 - 255'
-			dbmin -9999999
-			dbmax 7125
+			count 1
+			range '0 - 32767'
+			dbmin -32767
+			dbmax 0
 			dbvalue.0 0
-			dbvalue.1 0
 		}
 	}
 	control.3 {
@@ -311,7 +309,7 @@ state.aicSoundCard {
 	control.27 {
 		iface MIXER
 		name 'FADE ch1'
-		value Bypass
+		value 'Fade Enable'
 		comment {
 			access 'read write'
 			type ENUMERATED
@@ -345,7 +343,7 @@ state.aicSoundCard {
 	control.30 {
 		iface MIXER
 		name 'MIXER0 audoutr switch'
-		value false
+		value true
 		comment {
 			access 'read write'
 			type BOOLEAN
@@ -395,7 +393,7 @@ state.aicSoundCard {
 	control.35 {
 		iface MIXER
 		name 'MIXER1 audoutr switch'
-		value true
+		value false
 		comment {
 			access 'read write'
 			type BOOLEAN

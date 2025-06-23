@@ -17,7 +17,7 @@
 
 #define FW_BUILD_MACHINE MACROSTR(CFG_BUILD_MACHINE)
 #define FW_BUILD_DATE MACROSTR(CFG_BUILD_DATE)
-#define ASR_VERS_NUM "v5.5.2.11"
+#define ASR_VERS_NUM "v5.5.3.0"
 
 static inline void asr_print_version(void)
 {

@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2022-2023 Artinchip Technology Co. Ltd
-*
-*  author: <huahui.mai@artinchip.com>
-*  Desc: mpp heap test
-*/
+ * Copyright (C) 2022-2023 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <huahui.mai@artinchip.com>
+ *  Desc: mpp heap test
+ */
 
 #include <artinchip/sample_base.h>
 #include <signal.h>

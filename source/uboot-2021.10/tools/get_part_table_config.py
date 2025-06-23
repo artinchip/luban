@@ -187,7 +187,7 @@ def parse_image_cfg(cfgfile):
                 continue
             slash_start = sline.find("//")
             if slash_start > 0:
-                jsonstr += sline[0:slash_start]
+                jsonstr += sline[0:slash_start].strip()
             else:
                 jsonstr += sline
         # Use OrderedDict is important, we need to iterate FWC in order.

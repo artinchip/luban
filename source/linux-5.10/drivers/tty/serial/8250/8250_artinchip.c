@@ -146,11 +146,25 @@ static void aic8250_do_pm(struct uart_port *port, unsigned int state,
 static void aic8250_set_termios(struct uart_port *p, struct ktermios *termios,
 				struct ktermios *old)
 {
+	unsigned int timeout = AIC_UART_SETTING_TIMEOUT;
+	unsigned char old_mcr = 0;
+	struct uart_8250_port *up = up_to_u8250p(p);
+
+	old_mcr = serial8250_in_MCR(up);
+	serial8250_out_MCR(up, UART_MCR_LOOP);
+
+	while (timeout--) {
+		serial8250_clear_and_reinit_fifos(up);
+		if ((serial_in(up, UART_USR) & UART_USR_BUSY) == 0)
+			break;
+	}
+
 	p->status &= ~UPSTAT_AUTOCTS;
 	if (termios->c_cflag & CRTSCTS)
 		p->status |= UPSTAT_AUTOCTS;
 
 	serial8250_do_set_termios(p, termios, old);
+	serial8250_out_MCR(up, old_mcr);
 }
 
 static void aic8250_set_ldisc(struct uart_port *p, struct ktermios *termios)
@@ -534,25 +548,16 @@ static int aic8250_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int aic8250_suspend(struct device *dev)
 {
-	struct clk_hw *uart_clk_hw;
 	struct aic8250_data *data = dev_get_drvdata(dev);
 
 	serial8250_suspend_port(data->data.line);
 
-	uart_clk_hw = __clk_get_hw(data->clk);
-	if (clk_hw_is_prepared(uart_clk_hw))
-		clk_disable_unprepare(data->clk);
 	return 0;
 }
 
 static int aic8250_resume(struct device *dev)
 {
-	struct clk_hw *uart_clk_hw;
 	struct aic8250_data *data = dev_get_drvdata(dev);
-
-	uart_clk_hw = __clk_get_hw(data->clk);
-	if (!clk_hw_is_prepared(uart_clk_hw))
-		clk_prepare_enable(data->clk);
 
 	serial8250_resume_port(data->data.line);
 
@@ -565,7 +570,8 @@ static int aic8250_runtime_suspend(struct device *dev)
 {
 	struct aic8250_data *data = dev_get_drvdata(dev);
 
-	clk_disable_unprepare(data->clk);
+	if (__clk_is_enabled(data->clk))
+		clk_disable_unprepare(data->clk);
 
 	return 0;
 }
@@ -574,7 +580,8 @@ static int aic8250_runtime_resume(struct device *dev)
 {
 	struct aic8250_data *data = dev_get_drvdata(dev);
 
-	clk_prepare_enable(data->clk);
+	if (!__clk_is_enabled(data->clk))
+		clk_prepare_enable(data->clk);
 
 	return 0;
 }

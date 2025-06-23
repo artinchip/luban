@@ -5,6 +5,7 @@ config BR2_PACKAGE_QT_KEYBOARD_TTY
 
 config BR2_PACKAGE_QT_KEYBOARD_LINUXINPUT
 	bool "linux input"
+	default y
 
 config BR2_PACKAGE_QT_KEYBOARD_QVFB
 	bool "qvfb"

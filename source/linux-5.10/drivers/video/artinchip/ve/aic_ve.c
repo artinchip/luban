@@ -11,6 +11,7 @@
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
@@ -131,10 +132,12 @@ static int enable_ve_hw_clk(struct aic_ve_ctx *ctx)
 		return ret;
 	}
 
-	ret = clk_prepare_enable(ctx->ve_clk);
-	if (ret) {
-		dev_err(ctx->dev, "enable ve clk gating failed!\n");
-		return ret;
+	if (!__clk_is_enabled(ctx->ve_clk)) {
+		ret = clk_prepare_enable(ctx->ve_clk);
+		if (ret) {
+			dev_err(ctx->dev, "enable ve clk gating failed!\n");
+			return ret;
+		}
 	}
 
 	return 0;
@@ -142,7 +145,8 @@ static int enable_ve_hw_clk(struct aic_ve_ctx *ctx)
 
 static int disable_ve_hw_clk(struct aic_ve_ctx *ctx)
 {
-	clk_disable_unprepare(ctx->ve_clk);
+	if (__clk_is_enabled(ctx->ve_clk))
+		clk_disable_unprepare(ctx->ve_clk);
 	reset_control_assert(ctx->reset);
 
 	return 0;

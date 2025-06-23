@@ -7,7 +7,7 @@ case "$1" in
 		# obtain mmc number
 
                 mkdir -p /mnt/ota
-                mount /dev/mmcblk0p12 /mnt/ota
+                mount /dev/mmcblk0p11 /mnt/ota
 
 		./usr/lib/swupdate/swupdate_cmd.sh
 		;;

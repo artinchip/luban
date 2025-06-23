@@ -90,6 +90,7 @@ void asr_set_traffic_status(struct asr_hw *asr_hw, struct asr_sta *sta, bool ava
  */
 void asr_update_sta_ps_pkt_num(struct asr_hw *asr_hw,struct asr_sta *sta)
 {
+#ifdef CONFIG_ASR_SDIO
 	struct sk_buff *skb_pending;
 	struct sk_buff *pnext;
 	struct hostdesc * hostdesc_tmp = NULL;
@@ -99,11 +100,10 @@ void asr_update_sta_ps_pkt_num(struct asr_hw *asr_hw,struct asr_sta *sta)
     if (sta == NULL)
 		return ;
 
-    #ifdef CONFIG_ASR_SDIO
 	// loop list and get avail skbs.
 	skb_queue_walk_safe(&asr_hw->tx_sk_list, skb_pending, pnext) {
 		hostdesc_tmp = (struct hostdesc *)skb_pending->data;
-		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num)) {
 			asr_vif_tmp = asr_hw->vif_table[hostdesc_tmp->vif_idx];
 		        if (asr_vif_tmp && hostdesc_tmp->staid == sta->sta_idx) {
                     /*
@@ -129,7 +129,7 @@ void asr_update_sta_ps_pkt_num(struct asr_hw *asr_hw,struct asr_sta *sta)
 				dev_err(asr_hw->dev," unlikely: mrole tx(vif_idx %d not valid)!!!\r\n",hostdesc_tmp->vif_idx);
 		}
 	}
-    #endif
+#endif
 }
 
 struct asr_traffic_status g_asr_traffic_sts;
@@ -232,6 +232,7 @@ void asr_ps_bh_enable(struct asr_hw *asr_hw, struct asr_sta *sta,
 
 #ifdef CONFIG_ASR_SDIO
         // re-trigger tx task.
+        asr_hw->restart_flag = true;
 		set_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag);
 		wake_up_interruptible(&asr_hw->waitq_main_task_thead);
 #endif
@@ -991,14 +992,27 @@ u16 asr_tx_get_ava_trans_skbs(struct asr_hw *asr_hw)
 	// loop list and get avail skbs.
 	skb_queue_walk_safe(&asr_hw->tx_sk_list, skb_pending, pnext) {
 		hostdesc_tmp = (struct hostdesc *)skb_pending->data;
-		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num)) {
 			asr_vif_tmp = asr_hw->vif_table[hostdesc_tmp->vif_idx];
 			asr_sta_tmp = (hostdesc_tmp->staid < (NX_REMOTE_STA_MAX + NX_VIRT_DEV_MAX)) ? &asr_hw->sta_table[hostdesc_tmp->staid] : NULL;
 
 		    if (asr_vif_tmp && (check_vif_block_flags(asr_vif_tmp) == false)
-					        && (check_sta_ps_state(asr_sta_tmp) == false)) {
+					        && (check_sta_ps_state(asr_sta_tmp) == false ||
+                                (asr_sta_tmp->ps_tx_pkt + asr_sta_tmp->fw_tx_pkt < 5) )) {
+                if (check_sta_ps_state(asr_sta_tmp)) {
+                    asr_sta_tmp->ps_tx_pkt++;
+                    //dev_err(asr_hw->dev, "staid=%u,fw_tx_pkt=%u,ps_tx_pkt=%u\n",hostdesc_tmp->staid,asr_sta_tmp->fw_tx_pkt,asr_sta_tmp->ps_tx_pkt);
+                }
 				total_ava_skbs++;
 			}
+            // drop broadcast data when timeout 300ms
+            else if(asr_vif_tmp && asr_sta_tmp && asr_sta_tmp->sta_idx == asr_hw->sta_max_num
+                && check_sta_ps_state(asr_sta_tmp) && hostdesc_tmp->timestamp && jiffies_to_msecs((uint16_t)jiffies - hostdesc_tmp->timestamp) >= ASR_BROADCAST_FRAME_TIMEOUT){
+                //dev_info(asr_hw->dev, "flush broadcast:staid=%u,ps=%u,timeout=%u,timestamp=%u\n"
+                //    ,hostdesc_tmp->staid,asr_sta_tmp->ps.active,jiffies_to_msecs((uint16_t)jiffies - hostdesc_tmp->timestamp),hostdesc_tmp->timestamp);
+                skb_unlink(skb_pending, &asr_hw->tx_sk_list);
+                dev_kfree_skb_any(skb_pending);
+            }
 		} else {
 				dev_err(asr_hw->dev," unlikely: mrole tx(vif_idx %d not valid)!!!\r\n",hostdesc_tmp->vif_idx);
 		}
@@ -1018,14 +1032,19 @@ void asr_tx_get_hif_skb_list(struct asr_hw *asr_hw,u8 port_num)
 
 	skb_queue_walk_safe(&asr_hw->tx_sk_list, skb_pending, pnext) {	
 		hostdesc_tmp = (struct hostdesc *)skb_pending->data;
-		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num)) {
 			asr_vif_tmp = asr_hw->vif_table[hostdesc_tmp->vif_idx];
 			asr_sta_tmp = (hostdesc_tmp->staid < (NX_REMOTE_STA_MAX + NX_VIRT_DEV_MAX)) ? &asr_hw->sta_table[hostdesc_tmp->staid] : NULL;			
 			if (asr_vif_tmp && (check_vif_block_flags(asr_vif_tmp) == false)
-				            && (check_sta_ps_state(asr_sta_tmp) == false)) {
+				            && (check_sta_ps_state(asr_sta_tmp) == false || asr_sta_tmp->fw_tx_pkt < 5)) {
 				skb_unlink(skb_pending, &asr_hw->tx_sk_list);
 				skb_queue_tail(&asr_hw->tx_hif_skb_list, skb_pending);
 				port_num-- ;
+
+                if (check_sta_ps_state(asr_sta_tmp)) {//prepare for tx pkt in fw
+                    //dev_err(asr_hw->dev, "staid=%u,fw_tx_pkt=%u\n",hostdesc_tmp->staid,asr_sta_tmp->fw_tx_pkt);
+                    asr_sta_tmp->fw_tx_pkt++;
+                }
 
 				if (port_num == 0)
 					break;
@@ -1051,17 +1070,17 @@ void asr_tx_get_hif_skb_list(struct asr_hw *asr_hw,u8 port_num)
 
 }
 
-
-u16 asr_hif_bufdata_prepare(struct asr_hw *asr_hw,struct sk_buff *hif_buf_skb,u8 port_num,u32 *tx_bytes)
+extern bool asr_sdio_rw_sg;
+u16 asr_hif_bufdata_prepare(struct asr_hw *asr_hw, struct sk_buff *hif_buf_skb, u8 port_num, u32 *tx_bytes)
 {
 	struct sk_buff *skb_pending;
 	struct sk_buff *pnext;
+	struct sk_buff *skb_tmp;
 	struct hostdesc * hostdesc_tmp = NULL;
+	struct hostdesc *hostdesc_start = NULL;
 	u16 trans_len = 0;
 	u16 temp_len;
-	//struct asr_vif *asr_vif_tmp = NULL;
-	struct hostdesc *hostdesc_start = NULL;
-	u8 hif_skb_copy_cnt = 0;
+	u8 hif_skb_cnt = 0;
 
 	asr_data_tx_pkt_cnt += port_num;
 
@@ -1071,40 +1090,45 @@ u16 asr_hif_bufdata_prepare(struct asr_hw *asr_hw,struct sk_buff *hif_buf_skb,u8
 
 		temp_len = hostdesc_tmp->sdio_tx_len + 2;
 
-		if (temp_len % 32 || temp_len > ASR_SDIO_DATA_MAX_LEN || (hostdesc_tmp->vif_idx >= asr_hw->vif_max_num + asr_hw->sta_max_num)) {
-			dev_err(asr_hw->dev,"unlikely: len:%d not 32 aligned, port_num=%d ,vif_idx=%d , drop \r\n",temp_len,port_num,hostdesc_tmp->vif_idx);
+		if (temp_len % SDIO_BLOCK_SIZE || temp_len > ASR_SDIO_DATA_MAX_LEN || (hostdesc_tmp->vif_idx >= asr_hw->vif_max_num)) {
+			dev_err(asr_hw->dev,"unlikely: len:%d not %d aligned, port_num=%d ,vif_idx=%d , drop \r\n",temp_len,SDIO_BLOCK_SIZE,port_num,hostdesc_tmp->vif_idx);
 
 			WARN_ON(1);
 
-            // directly free : not rechain when sdio send fail.
+			// directly free : not rechain when sdio send fail.
 			skb_unlink(skb_pending, &asr_hw->tx_hif_skb_list);
 			dev_kfree_skb_any(skb_pending);
 			break;
-
 		} else {
-            // copy to hifbuf.
-                    memcpy(hif_buf_skb->data + trans_len, skb_pending->data ,temp_len);
-		    trans_len += temp_len;
-	            *tx_bytes += hostdesc_tmp->packet_len;				
-		    hif_skb_copy_cnt++;
+			if (asr_sdio_rw_sg == false)
+				memcpy(hif_buf_skb->data + trans_len, skb_pending->data, temp_len);
 
-            if (txlogen)
-		        dev_err(asr_hw->dev,"hif_copy: %d %d ,%d %d \r\n",temp_len,trans_len,hif_skb_copy_cnt,port_num);
+			trans_len += temp_len;
+			*tx_bytes += hostdesc_tmp->packet_len;
+			hif_skb_cnt++;
 
+            hostdesc_tmp->timestamp = 0;
+
+			if (txlogen)
+				dev_err(asr_hw->dev,"hif_copy: %d %d ,%d %d \r\n",temp_len,trans_len,hif_skb_cnt,port_num);
 		}
 	}
 
-        if (port_num != hif_skb_copy_cnt) {
-		dev_err(asr_hw->dev," unlikely: port num mismatch(%d %d)!!!\r\n",port_num,hif_skb_copy_cnt);
-	        trans_len = 0;
+	if (port_num != hif_skb_cnt) {
+		dev_err(asr_hw->dev," unlikely: port num mismatch(%d %d)!!!\r\n",port_num,hif_skb_cnt);
+		trans_len = 0;
 		*tx_bytes = 0;
-        } else {
-		hostdesc_start = (struct hostdesc *)(hif_buf_skb->data);
-		hostdesc_start->agg_num = hif_skb_copy_cnt;
+	} else {
+		if (asr_sdio_rw_sg) {
+			skb_tmp = skb_peek(&asr_hw->tx_hif_skb_list);
+			hostdesc_start = (struct hostdesc *)(skb_tmp->data);
+		} else {
+			hostdesc_start = (struct hostdesc *)(hif_buf_skb->data);
+		}
+		hostdesc_start->agg_num = hif_skb_cnt;
 	}
 
 	return trans_len;
-
 }
 
 void asr_drop_tx_vif_skb(struct asr_hw *asr_hw,struct asr_vif *asr_vif_drop)
@@ -1117,7 +1141,7 @@ void asr_drop_tx_vif_skb(struct asr_hw *asr_hw,struct asr_vif *asr_vif_drop)
 	skb_queue_walk_safe(&asr_hw->tx_sk_list, skb_pending, pnext) {
 		hostdesc_tmp = (struct hostdesc *)skb_pending->data;		
 		if ((asr_vif_drop == NULL) ||
-			(asr_vif_drop && (hostdesc_tmp->vif_idx == asr_vif_drop->vif_index))) {
+			(hostdesc_tmp->vif_idx == asr_vif_drop->vif_index)) {
 			skb_unlink(skb_pending, &asr_hw->tx_sk_list);
 			dev_kfree_skb_any(skb_pending);
 		}
@@ -1169,12 +1193,12 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 
 	while (1) {
 		/************************** phy status check. **************************************************************/
-		if (mrole_enable && (asr_hw->ext_vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		if (mrole_enable && (asr_hw->ext_vif_index < asr_hw->vif_max_num)) {
 			asr_ext_vif = asr_hw->vif_table[asr_hw->ext_vif_index];
 		}
-		
+
 		// check traffic vif status.
-		if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+		if (asr_hw->vif_index < asr_hw->vif_max_num) {
 			asr_traffic_vif  = asr_hw->vif_table[asr_hw->vif_index];
 		}
 
@@ -1196,7 +1220,7 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 		}
 
 		if (
-		             asr_traffic_vif && ASR_VIF_TYPE(asr_traffic_vif) == NL80211_IFTYPE_STATION &&
+		         asr_traffic_vif && ASR_VIF_TYPE(asr_traffic_vif) == NL80211_IFTYPE_STATION &&
 			     (test_bit(ASR_DEV_STA_DISCONNECTING, &asr_traffic_vif->dev_flags) ||
 			     ((p2p_debug == 0) && !test_bit(ASR_DEV_STA_CONNECTED, &asr_traffic_vif->dev_flags))  ||         // P2P mask:will send mgt frame from host before connected.
 			     test_bit(ASR_DEV_CLOSEING, &asr_traffic_vif->dev_flags) ||
@@ -1214,25 +1238,27 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 			            break;
 		}
 
-                // check hif buf valid.
-                if (skb_queue_empty(&asr_hw->tx_hif_free_buf_list)) {
-			dev_info(asr_hw->dev, "%s: tx_hif_skb_list is empty ...\n", __func__);
-			break;
-                }
+        // check hif buf valid.
+        if (asr_sdio_rw_sg == false) {
+	        if (skb_queue_empty(&asr_hw->tx_hif_free_buf_list)) {
+				dev_info(asr_hw->dev, "%s: tx_hif_skb_list is empty ...\n", __func__);
+				break;
+	        }
+        }
 
 		/************************ tx cmd53 prepare and send.****************************************************************/
 		spin_lock_bh(&asr_hw->tx_lock); 		  // use lock to prevent asr_vif->dev_flags change.
-		
+
 		ava_skb_num = asr_tx_get_ava_trans_skbs(asr_hw);
-		if (!ava_skb_num) {			
+		if (!ava_skb_num) {
 		    spin_unlock_bh(&asr_hw->tx_lock);
 		    break;
 		}
-		
+
 		avail_data_port = asr_sdio_tx_get_available_data_port(asr_hw, ava_skb_num, &port_num, &io_addr, &bitmap_record);
-		
+
 		tx_agg_port_stats(avail_data_port);
-		
+
 		if (!avail_data_port) {
 		    spin_unlock_bh(&asr_hw->tx_lock);
 		    break;
@@ -1242,26 +1268,26 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 
 		spin_unlock_bh(&asr_hw->tx_lock);
 
-          	// pop free hif buf and move tx skb to hif buf.
-                hif_buf_skb = skb_dequeue(&asr_hw->tx_hif_free_buf_list);
+		if (asr_sdio_rw_sg == false) {
+			// pop free hif buf and move tx skb to hif buf
+			hif_buf_skb = skb_dequeue(&asr_hw->tx_hif_free_buf_list);
+			if (hif_buf_skb == NULL) {
+					// free asr_hw->tx_hif_skb_list and break
+					dev_info(asr_hw->dev, "%s: unlikely , tx_hif_skb_list is empty ...\n", __func__);
 
-		if (hif_buf_skb == NULL) {
-              // free asr_hw->tx_hif_skb_list and break
-			  dev_info(asr_hw->dev, "%s: unlikely , tx_hif_skb_list is empty ...\n", __func__);
-
-			  skb_queue_walk_safe(&asr_hw->tx_hif_skb_list, hif_tx_skb, pnext) {
-				  skb_unlink(hif_tx_skb, &asr_hw->tx_hif_skb_list);
-				  dev_kfree_skb_any(hif_tx_skb);
-			  }
-			  break;
+					skb_queue_walk_safe(&asr_hw->tx_hif_skb_list, hif_tx_skb, pnext) {
+					skb_unlink(hif_tx_skb, &asr_hw->tx_hif_skb_list);
+					dev_kfree_skb_any(hif_tx_skb);
+				}
+				break;
+			}
 		}
 
-                // to adapt to sdio aggr tx, better use scatter dma later.
-		trans_len = asr_hif_bufdata_prepare(asr_hw,hif_buf_skb,port_num,&tx_bytes);
-
-        if (trans_len) {
-			hostdesc_start = (struct hostdesc *)hif_buf_skb->data;
-			// send sdio .
+		trans_len = asr_hif_bufdata_prepare(asr_hw, hif_buf_skb, port_num, &tx_bytes);
+		if (trans_len) {
+			if (asr_sdio_rw_sg)
+				hif_buf_skb = skb_peek(&asr_hw->tx_hif_skb_list);
+			hostdesc_start = (struct hostdesc *)(hif_buf_skb->data);
 			ret = asr_sdio_send_data(asr_hw, HIF_TX_DATA, (u8 *) hostdesc_start, trans_len, io_addr, bitmap_record);	// sleep api, not add in spin lock
 			if (ret) {
 				if (mrole_enable == false && asr_traffic_vif != NULL) {
@@ -1292,7 +1318,7 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 			} else {
                                 // flow ctrl update.
 				hostdesc_tmp = (struct hostdesc *)hif_tx_skb->data;
-				if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+				if ((hostdesc_tmp->vif_idx < asr_hw->vif_max_num)) {
 					asr_vif_tmp = asr_hw->vif_table[hostdesc_tmp->vif_idx];
 
 					if (asr_vif_tmp)
@@ -1315,10 +1341,12 @@ int asr_opt_tx_task(struct asr_hw *asr_hw)
 		asr_hw->stats.tx_bytes += tx_bytes;
 #endif
 
-	    // clear hif buf and rechain to free hif_buf list.
-		memset(hif_buf_skb->data, 0, IPC_HIF_TXBUF_SIZE);
-		// Add the sk buffer structure in the table of rx buffer
-		skb_queue_tail(&asr_hw->tx_hif_free_buf_list, hif_buf_skb);
+		if (asr_sdio_rw_sg == false) {
+			// clear hif buf and rechain to free hif_buf list.
+			memset(hif_buf_skb->data, 0, IPC_HIF_TXBUF_SIZE);
+			// Add the sk buffer structure in the table of rx buffer
+			skb_queue_tail(&asr_hw->tx_hif_free_buf_list, hif_buf_skb);
+		}
 
 		// tx flow ctrl part.
 		list_for_each_entry(asr_vif_tmp, &asr_hw->vifs, list) {
@@ -1371,12 +1399,12 @@ int asr_tx_task(struct asr_hw *asr_hw)
 	while (1) {
 
 		/************************** dev & vif stats check. **************************************************************/
-		if (mrole_enable && (asr_hw->ext_vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		if (mrole_enable && (asr_hw->ext_vif_index < asr_hw->vif_max_num)) {
 			asr_ext_vif = asr_hw->vif_table[asr_hw->ext_vif_index];
 		}
 
         // check traffic vif status.
-		if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+		if (asr_hw->vif_index < asr_hw->vif_max_num) {
 		    asr_traffic_vif  = asr_hw->vif_table[asr_hw->vif_index];
 		}
 
@@ -1462,10 +1490,10 @@ int asr_tx_task(struct asr_hw *asr_hw)
 			tx_bytes += ((struct hostdesc *)(temp_cur_next_addr))->packet_len;
 
 			temp_len = *((u16 *) temp_cur_next_addr) + 2;
-			if (temp_len % 32 || temp_len > ASR_SDIO_DATA_MAX_LEN) {
+			if (temp_len % SDIO_BLOCK_SIZE || temp_len > ASR_SDIO_DATA_MAX_LEN) {
 				dev_err(asr_hw->dev,
-					"unlikely: temp_cur_next_addr:0x%x len:%d not 32 aligned\r\n",
-					(u32) (uintptr_t) temp_cur_next_addr, temp_len);
+					"unlikely: temp_cur_next_addr:0x%x len:%d not %d aligned\r\n",
+					(u32) (uintptr_t) temp_cur_next_addr, temp_len,SDIO_BLOCK_SIZE);
 
 				dev_err(asr_hw->dev,
 					"[%s %d] wr:0x%x(%d) rd:0x%x(%d) aggr_buf(%p) cnt:%d - agg_ava_num:%d (%d,%d)\n",
@@ -1491,7 +1519,7 @@ int asr_tx_task(struct asr_hw *asr_hw)
                 // multi vif tx ringbuf byte caculate for flow ctrl.
                 hostdesc_temp = (struct hostdesc *)(temp_cur_next_addr);
 
-				if ((hostdesc_temp->vif_idx < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+				if ((hostdesc_temp->vif_idx < asr_hw->vif_max_num)) {
 					asr_vif_tmp = asr_hw->vif_table[hostdesc_temp->vif_idx];
 
 					spin_lock_bh(&asr_hw->tx_agg_env_lock);
@@ -1927,15 +1955,16 @@ static bool asr_is_tcp_pure_ack(struct asr_hw *asr_hw, struct sk_buff *skb)
 
 static bool asr_send_not_tcp_ack(struct asr_hw *asr_hw, struct asr_vif *asr_vif, struct sk_buff *skb)
 {
-	int tcp_ack_num = asr_hw->mod_params->tcp_ack_num;
+	int tcp_ack_num = 0;
 
 	if (!asr_hw || !asr_vif || !skb) {
 		return true;
 	}
+	tcp_ack_num = asr_hw->mod_params->tcp_ack_num
 
-        // tcp_ack_num is zero means disable reduce tcp ack.
-        if (tcp_ack_num == 0)
-            return false;
+    // tcp_ack_num is zero means disable reduce tcp ack.
+    if (tcp_ack_num == 0)
+        return false;
 
 	/* when get tcp_ack_num tcp acks and then just send 1 ack to fw */
 	// __tcp_send_ack
@@ -2021,16 +2050,17 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 	}
 
 	if (!asr_hw || !asr_vif) {
-		dev_info(asr_hw->dev, "%s:vif is NULL\n", __func__);
+		if (asr_hw)
+			dev_info(asr_hw->dev, "%s:vif is NULL\n", __func__);
 		goto xmit_sdio_free;
 	}
 
     max_headroom = sizeof(struct asr_txhdr) + 3;
 
     /* check whether the current skb can be used */
-    if (skb_shared(skb) || (skb_headroom(skb) < max_headroom) || (skb_tailroom(skb) < 32) ||
+    if (skb_shared(skb) || (skb_headroom(skb) < max_headroom) || (skb_tailroom(skb) < SDIO_BLOCK_SIZE+4) ||
         (skb_cloned(skb) && (asr_vif->ndev->priv_flags & IFF_BRIDGE_PORT))) {
-        struct sk_buff *newskb = skb_copy_expand(skb, max_headroom, 32,
+        struct sk_buff *newskb = skb_copy_expand(skb, max_headroom, SDIO_BLOCK_SIZE+4,
                                                  GFP_ATOMIC);
         if (unlikely(newskb == NULL))
             goto xmit_sdio_free;
@@ -2069,7 +2099,10 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 	/* Retrieve the pointer to the Ethernet data */
 	eth = (struct ethhdr *)skb->data;
 
-	headroom = sizeof(struct asr_txhdr);
+	if ((asr_sdio_rw_sg == false) || (((u32)(uintptr_t)skb->data % 4) == 0))
+		headroom = sizeof(struct asr_txhdr);
+	else
+		headroom = sizeof(struct asr_txhdr) + ((u32)(uintptr_t)skb->data % 4);
 	frame_len = (u16) skb->len - sizeof(*eth);
 	frame_offset = headroom + sizeof(*eth);
 
@@ -2095,6 +2128,10 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 
 	is_dhcp = check_is_dhcp_package(asr_vif, true, ntohs(eth->h_proto), &dhcp_type, &d_mac,
 				  skb->data + sizeof(*eth), (u16) skb->len - sizeof(*eth));
+	if(test_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags) && dhcp_type==7){
+		// ip had release
+		clear_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
+	}
 
     /************************** hostdesc prepare . ******************************************************/
 
@@ -2109,7 +2146,7 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
        skb_put (skb,4)         ;  fill tx_data_end_token.
 
 	*/
-        skb_push(skb, headroom);
+	skb_push(skb, headroom);
 	hostdesc = (struct hostdesc *)skb->data;
 
 	// Fill-in the hostdesc
@@ -2142,7 +2179,7 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 	hostdesc->txq = (u32) (uintptr_t) txq;
 	hostdesc->agg_num = 0;
 	hostdesc->sdio_tx_len = temp_len - 2;
-	hostdesc->timestamp = 0;
+	hostdesc->timestamp = (uint16_t)jiffies;
     hostdesc->sn = 0xFFFF;   // set default value.
 
 	//memcpy((u8 *) hostdesc + headroom, skb->data, skb->len);
@@ -2159,33 +2196,48 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 
 	skb_put(skb,tail_align_len);
 
-	memcpy((u8 *) hostdesc + hostdesc->sdio_tx_total_len, &tx_data_end_token, 4);
+	//memcpy((u8 *) hostdesc + hostdesc->sdio_tx_total_len, &tx_data_end_token, 4);
+    memcpy((u8*)hostdesc + temp_len -4, &tx_data_end_token, 4);
 
-    // chain skb to tk_list.
-    spin_lock_bh(&asr_hw->tx_lock);
+	// chain skb to tk_list.
+	spin_lock_bh(&asr_hw->tx_lock);
 	skb_queue_tail(&asr_hw->tx_sk_list, skb);
-	asr_vif->tx_skb_cnt ++;	
+	asr_vif->tx_skb_cnt ++;
 	tx_sk_list_cnt = skb_queue_len(&asr_hw->tx_sk_list);
 	spin_unlock_bh(&asr_hw->tx_lock);
 
-    #if 1  //  new malloc skb for duplicate dhcp pkt.
-	if (is_dhcp && dhcp_type != 0x1 && dhcp_type != 0x3) {
-        struct sk_buff *skb_new = NULL;
+	// update tim for ps sta.
+	#if 0  // now dl few pkts even when sta is ps, let fw update tim.
+	if (txq->sta && txq->sta->ps.active) {
+		txq->sta->ps.pkt_ready[txq->ps_id]++;
+		if (txq->sta->ps.pkt_ready[txq->ps_id] == 1) {
+			//asr_set_traffic_status(asr_hw,txq->sta,true,txq->ps_id);
+		}
+	}
+	#endif
 
-        skb_new = dev_alloc_skb(temp_len);
+	#if 1  //  new malloc skb for duplicate dhcp pkt.
+	if (is_dhcp && dhcp_type != 0x1 && dhcp_type != 0x3 && is_broadcast_ether_addr(eth->h_dest)) {
+		struct sk_buff *skb_new = NULL;
 
-        if (skb_new) {
-            memset(skb_new->data,0,temp_len);
-            hostdesc_new = (struct hostdesc *)skb_new->data;
+		skb_new = dev_alloc_skb(temp_len);
+
+		if (skb_new) {
+			memset(skb_new->data,0,temp_len);
+			hostdesc_new = (struct hostdesc *)skb_new->data;
 			memcpy(hostdesc_new, hostdesc, temp_len);
-			if (is_broadcast_ether_addr(eth->h_dest)) {
-				memcpy(&hostdesc_new->eth_dest_addr, d_mac, ETH_ALEN);
-			}
-            spin_lock_bh(&asr_hw->tx_lock);
-	        skb_queue_tail(&asr_hw->tx_sk_list, skb_new);
-	        asr_vif->tx_skb_cnt ++;	
-	        spin_unlock_bh(&asr_hw->tx_lock);
-        }
+			memcpy(&hostdesc_new->eth_dest_addr, d_mac, ETH_ALEN);
+			skb_new->len = temp_len;
+            sta = asr_get_sta(asr_hw,d_mac);
+            if (sta) {
+                hostdesc_new->staid = sta->sta_idx;
+            }
+
+			spin_lock_bh(&asr_hw->tx_lock);
+			skb_queue_tail(&asr_hw->tx_sk_list, skb_new);
+			asr_vif->tx_skb_cnt ++;
+			spin_unlock_bh(&asr_hw->tx_lock);
+		}
 	}
 	#endif
 
@@ -2201,12 +2253,14 @@ static netdev_tx_t asr_start_xmit_opt_sdio(struct asr_hw *asr_hw, struct asr_vif
 		asr_hw->txflow_timer.expires = jiffies + msecs_to_jiffies(ASR_TXFLOW_TIMER_OUT);
 		add_timer(&asr_hw->txflow_timer);
 #endif
+        //update last_tx for data timeout for txflow
+        asr_hw->stats.last_tx = jiffies;
 	}
 
 	if (txlogen)
-		dev_err(asr_hw->dev, "[%s] type=%d ,sta_idx=%d ,vif_idx=%d ,frm_len=%d (%d %d %ld),eth_type=0x%x\n",__func__,
+		dev_err(asr_hw->dev, "[%s] type=%d ,sta_idx=%d ,vif_idx=%d ,frm_len=%d (%d %d %u),eth_type=0x%x\n",__func__,
 									  ASR_VIF_TYPE(asr_vif), sta ? sta->sta_idx : 0xFF , asr_vif ? asr_vif->vif_index : 0xFF ,
-									  frame_len,tail_align_len,headroom,sizeof(*eth),
+									  frame_len,tail_align_len,headroom,(unsigned int)sizeof(*eth),
                                                                           hostdesc->ethertype);
 
 	if ((tx_sk_list_cnt == 1 || is_dhcp) &&
@@ -2271,7 +2325,8 @@ bool asr_start_xmit_agg_sdio(struct asr_hw *asr_hw, struct asr_vif *asr_vif, str
 	}
 
 	if (!asr_hw || !asr_vif) {
-		dev_info(asr_hw->dev, "%s:vif is NULL\n", __func__);
+		if (asr_hw)
+			dev_info(asr_hw->dev, "%s:vif is NULL\n", __func__);
 		goto xmit_sdio_free;
 	}
 
@@ -2319,6 +2374,10 @@ bool asr_start_xmit_agg_sdio(struct asr_hw *asr_hw, struct asr_vif *asr_vif, str
 	is_dhcp =
 	    check_is_dhcp_package(asr_vif, true, ntohs(eth->h_proto), &dhcp_type, &d_mac,
 				  skb->data + sizeof(*eth), (u16) skb->len - sizeof(*eth));
+	if(test_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags) && dhcp_type==7){
+		// ip had release
+		clear_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
+	}
 
 	hostdesc = (struct hostdesc *)asr_tx_aggr_get_copy_addr(asr_hw, temp_len);
 	if (!hostdesc) {
@@ -2358,9 +2417,29 @@ bool asr_start_xmit_agg_sdio(struct asr_hw *asr_hw, struct asr_vif *asr_vif, str
 	hostdesc->sdio_tx_len = temp_len - 2;
 	hostdesc->timestamp = 0;
 	memcpy((u8 *) hostdesc + headroom, skb->data, skb->len);
-	memcpy((u8 *) hostdesc + hostdesc->sdio_tx_total_len, &tx_data_end_token, 4);
 
-	if (is_dhcp && dhcp_type != 0x1 && dhcp_type != 0x3) {
+
+	//memcpy((u8 *) hostdesc + hostdesc->sdio_tx_total_len, &tx_data_end_token, 4);
+
+
+	memcpy((u8*)hostdesc + temp_len -4, &tx_data_end_token, 4);
+
+
+	if (asr_hw->tx_agg_env.aggr_buf_cnt == 1) {
+        //dev_info(asr_hw->dev, "%s:aggr_buf_cnt=%d \n", __func__, asr_hw->tx_agg_env.aggr_buf_cnt);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
+        mod_timer(&asr_hw->txflow_timer,
+              jiffies + msecs_to_jiffies(ASR_TXFLOW_TIMER_OUT));
+#else
+        del_timer_sync(&asr_hw->txflow_timer);
+        asr_hw->txflow_timer.expires = jiffies + msecs_to_jiffies(ASR_TXFLOW_TIMER_OUT);
+        add_timer(&asr_hw->txflow_timer);
+#endif
+        //update last_tx for data timeout for txflow
+        asr_hw->stats.last_tx = jiffies;
+    }
+
+	if (is_dhcp && dhcp_type != 0x1 && dhcp_type != 0x3 && is_broadcast_ether_addr(eth->h_dest)) {
 
 		hostdesc_new = (struct hostdesc *)asr_tx_aggr_get_copy_addr(asr_hw, temp_len);
 		if (hostdesc_new) {
@@ -2372,22 +2451,17 @@ bool asr_start_xmit_agg_sdio(struct asr_hw *asr_hw, struct asr_vif *asr_vif, str
 				memcpy(&hostdesc_new->eth_dest_addr, d_mac, ETH_ALEN);
 			}
 			memcpy((u8 *) hostdesc_new + headroom, skb->data, skb->len);
-			memcpy((u8 *) hostdesc_new + hostdesc_new->sdio_tx_total_len,
-			       &tx_data_end_token, 4);
+
+			//memcpy((u8 *) hostdesc_new + hostdesc_new->sdio_tx_total_len, &tx_data_end_token, 4);
+			memcpy((u8*)hostdesc_new + temp_len -4, &tx_data_end_token, 4);
+
+            sta = asr_get_sta(asr_hw,d_mac);
+            if (sta) {
+                hostdesc_new->staid = sta->sta_idx;
+            }
 		}
 	}
 
-	if (asr_hw->tx_agg_env.aggr_buf_cnt == 1) {
-		//dev_info(asr_hw->dev, "%s:aggr_buf_cnt=%d \n", __func__, asr_hw->tx_agg_env.aggr_buf_cnt);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
-		mod_timer(&asr_hw->txflow_timer,
-			  jiffies + msecs_to_jiffies(ASR_TXFLOW_TIMER_OUT));
-#else
-		del_timer_sync(&asr_hw->txflow_timer);
-		asr_hw->txflow_timer.expires = jiffies + msecs_to_jiffies(ASR_TXFLOW_TIMER_OUT);
-		add_timer(&asr_hw->txflow_timer);
-#endif
-	}
 
     if (txlogen)
 	    dev_err(asr_hw->dev, "[%s] type=%d ,sta_idx=%d ,vif_idx=%d ,frm_len=%d ,eth_type=0x%x\n",__func__,
@@ -2656,7 +2730,11 @@ int asr_start_mgmt_xmit_opt_sdio(struct asr_vif *vif, struct asr_sta *sta,
 #else
 			memcpy((u8 *) hostdesc + frame_offset, buf, frame_len);
 #endif
-			memcpy((u8 *) hostdesc + frame_offset + frame_len, &tx_data_end_token, 4);
+			//memcpy((u8 *) hostdesc + frame_offset + frame_len, &tx_data_end_token, 4);
+            memcpy((u8*)hostdesc + temp_len -4, &tx_data_end_token, 4);
+
+
+			skb_new->len = temp_len;
 
 			// chain skb to tk_list.
 			spin_lock_bh(&asr_hw->tx_lock);
@@ -2873,7 +2951,9 @@ int asr_start_mgmt_xmit_agg_sdio(struct asr_vif *vif, struct asr_sta *sta,
 #else
 			memcpy((u8 *) hostdesc + frame_offset, buf, frame_len);
 #endif
-			memcpy((u8 *) hostdesc + frame_offset + frame_len, &tx_data_end_token, 4);
+			//memcpy((u8 *) hostdesc + frame_offset + frame_len, &tx_data_end_token, 4);
+			memcpy((u8*)hostdesc + temp_len -4, &tx_data_end_token, 4);
+
 		} else {
 			dev_err(asr_hw->dev, "%s frame drop\n", __func__);
 		}
@@ -3024,6 +3104,11 @@ netdev_tx_t asr_start_xmit_usb(struct sk_buff * skb, struct net_device * dev)
 		check_is_dhcp_package(asr_vif, true, ntohs(eth->h_proto), &dhcp_type, &d_mac,
 				  skb->data + sizeof(*eth), (u16) skb->len - sizeof(*eth));
 
+	if(test_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags) && dhcp_type==7){
+		// ip had release
+		clear_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
+	}
+
     /* the real offset is :sizeof(struct txdesc_api)(44) + pad(4) + sizeof(*eth)(14) and it should not bellow the wireless header(46) */
 	headroom = sizeof(struct hostdesc) + HOST_PAD_USB_LEN;
 
@@ -3156,7 +3241,7 @@ int asr_start_mgmt_xmit_usb(struct asr_vif *vif, struct asr_sta *sta,
 	struct sk_buff *skb = NULL;
 	#ifdef CFG_ROAMING
 	struct ieee80211_hdr *hdr = NULL;
-	uint32_t timeout_ms = 0;
+	//uint32_t timeout_ms = 0;
 	#endif
 	int ret = 0;
 

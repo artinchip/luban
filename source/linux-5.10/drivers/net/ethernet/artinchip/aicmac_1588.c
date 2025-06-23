@@ -152,6 +152,7 @@ int aicmac_1588_register(void *priv_ptr)
 
 	ptp_data->hwts_tx_en = 0;
 	ptp_data->hwts_rx_en = 0;
+	ptp_data->ptpaddr = priv->resource->ioaddr + AICMAC_PTP_REG_BASE;
 
 	for (i = 0; i < plat->hw_cap.pps_out_num; i++) {
 		if (i >= AICMAC_PPS_MAX)

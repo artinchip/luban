@@ -1,0 +1,1278 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="模块名称 总线时钟 模块时钟源 模块时钟极限频率 备注 E907 CORE - PLL_INT0 504MHz - E907 PLIC - PLL_INT0÷2 252MHz - E907 CLINT - PLL_INT0÷2 252MHz - E907 DM - CLK_24M 24MHz - AXI AXI - 240MHz - AHB AHB - 240MHz - APB0 APB0 - ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-03-05"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="topic_y4l_wwh_ryb"/><title>模块时钟</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/reused/module-clock_reused.dita"/><meta name="wh-out-relpath" content="topics/reused/module-clock_reused.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="topic_y4l_wwh_ryb" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-12" id="wh_topic_body">
+                        
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/reused/module-clock_reused.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">模块时钟</h1>
+    <div class="date inPage">5 Mar 2024</div><div style="color: gray;">
+                    Read time: 8 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="- topic/p p" data-ofbid="d81223e31__20250123155205">
+            <div class="table-container"><table class="- topic/table table frame-all" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb" data-ofbid="topic_y4l_wwh_ryb__table_kxk_gxh_ryb" data-cols="5"><caption></caption><colgroup><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">模块名称</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">总线时钟</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">模块时钟源</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">模块时钟极限频率</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">备注</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">E907 CORE</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">504MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">E907 PLIC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT0÷2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">252MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">E907 CLINT</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT0÷2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">252MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">E907 DM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_24M</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">24MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">AXI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AXI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">24MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">BROM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AXI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SRAM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AXI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">AHB Matrix</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">DMA</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CE</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">200MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">USB DEV</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">USB PHY</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_24M</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">EMAC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">50MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">XSPI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_FRA0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">400MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SPI0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_FRA0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SPI1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_FRA0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SPI2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_FRA0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SPI3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_FRA0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CORDIC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">HCL</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">PBUS</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">AHB</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SYSCFG</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_24M</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">24MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CMU</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SPI_ENC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">HCLK</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">PWMCS</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">200MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">ADC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">AXICFG</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">GPIO</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART4</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART5</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART6</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">UART7</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">60MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">TA-IF</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">EDT-IF</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">BISS-IF</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SDFM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">240MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">WDOG</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_32K</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">32KHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">WRI</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_24M</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">24MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">SID</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">CLK_24M</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">24MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">GTC</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">I2C0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">I2C1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">I2C2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">I2C3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CAN0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CAN1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">PWM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">ADCIM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">PLL_INT1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">100MHz</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">THS</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__1">CPM</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__2">APB1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__3">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__4">-</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_kxk_gxh_ryb__entry__5">-</td>
+                        </tr>
+                    </tbody></table></div>
+        </div>
+        <div class="table-container"><table class="- topic/table table frame-all" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb" data-ofbid="topic_y4l_wwh_ryb__table_xhd_tyn_tzb" data-cols="5"><caption></caption><colgroup><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/><col style="width:20%"/></colgroup><thead class="- topic/thead thead">
+                    <tr class="- topic/row">
+                        <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">模块名称</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">总线时钟</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">模块时钟源</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">模块时钟极限频率</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">备注</th>
+                    </tr>
+                </thead><tbody class="- topic/tbody tbody">
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">C906 CORE</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">504MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5"><a class="- topic/xref xref" href="mailto:600MHz%401.2V" target="_blank" rel="external noopener">600MHz@1.2V</a></td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">AXI</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AXI</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">240MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">AHB</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">240MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">24MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">AHB Matrix</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">BROM</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SRAM</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">DMA</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CE</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">USB DEV</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">USB HOST0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">USB HOST1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">USB PHY0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">USB PHY1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GMAC0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">50MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GMAC1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">50MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">QSPI0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">QSPI1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">QSPI2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">QSPI3</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SDMC0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SDMC1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SDMC2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">PBUS</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">AHB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SYSCFG</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">24MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CMU</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CMT (SIM)</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SPI ENC</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">PWMCS</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">PSADC</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">DDR CTL</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">MTOP</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">DDR PHY</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">336MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2S0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">26MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2S1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">26MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">AUDIO</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">26MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">LCD</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">800MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">DISP_PIXCLK:200MHz</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">LVDS</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">1000MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">DISP_PIXCLK:200MHz</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">MIPI DSI</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_FRA2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">1200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">DISP_PIXCLK:200MHz</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">DVP</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">DE</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">DISP_PIXCLK:200MHz</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GE</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">VE</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">TBD</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">200MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">WDOG</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">CLK_32K</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">30KHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">WRI</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">24MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">SID</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">24MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">RTC</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3"><em class="+ topic/ph hi-d/i ph i">RTC domain</em></td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GTC</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GPIO</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">PMT (SIM)</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART3</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART4</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART5</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART6</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">UART7</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">60MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2C0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2C1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2C2</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">I2C3</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CAN0</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CAN1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">PWM</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">PLL_INT1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">100MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">ADCIM</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">OSC_24M</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">24MHz</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">GPAI</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">RTP</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">THS</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__1">CIR</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__2">APB1</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__3">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__4">-</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__table_xhd_tyn_tzb__entry__5">-</td>
+                    </tr>
+                </tbody></table></div>
+        <div class="- topic/p p" data-ofbid="d81223e2443__20250123155205"><strong class="+ topic/ph hi-d/b ph b">UART 在 PLL_INT1=1.2GHz 下波特率精度</strong><div class="table-container"><table class="- topic/table table frame-all" id="topic_y4l_wwh_ryb__id7" data-ofbid="topic_y4l_wwh_ryb__id7" data-cols="7"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">UART 波特率与误差率</span></caption><colgroup><col style="width:14.326241134751774%"/><col style="width:14.326241134751774%"/><col style="width:14.326241134751774%"/><col style="width:14.326241134751774%"/><col style="width:14.326241134751774%"/><col style="width:14.184397163120568%"/><col style="width:14.184397163120568%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__1">设定波特率</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__2">实际波特率</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__3">波特率偏差</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__4">CMU 除频</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__5">Over sampling</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__6">Clock source</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="topic_y4l_wwh_ryb__id7__entry__7">UART 除频</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">300</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">300</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">10000</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">600</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">600</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">5000</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">1200</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">1200</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">2500</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">2400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">2400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">1250</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">4800</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">4800</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">625</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">9600</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">9615</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">312</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">14400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">14423</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">208</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">19200</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">19230</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">156</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">38400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">38461</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">78</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">57600</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">57692</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">52</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">115200</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">115384</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">26</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">230400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">230769</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">13</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">380400</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">378787</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">-0.42</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">22</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">54545454</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">9</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">460800</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">462963</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.47</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">27</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">44444444</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">6</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">921600</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">925925</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0.47</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">27</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">44444444</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">3</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">1000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">1000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">3</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">1152000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">1136363</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">1.36</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">22</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">54545454</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">3</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">1500000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">1500000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">2</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">2500000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">2500000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">30</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">40000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">1</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__1">3000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__2">3000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__3">0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__4">25</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__5">16</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__6">48000000</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="topic_y4l_wwh_ryb__id7__entry__7">1</td>
+                        </tr>
+                    </tbody></table></div></div>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

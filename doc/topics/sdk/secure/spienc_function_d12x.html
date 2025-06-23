@@ -1,0 +1,742 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="应用场景 本方案针对下列使用场景： 方案商提供主控芯片和开发好的固件给第三方生产商 生产, 方案商对自己的固件进行保护 方案商开发了包含某一功能的固件 生产商不进行开发，而使用方案商提供的固件 方案商为了保护自己的固件，会要求自己的固件只能在方案商授权的主控芯片上运行 他人不能通过拷贝 SPI NOR 上的固件在不经 方案商 授权的主控芯片上运行 方案介绍 本方案通过使用 AIC 主控的 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.created" content="2024-11-29"/><meta name="DC.date.modified" content="2024-12-06"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>防抄板-SPIENC-D12x</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/sdk/secure/spienc_function_d12x.dita"/><meta name="wh-out-relpath" content="topics/sdk/secure/spienc_function_d12x.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="wh_topic_body">
+                        
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/secure/spienc_function_d12x.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">防抄板-SPIENC-D12x</h1>
+    <div class="date inPage">6 Dec 2024</div><div style="color: gray;">
+                    Read time: 9 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <section class="- topic/section section" id="id__section_sw1_bvp_pdc" data-ofbid="id__section_sw1_bvp_pdc"><h2 class="- topic/title title sectiontitle">应用场景</h2>
+            
+            <p class="- topic/p p" data-ofbid="d85894e36__20250123155206"> 本方案针对下列使用场景：</p>
+            <ul class="- topic/ul ul simple" id="id__ul_an4_dp4_fdc" data-ofbid="id__ul_an4_dp4_fdc">
+                <li class="- topic/li li" data-ofbid="d85894e41__20250123155206">
+                    <p class="- topic/p p" data-ofbid="d85894e43__20250123155206">方案商提供主控芯片和开发好的固件给第三方生产商 生产, 方案商对自己的固件进行保护</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d85894e47__20250123155206">
+                    <p class="- topic/p p" data-ofbid="d85894e49__20250123155206">方案商开发了包含某一功能的固件</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d85894e53__20250123155206">
+                    <p class="- topic/p p" data-ofbid="d85894e55__20250123155206">生产商不进行开发，而使用方案商提供的固件</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d85894e59__20250123155206">
+                    <p class="- topic/p p" data-ofbid="d85894e61__20250123155206">方案商为了保护自己的固件，会要求自己的固件只能在方案商授权的主控芯片上运行</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d85894e65__20250123155206">
+                    <p class="- topic/p p" data-ofbid="d85894e67__20250123155206">他人不能通过拷贝 SPI NOR 上的固件在不经 <code class="+ topic/ph pr-d/codeph ph codeph">方案商</code> 授权的主控芯片上运行</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="id__id2" data-ofbid="id__id2"><h2 class="- topic/title title sectiontitle">方案介绍</h2>
+            
+            <div class="- topic/div div">
+                <p class="- topic/p p" id="id__p_ppw_qsd_jdc" data-ofbid="id__p_ppw_qsd_jdc">本方案通过使用 AIC 主控的 SPIENC
+                    总线加密功能以及安全启动功能来实现防抄板，结合实际使用的需求，提供对应的软件方案。</p>
+                <div class="- topic/div div" id="id__div_v32_nsd_jdc"><strong class="+ topic/ph hi-d/b ph b">SPIENC 总线加密</strong><p class="- topic/p p" data-ofbid="d85894e89__20250123155206">SPIENC 总线加密功能是一个芯片硬件支持的安全功能，芯片使能了
+                        SPIENC 后，内部的 SPIENC 模块对 SPI 总线上传输的数据进行实时的加密或解密，即对写出去的数据进行 AES 加密，读回来的数据进行
+                        AES 解密， 使得保存在 Flash 上的数据总是密文。</p><p class="- topic/p p" data-ofbid="d85894e91__20250123155206">SPIENC 进行加解密时，使用芯片 eFuse
+                        中特定密钥区域中的密钥对数据进行加密和解密，该密钥区域可以做到烧录后 CPU 不可读写，在芯片内部也仅有 SPIENC
+                        模块能够访问，因此可以做到硬件安全保密。</p><div class="- topic/p p" data-ofbid="d85894e93__20250123155206">启用 SPIENC 的工作为:<ul class="- topic/ul ul simple" id="id__ul_bn4_dp4_fdc" data-ofbid="id__ul_bn4_dp4_fdc">
+                            <li class="- topic/li li" data-ofbid="d85894e97__20250123155206">
+                                <p class="- topic/p p" data-ofbid="d85894e99__20250123155206"> 在芯片中烧录特有的的 AES 密钥，并且将相关密钥区域设置为仅 SPIENC 可访问。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e103__20250123155206">
+                                <p class="- topic/p p" data-ofbid="d85894e105__20250123155206"> 提供对应的加密固件。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e109__20250123155206">
+                                <p class="- topic/p p" data-ofbid="d85894e111__20250123155206">对 AES 密钥进行妥善管理，防止泄露。</p>
+                            </li>
+                        </ul></div><p class="- topic/p p" data-ofbid="d85894e115__20250123155206">此时芯片和对应的固件就被绑定在一起，提供出去的固件，只能运行在烧录了对应加密密钥的芯片上；
+                        烧录了密钥的芯片，也只能运行使用对应密钥加密后的固件。</p></div>
+            </div>
+        </section>
+        <section class="- topic/section section" id="id__section_gvt_wvp_pdc" data-ofbid="id__section_gvt_wvp_pdc"><h2 class="- topic/title title sectiontitle">开启防抄板功能</h2>
+            
+            <div class="- topic/div div" id="id__div_zxc_55d_jdc">
+                <p class="- topic/p p" data-ofbid="d85894e127__20250123155206">如需开启防抄版功能，执行下列步骤：</p>
+                <ol class="- topic/ol ol simple" id="id__ul_cn4_dp4_fdc" data-ofbid="id__ul_cn4_dp4_fdc">
+                    <li class="- topic/li li" data-ofbid="d85894e132__20250123155206">
+                        <p class="- topic/p p" data-ofbid="d85894e134__20250123155206">编译一个烧录 eFuse 的 BootLoader，该固件只完成对出货的芯片烧录相关的 eFuse 和密钥，并使能 SPIENC
+                            和安全启动功能</p>
+                        <div class="- topic/p p" data-ofbid="d85894e137__20250123155206">通过运行特定 eFuse 烧录程序，对芯片进行 eFuse 烧录。<ol class="- topic/ol ol simple" type="a" id="id__ul_dn4_dp4_fdc" data-ofbid="id__ul_dn4_dp4_fdc">
+                                <li class="- topic/li li" data-ofbid="d85894e141__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e143__20250123155206">通过修改 BootLoader 的代码，将烧录 eFuse 的程序集成到 BootLoader 中。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e147__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e149__20250123155206"><a class="- topic/xref xref" href="../../../reusables/reused-topics/../../topics/sdk/secure/spienc_function_d12x.html#id__section_bmh_mq4_fdc">编译生成烧录 eFuse 专用的固件。</a></p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e155__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e157__20250123155206">上电刷机， BootLoader 程序会仅烧录对应的 eFuse 域成功后退出。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e161__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e163__20250123155206">可以用 AiBurn 刷机，也可以用 SD 卡等存储介质刷机。</p>
+                                </li>
+                            </ol></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d85894e169__20250123155206">
+                        <p class="- topic/p p" data-ofbid="d85894e171__20250123155206">编译一个进行了加密的<a class="- topic/xref xref" href="../../../reusables/reused-topics/../../topics/sdk/secure/spienc_function_d12x.html#id__section_m1w_mq4_fdc">量产固件</a>，该量产固件可以发放给生产商。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d85894e179__20250123155206">
+                        <p class="- topic/p p" data-ofbid="d85894e181__20250123155206">生产商使用方案商提供的主控进行生产，烧录方案商提供的固件。</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+        <section class="- topic/section section" id="id__section_bmh_mq4_fdc" data-ofbid="id__section_bmh_mq4_fdc"><h2 class="- topic/title title sectiontitle">生成 eFuse 烧录固件</h2>
+            
+            <div class="- topic/div div">
+                <p class="- topic/p p" data-ofbid="d85894e195__20250123155206">使用 SPIENC 加密功能，需要用到一个 128 位的 AES 密钥，并将其烧录到芯片 eFuse
+                    中。在制作加密镜像时，也需要使用密钥，因此确保密钥保持不变且已妥善管理， 以免泄露。</p>
+                <div class="- topic/div div">
+                    <div class="- topic/p p" data-ofbid="d85894e200__20250123155206">本节以 d12x_demo66-nor 开发板为例，描述了生成 eFuse 烧录程序的详细流程。在示例方案中，提供了下列用于生成密钥的脚本：<ul class="- topic/ul ul" id="id__ul_hnm_l42_jdc" data-ofbid="id__ul_hnm_l42_jdc">
+                            <li class="- topic/li li" data-ofbid="d85894e204__20250123155206">
+                                <p class="- topic/p p" data-ofbid="d85894e206__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">lite/target/d12x/demo68-nor/pack/keys/gen_spienc_key.sh</span></p>
+                            </li>
+                        </ul></div>
+                </div>
+            </div>
+            <div class="- topic/div div section" id="id__efuse">执行下列步骤，可以生成 eFuse 烧录程序：<ol class="- topic/ol ol" id="id__ol_b5f_vq4_fdc" data-ofbid="id__ol_b5f_vq4_fdc">
+                    <li class="- topic/li li" data-ofbid="d85894e218__20250123155206">
+                        <div class="- topic/div div section" id="id__id4">
+                            <strong class="+ topic/ph hi-d/b ph b">生成密钥</strong>
+                            <div class="- topic/p p" data-ofbid="d85894e225__20250123155206">根据运行环境执行对应命令，运行生成密钥的脚本：<ul class="- topic/ul ul" id="id__ul_pwh_3vd_jdc" data-ofbid="id__ul_pwh_3vd_jdc">
+                                    <li class="- topic/li li" data-ofbid="d85894e229__20250123155206">在 <strong class="+ topic/ph hi-d/b ph b">Linux 环境</strong>下：<ol class="- topic/ol ol" type="a" id="id__ol_mp2_s42_jdc" data-ofbid="id__ol_mp2_s42_jdc">
+                                            <li class="- topic/li li" data-ofbid="d85894e236__20250123155206">
+                                                <p class="- topic/p p" data-ofbid="d85894e238__20250123155206">确保已经安装 OpenSSL。如未安装，可执行以下命令进行安装：</p>
+                                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_x1g_s42_jdc" data-ofbid="id__pre_x1g_s42_jdc"><code>sudo apt-get install openssl</code></pre>
+                                            </li>
+                                            <li class="- topic/li li" data-ofbid="d85894e245__20250123155206">
+                                                <div class="- topic/p p" data-ofbid="d85894e247__20250123155206">使用下列命令运行脚本生成所需的密钥文件和头文件：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_ifx_lr2_jdc" data-ofbid="id__codeblock_ifx_lr2_jdc"><code>cd <var class="+ topic/keyword sw-d/varname keyword varname">SDK_ROOT</var>/lite/target/d12x/demo66-nor/pack/keys/
+./gen_spienc_key.sh</code></pre></div>
+                                                <div class="- topic/p p" data-ofbid="d85894e255__20250123155206">生成的文件如下所示：<ul class="- topic/ul ul" id="id__ul_ovx_n52_jdc" data-ofbid="id__ul_ovx_n52_jdc">
+                                                  <li class="- topic/li li" data-ofbid="d85894e259__20250123155206">
+                                                  <p class="- topic/p p" data-ofbid="d85894e261__20250123155206">AES 密钥 <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes.key</span></p>
+                                                  </li>
+                                                  <li class="- topic/li li" data-ofbid="d85894e267__20250123155206">
+                                                  <p class="- topic/p p" data-ofbid="d85894e269__20250123155206">对应的 C 语言头文件
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes_key.h</span></p>
+                                                  </li>
+                                                  </ul></div>
+                                            </li>
+                                            <li class="- topic/li li" data-ofbid="d85894e277__20250123155206">
+                                                <p class="- topic/p p" data-ofbid="d85894e279__20250123155206">将 <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes_key.h</span> 文件复制粘贴至
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">lite/bsp/examples_bare/test-efuse/</span>
+                                                  目录中，供编译烧录 eFuse 的程序时使用。</p>
+                                                <p class="- topic/p p" data-ofbid="d85894e288__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">spi_aes.key</span> 则保留在
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">lite/target/d12x/demo66-nor/pack/keys/</span>，在
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">mk_image.py</span> 生成加密固件时使用。</p>
+                                                <div class="- topic/note note important note_important" id="id__note_y45_1p2_jdc" data-ofbid="id__note_y45_1p2_jdc"><span class="note__title">重要：</span> <div class="note__body">
+                                                  生成的密钥请妥善保管，以免丢失或者泄露。</div></div>
+                                            </li>
+                                        </ol></li>
+                                    <li class="- topic/li li" data-ofbid="d85894e304__20250123155206">
+                                        <p class="- topic/p p" data-ofbid="d85894e306__20250123155206">在 <strong class="+ topic/ph hi-d/b ph b">Windows 环境</strong> 下：</p>
+                                        <div class="- topic/p p" data-ofbid="d85894e312__20250123155206">
+                                            <ol class="- topic/ol ol arabic simple" type="a" id="id__ol_in4_dp4_fdc" data-ofbid="id__ol_in4_dp4_fdc">
+                                                <li class="- topic/li li" data-ofbid="d85894e316__20250123155206">
+                                                  <div class="- topic/p p" data-ofbid="d85894e318__20250123155206">运行脚本生成一个 AES 密钥
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes.key</span>，并且生成对应的 C 语言头文件
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes_key.h</span>：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_ub5_jp2_jdc" data-ofbid="id__codeblock_ub5_jp2_jdc"><code>cd <var class="+ topic/keyword sw-d/varname keyword varname">SDK_ROOT</var>/lite/target/d12x/demo66-nor/pack/keys/
+./gen_spienc_key.sh</code></pre><dl class="- topic/dl dl" id="id__dl_vb5_jp2_jdc" data-ofbid="id__dl_vb5_jp2_jdc">
+                                                  
+                                                  <dt class="- topic/dt dt dlterm" data-ofbid="d85894e335__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">spi_aes.key</span>:</dt>
+                                                  <dd class="- topic/dd dd">
+                                                  <p class="- topic/p p" data-ofbid="d85894e342__20250123155206">在 <span class="+ topic/ph sw-d/filepath ph filepath">mk_image.py</span>
+                                                  生成加密固件时使用。</p>
+                                                  </dd>
+                                                  
+                                                  
+                                                  <dt class="- topic/dt dt dlterm" data-ofbid="d85894e352__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">spi_aes_key.h</span>:</dt>
+                                                  <dd class="- topic/dd dd">
+                                                  <p class="- topic/p p" data-ofbid="d85894e359__20250123155206">复制到
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">lite/bsp/examples_bare/test-efuse/spi_aes_key.h</span></p>
+                                                  <p class="- topic/p p" data-ofbid="d85894e364__20250123155206">在编译烧录 eFuse 的程序时使用。</p>
+                                                  </dd>
+                                                  
+                                                  </dl></div>
+                                                  <div class="- topic/note note important note_important" id="id__note_wb5_jp2_jdc" data-ofbid="id__note_wb5_jp2_jdc"><span class="note__title">重要：</span> <div class="note__body">
+                                                  生成的密钥请妥善保管，以免丢失或者泄露。</div></div>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d85894e374__20250123155206">
+                                                  <div class="- topic/p p" data-ofbid="d85894e376__20250123155206">将下列文件复制到 Windows 的 SDK 目录：<ul class="- topic/ul ul" id="id__ul_ilj_dq2_jdc" data-ofbid="id__ul_ilj_dq2_jdc">
+                                                  <li class="- topic/li li" data-ofbid="d85894e380__20250123155206">
+                                                  <p class="- topic/p p" data-ofbid="d85894e382__20250123155206">将
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">SDK/target/d12x/demo66-nor/pack/keys/</span>
+                                                  复制到 Window SDK 对应目录中。</p>
+                                                  </li>
+                                                  <li class="- topic/li li" data-ofbid="d85894e389__20250123155206">
+                                                  <p class="- topic/p p" data-ofbid="d85894e391__20250123155206">将 <span class="+ topic/ph sw-d/filepath ph filepath">keys</span> 下的
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">spi_aes_key.h</span> 文件复制粘贴至
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">SDK/bsp/examples_bare/test-efuse/spi_aes_key.h</span>
+                                                  目录中。</p>
+                                                  </li>
+                                                  </ul></div>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </li>
+                                </ul></div></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d85894e411__20250123155206">
+                        <div class="- topic/div div section" id="id__id5">
+                            <strong class="+ topic/ph hi-d/b ph b">编译程序</strong>
+                            <p class="- topic/p p" data-ofbid="d85894e418__20250123155206">按照以下步骤配置和编译 BootLoader，并生成烧录固件。</p><ol class="- topic/ol ol" type="a" id="id__ol_b3x_nv2_jdc" data-ofbid="id__ol_b3x_nv2_jdc">
+                                <li class="- topic/li li" data-ofbid="d85894e422__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e424__20250123155206">应用 BootLoader 的配置：</p>
+                                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_jn4_dp4_fdc" data-ofbid="id__pre_jn4_dp4_fdc"><code>cd &lt;SDK_ROOT&gt;
+scons --apply-def d12x_demo66-nor_baremetal_bootloader_defconfig</code></pre>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e431__20250123155206">
+                                    <div class="- topic/p p" data-ofbid="d85894e433__20250123155206">打开 BootLoader 的 menuconfig
+                                        菜单：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_kn4_dp4_fdc" data-ofbid="id__pre_kn4_dp4_fdc"><code>scons --menuconfig
+</code></pre></div>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e439__20250123155206">
+                                    <div class="- topic/p p" data-ofbid="d85894e441__20250123155206">勾选或确认已勾选下列选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_ln4_dp4_fdc" data-ofbid="id__pre_ln4_dp4_fdc"><code>AIC_USING_SID
+AIC_SID_BARE_TEST
+
+AIC_USING_SPIENC
+AIC_SPIENC_BYPASS_IN_UPGMODE
+</code></pre></div>
+                                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_mn4_dp4_fdc" data-ofbid="id__pre_mn4_dp4_fdc"><code>Board options  ---&gt;
+
+    [*] Using Spienc
+    [*]   Bypass during bootloader burn image
+    [*]   Enc qspi0
+    (<span class="hl-number">0</span>)     set qspi0 tweak
+    [*] Using Efuse/SID
+ </code></pre>
+                                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_nn4_dp4_fdc" data-ofbid="id__pre_nn4_dp4_fdc"><code>Drivers options  ---&gt;
+    Drivers examples  ---&gt;
+        [*] Enable SID driver test command
+</code></pre>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e453__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e455__20250123155206">修改代码使能 SPIENC：</p>
+                                    <ul class="- topic/ul ul" id="id__ul_zcv_1w2_jdc" data-ofbid="id__ul_zcv_1w2_jdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e460__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e462__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bsp/examples_bare/test-efuse/efuse_burn_spienc_key_cmd.c</span>：</p>
+                                            <p class="- topic/p p" data-ofbid="d85894e467__20250123155206">使能文件开头的
+                                                  <span class="+ topic/keyword pr-d/parmname keyword parmname">D12X_BURN_SPIENC_KEY_ENABLE</span>
+                                                定义。</p>
+                                            <div class="- topic/note note note note_note" id="id__note_lwf_5v2_jdc" data-ofbid="id__note_lwf_5v2_jdc"><span class="note__title">注：</span> <div class="note__body">
+                                                <p class="- topic/p p" data-ofbid="d85894e475__20250123155206">如果不需要关闭 JTAG，可以将
+                                                  <span class="+ topic/keyword pr-d/apiname keyword apiname">burn_jtag_lock_bit()</span>
+                                                  相关的调用注释掉。</p>
+                                            </div></div>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e483__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e485__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">application/baremetal/bootloader/main.c</span>:</p>
+                                            <div class="- topic/p p" data-ofbid="d85894e490__20250123155206">在 <code class="+ topic/ph pr-d/codeph ph codeph">console_set_usrname</code>
+                                                  之后，添加上一个命令执行代码，<code class="+ topic/ph pr-d/codeph ph codeph">console_run_cmd(“efuse_spienc”);</code>
+                                                如下所示。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_uts_cw2_jdc" data-ofbid="id__codeblock_uts_cw2_jdc"><code><strong class="hl-keyword">int</strong> main(<strong class="hl-keyword">void</strong>)
+{
+    console_init();
+    console_set_usrname(<span class="hl-string">"aic"</span>);
+    console_run_cmd(<span class="hl-string">"efuse_spienc"</span>);  <em class="hl-comment">// 加上此句</em>
+    ...
+}</code></pre></div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e504__20250123155206">
+                                    <div class="- topic/p p" data-ofbid="d85894e506__20250123155206">执行下列命令编译程序
+                                        BootLoader:<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_rn4_dp4_fdc" data-ofbid="id__pre_rn4_dp4_fdc"><code>scons</code></pre></div>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e513__20250123155206">
+                                    <div class="- topic/p p" data-ofbid="d85894e515__20250123155206">编译程序 APP
+                                        并且生成烧录固件：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_sn4_dp4_fdc" data-ofbid="id__pre_sn4_dp4_fdc"><code>scons --apply-def=d12x_demo66-nor_rt-thread_helloworld_defconfig
+</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_r2v_m5p_pdc" data-ofbid="id__codeblock_r2v_m5p_pdc"><code>scons
+</code></pre></div>
+                                    <p class="- topic/p p" data-ofbid="d85894e522__20250123155206"> 编译结果保存在
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">SDK/output/d12x_demo66-nor_rt-thread_helloworld/images</span>
+                                        目录中。</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d85894e532__20250123155206">
+                        <div class="- topic/div div section" id="id__aiburn">
+                            <strong class="+ topic/ph hi-d/b ph b">AiBurn 卡烧录</strong><p class="- topic/p p" data-ofbid="d85894e538__20250123155206">使用 AiBurn 烧录
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">outputd12x_demo68-nor_rt-thread_helloworldimagesd12x_demo68-nor_v1.0.0.img</span>
+                                固件。</p>
+                        </div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d85894e546__20250123155206">
+                        <div class="- topic/div div section" id="id__sd">
+                            <strong class="+ topic/ph hi-d/b ph b">SD 卡烧录</strong>
+                            <p class="- topic/p p" data-ofbid="d85894e553__20250123155206">准备一张 SD 卡，确保该卡只有一个分区，并且格式化为 FAT32/ exFAT 文件系统。</p><p class="- topic/p p" data-ofbid="d85894e555__20250123155206"> 将编译输出目录下的文件复制到
+                                SD 卡的根目录：</p><ul class="- topic/ul ul simple" id="id__ul_vn4_dp4_fdc" data-ofbid="id__ul_vn4_dp4_fdc">
+                                <li class="- topic/li li" data-ofbid="d85894e559__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e561__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span></p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d85894e566__20250123155206">
+                                    <p class="- topic/p p" data-ofbid="d85894e568__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootloader.aic</span></p>
+                                </li>
+                            </ul><p class="- topic/p p" data-ofbid="d85894e573__20250123155206">并且将 <span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span>
+                                中的内容修改为：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_wn4_dp4_fdc" data-ofbid="id__pre_wn4_dp4_fdc"><code>boot0=bootloader.aic
+</code></pre><p class="- topic/p p" data-ofbid="d85894e580__20250123155206">将该卡插到板卡中，上电运行，即可完成相关 eFuse 的烧录。</p></div>
+                    </li>
+                </ol></div>
+        </section>
+        <section class="- topic/section section" id="id__section_m1w_mq4_fdc" data-ofbid="id__section_m1w_mq4_fdc"><h2 class="- topic/title title sectiontitle">量产固件</h2>
+            
+            <div class="- topic/p p" data-ofbid="d85894e591__20250123155206">
+                <div class="- topic/div div section" id="id__id6">
+                    <div class="- topic/p p" data-ofbid="d85894e595__20250123155206"> 编译加密的量产固件，分为几个步骤：<ol class="- topic/ol ol" id="id__ol_hgj_yq4_fdc" data-ofbid="id__ol_hgj_yq4_fdc">
+                            <li class="- topic/li li" data-ofbid="d85894e599__20250123155206">
+                                <div class="- topic/div div section" id="id__bootloader">
+                                    <strong class="+ topic/ph hi-d/b ph b">Boot Loader 配置</strong>
+                                    <ol class="- topic/ol ol" type="a" id="id__ol_uqj_2wp_pdc" data-ofbid="id__ol_uqj_2wp_pdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e608__20250123155206">进入 SDK
+                                            根目录：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_f44_dp4_fdc" data-ofbid="id__pre_f44_dp4_fdc"><code>cd &lt;SDK_ROOT&gt;</code></pre></li>
+                                        <li class="- topic/li li" data-ofbid="d85894e613__20250123155206">在 SDK
+                                            根目录，执行下列命令：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_zn4_dp4_fdc" data-ofbid="id__pre_zn4_dp4_fdc"><code>scons --apply-def=d12x_demo66-nor_baremetal_bootloader_defconfig
+</code></pre></li>
+                                        <li class="- topic/li li" data-ofbid="d85894e618__20250123155206">
+                                            <div class="- topic/p p" data-ofbid="d85894e620__20250123155206">打开 Boot Loader 的 menuconfig
+                                                菜单：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_a44_dp4_fdc" data-ofbid="id__pre_a44_dp4_fdc"><code>scons --menuconfig
+</code></pre></div>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e626__20250123155206"><p class="- topic/p p" data-ofbid="d85894e627__20250123155206">勾选或确认已勾选下列选项：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_b44_dp4_fdc" data-ofbid="id__pre_b44_dp4_fdc"><code>AIC_USING_SPIENC
+AIC_SPIENC_BYPASS_IN_UPGMODE
+</code></pre>配置界面示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_c44_dp4_fdc" data-ofbid="id__pre_c44_dp4_fdc"><code>Board options  ---&gt;
+
+    [*] Using Spienc
+    [*]   Bypass during bootloader burn image
+    [*]   Enc qspi0
+    (<span class="hl-number">0</span>)     set qspi0 tweak
+    [*] Using Efuse/SID
+</code></pre><div class="- topic/note note note note_note" id="id__note_ts1_ghf_jdc" data-ofbid="id__note_ts1_ghf_jdc"><span class="note__title">注：</span> <div class="note__body">
+                                                <p class="- topic/p p" data-ofbid="d85894e636__20250123155206">编译量产固件时，需将编译烧录 eFuse 程序时的代码修改还原。</p>
+                                            </div></div></li>
+                                        <li class="- topic/li li" data-ofbid="d85894e640__20250123155206">
+                                            <div class="- topic/p p" data-ofbid="d85894e642__20250123155206">在正式发布的固件中，建议删除下列功能，防止攻击者通过控制台读出 Flash 中的数据：
+                                                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_d44_dp4_fdc" data-ofbid="id__pre_d44_dp4_fdc"><code>AIC_BOOTLOADER_CMD_MTD
+AIC_MTD_BARE_TEST
+</code></pre></div>
+                                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_e44_dp4_fdc" data-ofbid="id__pre_e44_dp4_fdc"><code>BootLoader options  ---&gt;
+    Commands  ---&gt;
+        [ ] mtd read/write
+
+Drivers options  ---&gt;
+    Drivers examples  ---&gt;
+        [ ] Enable MTD driver test command
+</code></pre>
+                                        </li>
+                                    </ol></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e653__20250123155206">
+                                <div class="- topic/div div section" id="id__id7">
+                                    <strong class="+ topic/ph hi-d/b ph b">应用程序配置</strong>
+                                    <ol class="- topic/ol ol" type="a" id="id__ol_yjd_kwp_pdc" data-ofbid="id__ol_yjd_kwp_pdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e662__20250123155206">进入 SDK
+                                            根目录：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_yjf_lwp_pdc" data-ofbid="id__codeblock_yjf_lwp_pdc"><code>cd &lt;SDK_ROOT&gt;</code></pre></li>
+                                        <li class="- topic/li li" data-ofbid="d85894e667__20250123155206">在 SDK
+                                            根目录，执行下列命令：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_wn2_3gp_pdc" data-ofbid="id__codeblock_wn2_3gp_pdc"><code>scons --apply-def=d12x_demo66-nor_rt-thread_helloworld_defconfig
+ </code></pre></li>
+                                        <li class="- topic/li li" data-ofbid="d85894e672__20250123155206">
+                                            <div class="- topic/p p" data-ofbid="d85894e674__20250123155206">打开 Application 的 menuconfig
+                                                菜单：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_g44_dp4_fdc" data-ofbid="id__pre_g44_dp4_fdc"><code>scons --menuconfig</code></pre></div>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e680__20250123155206">
+                                            <div class="- topic/p p" data-ofbid="d85894e682__20250123155206">勾选或确认已勾选下列选项：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_h44_dp4_fdc" data-ofbid="id__pre_h44_dp4_fdc"><code>AIC_USING_SPIENC</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_i44_dp4_fdc" data-ofbid="id__pre_i44_dp4_fdc"><code>Board options  ---&gt;
+
+    [*] Using Spienc
+    [*]   Enc qspi0
+    (<span class="hl-number">0</span>)     set qspi0 tweak
+</code></pre></div>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e690__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e692__20250123155206">在正式版本的固件中，建议删除
+                                                  <span class="+ topic/ph sw-d/filepath ph filepath">kernel/rt-thread/components/drivers/spi/spi_flash_sfud.c</span>中的
+                                                  <span class="+ topic/keyword sw-d/cmdname keyword cmdname">sf</span> 命令，防攻击者通过控制台读出 Flash
+                                                中的数据。</p>
+                                            <div class="- topic/p p" data-ofbid="d85894e701__20250123155206">宏 RT_USING_FINSH
+                                                包住的内容：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_k44_dp4_fdc" data-ofbid="id__pre_k44_dp4_fdc"><code>#<strong class="hl-keyword">if</strong> defined(RT_USING_FINSH)...#endif</code></pre></div>
+                                        </li>
+                                    </ol></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e709__20250123155206">
+                                <div class="- topic/div div section" id="id__id8"><strong class="+ topic/ph hi-d/b ph b">固件签名加密</strong>
+                                    <p class="- topic/p p" data-ofbid="d85894e715__20250123155206">配置
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">SDK/target/d12x_demo66-nor/pack/image_cfg.json</span>
+                                        文件生成签名加密固件。</p></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e722__20250123155206">
+                                <div class="- topic/div div section" id="id__id10">
+                                    <strong class="+ topic/ph hi-d/b ph b">对组件进行加密</strong>
+                                    <p class="- topic/p p" data-ofbid="d85894e729__20250123155206">在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 的 “temporary” 或
+                                        “pre-process” 对象的最后，添加 “spienc” 对象配置。</p><p class="- topic/p p" data-ofbid="d85894e734__20250123155206">此处使用到的 AES
+                                        加密密钥，即为
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">SDK/target/d12x/demo66-nor/pack/keys/</span>
+                                        文件目录中生成的密钥。</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_o44_dp4_fdc" data-ofbid="id__pre_o44_dp4_fdc"><code>{
+    <span class="hl-string">"spi-nor"</span>: { <em class="hl-comment">// Device, The name should be the same with string in image:info:media:type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"16m"</span>, <em class="hl-comment">// Size of SPI NAND</em>
+        <span class="hl-string">"partitions"</span>: {
+            <span class="hl-string">"spl"</span>:        { <span class="hl-string">"size"</span>: <span class="hl-string">"256k"</span> },
+            <span class="hl-string">"os"</span>:         { <span class="hl-string">"size"</span>: <span class="hl-string">"2m"</span> },
+            <span class="hl-string">"rodata"</span>:     { <span class="hl-string">"size"</span>: <span class="hl-string">"6m"</span> },
+            <span class="hl-string">"data"</span>:       { <span class="hl-string">"size"</span>: <span class="hl-string">"7m"</span> }
+        },
+    },
+    <span class="hl-string">"image"</span>: {
+        ...
+    },
+    <span class="hl-string">"info"</span>: { <em class="hl-comment">// Header information about image</em>
+        ...
+    },
+    <span class="hl-string">"updater"</span>: { <em class="hl-comment">// Image writer which is downloaded to RAM by USB/UART</em>
+        ...
+    },
+    <span class="hl-string">"target"</span>: { <em class="hl-comment">// Image components which will be burn to device's partitions</em>
+        ...
+    },
+    <span class="hl-string">"pre-process"</span>: { <em class="hl-comment">// before v1.0.6 is the name "temporary"</em>
+        <span class="hl-string">"spienc"</span>: {
+            <span class="hl-string">"bootloader.aic.enc"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.aic"</span>, <em class="hl-comment">// File to be encrypted</em>
+                <span class="hl-string">"address"</span>: <span class="hl-string">"0x0"</span>, <em class="hl-comment">// Flash start address file to be stored</em>
+                <span class="hl-string">"key"</span>: <span class="hl-string">"keys/spi_aes.key"</span>, <em class="hl-comment">// Keys the same in eFuse</em>
+                <span class="hl-string">"tweak"</span>: <span class="hl-string">"0"</span>,
+            },
+            <span class="hl-string">"d12x_os.itb.enc"</span>: {
+                <span class="hl-string">"file"</span>: <span class="hl-string">"d12x_os.itb"</span>, <em class="hl-comment">// File to be encrypted</em>
+                <span class="hl-string">"address"</span>: <span class="hl-string">"0x40000"</span>, <em class="hl-comment">// Flash start address file to be stored</em>
+                <span class="hl-string">"key"</span>: <span class="hl-string">"keys/spi_aes.key"</span>, <em class="hl-comment">// Keys the same in eFuse</em>
+                <span class="hl-string">"tweak"</span>: <span class="hl-string">"0"</span>,
+            },
+            ...
+        },
+    },
+}</code></pre><p class="- topic/p p" data-ofbid="d85894e745__20250123155206">上述配置中，配置了一组需要使用 “spienc” 工具进行加密的组件，其中 生成
+                                        bootloader.aic.enc 组件的配置参数为:</p><ul class="- topic/ul ul simple" id="id__ul_q44_dp4_fdc" data-ofbid="id__ul_q44_dp4_fdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e749__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e751__20250123155206">file: 加密的源文件，此处为前面生成的 bootloader.aic 文件</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e755__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e757__20250123155206">address: 是加密后的文件，存放在 Flash
+                                                的开始位置，这里应根据前面的分区表信息计算得到</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e761__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e763__20250123155206">key: 使用的加密密钥</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e767__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e769__20250123155206">nonce: 使用的加密 Nonce 值</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e773__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e775__20250123155206">tweak: 该值不需要配置，保持为 0 即可</p>
+                                        </li>
+                                    </ul><p class="- topic/p p" data-ofbid="d85894e779__20250123155206">
+                                        <strong class="+ topic/ph hi-d/b ph b">对于一个或者多个需要进行加密的组件，都应按照上述方式进行配置。</strong>
+                                    </p><p class="- topic/p p" data-ofbid="d85894e784__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">mk_image.py</span> 工具在读取
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 文件时，逐个处理放在 “spienc”
+                                        中的配置，生成对应的加密组件，然后再进行打包。</p><div class="- topic/note note important note_important" id="id__note_byt_l3q_3dc" data-ofbid="id__note_byt_l3q_3dc"><span class="note__title">重要：</span> <div class="note__body">
+                                        <p class="- topic/p p" data-ofbid="d85894e793__20250123155206">“spienc” 字段应放在 “temporary”/”pre-process” 的最后，因为 “spienc”
+                                            处理时，可能需要依赖前面配置生成的文件，比如”aicboot”。</p>
+                                        <p class="- topic/p p" data-ofbid="d85894e796__20250123155206">配置加密时，address 需要填写正确，不然加密结果会不正确。</p>
+                                    </div></div></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e801__20250123155206">
+                                <div class="- topic/div div section" id="id__id11">
+                                    <strong class="+ topic/ph hi-d/b ph b">配置烧录加密组件</strong><p class="- topic/p p" data-ofbid="d85894e807__20250123155206">在 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                                        中配置下列参数，打包加密组件：</p><ol class="- topic/ol ol arabic simple" type="a" id="id__ol_s44_dp4_fdc" data-ofbid="id__ol_s44_dp4_fdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e814__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e816__20250123155206">updater 中打包的程序，应为非加密程序</p>
+                                            <p class="- topic/p p" data-ofbid="d85894e819__20250123155206">updater 中配置的参数，都不是 <span class="+ topic/ph sw-d/filepath ph filepath">.enc</span>
+                                                结尾的组件</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e826__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e828__20250123155206">target 中打包的程序和数据，应为加密后的程序</p>
+                                            <p class="- topic/p p" data-ofbid="d85894e831__20250123155206">target 中配置的参数，都是 <span class="+ topic/ph sw-d/filepath ph filepath">.enc</span> 结尾的组件</p>
+                                        </li>
+                                    </ol><div class="- topic/p p" data-ofbid="d85894e838__20250123155206">生成加密组件之后，需要打包加密组件，以适配使用 SD 卡烧录加密固件的要求。<ul class="- topic/ul ul arabic simple" id="id__ol_u44_dp4_fdc" data-ofbid="id__ol_u44_dp4_fdc">
+                                            <li class="- topic/li li" data-ofbid="d85894e842__20250123155206">
+                                                <p class="- topic/p p" data-ofbid="d85894e844__20250123155206">SD 卡启动时，首先运行 updater 中的程序，进入烧录模式。此时由于数据是从 SD
+                                                  卡加载的，不能为加密程序，否则无法正常执行</p>
+                                            </li>
+                                            <li class="- topic/li li" data-ofbid="d85894e848__20250123155206">
+                                                <p class="- topic/p p" data-ofbid="d85894e850__20250123155206">target 中打包的程序是要烧录到 Flash
+                                                  的数据，如果不加密，则无法起到保护的作用，因此需要打包加密后的组件</p>
+                                            </li>
+                                        </ul></div><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_x44_dp4_fdc" data-ofbid="id__pre_x44_dp4_fdc"><code>{
+    <span class="hl-string">"spi-nor"</span>: { <em class="hl-comment">// Device, The name should be the same with string in image:info:media:type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"16m"</span>, <em class="hl-comment">// Size of SPI NAND</em>
+        <span class="hl-string">"partitions"</span>: {
+            <span class="hl-string">"spl"</span>:        { <span class="hl-string">"size"</span>: <span class="hl-string">"256k"</span> },
+            <span class="hl-string">"os"</span>:         { <span class="hl-string">"size"</span>: <span class="hl-string">"2m"</span> },
+            <span class="hl-string">"rodata"</span>:     { <span class="hl-string">"size"</span>: <span class="hl-string">"6m"</span> },
+            <span class="hl-string">"data"</span>:       { <span class="hl-string">"size"</span>: <span class="hl-string">"7m"</span> }
+        },
+    },
+    <span class="hl-string">"image"</span>: {
+        ...
+    },
+    <span class="hl-string">"info"</span>: { <em class="hl-comment">// Header information about image</em>
+        ...
+    },
+    <span class="hl-string">"updater"</span>: { <em class="hl-comment">// Image writer which is downloaded to RAM by USB/UART</em>
+        <span class="hl-string">"psram"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"uartupg-psram-init.aic"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"required"</span>, <span class="hl-string">"run"</span>],
+            <span class="hl-string">"ram"</span>: <span class="hl-string">"0x30043000"</span>
+        },
+        <span class="hl-string">"spl"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.aic"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"required"</span>, <span class="hl-string">"run"</span>],
+            <span class="hl-string">"ram"</span>: <span class="hl-string">"0x40100000"</span>
+        },
+    },
+    <span class="hl-string">"target"</span>: { <em class="hl-comment">// Image components which will be burn to device's partitions</em>
+        <span class="hl-string">"spl"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"bootloader.aic.enc"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
+            <span class="hl-string">"part"</span>: [<span class="hl-string">"spl"</span>]
+        },
+        <span class="hl-string">"os"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"d12x_os.itb.enc"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"required"</span>],
+            <span class="hl-string">"part"</span>: [<span class="hl-string">"os"</span>]
+        },
+        <span class="hl-string">"rodata"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"rodata.fatfs.enc"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"optional"</span>],
+            <span class="hl-string">"part"</span>: [<span class="hl-string">"rodata"</span>]
+        },
+        <span class="hl-string">"data"</span>: {
+            <span class="hl-string">"file"</span>: <span class="hl-string">"data.lfs.enc"</span>,
+            <span class="hl-string">"attr"</span>: [<span class="hl-string">"mtd"</span>, <span class="hl-string">"optional"</span>],
+            <span class="hl-string">"part"</span>: [<span class="hl-string">"data"</span>]
+        },
+    },
+    <span class="hl-string">"pre-process"</span>: { <em class="hl-comment">// before v1.0.6 is the name "temporary"</em>
+        ...
+    },
+}</code></pre>
+                                </div>
+                            </li>
+                        </ol></div>
+                </div>
+            </div>
+        </section>
+        <section class="- topic/section section" id="id__section_dwt_zp4_fdc" data-ofbid="id__section_dwt_zp4_fdc"><h2 class="- topic/title title sectiontitle">量产</h2>
+            
+            <ul class="- topic/ul ul" id="id__ul_jll_n3q_3dc" data-ofbid="id__ul_jll_n3q_3dc">
+                <li class="- topic/li li" data-ofbid="d85894e871__20250123155206">
+                    <div class="- topic/div div section" id="id__aiburnpro">
+                        <strong class="+ topic/ph hi-d/b ph b">AiBurnPro 量产</strong>
+                        <p class="- topic/p p" data-ofbid="d85894e878__20250123155206">直接使用 AiBurnPro 量产编译生成的固件
+                                <span class="+ topic/ph sw-d/filepath ph filepath">outputd12x_demo66-nor_rt-thread_helloworldimagesd12x_demo66-nor_v1.0.0.img</span></p></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d85894e884__20250123155206">
+                    <div class="- topic/div div section" id="id__id13">
+                        <strong class="+ topic/ph hi-d/b ph b">SD 卡量产方式</strong><ul class="- topic/ul ul" id="id__ul_qsz_1r4_fdc" data-ofbid="id__ul_qsz_1r4_fdc">
+                            <li class="- topic/li li" data-ofbid="d85894e892__20250123155206">
+                                <div class="- topic/div div section" id="id__id14">
+                                    <strong class="+ topic/ph hi-d/b ph b">标准方式</strong>
+                                    <p class="- topic/p p" data-ofbid="d85894e899__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span> +
+                                            打包后的镜像文件，如<span class="+ topic/ph sw-d/filepath ph filepath">d12x_demo66-nor_v1.0.0.img</span></p><p class="- topic/p p" data-ofbid="d85894e905__20250123155206">
+                                        此方式只需要将编译生成的下列文件复制到 SD 卡 FAT32 文件系统的根目录，平台重新上电即可进入烧录。</p><ul class="- topic/ul ul simple" id="id__ul_ap4_dp4_fdc" data-ofbid="id__ul_ap4_dp4_fdc">
+                                        <li class="- topic/li li" data-ofbid="d85894e909__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e911__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span></p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d85894e916__20250123155206">
+                                            <p class="- topic/p p" data-ofbid="d85894e918__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">d12x_demo66-nor_v1.0.0.img</span></p>
+                                        </li>
+                                    </ul><p class="- topic/p p" data-ofbid="d85894e923__20250123155206"> </p></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d85894e927__20250123155206">
+                                <div class="- topic/div div section" id="id__direct-mode">
+                                    <strong class="+ topic/ph hi-d/b ph b">Direct Mode</strong>
+                                    <p class="- topic/p p" data-ofbid="d85894e934__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span> + 具体的组件</p><p class="- topic/p p" data-ofbid="d85894e938__20250123155206">此方式需要修改
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span>，并且将
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span> 和使用到的组件复制到 SD 卡 FAT32
+                                        文件系统的根目录，平台重新上电即可进入烧录模式。</p><p class="- topic/p p" data-ofbid="d85894e946__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span>
+                                        示例：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_cp4_dp4_fdc" data-ofbid="id__pre_cp4_dp4_fdc"><code>boot0=bootloader.aic
+writetype=spi-nor
+writeintf=<span class="hl-number">0</span>
+write0=bootloader.aic.enc
+write1=d12x_os.itb.enc,<span class="hl-number">0x40000</span>
+write2=rodata.fatfs.enc,<span class="hl-number">0x240000</span>
+write3=data.fatfs.enc,<span class="hl-number">0x840000</span>
+</code></pre><div class="- topic/note note important note_important" id="id__note_bzd_pq4_fdc" data-ofbid="id__note_bzd_pq4_fdc"><span class="note__title">重要：</span> <div class="note__body">
+                                        <p class="- topic/p p" data-ofbid="d85894e954__20250123155206"><span class="+ topic/ph sw-d/filepath ph filepath">bootcfg.txt</span> 在修改后，需要确保换行符为 UNIX
+                                            格式的换行符，非 DOS 格式的换行符，即 ‘n’ 换行，非 ‘rn’ 换行。</p>
+                                    </div></div></div>
+                            </li>
+                        </ul></div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_sw1_bvp_pdc" data-tocid="id__section_sw1_bvp_pdc">应用场景</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id2" data-tocid="id__id2">方案介绍</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_gvt_wvp_pdc" data-tocid="id__section_gvt_wvp_pdc">开启防抄板功能</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_bmh_mq4_fdc" data-tocid="id__section_bmh_mq4_fdc">生成 eFuse 烧录固件</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_m1w_mq4_fdc" data-tocid="id__section_m1w_mq4_fdc">量产固件</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_dwt_zp4_fdc" data-tocid="id__section_dwt_zp4_fdc">量产</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

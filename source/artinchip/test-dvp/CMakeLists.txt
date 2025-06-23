@@ -10,6 +10,13 @@ add_compile_options(-Wall)
 
 add_executable(test_dvp test_dvp.c)
 
+if(DEFINED USE_GE_ROTATION)
+	if(USE_GE_ROTATION STREQUAL "yes")
+		add_definitions(-DSUPPORT_ROTATION)
+		target_link_libraries(test_dvp mpp_ge)
+	endif()
+endif()
+
 # Install
 # install directories
 if(NOT CMAKE_INSTALL_PREFIX)

@@ -10,7 +10,7 @@
 			"falcon": { "size": "64k" },
 			"logo":   { "size": "512k" },
 			"kernel": { "size": "3584k" },
-			"rootfs": { "size": "4m" },
+			"rootfs": { "size": "7m" },
 			"user":   { "size": "-" },
 		}
 	},
@@ -78,46 +78,57 @@
 				"part": ["kernel"]
 			},
 			"rootfs": {
-				"file": "rootfs.jffs2",
+				"file": "rootfs.squashfs",
 				"attr": ["mtd", "required"],
 				"part": ["rootfs"]
 			},
 			"app": {
-				"file": "userfs1.jffs2",
+				"file": "userfs1.squashfs",
 				"attr": ["mtd", "optional"],
 				"part": ["user"]
 			},
 		}
 	},
-	"temporary": { // Pre-proccess to generate image components from raw data
-		"aicboot": {
-			"usbupg-ddr-init.aic": {
+	"pre-process": { // Pre-proccess to generate image components from raw data
+		"aicimage": { // Create aic boot image
+			"usbupg-ddr-init.aic": { // No loader, only PreBootProgram to initialize DDR
 				"head_ver": "0x00010001",
 				"resource": {
 					"private": "ddr_init.bin",
 					"pbp": "d211.pbp",
 				},
 			},
-			"u-boot-spl-dtb.aic": {
+			"pbp_ext.aic": {
+				"head_ver": "0x00010001",
+				"resource": {
+					"pbp": "d211.pbp",
+					"private": "ddr_init.bin",
+				},
+				// combine to use with spl.aic
+				"with_ext": "true",
+			},
+			"spl.aic": {
 				"head_ver": "0x00010001",
 				"loader": {
 					"file": "u-boot-spl-dtb.bin",
 					"load address": "0x42000000",
-					"entry point":  "0x42000100",
+					"entry point":  "0x42000100", // 256 byte aic header
 				},
 				"resource": {
 					"private": "ddr_init.bin",
-					"pbp": "d211.pbp",
 				},
 			},
 		},
-		"uboot_env": {
+		"concatenate": { // cat files in order
+			"u-boot-spl-dtb.aic": ["pbp_ext.aic", "spl.aic"],
+		},
+		"uboot_env": { // Create env data from txt
 			"env.bin": {
 				"file": "env.txt",
 				"size": "0x4000",
 			},
 		},
-		"itb": {
+		"itb": { // Create itb image from its
 			"u-boot.itb": {
 				"its": "u-boot.its"
 			},

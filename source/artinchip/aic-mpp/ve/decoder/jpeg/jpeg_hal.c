@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: author: <qi.xu@artinchip.com>
-*  Desc: jpeg register configuration
-*
-*/
+ * Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: author: <qi.xu@artinchip.com>
+ *  Desc: jpeg register configuration
+ *
+ */
 
 #define LOG_TAG "jpeg_hal"
 #include <string.h>
@@ -37,37 +39,40 @@ static void ve_config_ve_top_reg(struct mjpeg_dec_ctx *s)
 
 static void ve_config_pp_register(struct mjpeg_dec_ctx *s)
 {
+	int rotate = MPP_ROTATION_GET(s->decoder.rotmir_flag);
+	int flip_v = MPP_FLIP_V_GET(s->decoder.rotmir_flag);
+	int flip_h = MPP_FLIP_H_GET(s->decoder.rotmir_flag);
 	jpg_reg_list *reg_list = (jpg_reg_list *)s->reg_list;
 
 	u32 *pval;
 
 	logd("config pp");
 
-	if (s->scale_en) {
+	if (s->decoder.hor_scale || s->decoder.ver_scale) {
 		reg_list->_20_scale_reg.scale_en = 1;
-		reg_list->_20_scale_reg.h_ratio = s->hor_scale;
-		reg_list->_20_scale_reg.v_ratio = s->ver_scale;
+		reg_list->_20_scale_reg.h_ratio = s->decoder.hor_scale;
+		reg_list->_20_scale_reg.v_ratio = s->decoder.ver_scale;
 		pval = (u32 *)&reg_list->_20_scale_reg;
 		write_reg_u32(s->regs_base + JPG_SCALE_REG, *pval);
 	}
 
 	// rotate & mirror
-	if (s->rotate != MPP_ROTATION_0 || s->mirror) {
+	if (rotate != MPP_ROTATION_0 || flip_v || flip_h) {
 		reg_list->_1c_rotmir_reg.rotmir_en = 1;
-		if (s->rotate == MPP_ROTATION_0)
+		if (rotate == MPP_ROTATION_0)
 			reg_list->_1c_rotmir_reg.rotate = 0;
-		else if(s->rotate == MPP_ROTATION_270) // left rotate 90
+		else if(rotate == MPP_ROTATION_270) // left rotate 90
 			reg_list->_1c_rotmir_reg.rotate = 1;
-		else if (s->rotate == MPP_ROTATION_180)
+		else if (rotate == MPP_ROTATION_180)
 			reg_list->_1c_rotmir_reg.rotate = 2;
-		else if (s->rotate == MPP_ROTATION_90)
+		else if (rotate == MPP_ROTATION_90)
 			reg_list->_1c_rotmir_reg.rotate = 3;
 
-		if (s->mirror == MPP_FLIP_V)
+		if (flip_v)
 			reg_list->_1c_rotmir_reg.mirror = 1;
-		else if (s->mirror == MPP_FLIP_H)
+		else if (flip_h)
 			reg_list->_1c_rotmir_reg.mirror = 2;
-		else if(s->mirror == (MPP_FLIP_V | MPP_FLIP_H))
+		else if(flip_v && flip_h)
 			reg_list->_1c_rotmir_reg.mirror = 3;
 		else
 			reg_list->_1c_rotmir_reg.mirror = 0;
@@ -446,11 +451,12 @@ static void config_jpeg_picture_info_register(struct mjpeg_dec_ctx *s)
 	|| s->pix_fmt == MPP_FMT_NV61) {
 		// YUV422 rotate 90/270 is YUV224
 		frame_format.color_mode = 1;
-		if(s->rotate == MPP_ROTATION_270 || s->rotate == MPP_ROTATION_90)
+		if(MPP_ROTATION_GET(s->decoder.rotmir_flag) == MPP_ROTATION_270 ||
+			MPP_ROTATION_GET(s->decoder.rotmir_flag) == MPP_ROTATION_90)
 			frame_format.color_mode = 2; // yuv224, display not support
 	} else {
 		loge("not supprt this format(%d)", s->pix_fmt);
-		//abort();
+		frame_format.color_mode = 4;
 	}
 
 	pval = (u32 *)&frame_format;

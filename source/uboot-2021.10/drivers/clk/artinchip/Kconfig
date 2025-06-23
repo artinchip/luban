@@ -16,10 +16,14 @@ if SPL_CLK_ARTINCHIP
 			help
 			SPL clock driver for aic-cmu-v1.0
 
-		config SPL_CLK_ARTINCHIP_CMU_V1_3
-			bool "aic-cmu-v1.3"
+		config SPL_CLK_ARTINCHIP_CMU_V2_0
+			bool "aic-cmu-v2.0"
 			help
-			SPL clock driver for aic-cmu-v1.3
+			SPL clock driver for aic-cmu-v2.0
+		config SPL_CLK_ARTINCHIP_CMU_V3_0
+			bool "aic-cmu-v3.0"
+			help
+			SPL clock driver for aic-cmu-v3.0
 	endchoice
 endif
 
@@ -38,8 +42,13 @@ if CLK_ARTINCHIP
 			help
 			SPL clock driver for aic-cmu
 
-		config CLK_ARTINCHIP_CMU_V1_3
-			bool "aic-cmu-v1.3"
+		config CLK_ARTINCHIP_CMU_V2_0
+			bool "aic-cmu-v2.0"
+			help
+			SPL clock driver for aic-cmu
+
+		config CLK_ARTINCHIP_CMU_V3_0
+			bool "aic-cmu-v3.0"
 			help
 			SPL clock driver for aic-cmu
 	endchoice

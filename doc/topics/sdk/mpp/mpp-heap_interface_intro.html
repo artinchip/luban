@@ -1,0 +1,383 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Mpp Heap 负责管理 mpp 中间件独占的 CMA 内存，并在 mpp 中间件需要物理内存时，将内存页面导出为 DMA-BUF。 mpp heap 特点 解决内存碎片化 CMA 内存允许多媒体模块和系统复用，在这种情况下，内存碎片化的情况不可避免（部分内存页面可能会被系统 pin 住，无法迁移）。而 mpp heap 管理的内存能确保只被 mpp 中间件使用，避免了内存页面被 pin ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/mpp/mpp_design.html"/><meta name="DC.relation" content="../../../topics/sdk/mpp/mpp_ge_design.html"/><meta name="DC.relation" content="../../../topics/sdk/mpp/mpp_faq.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="mpp_heap_interface_intro"/><meta name="DC.language" content="zh-CN"/><title>MPP Heap 接口说明</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="mpp_heap_interface_intro-d4445e5470"/><meta name="wh-source-relpath" content="topics/sdk/mpp/mpp-heap_interface_intro.dita"/><meta name="wh-out-relpath" content="topics/sdk/mpp/mpp-heap_interface_intro.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="mpp_heap_interface_intro" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="mpp"><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html">MPP 使用指南</a></div></div></li><li><div class="topicref" data-id="mpp_design_intro"><div class="title"><a href="../../../topics/sdk/mpp/mpp_design.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="mpp_heap_interface_intro"><div class="title"><a href="../../../topics/sdk/mpp/mpp-heap_interface_intro.html">MPP Heap 接口说明</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/mpp/mpp_ge_design.html" title="MPP GE 设计及接口说明" aria-label="上一主题: MPP GE 设计及接口说明" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/mpp/mpp_faq.html" title="常见问题" aria-label="下一主题: 常见问题" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="mpp_configuration-d4445e5372" class="topicref" data-id="mpp_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_config.html" id="mpp_configuration-d4445e5372-link">MPP 配置</a></div></div></li><li role="treeitem"><div data-tocid="mpp_debug_guide-d4445e5386" class="topicref" data-id="mpp_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_debug.html" id="mpp_debug_guide-d4445e5386-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="mpp_test_guide-d4445e5400" class="topicref" data-id="mpp_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_test.html" id="mpp_test_guide-d4445e5400-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="mpp_design_intro-d4445e5414" class="topicref" data-id="mpp_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action mpp_design_intro-d4445e5414-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_design.html" id="mpp_design_intro-d4445e5414-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="mpp_decode-d4445e5428" class="topicref" data-id="mpp_decode" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp-decode.html" id="mpp_decode-d4445e5428-link">MPP Decoder 设计及接口说明</a></div></div></li><li role="treeitem"><div data-tocid="mpp_encoder_design_and_interface_intro-d4445e5442" class="topicref" data-id="mpp_encoder_design_and_interface_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_encoder_design.html" id="mpp_encoder_design_and_interface_intro-d4445e5442-link">MPP Encoder 设计及接口说明</a></div></div></li><li role="treeitem"><div data-tocid="mpp_ge_interface_intro-d4445e5456" class="topicref" data-id="mpp_ge_interface_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_ge_design.html" id="mpp_ge_interface_intro-d4445e5456-link">MPP GE 设计及接口说明</a></div></div></li><li role="treeitem" class="active"><div data-tocid="mpp_heap_interface_intro-d4445e5470" class="topicref" data-id="mpp_heap_interface_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp-heap_interface_intro.html" id="mpp_heap_interface_intro-d4445e5470-link">MPP Heap 接口说明</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="mpp_common_issues-d4445e5484" class="topicref" data-id="mpp_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_faq.html" id="mpp_common_issues-d4445e5484-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/mpp/mpp-heap_interface_intro.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">MPP Heap 接口说明</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d213778e33__20250123155224">Mpp Heap 负责管理 mpp 中间件独占的 CMA 内存，并在 mpp 中间件需要物理内存时，将内存页面导出为 DMA-BUF。</p>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_l31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_l31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap 特点</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e41__20250123155224"><strong class="+ topic/ph hi-d/b ph b">解决内存碎片化</strong></p>
+            <p class="- topic/p p" data-ofbid="d213778e45__20250123155224">CMA 内存允许多媒体模块和系统复用，在这种情况下，内存碎片化的情况不可避免（部分内存页面可能会被系统 pin 住，无法迁移）。而 mpp heap 管理的内存能确保只被
+                mpp 中间件使用，避免了内存页面被 pin 住而导致碎片化的问题。</p>
+            <ul class="- topic/ul ul" id="mpp_heap_interface_intro__ul_m31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__ul_m31_nwh_d1c">
+                <li class="- topic/li li" data-ofbid="d213778e50__20250123155224">
+                    <p class="- topic/p p" data-ofbid="d213778e52__20250123155224">mpp heap 的内存需要在用户态通过 <code class="+ topic/ph pr-d/codeph ph codeph">/dev/dmabuf/mpp</code> 节点来申请，这个节点是 ArtInChip
+                        平台扩展的私有节点，只有 mpp 中间件会访问。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d213778e59__20250123155224">
+                    <p class="- topic/p p" data-ofbid="d213778e61__20250123155224">对于系统来说，该块内存已被 alloc，系统不会再去访问，因此能达到 mpp 中间件独占的效果。</p>
+                </li>
+            </ul>
+            <div class="- topic/note note tip note_tip" id="mpp_heap_interface_intro__note_hsq_5wh_d1c" data-ofbid="mpp_heap_interface_intro__note_hsq_5wh_d1c"><span class="note__title">提示：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d213778e68__20250123155224">只要在调用 mpp 中间件的过程中，只要做到资源的申请与释放一一对应，就能解决内存碎片化问题。</p>
+            </div></div>
+            <p class="- topic/p p" data-ofbid="d213778e73__20250123155224"><strong class="+ topic/ph hi-d/b ph b">允许系统回收 mpp heap 内存</strong></p>
+            <p class="- topic/p p" data-ofbid="d213778e77__20250123155224">mpp heap 管理的内存通过 <code class="+ topic/ph pr-d/codeph ph codeph">cma_alloc</code> 申请，在系统内存资源紧张，而又不需要 mpp 中间件的情况下 （例如 OTA
+                升级），允许通过销毁 mpp heap 释放 CMA 内存给系统使用。</p>
+            <div class="- topic/note note note note_note" id="mpp_heap_interface_intro__note_cbb_vwh_d1c" data-ofbid="mpp_heap_interface_intro__note_cbb_vwh_d1c"><span class="note__title">注：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d213778e85__20250123155224">mpp heap 一旦销毁，无法再次初始化，只能 reboot 系统。</p>
+            </div></div>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_n31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_n31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap init</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e95__20250123155224">初始化时，MPP Heap 从 CMA 内存中申请一大块物理连续内存，并创建一个 genpool 内存池进行管理。</p>
+            <figure class="- topic/fig fig fignone" id="mpp_heap_interface_intro__fig_o3p_twh_d1c" data-ofbid="mpp_heap_interface_intro__fig_o3p_twh_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="mpp_heap_interface_intro__image_o31_nwh_d1c" src="../../../images/mpp/mpp_heap_init.png" alt="mpp_heap_init"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">mpp_heap 初始化</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_p31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_p31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap export</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e116__20250123155224">mpp heap 通过 <code class="+ topic/ph pr-d/codeph ph codeph">/dev/dmabuf/mpp</code> 节点，以 <code class="+ topic/ph pr-d/codeph ph codeph">ioctl</code> 的方式将管理的 CMA
+                内存导出为标准的 DMA-BUF 文件句柄。</p>
+            <p class="- topic/p p" data-ofbid="d213778e125__20250123155224">genpool 内存池是一个基于 bitmap 的管理算法，其最小分配单位为 4K，分配的内存无论 <strong class="+ topic/ph hi-d/b ph b">首地址</strong> 还是 <strong class="+ topic/ph hi-d/b ph b">大小</strong> ，都遵循
+                    <code class="+ topic/ph pr-d/codeph ph codeph">4K</code> 对齐。</p>
+            <figure class="- topic/fig fig fignone" id="mpp_heap_interface_intro__fig_hcr_swh_d1c" data-ofbid="mpp_heap_interface_intro__fig_hcr_swh_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="mpp_heap_interface_intro__image_q31_nwh_d1c" src="../../../images/mpp/mpp_heap_export.png" alt="mpp_heap_export"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">mpp_heap 导出 DMA-BUF</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_r31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_r31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap close</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e155__20250123155224">只需要 <code class="+ topic/ph pr-d/codeph ph codeph">close</code> DMA-BUF 的文件句柄，即触发 mpp heap 的回收 DMA-BUF。</p>
+            <div class="- topic/note note note note_note" id="mpp_heap_interface_intro__note_acy_rwh_d1c" data-ofbid="mpp_heap_interface_intro__note_acy_rwh_d1c"><span class="note__title">注：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d213778e163__20250123155224">当一块 DMA-BUF 还被多媒体模块占用时，close 操作无法触发 mpp heap 回收</p>
+            </div></div>
+            <figure class="- topic/fig fig fignone" id="mpp_heap_interface_intro__fig_lp3_rwh_d1c" data-ofbid="mpp_heap_interface_intro__fig_lp3_rwh_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="mpp_heap_interface_intro__image_s31_nwh_d1c" src="../../../images/mpp/mpp_heap_close.png" alt="mpp_heap_close"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 3</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">mpp_heap 回收 DMA-BUF</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_t31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_t31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap destroy</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e186__20250123155224">通过 <code class="+ topic/ph pr-d/codeph ph codeph">/dev/dmabuf/mpp</code> 节点，下发扩展的 <code class="+ topic/ph pr-d/codeph ph codeph">ioctl</code> 接口即可销毁 MPP Heap,
+                将其中的 CMA 内存归还改系统。</p>
+            <p class="- topic/p p" data-ofbid="d213778e195__20250123155224">mpp heap 一旦被销毁，无法再次初始化，只能 reboot。</p>
+            <figure class="- topic/fig fig fignone" id="mpp_heap_interface_intro__fig_ptm_qwh_d1c" data-ofbid="mpp_heap_interface_intro__fig_ptm_qwh_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="mpp_heap_interface_intro__image_u31_nwh_d1c" src="../../../images/mpp/mpp_heap_destroy.png" alt="mpp_heap_destroy"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 4</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">mpp heap 销毁</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_v31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_v31_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap 接口</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e216__20250123155224">接口如下 :</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="mpp_heap_interface_intro__pre_w31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__pre_w31_nwh_d1c"><code>intdmabuf_device_open();voiddmabuf_device_close(intdma_fd);voiddmabuf_device_destroy(intdma_fd);intdmabuf_alloc(intdma_fd,intsize);</code></pre>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_heap_interface_intro__table_x31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__table_x31_nwh_d1c" data-cols="2"><caption></caption><colgroup><col style="width:50%"/><col style="width:50%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__2">int dmabuf_device_open()</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__2">获取 mpp heap 的文件句柄</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__2">dma_fd:成功&lt;0:失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_heap_interface_intro__table_x31_nwh_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_heap_interface_intro__table_y31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__table_y31_nwh_d1c" data-cols="2"><caption></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__2">void dmabuf_device_close(int dma_fd)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__2">释放 mpp heap 的文件句柄</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__2">dma_fd: mpp heap 的文件句柄</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_heap_interface_intro__table_y31_nwh_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_heap_interface_intro__table_z31_nwh_d1c" data-ofbid="mpp_heap_interface_intro__table_z31_nwh_d1c" data-cols="2"><caption></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__2">void dmabuf_device_destroy(int dma_fd)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__2">销毁 mpp heap</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__2">dma_fd: mpp heap 的文件句柄</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_heap_interface_intro__table_z31_nwh_d1c__entry__2">mpp heap 一旦被销毁，无法再次初始化，只能 reboot</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_heap_interface_intro__table_aj1_nwh_d1c" data-ofbid="mpp_heap_interface_intro__table_aj1_nwh_d1c" data-cols="2"><caption></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__2">int dmabuf_alloc(int dma_fd, int size)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__2">通过 mpp heap 申请一块 DMA-BUF</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__2">dma_fd: mpp heap 的文件句柄 size: DMA-BUF size</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__2">DMA-BUF fd:成功&lt;0:失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_heap_interface_intro__table_aj1_nwh_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+        <section class="- topic/section section" id="mpp_heap_interface_intro__section_bj1_nwh_d1c" data-ofbid="mpp_heap_interface_intro__section_bj1_nwh_d1c"><h2 class="- topic/title title sectiontitle">mpp heap 设置</h2>
+            
+            <p class="- topic/p p" data-ofbid="d213778e473__20250123155224">mpp heap 管理的内存必须满足视频播放的最大需求。</p>
+            <p class="- topic/p p" data-ofbid="d213778e476__20250123155224">视频播放内存可由 <a class="- topic/xref xref" href="../../../out/external-references/video_memory.xlsx">video memory</a>得到结果。</p>
+            <p class="- topic/p p" data-ofbid="d213778e483__20250123155224">mpp heap 中的内存从 CMA 预留内存中申请，但 CMA 内存不能只为 mpp heap 预留，还需要为
+                其他需要物理连续内存的模块预留，主要是显示，音频和通讯模块。</p>
+            <p class="- topic/p p" data-ofbid="d213778e486__20250123155224">注解</p>
+            <p class="- topic/p p" data-ofbid="d213778e490__20250123155224">如果 mpp heap 的 size 或 CMA 预留内存的 size 设置不合理，不仅影响 mpp heap 初始化，还可能影响其他模块运行。</p>
+            <p class="- topic/p p" data-ofbid="d213778e493__20250123155224"><strong class="+ topic/ph hi-d/b ph b">显示模块</strong></p>
+            <p class="- topic/p p" data-ofbid="d213778e497__20250123155224">以 fb0 为 32 位 argb8888 格式，外接分辨率为 1024x600 的 LCD 为例：</p>
+            <p class="- topic/p p" data-ofbid="d213778e500__20250123155224">单 buffer 场景下需要 1024 * 600 * (32 / 8) = 2457600 byte, 约 <code class="+ topic/ph pr-d/codeph ph codeph">2.4M</code> CMA
+                内存</p>
+            <p class="- topic/p p" data-ofbid="d213778e506__20250123155224">双 buffer 场景下则需要 <code class="+ topic/ph pr-d/codeph ph codeph">4.8M</code></p>
+            <p class="- topic/p p" data-ofbid="d213778e511__20250123155224"><strong class="+ topic/ph hi-d/b ph b">音频模块</strong></p>
+            <p class="- topic/p p" data-ofbid="d213778e516__20250123155224">启用 ALSL 的场景下需要为音频模块预留 <code class="+ topic/ph pr-d/codeph ph codeph">1.5M</code> CMA 内存</p>
+            <p class="- topic/p p" data-ofbid="d213778e522__20250123155224">在 ALSL 加 I2S 的场景下则需要 <code class="+ topic/ph pr-d/codeph ph codeph">2.5M</code> CMA 内存</p>
+            <p class="- topic/p p" data-ofbid="d213778e528__20250123155224"><strong class="+ topic/ph hi-d/b ph b">通讯模块</strong></p>
+            <p class="- topic/p p" data-ofbid="d213778e532__20250123155224">WIFI, Bluetooth, USB 等通讯模块也会占用部分 CMA 内存，这个要根据实际场景进行推算。</p>
+            <div class="- topic/note note tip note_tip" id="mpp_heap_interface_intro__note_rwl_mzh_d1c" data-ofbid="mpp_heap_interface_intro__note_rwl_mzh_d1c"><span class="note__title">提示：</span> <div class="note__body">
+                <p class="- topic/p p" data-ofbid="d213778e537__20250123155224">CMA 预留内存的大小 ≥ mpp heap + 其他模块，同时 CMA 预留内存大小遵循 <code class="+ topic/ph pr-d/codeph ph codeph">4M</code> 对齐。
+                    为确保系统正常运行，在设置 CMA 预留内存时要保有一定的余量。</p>
+            </div></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_l31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_l31_nwh_d1c">mpp heap 特点</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_n31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_n31_nwh_d1c">mpp heap init</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_p31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_p31_nwh_d1c">mpp heap export</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_r31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_r31_nwh_d1c">mpp heap close</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_t31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_t31_nwh_d1c">mpp heap destroy</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_v31_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_v31_nwh_d1c">mpp heap 接口</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_heap_interface_intro__section_bj1_nwh_d1c" data-tocid="mpp_heap_interface_intro__section_bj1_nwh_d1c">mpp heap 设置</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

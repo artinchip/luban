@@ -1,0 +1,38 @@
+menuconfig BR2_PACKAGE_LIVE555
+	bool "live555"
+	help
+		This code forms a set of C++ libraries for multimedia
+		streaming,using open standard protocols(RTP/RTCP,RTSP,SIP)
+
+if BR2_PACKAGE_LIVE555
+
+config BR2_PACKAGE_LIVE555_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+config BR2_PACKAGE_LIVE555_STATIC
+	bool "complie static lib"
+
+config BR2_PACKAGE_LIVE555_OPENSSL
+	bool "OpenSSL"
+	depends on BR2_PACKAGE_OPENSSL
+
+config BR2_PACKAGE_LIVE555_DEBUG
+	bool "complie with -g -O0"
+
+config BR2_PACKAGE_LIVE555_SANITIZE
+	bool "complie with -fsanitize=address"
+
+config BR2_PACKAGE_LIVE555_TESTPROGS
+	bool "complie testProgs"
+
+config BR2_PACKAGE_LIVE555_MEDIASERVER
+	bool "complie mediaServer"
+
+config BR2_PACKAGE_LIVE555_PROXYSERVER
+	bool "complie proxyServer"
+
+config BR2_PACKAGE_LIVE555_HLSPROXY
+	bool "complie with hlsProxy"
+
+endif # BR2_PACKAGE_LIVE555

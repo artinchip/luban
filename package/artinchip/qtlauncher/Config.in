@@ -10,6 +10,10 @@ if BR2_PACKAGE_QTLAUNCHER
 config BR2_QTLAUNCHER_GE_SUPPORT
 	bool "use GE to render image"
 	default y
+config BR2_QTLAUNCHER_WIFI_MANAGER
+	bool "use WiFi manager to config WiFi"
+	select BR2_PACKAGE_WIFIMANAGER
+	default n
 config BR2_QTLAUNCHER_SMALL_MEMORY
 	bool "small memory device"
 	default y

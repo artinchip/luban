@@ -1,0 +1,1034 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Framebuffer 标准接口的使用 标准 framebuffer 接口操作示例: int main() { int fd = 0 ; struct fb_var_screeninfo vi; struct fb_fix_screeninfo fi; void *fb_ptr = NULL; fd = open( &#34;/dev/fb0&#34; , O_RDWR); if (fd &lt; 0 ) { ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/display/display-design_intro.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_interface.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_panel_port.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="display_demo"/><meta name="DC.language" content="zh-CN"/><title>Demo</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="display_demo-d4445e5092"/><meta name="wh-source-relpath" content="topics/sdk/display/display_demo.dita"/><meta name="wh-out-relpath" content="topics/sdk/display/display_demo.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="display_demo" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html">Display 使用指南</a></div></div></li><li><div class="topicref" data-id="display_design_intro"><div class="title"><a href="../../../topics/sdk/display/display-design_intro.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="display_demo"><div class="title"><a href="../../../topics/sdk/display/display_demo.html">Demo</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/display/display_interface.html" title="接口设计" aria-label="上一主题: 接口设计" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/display/display_panel_port.html" title="屏适配指南" aria-label="下一主题: 屏适配指南" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="display_configuration-d4445e4791" class="topicref" data-id="display_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_configuration-d4445e4791-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_config.html" id="display_configuration-d4445e4791-link">Display 配置</a><div class="wh-tooltip"><p class="shortdesc">显示模块的参数配置，包括 menuconfig 配置 和 dts 配置。</p></div></div></div></li><li role="treeitem"><div data-tocid="display_debug_guide-d4445e4965" class="topicref" data-id="display_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_debug.html" id="display_debug_guide-d4445e4965-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="display_test_guide-d4445e4979" class="topicref" data-id="display_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_test_guide.html" id="display_test_guide-d4445e4979-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="display_design_intro-d4445e4993" class="topicref" data-id="display_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action display_design_intro-d4445e4993-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display-design_intro.html" id="display_design_intro-d4445e4993-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="display_component_architecture-d4445e5007" class="topicref" data-id="display_component_architecture" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_sourcecode_and_arch.html" id="display_component_architecture-d4445e5007-link">源码和框架说明</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="topicset-d4445e5021" class="topicref" data-id="topicset" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action topicset-d4445e5021-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_init_process.html" id="topicset-d4445e5021-link">关键流程设计</a></div></div></li><li role="treeitem"><div data-tocid="display_data_structure-d4445e5064" class="topicref" data-id="display_data_structure" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_data_structure.html" id="display_data_structure-d4445e5064-link">数据结构设计</a></div></div></li><li role="treeitem"><div data-tocid="display_interface_design-d4445e5078" class="topicref" data-id="display_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_interface.html" id="display_interface_design-d4445e5078-link">接口设计</a></div></div></li><li role="treeitem" class="active"><div data-tocid="display_demo-d4445e5092" class="topicref" data-id="display_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_demo.html" id="display_demo-d4445e5092-link">Demo</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_screen_configuration-d4445e5106" class="topicref" data-id="display_screen_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_screen_configuration-d4445e5106-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_panel_port.html" id="display_screen_configuration-d4445e5106-link">屏适配指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_xpy_32b_ybc-d4445e5134" class="topicref" data-id="concept_xpy_32b_ybc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_xpy_32b_ybc-d4445e5134-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_fb_rotation.html" id="concept_xpy_32b_ybc-d4445e5134-link">屏幕旋转</a></div></div></li><li role="treeitem"><div data-tocid="display_change_color-d4445e5162" class="topicref" data-id="display_change_color" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_color_property.html" id="display_change_color-d4445e5162-link">色彩调整</a></div></div></li><li role="treeitem"><div data-tocid="display_boot_logo-d4445e5176" class="topicref" data-id="display_boot_logo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_boot_logo.html" id="display_boot_logo-d4445e5176-link">Boot Logo</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_common_issues-d4445e5190" class="topicref" data-id="display_common_issues" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_common_issues-d4445e5190-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_faqs.html" id="display_common_issues-d4445e5190-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/display/display_demo.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Demo</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 25 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="display_demo__section_s1j_zdg_d1c" data-ofbid="display_demo__section_s1j_zdg_d1c"><h2 class="- topic/title title sectiontitle">Framebuffer 标准接口的使用</h2>
+            
+            <div class="- topic/p p" data-ofbid="d46404e38__20250123155200">标准 framebuffer 接口操作示例:<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_demo__codeblock_efx_12g_d1c" data-ofbid="display_demo__codeblock_efx_12g_d1c"><code><strong class="hl-keyword">int</strong> main()
+{
+    <strong class="hl-keyword">int</strong> fd = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> fb_var_screeninfo vi;
+    <strong class="hl-keyword">struct</strong> fb_fix_screeninfo fi;
+
+    <strong class="hl-keyword">void</strong> *fb_ptr = NULL;
+
+    fd = open(<span class="hl-string">"/dev/fb0"</span>, O_RDWR);
+    <strong class="hl-keyword">if</strong> (fd &lt; <span class="hl-number">0</span>) {
+        printf(<span class="hl-string">"failed to open fb0\n"</span>);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <em class="hl-comment">// 获取可变屏幕参数，如分辨率，像素格式</em>
+    <strong class="hl-keyword">if</strong> (ioctl(fd, FBIOGET_VSCREENINFO, &amp;vi) &lt; <span class="hl-number">0</span>) {
+        printf(<span class="hl-string">"failed to get fb0 info\n"</span>);
+        close(fd);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <em class="hl-comment">// 获取屏幕固定参数，包括显存起始物理地址、显存大小和行间距</em>
+    <strong class="hl-keyword">if</strong> (ioctl(fd, FBIOGET_FSCREENINFO, &amp;fi) &lt; <span class="hl-number">0</span>) {
+        printf(<span class="hl-string">"failed to get fb0 info\n"</span>);
+        close(fd);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <em class="hl-comment">// framebuffer 缓冲区映射到用户空间：</em>
+    fb_ptr = mmap(<span class="hl-number">0</span>, fi.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, <span class="hl-number">0</span>);
+    <strong class="hl-keyword">if</strong> (fb_ptr == MAP_FAILED) {
+        printf(<span class="hl-string">"failed to mmap framebuffer\n"</span>);
+        close(fd);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <em class="hl-comment">// 用户可以直接把要显示到屏幕的图像数据写入 ptr 即可</em>
+    ........
+    ........
+
+    munmap(fb_ptr, fi.smem_len);
+    close(fd);
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="display_demo__section_u1j_zdg_d1c" data-ofbid="display_demo__section_u1j_zdg_d1c"><h2 class="- topic/title title sectiontitle">AICFB 扩展接口的使用</h2>
+            
+            <div class="- topic/p p" data-ofbid="d46404e49__20250123155200">代码详见
+                <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip/test-fb/test_fb.c</span><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_demo__codeblock_rjd_b2g_d1c" data-ofbid="display_demo__codeblock_rjd_b2g_d1c"><code><em class="hl-comment">// SPDX-License-Identifier: GPL-2.0-only</em>
+<em class="hl-comment">/*
+ * Copyright (C) 2020-2021 ArtInChip Technology Co., Ltd.
+ * Authors:  Matteo &lt;duanmt@artinchip.com&gt;
+ */</em>
+
+#include <span class="hl-string">"base.h"</span>
+#include <span class="hl-string">"artinchip_fb.h"</span>
+
+<em class="hl-comment">/* Global macro and variables */</em>
+
+#<span class="hl-directive">define</span> AICFB_LAYER_MAX_NUM <span class="hl-number">2</span>
+#<span class="hl-directive">define</span> FB_DEV <span class="hl-string">"/dev/fb0"</span>
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> sopts[] = <span class="hl-string">"nscflLaAkKedw:h:m:v:u"</span>;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> option lopts[] = {
+    {<span class="hl-string">"get_layer_num"</span>,   no_argument, NULL, <span class="hl-string">'n'</span>},
+    {<span class="hl-string">"get_screen_size"</span>, no_argument, NULL, <span class="hl-string">'s'</span>},
+    {<span class="hl-string">"get_layer_cap"</span>,   no_argument, NULL, <span class="hl-string">'c'</span>},
+    {<span class="hl-string">"get_fb_layer"</span>,    no_argument, NULL, <span class="hl-string">'f'</span>},
+    {<span class="hl-string">"get_layer"</span>,       no_argument, NULL, <span class="hl-string">'l'</span>},
+    {<span class="hl-string">"set_layer"</span>,       no_argument, NULL, <span class="hl-string">'L'</span>},
+    {<span class="hl-string">"get_alpha"</span>,       no_argument, NULL, <span class="hl-string">'a'</span>},
+    {<span class="hl-string">"set_alpha"</span>,     required_argument, NULL, <span class="hl-string">'A'</span>},
+    {<span class="hl-string">"get_ck_cfg"</span>,      no_argument, NULL, <span class="hl-string">'k'</span>},
+    {<span class="hl-string">"set_ck_cfg"</span>,      no_argument, NULL, <span class="hl-string">'K'</span>},
+    {<span class="hl-string">"enable"</span>,      no_argument, NULL, <span class="hl-string">'e'</span>},
+    {<span class="hl-string">"disable"</span>,     no_argument, NULL, <span class="hl-string">'d'</span>},
+    {<span class="hl-string">"id"</span>,        required_argument, NULL, <span class="hl-string">'i'</span>},
+    {<span class="hl-string">"width"</span>,     required_argument, NULL, <span class="hl-string">'w'</span>},
+    {<span class="hl-string">"height"</span>,    required_argument, NULL, <span class="hl-string">'h'</span>},
+    {<span class="hl-string">"mode"</span>,      required_argument, NULL, <span class="hl-string">'m'</span>},
+    {<span class="hl-string">"value"</span>,     required_argument, NULL, <span class="hl-string">'v'</span>},
+    {<span class="hl-string">"usage"</span>,       no_argument, NULL, <span class="hl-string">'u'</span>},
+    {<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>}
+};
+
+<em class="hl-comment">/* Functions */</em>
+
+<strong class="hl-keyword">void</strong> usage(<strong class="hl-keyword">char</strong> *program)
+{
+    printf(<span class="hl-string">"Usage: %s [options]: \n"</span>, program);
+    printf(<span class="hl-string">"\t -n, --get_layer_num \n"</span>);
+    printf(<span class="hl-string">"\t -s, --get_screen_size \n"</span>);
+    printf(<span class="hl-string">"\t -c, --get_layer_cap \n"</span>);
+    printf(<span class="hl-string">"\t -f, --get_fb_layer \n"</span>);
+    printf(<span class="hl-string">"\t -l, --get_layer \n"</span>);
+    printf(<span class="hl-string">"\t -L, --set_layer\tneed other options: -i x -e/d -w y -h z\n"</span>);
+    printf(<span class="hl-string">"\t -a, --get_alpha \n"</span>);
+    printf(<span class="hl-string">"\t -A, --set_alpha\tneed other options: -e/d -m x -v y \n"</span>);
+    printf(<span class="hl-string">"\t -k, --get_ck_cfg \n"</span>);
+    printf(<span class="hl-string">"\t -K, --set_ck_cfg\tneed other options: -e/d -v x \n"</span>);
+    printf(<span class="hl-string">"\t -e, --enable \n"</span>);
+    printf(<span class="hl-string">"\t -d, --disable \n"</span>);
+    printf(<span class="hl-string">"\t -i, --id\t\tneed an integer argument of Layer ID\n"</span>);
+    printf(<span class="hl-string">"\t -w, --width\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -h, --height\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -m, --mode\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -v, --value\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -u, --usage \n"</span>);
+    printf(<span class="hl-string">"\n"</span>);
+    printf(<span class="hl-string">"Example: %s -l\n"</span>, program);
+    printf(<span class="hl-string">"Example: %s -L -i 1 -e -w 800 -h 480\n"</span>, program);
+    printf(<span class="hl-string">"Example: %s -A -e -w 800 -h 480\n"</span>, program);
+    printf(<span class="hl-string">"Example: %s -K -e -v 0x3F\n"</span>, program);
+}
+
+<em class="hl-comment">/* Open a device file to be needed. */</em>
+<strong class="hl-keyword">int</strong> device_open(<strong class="hl-keyword">char</strong> *_fname, <strong class="hl-keyword">int</strong> _flag)
+{
+    s32 fd = -<span class="hl-number">1</span>;
+
+    fd = open(_fname, _flag);
+    <strong class="hl-keyword">if</strong> (fd &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"Failed to open %s"</span>, _fname);
+        exit(<span class="hl-number">0</span>);
+    }
+    <strong class="hl-keyword">return</strong> fd;
+}
+
+<strong class="hl-keyword">int</strong> get_layer_num(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_layer_num n = {<span class="hl-number">0</span>};
+
+    ret = ioctl(fd, AICFB_GET_LAYER_NUM, &amp;n);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+    }
+    <strong class="hl-keyword">else</strong> {
+        printf(<span class="hl-string">"The number of video layer: %d\n"</span>, n.vi_num);
+        printf(<span class="hl-string">"The number of UI layer: %d\n"</span>, n.ui_num);
+    }
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> get_layer_cap(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> i;
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_layer_capability cap = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_LAYER_MAX_NUM; i++) {
+        memset(&amp;cap, <span class="hl-number">0</span>, <strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> aicfb_layer_capability));
+        cap.layer_id = i;
+        ret = ioctl(fd, AICFB_GET_LAYER_CAPABILITY, &amp;cap);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+            <strong class="hl-keyword">return</strong> ret;
+        }
+
+        printf(<span class="hl-string">"\n--------------- Layer %d ---------------\n"</span>, i);
+        printf(<span class="hl-string">"Type: %s\n"</span>, cap.layer_type == AICFB_LAYER_TYPE_VIDEO ?
+            <span class="hl-string">"Video"</span> : <span class="hl-string">"UI"</span>);
+        printf(<span class="hl-string">"Max Width: %d (%#x)\n"</span>, cap.max_width, cap.max_width);
+        printf(<span class="hl-string">"Max height: %d (%#x)\n"</span>, cap.max_height, cap.max_height);
+        printf(<span class="hl-string">"Flag: %#x\n"</span>, cap.cap_flags);
+        printf(<span class="hl-string">"---------------------------------------\n"</span>);
+    }
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> get_one_layer_cfg(<strong class="hl-keyword">int</strong> fd, <strong class="hl-keyword">int</strong> cmd, <strong class="hl-keyword">int</strong> id)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_layer_data layer = {<span class="hl-number">0</span>};
+
+    layer.layer_id = id;
+    ret = ioctl(fd, cmd, &amp;layer);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+        <strong class="hl-keyword">return</strong> ret;
+    }
+
+    printf(<span class="hl-string">"\n--------------- Layer %d ---------------\n"</span>, layer.layer_id);
+    printf(<span class="hl-string">"Enable: %d\n"</span>, layer.enable);
+    printf(<span class="hl-string">"Layer ID: %d\n"</span>, layer.layer_id);
+    printf(<span class="hl-string">"Rect ID: %d\n"</span>, layer.rect_id);
+    printf(<span class="hl-string">"Scale Size: w %d, h %d\n"</span>,
+        layer.scale_size.width, layer.scale_size.height);
+    printf(<span class="hl-string">"Position: x %d, y %d\n"</span>, layer.pos.x, layer.pos.y);
+    printf(<span class="hl-string">"Buffer: \n"</span>);
+    printf(<span class="hl-string">"\tPixel format: %#x\n"</span>, layer.buf.format);
+    printf(<span class="hl-string">"\tPhysical addr: %#x %#x %#x\n"</span>,
+        layer.buf.phy_addr[<span class="hl-number">0</span>], layer.buf.phy_addr[<span class="hl-number">1</span>],
+        layer.buf.phy_addr[<span class="hl-number">2</span>]);
+    printf(<span class="hl-string">"\tStride: %d %d %d\n"</span>, layer.buf.stride[<span class="hl-number">0</span>],
+        layer.buf.stride[<span class="hl-number">1</span>], layer.buf.stride[<span class="hl-number">2</span>]);
+    printf(<span class="hl-string">"\tSize: w %d, h %d\n"</span>,
+        layer.buf.size.width, layer.buf.size.height);
+    printf(<span class="hl-string">"\tCrop enable: %d\n"</span>, layer.buf.crop_en);
+    printf(<span class="hl-string">"\tCrop: x %d, y %d, w %d, h %d\n"</span>,
+        layer.buf.crop.x, layer.buf.crop.y,
+        layer.buf.crop.width, layer.buf.crop.height);
+    printf(<span class="hl-string">"\tFlag: %#x\n"</span>, layer.buf.buf_flags);
+    printf(<span class="hl-string">"---------------------------------------\n"</span>);
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> get_fb_layer_cfg(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">return</strong> get_one_layer_cfg(fd, AICFB_GET_FB_LAYER_CONFIG, <span class="hl-number">0</span>);
+}
+
+<strong class="hl-keyword">int</strong> get_layer_cfg(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> i;
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_LAYER_MAX_NUM; i++)
+        get_one_layer_cfg(fd, AICFB_GET_LAYER_CONFIG, i);
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> set_layer_cfg(<strong class="hl-keyword">int</strong> fd, <strong class="hl-keyword">int</strong> id, <strong class="hl-keyword">int</strong> enable, <strong class="hl-keyword">int</strong> width, <strong class="hl-keyword">int</strong> height)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_layer_data layer = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">if</strong> ((id &lt; <span class="hl-number">0</span>) || (enable &lt; <span class="hl-number">0</span>) || (width &lt; <span class="hl-number">0</span>) || (height &lt; <span class="hl-number">0</span>)) {
+        ERR(<span class="hl-string">"Invalid argument.\n"</span>);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    layer.layer_id = id;
+    layer.enable = enable;
+    layer.scale_size.width = layer.buf.size.width;
+    layer.scale_size.height = layer.buf.size.height;
+    ret = ioctl(fd, AICFB_UPDATE_LAYER_CONFIG, &amp;layer);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> get_layer_alpha(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> i;
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_alpha_config alpha = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">1</span>; i &lt; AICFB_LAYER_MAX_NUM; i++) {
+        alpha.layer_id = i;
+        ret = ioctl(fd, AICFB_GET_ALPHA_CONFIG, &amp;alpha);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+            <strong class="hl-keyword">return</strong> ret;
+        }
+
+        printf(<span class="hl-string">"\n--------------- Layer %d ---------------\n"</span>, i);
+        printf(<span class="hl-string">"Alpha enable: %d\n"</span>, alpha.enable);
+        printf(<span class="hl-string">"Alpla mode: %d (0, pixel; 1, global; 2, mix)\n"</span>,
+            alpha.mode);
+        printf(<span class="hl-string">"Alpha value: %d (%#x)\n"</span>, alpha.value, alpha.value);
+        printf(<span class="hl-string">"---------------------------------------\n"</span>);
+    }
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> set_layer_alpha(<strong class="hl-keyword">int</strong> fd, <strong class="hl-keyword">int</strong> enable, <strong class="hl-keyword">int</strong> mode, <strong class="hl-keyword">int</strong> val)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_alpha_config alpha = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">if</strong> ((enable &lt; <span class="hl-number">0</span>) || (mode &lt; <span class="hl-number">0</span>) || (val &lt; <span class="hl-number">0</span>)) {
+        ERR(<span class="hl-string">"Invalid argument.\n"</span>);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    alpha.layer_id = <span class="hl-number">1</span>;
+    alpha.enable = enable;
+    alpha.mode = mode;
+    alpha.value = val;
+    ret = ioctl(fd, AICFB_UPDATE_ALPHA_CONFIG, &amp;alpha);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> get_ck_cfg(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> i;
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_ck_config ck = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">1</span>; i &lt; AICFB_LAYER_MAX_NUM; i++) {
+        ck.layer_id = i;
+        ret = ioctl(fd, AICFB_GET_CK_CONFIG, &amp;ck);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+            <strong class="hl-keyword">return</strong> ret;
+        }
+
+        printf(<span class="hl-string">"\n--------------- Layer %d ---------------\n"</span>, i);
+        printf(<span class="hl-string">"Color key enable: %d\n"</span>, ck.enable);
+        printf(<span class="hl-string">"Color key value: R %#x, G %#x, B %#x\n"</span>,
+            (ck.value &gt;&gt; <span class="hl-number">16</span>) &amp; <span class="hl-number">0xFF</span>, (ck.value &gt;&gt; <span class="hl-number">8</span>) &amp; <span class="hl-number">0xFF</span>,
+            ck.value &amp; <span class="hl-number">0xFF</span>);
+        printf(<span class="hl-string">"---------------------------------------\n"</span>);
+    }
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> set_ck_cfg(<strong class="hl-keyword">int</strong> fd, <strong class="hl-keyword">int</strong> enable, <strong class="hl-keyword">int</strong> val)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_ck_config ck = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">if</strong> ((enable &lt; <span class="hl-number">0</span>) || (val &lt; <span class="hl-number">0</span>)) {
+        ERR(<span class="hl-string">"Invalid argument.\n"</span>);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    ck.layer_id = <span class="hl-number">1</span>;
+    ck.enable = enable;
+    ck.value = val;
+    ret = ioctl(fd, AICFB_UPDATE_CK_CONFIG, &amp;ck);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> get_screen_size(<strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aic_size s = {<span class="hl-number">0</span>};
+
+    ret = ioctl(fd, AICFB_GET_SCREEN_SIZE, &amp;s);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"ioctl() return %d\n"</span>, ret);
+        <strong class="hl-keyword">return</strong> ret;
+    }
+
+    printf(<span class="hl-string">"Screen width: %d (%#x)\n"</span>, s.width, s.width);
+    printf(<span class="hl-string">"Screen height: %d (%#x)\n"</span>, s.height, s.height);
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> main(<strong class="hl-keyword">int</strong> argc, <strong class="hl-keyword">char</strong> **argv)
+{
+    <strong class="hl-keyword">int</strong> dev_fd = -<span class="hl-number">1</span>;
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> c = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> layer_id = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> enable = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> mode = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> width = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> height = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> value = <span class="hl-number">0</span>;
+
+    dev_fd = device_open(FB_DEV, O_RDWR);
+    <strong class="hl-keyword">if</strong> (dev_fd &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"Failed to open %s, return %d\n"</span>, FB_DEV, dev_fd);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <strong class="hl-keyword">while</strong> ((c = getopt_long(argc, argv, sopts, lopts, NULL)) != -<span class="hl-number">1</span>) {
+        <strong class="hl-keyword">switch</strong> (c) {
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'n'</span>:
+            ret = get_layer_num(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'s'</span>:
+            ret = get_screen_size(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'c'</span>:
+            ret = get_layer_cap(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'f'</span>:
+            ret = get_fb_layer_cfg(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'l'</span>:
+            ret = get_layer_cfg(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'a'</span>:
+            ret = get_layer_alpha(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'k'</span>:
+            ret = get_ck_cfg(dev_fd);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'e'</span>:
+            enable = <span class="hl-number">1</span>;
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'d'</span>:
+            enable = <span class="hl-number">0</span>;
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'i'</span>:
+            layer_id = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'w'</span>:
+            width = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'h'</span>:
+            height = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'m'</span>:
+            mode = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'v'</span>:
+            value = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'u'</span>:
+            usage(argv[<span class="hl-number">0</span>]);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">default</strong>:
+            <strong class="hl-keyword">continue</strong>;
+        }
+    }
+
+    optind = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">while</strong> ((c = getopt_long(argc, argv, sopts, lopts, NULL)) != -<span class="hl-number">1</span>) {
+        <strong class="hl-keyword">switch</strong> (c) {
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'L'</span>:
+            ret = set_layer_cfg(dev_fd, layer_id, enable, width, height);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'A'</span>:
+            ret = set_layer_alpha(dev_fd, enable, mode, value);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'K'</span>:
+            ret = set_ck_cfg(dev_fd, enable, value);
+            <strong class="hl-keyword">goto</strong> end;
+        <strong class="hl-keyword">default</strong>:
+            <strong class="hl-keyword">continue</strong>;
+        }
+    }
+
+end:
+    <strong class="hl-keyword">if</strong> (dev_fd &gt; <span class="hl-number">0</span>)
+        close(dev_fd);
+
+    <strong class="hl-keyword">return</strong> ret;
+}</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="display_demo__section_w1j_zdg_d1c" data-ofbid="display_demo__section_w1j_zdg_d1c"><h2 class="- topic/title title sectiontitle">DMA-BUF 的使用</h2>
+            
+            <div class="- topic/p p" data-ofbid="d46404e62__20250123155200">代码详见
+                <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip/test-dma-buf/</span><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_demo__codeblock_rx2_b2g_d1c" data-ofbid="display_demo__codeblock_rx2_b2g_d1c"><code><em class="hl-comment">// SPDX-License-Identifier: GPL-2.0-only</em>
+<em class="hl-comment">/*
+ * Copyright (C) 2020-2021 ArtInChip Technology Co., Ltd.
+ * Authors:  Matteo &lt;duanmt@artinchip.com&gt;
+ */</em>
+
+#include &lt;artinchip/sample_base.h&gt;
+#include &lt;linux/dma-buf.h&gt;
+#include &lt;linux/dma-heap.h&gt;
+#include &lt;video/artinchip_fb.h&gt;
+
+<em class="hl-comment">/* Global macro and variables */</em>
+
+#<span class="hl-directive">define</span> AICFB_VID_BUF_NUM   <span class="hl-number">2</span>
+#<span class="hl-directive">define</span> AIC_CMA_BUF_MAX     (<span class="hl-number">8</span> * <span class="hl-number">1024</span> * <span class="hl-number">1024</span>)
+#<span class="hl-directive">define</span> DMA_HEAP_DEV        <span class="hl-string">"/dev/dma_heap/reserved"</span>
+#<span class="hl-directive">define</span> FB_DEV          <span class="hl-string">"/dev/fb0"</span>
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> sopts[] = <span class="hl-string">"m:w:h:f:i:u"</span>;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> option lopts[] = {
+    {<span class="hl-string">"width"</span>,     required_argument, NULL, <span class="hl-string">'w'</span>},
+    {<span class="hl-string">"height"</span>,    required_argument, NULL, <span class="hl-string">'h'</span>},
+    {<span class="hl-string">"format"</span>,    required_argument, NULL, <span class="hl-string">'f'</span>},
+    {<span class="hl-string">"input"</span>,     required_argument, NULL, <span class="hl-string">'i'</span>},
+    {<span class="hl-string">"usage"</span>,       no_argument, NULL, <span class="hl-string">'u'</span>},
+    {<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>}
+};
+
+<strong class="hl-keyword">struct</strong> video_data_format {
+    <strong class="hl-keyword">enum</strong> aic_pixel_format format;
+    <strong class="hl-keyword">char</strong> f_str[<span class="hl-number">12</span>];
+    <strong class="hl-keyword">int</strong> y_shift;
+    <strong class="hl-keyword">int</strong> u_shift;
+    <strong class="hl-keyword">int</strong> v_shift;
+};
+
+<strong class="hl-keyword">struct</strong> video_data_format g_vformat[] = {
+    {AIC_FMT_YUV420P, <span class="hl-string">"yuv420p"</span>, <span class="hl-number">0</span>, <span class="hl-number">2</span>, <span class="hl-number">2</span>},
+    {AIC_FMT_YUV422P, <span class="hl-string">"yuv422p"</span>, <span class="hl-number">0</span>, <span class="hl-number">1</span>, <span class="hl-number">1</span>},
+    {AIC_FMT_YUV444P, <span class="hl-string">"yuv444p"</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>},
+
+    {AIC_FMT_MAX, <span class="hl-string">""</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>}
+};
+
+<strong class="hl-keyword">struct</strong> video_plane {
+    <strong class="hl-keyword">int</strong> fd;
+    <strong class="hl-keyword">char</strong> *buf;
+    <strong class="hl-keyword">int</strong> len;
+};
+
+<strong class="hl-keyword">struct</strong> video_buf {
+    <strong class="hl-keyword">struct</strong> video_plane y;
+    <strong class="hl-keyword">struct</strong> video_plane u;
+    <strong class="hl-keyword">struct</strong> video_plane v;
+};
+
+<strong class="hl-keyword">struct</strong> aicfb_video_layer {
+    <strong class="hl-keyword">int</strong> w;
+    <strong class="hl-keyword">int</strong> h;
+    <strong class="hl-keyword">struct</strong> video_data_format *f;
+    <strong class="hl-keyword">struct</strong> video_buf vbuf[AICFB_VID_BUF_NUM];
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> g_fb_fd = -<span class="hl-number">1</span>;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> aicfb_video_layer g_vlayer = {<span class="hl-number">0</span>};
+
+<em class="hl-comment">/* Functions */</em>
+
+<strong class="hl-keyword">void</strong> usage(<strong class="hl-keyword">char</strong> *program)
+{
+    printf(<span class="hl-string">"Usage: %s [options]: \n"</span>, program);
+    printf(<span class="hl-string">"\t -w, --width\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -h, --height\t\tneed an integer argument\n"</span>);
+    printf(<span class="hl-string">"\t -f, --format\t\tvideo format, yuv420p etc\n"</span>);
+    printf(<span class="hl-string">"\t -i, --input\t\tneed a file name \n"</span>);
+    printf(<span class="hl-string">"\t -u, --usage \n"</span>);
+    printf(<span class="hl-string">"\n"</span>);
+    printf(<span class="hl-string">"Example: %s -w 480 -h 320 -f yuv420p -i my.yuv\n"</span>, program);
+}
+
+<em class="hl-comment">/* Open a device file to be needed. */</em>
+<strong class="hl-keyword">int</strong> device_open(<strong class="hl-keyword">char</strong> *_fname, <strong class="hl-keyword">int</strong> _flag)
+{
+    s32 fd = -<span class="hl-number">1</span>;
+
+    fd = open(_fname, _flag);
+    <strong class="hl-keyword">if</strong> (fd &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"Failed to open %s"</span>, _fname);
+        exit(<span class="hl-number">0</span>);
+    }
+    <strong class="hl-keyword">return</strong> fd;
+}
+
+<strong class="hl-keyword">int</strong> vidbuf_request_one(<strong class="hl-keyword">struct</strong> video_plane *plane, <strong class="hl-keyword">int</strong> len, <strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> ret;
+    <strong class="hl-keyword">char</strong> *buf = NULL;
+    <strong class="hl-keyword">struct</strong> dma_heap_allocation_data data = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">if</strong> ((len &lt; <span class="hl-number">0</span>) || (len &gt; AIC_CMA_BUF_MAX)) {
+        ERR(<span class="hl-string">"Invalid len %d\n"</span>, len);
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    data.fd = <span class="hl-number">0</span>;
+    data.len = len;
+    data.fd_flags = O_RDWR;
+    data.heap_flags = <span class="hl-number">0</span>;
+    ret = ioctl(fd, DMA_HEAP_IOCTL_ALLOC, &amp;data);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"ioctl() failed! errno: %d[%s]\n"</span>, errno, strerror(errno));
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    DBG(<span class="hl-string">"Get dma_heap fd: %d\n"</span>, data.fd);
+    plane-&gt;fd = data.fd;
+
+    buf = mmap(NULL, len, PROT_READ|PROT_WRITE, MAP_SHARED, data.fd, <span class="hl-number">0</span>);
+    <strong class="hl-keyword">if</strong> (buf == MAP_FAILED) {
+        ERR(<span class="hl-string">"mmap() failed! errno: %d[%s]\n"</span>, errno, strerror(errno));
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+    DBG(<span class="hl-string">"Get virtual address: %p\n"</span>, buf);
+    plane-&gt;buf = buf;
+    plane-&gt;len = len;
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">void</strong> aic_fb_open(<strong class="hl-keyword">void</strong>)
+{
+    <strong class="hl-keyword">if</strong> (g_fb_fd &gt; <span class="hl-number">0</span>)
+        <strong class="hl-keyword">return</strong>;
+
+    g_fb_fd = device_open(FB_DEV, O_RDWR);
+    <strong class="hl-keyword">if</strong> (g_fb_fd &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"Failed to open %s. errno: %d[%s]\n"</span>,
+            FB_DEV, errno, strerror(errno));
+}
+
+<strong class="hl-keyword">int</strong> set_ui_layer_alpha(<strong class="hl-keyword">int</strong> val)
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> aicfb_alpha_config alpha = {<span class="hl-number">0</span>};
+
+    alpha.layer_id = <span class="hl-number">1</span>;
+    alpha.enable = <span class="hl-number">1</span>;
+    alpha.mode = <span class="hl-number">1</span>;
+    alpha.value = val;
+    ret = ioctl(g_fb_fd, AICFB_UPDATE_ALPHA_CONFIG, &amp;alpha);
+    <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"ioctl() failed! errno: %d[%s]\n"</span>, errno, strerror(errno));
+
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> vidbuf_request(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer)
+{
+    <strong class="hl-keyword">int</strong> i, j;
+    <strong class="hl-keyword">int</strong> heap_fd = -<span class="hl-number">1</span>;
+    <strong class="hl-keyword">int</strong> y_frame = vlayer-&gt;w * vlayer-&gt;h;
+
+    heap_fd = device_open(DMA_HEAP_DEV, O_RDWR);
+    <strong class="hl-keyword">if</strong> (heap_fd &lt; <span class="hl-number">0</span>) {
+        ERR(<span class="hl-string">"Failed to open %s, errno: %d[%s]\n"</span>,
+            DMA_HEAP_DEV, errno, strerror(errno));
+        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+    }
+
+    <em class="hl-comment">/* Prepare two group buffer for video player,
+       and each group has three planes: y, u, v. */</em>
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_VID_BUF_NUM; i++) {
+        <strong class="hl-keyword">struct</strong> video_plane *p = (<strong class="hl-keyword">struct</strong> video_plane *)&amp;vlayer-&gt;vbuf[i];
+        <strong class="hl-keyword">int</strong> *shift = &amp;vlayer-&gt;f-&gt;y_shift;
+        <strong class="hl-keyword">for</strong> (j = <span class="hl-number">0</span>; j &lt; AICFB_PLANE_NUM; j++, p++)
+            vidbuf_request_one(p, y_frame &gt;&gt; shift[j], heap_fd);
+    }
+
+    close(heap_fd);
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">void</strong> vidbuf_release(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer)
+{
+    <strong class="hl-keyword">int</strong> i, j;
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_VID_BUF_NUM; i++) {
+        <strong class="hl-keyword">struct</strong> video_plane *p = (<strong class="hl-keyword">struct</strong> video_plane *)&amp;vlayer-&gt;vbuf[i];
+        <strong class="hl-keyword">for</strong> (j = <span class="hl-number">0</span>; j &lt; AICFB_PLANE_NUM; j++, p++) {
+            <strong class="hl-keyword">if</strong> (munmap(p-&gt;buf, p-&gt;len) &lt; <span class="hl-number">0</span>)
+                ERR(<span class="hl-string">"munmap() failed! errno: %d[%s]\n"</span>,
+                    errno, strerror(errno));
+        }
+    }
+}
+
+<strong class="hl-keyword">void</strong> vidbuf_dmabuf_begin(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer)
+{
+    <strong class="hl-keyword">int</strong> i, j;
+    <strong class="hl-keyword">struct</strong> aicfb_dmabuf_fd fds = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_VID_BUF_NUM; i++) {
+        <strong class="hl-keyword">struct</strong> video_plane *plane = (<strong class="hl-keyword">struct</strong> video_plane *)&amp;vlayer-&gt;vbuf[i];
+        <strong class="hl-keyword">for</strong> (j = <span class="hl-number">0</span>; j &lt; AICFB_PLANE_NUM; j++, plane++) {
+            fds.fd = plane-&gt;fd;
+            <strong class="hl-keyword">if</strong> (ioctl(g_fb_fd, AICFB_GET_DMABUF, &amp;fds) &lt; <span class="hl-number">0</span>)
+                ERR(<span class="hl-string">"ioctl() failed! err %d[%s]\n"</span>,
+                    errno, strerror(errno));
+        }
+    }
+}
+
+<strong class="hl-keyword">void</strong> vidbuf_dmabuf_end(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer)
+{
+    <strong class="hl-keyword">int</strong> i, j;
+    <strong class="hl-keyword">struct</strong> aicfb_dmabuf_fd fds = {<span class="hl-number">0</span>};
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_VID_BUF_NUM; i++) {
+        <strong class="hl-keyword">struct</strong> video_plane *plane = (<strong class="hl-keyword">struct</strong> video_plane *)&amp;vlayer-&gt;vbuf[i];
+        <strong class="hl-keyword">for</strong> (j = <span class="hl-number">0</span>; j &lt; AICFB_PLANE_NUM; j++, plane++) {
+            fds.fd = plane-&gt;fd;
+            <strong class="hl-keyword">if</strong> (ioctl(g_fb_fd, AICFB_PUT_DMABUF, &amp;fds) &lt; <span class="hl-number">0</span>)
+                ERR(<span class="hl-string">"ioctl() failed! err %d[%s]\n"</span>,
+                    errno, strerror(errno));
+        }
+    }
+}
+
+<strong class="hl-keyword">void</strong> video_layer_set(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer, <strong class="hl-keyword">int</strong> index)
+{
+    <strong class="hl-keyword">struct</strong> aicfb_layer_data layer = {<span class="hl-number">0</span>};
+    <strong class="hl-keyword">struct</strong> video_buf *vbuf = &amp;vlayer-&gt;vbuf[index];
+
+    layer.layer_id = <span class="hl-number">0</span>;
+    layer.enable = <span class="hl-number">1</span>;
+    layer.scale_size.width = vlayer-&gt;w * <span class="hl-number">4</span>;
+    layer.scale_size.height = vlayer-&gt;h * <span class="hl-number">4</span>;
+    layer.pos.x = <span class="hl-number">10</span>;
+    layer.pos.y = <span class="hl-number">10</span>;
+    layer.buf.size.width = vlayer-&gt;w;
+    layer.buf.size.height = vlayer-&gt;h;
+    layer.buf.format = vlayer-&gt;f-&gt;format;
+    layer.buf.dmabuf_fd[<span class="hl-number">0</span>] = vbuf-&gt;y.fd;
+    layer.buf.dmabuf_fd[<span class="hl-number">1</span>] = vbuf-&gt;u.fd;
+    layer.buf.dmabuf_fd[<span class="hl-number">2</span>] = vbuf-&gt;v.fd;
+    layer.buf.stride[<span class="hl-number">0</span>] = vlayer-&gt;w;
+    layer.buf.stride[<span class="hl-number">1</span>] = vlayer-&gt;w &gt;&gt; <span class="hl-number">1</span>;
+    layer.buf.stride[<span class="hl-number">2</span>] = vlayer-&gt;w &gt;&gt; <span class="hl-number">1</span>;
+
+    <strong class="hl-keyword">if</strong> (ioctl(g_fb_fd, AICFB_UPDATE_LAYER_CONFIG, &amp;layer) &lt; <span class="hl-number">0</span>)
+        ERR(<span class="hl-string">"ioctl() failed! err %d[%s]\n"</span>, errno, strerror(errno));
+}
+
+<strong class="hl-keyword">void</strong> vidbuf_cpu_begin(<strong class="hl-keyword">struct</strong> video_buf *vbuf)
+{
+    <strong class="hl-keyword">int</strong> i;
+    <strong class="hl-keyword">struct</strong> dma_buf_sync flag;
+    <strong class="hl-keyword">struct</strong> video_plane *p = (<strong class="hl-keyword">struct</strong> video_plane *)vbuf;
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_PLANE_NUM; i++, p++) {
+        flag.flags = DMA_BUF_SYNC_WRITE | DMA_BUF_SYNC_START;
+        <strong class="hl-keyword">if</strong> (ioctl(p-&gt;fd, DMA_BUF_IOCTL_SYNC, &amp;flag) &lt; <span class="hl-number">0</span>)
+            ERR(<span class="hl-string">"ioctl() failed! err %d[%s]\n"</span>,
+                errno, strerror(errno));
+    }
+}
+
+<strong class="hl-keyword">void</strong> vidbuf_cpu_end(<strong class="hl-keyword">struct</strong> video_buf *vbuf)
+{
+    <strong class="hl-keyword">int</strong> i;
+    <strong class="hl-keyword">struct</strong> dma_buf_sync flag;
+    <strong class="hl-keyword">struct</strong> video_plane *p = (<strong class="hl-keyword">struct</strong> video_plane *)vbuf;
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_PLANE_NUM; i++, p++) {
+        flag.flags = DMA_BUF_SYNC_WRITE | DMA_BUF_SYNC_END;
+        <strong class="hl-keyword">if</strong> (ioctl(p-&gt;fd, DMA_BUF_IOCTL_SYNC, &amp;flag) &lt; <span class="hl-number">0</span>)
+            ERR(<span class="hl-string">"ioctl() failed! err %d[%s]\n"</span>,
+                errno, strerror(errno));
+    }
+}
+
+<strong class="hl-keyword">int</strong> vidbuf_read(<strong class="hl-keyword">struct</strong> aicfb_video_layer *vlayer, <strong class="hl-keyword">int</strong> index, <strong class="hl-keyword">int</strong> fd)
+{
+    <strong class="hl-keyword">int</strong> i, ret;
+    <strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> frame_cnt = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">struct</strong> video_plane *p = (<strong class="hl-keyword">struct</strong> video_plane *)&amp;vlayer-&gt;vbuf[index];
+
+    <strong class="hl-keyword">if</strong> (frame_cnt == <span class="hl-number">0</span>)
+        lseek(fd, <span class="hl-number">0</span>, SEEK_SET);
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; i &lt; AICFB_PLANE_NUM; i++, p++) {
+        DBG(<span class="hl-string">"Frame %d - %d, offset %ld, len %d\n"</span>, frame_cnt, i,
+             lseek(fd, <span class="hl-number">0</span>, SEEK_CUR), p-&gt;len);
+        ret = read(fd, p-&gt;buf, p-&gt;len);
+        <strong class="hl-keyword">if</strong> (ret != p-&gt;len) {
+            ERR(<span class="hl-string">"read(%d) return %d. errno: %d[%s]\n"</span>, p-&gt;len,
+                ret, errno, strerror(errno));
+            <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+    }
+    frame_cnt++;
+    <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">int</strong> format_parse(<strong class="hl-keyword">char</strong> *str)
+{
+    <strong class="hl-keyword">int</strong> i;
+
+    <strong class="hl-keyword">for</strong> (i = <span class="hl-number">0</span>; g_vformat[i].format != AIC_FMT_MAX; i++) {
+        <strong class="hl-keyword">if</strong> (strncasecmp(g_vformat[i].f_str, str, strlen(str)) == <span class="hl-number">0</span>)
+            <strong class="hl-keyword">return</strong> i;
+    }
+
+    ERR(<span class="hl-string">"Invalid format: %s\n"</span>, str);
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+<strong class="hl-keyword">int</strong> main(<strong class="hl-keyword">int</strong> argc, <strong class="hl-keyword">char</strong> **argv)
+{
+    <strong class="hl-keyword">int</strong> vid_fd = -<span class="hl-number">1</span>;
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> c = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> fsize = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> index = <span class="hl-number">0</span>;
+
+    DBG(<span class="hl-string">"Compile time: %s\n"</span>, __TIME__);
+    <strong class="hl-keyword">while</strong> ((c = getopt_long(argc, argv, sopts, lopts, NULL)) != -<span class="hl-number">1</span>) {
+        <strong class="hl-keyword">switch</strong> (c) {
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'w'</span>:
+            g_vlayer.w = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'h'</span>:
+            g_vlayer.h = str2int(optarg);
+            <strong class="hl-keyword">continue</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'f'</span>:
+            g_vlayer.f = &amp;g_vformat[format_parse(optarg)];
+            <strong class="hl-keyword">break</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'i'</span>:
+            vid_fd = device_open(optarg, O_RDONLY);
+            <strong class="hl-keyword">if</strong> (vid_fd &lt; <span class="hl-number">0</span>) {
+                ERR(<span class="hl-string">"Failed to open %s. errno: %d[%s]\n"</span>,
+                    optarg, errno, strerror(errno));
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+            }
+            fsize = lseek(vid_fd, <span class="hl-number">0</span>, SEEK_END);
+            DBG(<span class="hl-string">"open(%s) %d, size %d\n"</span>, optarg, vid_fd, fsize);
+            <strong class="hl-keyword">break</strong>;
+        <strong class="hl-keyword">case</strong> <span class="hl-string">'u'</span>:
+            usage(argv[<span class="hl-number">0</span>]);
+            <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+        <strong class="hl-keyword">default</strong>:
+            <strong class="hl-keyword">break</strong>;
+        }
+    }
+
+    aic_fb_open();
+    set_ui_layer_alpha(<span class="hl-number">128</span>);
+    vidbuf_request(&amp;g_vlayer);
+    vidbuf_dmabuf_begin(&amp;g_vlayer);
+
+    <strong class="hl-keyword">do</strong> {
+        <strong class="hl-keyword">struct</strong> video_buf *vbuf = &amp;g_vlayer.vbuf[index];
+
+        vidbuf_cpu_begin(vbuf);
+        ret = vidbuf_read(&amp;g_vlayer, index, vid_fd);
+        vidbuf_cpu_end(vbuf);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>)
+            <strong class="hl-keyword">break</strong>;
+
+        video_layer_set(&amp;g_vlayer, index);
+        index = !index;
+        usleep(<span class="hl-number">40000</span>);
+        <strong class="hl-keyword">if</strong> (lseek(vid_fd, <span class="hl-number">0</span>, SEEK_CUR) == fsize)
+            <strong class="hl-keyword">break</strong>;
+    } <strong class="hl-keyword">while</strong> (<span class="hl-number">1</span>);
+
+    vidbuf_dmabuf_end(&amp;g_vlayer);
+    vidbuf_release(&amp;g_vlayer);
+
+    <strong class="hl-keyword">if</strong> (vid_fd &gt; <span class="hl-number">0</span>)
+        close(vid_fd);
+    <strong class="hl-keyword">if</strong> (g_fb_fd &gt; <span class="hl-number">0</span>)
+        close (g_fb_fd);
+    <strong class="hl-keyword">return</strong> ret;
+}</code></pre></div>
+        </section>
+        
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#display_demo__section_s1j_zdg_d1c" data-tocid="display_demo__section_s1j_zdg_d1c">Framebuffer 标准接口的使用</a></div></li><li class="section-item"><div class="section-title"><a href="#display_demo__section_u1j_zdg_d1c" data-tocid="display_demo__section_u1j_zdg_d1c">AICFB 扩展接口的使用</a></div></li><li class="section-item"><div class="section-title"><a href="#display_demo__section_w1j_zdg_d1c" data-tocid="display_demo__section_w1j_zdg_d1c">DMA-BUF 的使用</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

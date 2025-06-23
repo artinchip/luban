@@ -1,0 +1,1 @@
+oxy_webhelp_navlinks = {"wifi-d4445e1918":{"topics":[{"title":"rtl8821CS","href":"topics\/sdk\/wifi\/wifi-rtl8821cs.html","attributes":{"data-id":"wifi_rtl8821cs"},"menu":{"hasChildren":false},"tocID":"wifi_rtl8821cs-d4445e1932","topics":[]}]}};

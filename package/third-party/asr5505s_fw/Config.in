@@ -1,0 +1,5 @@
+menuconfig BR2_PACKAGE_ASR5505S_FW
+	bool "ASR5505s firmware"
+	default n
+
+

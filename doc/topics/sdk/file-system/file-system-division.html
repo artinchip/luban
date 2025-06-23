@@ -1,0 +1,419 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="image_cfg.json 是 SDK/target/ chip / board 目录下描述如何生成烧录镜像的文件。在 image_cfg.json 文件中，可以完成目标存储介质的分区设置，进行增删改查操作。 配置存储介质分区 根据不同的存储介质，执行不同的分区配置，详情如下： eMMC &#34;mmc&#34; : { // Media type &#34;size&#34; : &#34;8G&#34; , // Size of ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/file-system/file-system-user-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/file-system/lb_usage_autoboot_2.html"/><meta name="DC.relation" content="../../../topics/sdk/file-system/file-system-images.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="file_system_division"/><meta name="DC.language" content="zh-CN"/><title>配置系统分区</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="file_system_division-d4445e4396"/><meta name="wh-source-relpath" content="topics/sdk/file-system/file-system-division.dita"/><meta name="wh-out-relpath" content="topics/sdk/file-system/file-system-division.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="file_system_division" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-memory"><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_n3v_ttw_bzb"><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html">文件系统使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="file_system_division"><div class="title"><a href="../../../topics/sdk/file-system/file-system-division.html">配置系统分区</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/file-system/lb_usage_autoboot_2.html" title="开机启动" aria-label="上一主题: 开机启动" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/file-system/file-system-images.html" title="选择系统镜像" aria-label="下一主题: 选择系统镜像" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4071" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4071-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html" id="id-d4445e4071-link">SDMC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nand_user_guide-d4445e4239" class="topicref" data-id="spi_nand_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nand_user_guide-d4445e4239-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinand/spi-nand-user-guide.html" id="spi_nand_user_guide-d4445e4239-link">SPI NAND 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nor_user_guide-d4445e4297" class="topicref" data-id="spi_nor_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nor_user_guide-d4445e4297-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html" id="spi_nor_user_guide-d4445e4297-link">SPI NOR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_n3v_ttw_bzb-d4445e4354" class="topicref" data-id="concept_n3v_ttw_bzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_n3v_ttw_bzb-d4445e4354-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html" id="concept_n3v_ttw_bzb-d4445e4354-link">文件系统使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="file_system_rootfs-d4445e4368" class="topicref" data-id="file_system_rootfs" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-rootfs.html" id="file_system_rootfs-d4445e4368-link">RootFS 和 Overlay</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e4382" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/lb_usage_autoboot_2.html" id="id-d4445e4382-link">开机启动</a></div></div></li><li role="treeitem" class="active"><div data-tocid="file_system_division-d4445e4396" class="topicref" data-id="file_system_division" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-division.html" id="file_system_division-d4445e4396-link">配置系统分区</a></div></div></li><li role="treeitem"><div data-tocid="file_system_images-d4445e4410" class="topicref" data-id="file_system_images" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-images.html" id="file_system_images-d4445e4410-link">选择系统镜像</a></div></div></li><li role="treeitem"><div data-tocid="file_system_division_modification-d4445e4424" class="topicref" data-id="file_system_division_modification" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-division_modification.html" id="file_system_division_modification-d4445e4424-link">修改分区</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/file-system/file-system-division.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">配置系统分区</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d38134e33__20250123155159"><span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 是
+                    <span class="+ topic/ph sw-d/filepath ph filepath">SDK/target/<var class="+ topic/keyword sw-d/varname keyword varname">chip</var>/<var class="+ topic/keyword sw-d/varname keyword varname">board</var></span>目录下描述如何生成烧录镜像的文件。在
+                <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span> 文件中，可以完成目标存储介质的分区设置，进行增删改查操作。</p>
+        <section class="- topic/section section" id="file_system_division__section_zwm_qvq_sdc" data-ofbid="file_system_division__section_zwm_qvq_sdc"><h2 class="- topic/title title sectiontitle">配置存储介质分区</h2>
+            
+            <div class="- topic/p p" data-ofbid="d38134e54__20250123155159">根据不同的存储介质，执行不同的分区配置，详情如下：<ul class="- topic/ul ul" id="file_system_division__ol_lkr_f1z_c1c" data-ofbid="file_system_division__ol_lkr_f1z_c1c">
+                    <li class="- topic/li li" data-ofbid="d38134e58__20250123155159"><strong class="+ topic/ph hi-d/b ph b">eMMC</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_ojb_g1z_c1c" data-ofbid="file_system_division__codeblock_ojb_g1z_c1c"><code><span class="hl-string">"mmc"</span>: { <em class="hl-comment">// Media type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"8G"</span>, <em class="hl-comment">// Size of SD/eMMC</em>
+        <span class="hl-string">"partitions"</span>: { <em class="hl-comment">// Partition table apply to device</em>
+                <span class="hl-string">"spl_1"</span>:  { <span class="hl-string">"offset"</span>: <span class="hl-string">"0x4400"</span>, <span class="hl-string">"size"</span>: <span class="hl-string">"128k"</span> },
+                <span class="hl-string">"spl_2"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"367k"</span> },
+                <span class="hl-string">"uboot"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"1m"</span> },
+                <span class="hl-string">"env"</span>:    { <span class="hl-string">"size"</span>: <span class="hl-string">"512k"</span> },
+                <span class="hl-string">"kernel"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"16m"</span> },
+                <span class="hl-string">"rootfs"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"64m"</span> },
+                <span class="hl-string">"user"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"64m"</span> },
+                <span class="hl-string">"data"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"-"</span> },
+        },
+},</code></pre><div class="table-container"><table class="- topic/table table frame-all" id="file_system_division__table_i54_5vq_sdc" data-ofbid="file_system_division__table_i54_5vq_sdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">eMMC 分配配置参数描述</span></caption><colgroup><col style="width:28.011204481792717%"/><col style="width:71.98879551820728%"/></colgroup><thead class="- topic/thead thead">
+                                    <tr class="- topic/row">
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_i54_5vq_sdc__entry__1">参数名</th>
+                                        <th class="- topic/entry entry colsep-0 rowsep-1" id="file_system_division__table_i54_5vq_sdc__entry__2">描述</th>
+                                    </tr>
+                                </thead><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__2">eMMC 存储设备的总大小 (User Data Area)</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">partitions</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__2">设备分区表。根据需要，按顺序添加分区，并且设置分区的开始位置和大小。<div class="- topic/note note note note_note" id="file_system_division__note_ecq_31z_c1c" data-ofbid="file_system_division__note_ecq_31z_c1c"><span class="note__title">注：</span> <div class="note__body">eMMC 的第一个分区，从 0x4400 开始，前面的 34
+                                                个 LBA 是保留给 GPT 分区表头用的。 SPL 分区，可以设置两个备份。从 0x4400
+                                                开始，每个分区大小 为 128KB。</div></div></td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">offset</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_i54_5vq_sdc__entry__2">分区开始地址，相对设备 0 地址的偏移。<p class="- topic/p p" data-ofbid="d38134e118__20250123155159">使用 16 进制字符串表示配置值。如果
+                                                  <span class="+ topic/keyword pr-d/parmname keyword parmname">offset</span>
+                                            参数未出现，表示紧接上一个分区。</p></td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_i54_5vq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="file_system_division__table_i54_5vq_sdc__entry__2">分区的大小，可使用 K, M, G 单位。最后一个分区可以使用 “-”
+                                            代替，表示剩余所有的空间都分配给该分区。</td>
+                                    </tr>
+                                </tbody></table></div></li>
+                    <li class="- topic/li li" data-ofbid="d38134e138__20250123155159"><strong class="+ topic/ph hi-d/b ph b"> SPI
+                            NOR</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_qcl_k1z_c1c" data-ofbid="file_system_division__codeblock_qcl_k1z_c1c"><code><span class="hl-string">"spi-nor"</span>: { <em class="hl-comment">// Media type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"16m"</span>, <em class="hl-comment">// Size of NOR</em>
+        <span class="hl-string">"partitions"</span>: {
+                <span class="hl-string">"spl"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"128k"</span> },
+                <span class="hl-string">"uboot"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"768k"</span> },
+                <span class="hl-string">"env"</span>:    { <span class="hl-string">"size"</span>: <span class="hl-string">"128k"</span> },
+                <span class="hl-string">"kernel"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"6m"</span> },
+                <span class="hl-string">"rootfs"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"5m"</span> },
+                <span class="hl-string">"user"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"4m"</span> },
+                <span class="hl-string">"data"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"-"</span> },
+        }
+},
+</code></pre><div class="table-container"><table class="- topic/table table frame-all" id="file_system_division__table_cjf_2wq_sdc" data-ofbid="file_system_division__table_cjf_2wq_sdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">SPI NOR 分区配置参数描述</span></caption><colgroup><col style="width:22.421524663677133%"/><col style="width:77.57847533632287%"/></colgroup><thead class="- topic/thead thead">
+                                    <tr class="- topic/row">
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_cjf_2wq_sdc__entry__1">参数名称</th>
+                                        <th class="- topic/entry entry colsep-0 rowsep-1" id="file_system_division__table_cjf_2wq_sdc__entry__2">描述</th>
+                                    </tr>
+                                </thead><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__2">SPI NOR 设备的总大小。</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">partitions</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__2">设备分区表。根据需要，按顺序添加 MTD 分区，并且设置分区的开始位置和大小。<div class="- topic/note note note note_note" id="file_system_division__note_zfr_l1z_c1c" data-ofbid="file_system_division__note_zfr_l1z_c1c"><span class="note__title">注：</span> <div class="note__body">SPI NOR 的 SPL 可以设置两个备份分区。从 0
+                                                开始，每个大小 128 KB。 第二个备份分区可以不设置。</div></div></td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">offset</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_cjf_2wq_sdc__entry__2">分区开始地址，相对设备 0 地址的偏移。值应使用 16 进制字符串表示。如果 offset
+                                            没有出现，表示紧接上一个分区。</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_cjf_2wq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="file_system_division__table_cjf_2wq_sdc__entry__2">分区的大小，可使用 K, M, G 单位。最后一个分区可以使用 “-”
+                                            代替，表示剩余所有的空间都分配给该分区。</td>
+                                    </tr>
+                                </tbody></table></div></li>
+                    <li class="- topic/li li" data-ofbid="d38134e213__20250123155159"><strong class="+ topic/ph hi-d/b ph b">SPI
+                            NAND</strong><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_jft_m1z_c1c" data-ofbid="file_system_division__codeblock_jft_m1z_c1c"><code><span class="hl-string">"spi-nand"</span>: { <em class="hl-comment">// Device, The name should be the same with string in image:info:media:type</em>
+        <span class="hl-string">"size"</span>: <span class="hl-string">"128m"</span>, <em class="hl-comment">// Size of SPI NAND</em>
+        <span class="hl-string">"partitions"</span>: {
+                <span class="hl-string">"spl"</span>:    { <span class="hl-string">"size"</span>: <span class="hl-string">"1m"</span> },
+                <span class="hl-string">"uboot"</span>:  { <span class="hl-string">"size"</span>: <span class="hl-string">"1m"</span> },
+                <span class="hl-string">"env"</span>:    { <span class="hl-string">"size"</span>: <span class="hl-string">"256k"</span> },
+                <span class="hl-string">"kernel"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"12m"</span> },
+                <span class="hl-string">"ubiroot"</span>: {
+                        <span class="hl-string">"size"</span>: <span class="hl-string">"32m"</span>,
+                        <span class="hl-string">"ubi"</span>: { <em class="hl-comment">// Volume in UBI device</em>
+                                <span class="hl-string">"rootfs"</span>: { <span class="hl-string">"size"</span>: <span class="hl-string">"-"</span> },
+                        },
+                },
+                <span class="hl-string">"ubisystem"</span>: {
+                        <span class="hl-string">"size"</span>: <span class="hl-string">"-"</span>,
+                        <span class="hl-string">"ubi"</span>: { <em class="hl-comment">// Volume in UBI device</em>
+                                <span class="hl-string">"user"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"64m"</span> },
+                        },
+                        <span class="hl-string">"ubi"</span>: { <em class="hl-comment">// Volume in UBI device</em>
+                                <span class="hl-string">"data"</span>:   { <span class="hl-string">"size"</span>: <span class="hl-string">"-"</span> },
+                        },
+                },
+        }
+},</code></pre><div class="table-container"><table class="- topic/table table frame-all" id="file_system_division__table_zcx_kwq_sdc" data-ofbid="file_system_division__table_zcx_kwq_sdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">SPI NAND 分区配置参数描述</span></caption><colgroup><col style="width:24.509803921568626%"/><col style="width:75.49019607843137%"/></colgroup><thead class="- topic/thead thead">
+                                    <tr class="- topic/row">
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_zcx_kwq_sdc__entry__1">参数名称</th>
+                                        <th class="- topic/entry entry colsep-0 rowsep-1" id="file_system_division__table_zcx_kwq_sdc__entry__2">描述</th>
+                                    </tr>
+                                </thead><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__2">SPI NAND 设备的总大小。<div class="- topic/note note note note_note" id="file_system_division__note_dxx_p1z_c1c" data-ofbid="file_system_division__note_dxx_p1z_c1c"><span class="note__title">注：</span> <div class="note__body">
+                                                <p class="- topic/p p" data-ofbid="d38134e253__20250123155159">SPI NAND 的 <code class="+ topic/ph pr-d/codeph ph codeph">spl</code> 分区大小，固定为 1
+                                                  MB。里面包含 4 个 SPL 备份。</p>
+                                            </div></div></td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">partitions</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__2">设备分区表。根据需要，按顺序添加 MTD 分区，设置分区的开始位置和大小，以及设置该 MTD 分区是否为
+                                            UBI 设备。</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">offset</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__2">分区开始地址，相对设备 0 地址的偏移。值应使用 16 进制字符串表示。如果 offset
+                                            没有出现，表示紧接上一个分区。</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_zcx_kwq_sdc__entry__2">分区的大小，可使用 K, M, G 单位。最后一个分区可以使用 “-”
+                                            代替，表示剩余所有的空间都分配给该分区。</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_zcx_kwq_sdc__entry__1"><span class="+ topic/keyword pr-d/parmname keyword parmname">ubi</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="file_system_division__table_zcx_kwq_sdc__entry__2">如果设置了该对象，则说明该 MTD 分区是一个 UBI 设备，可以进一步描述 UBI Volume
+                                                的划分。<div class="- topic/p p" data-ofbid="d38134e299__20250123155159">在该对象下，可以根据需要，按顺序添加该 UBI 设备中的 Volume 描述，每一个
+                                                Volume 拥有下列属性：<ul class="- topic/ul ul" id="file_system_division__ul_rqn_n1z_c1c" data-ofbid="file_system_division__ul_rqn_n1z_c1c">
+                                                  <li class="- topic/li li" data-ofbid="d38134e303__20250123155159"><span class="+ topic/keyword pr-d/parmname keyword parmname">offset</span>: Volume 的开始地址，相对
+                                                  UBI 设备 0 地址的偏移。值应使用 16 进制字符串表示。如果 offset
+                                                  没有出现，表示紧接上一个 Volume。</li>
+                                                  <li class="- topic/li li" data-ofbid="d38134e308__20250123155159"><span class="+ topic/keyword pr-d/parmname keyword parmname">size</span>: Volume 的大小，可使用 K,
+                                                  M, G 单位。最后一个 Volume 可以使用 “-” 代替，表示 UBI
+                                                  设备剩余所有的空间都分配给该 Volume。</li>
+                                                </ul></div></td>
+                                    </tr>
+                                </tbody></table></div></li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="file_system_division__section_sqn_n1z_c1c" data-ofbid="file_system_division__section_sqn_n1z_c1c"><h2 class="- topic/title title sectiontitle">配置启动相关分区</h2>
+            
+            <div class="- topic/p p" data-ofbid="d38134e325__20250123155159">启动相关的分区，修改之后要注意同步修改 U-Boot 和 <span class="+ topic/ph sw-d/filepath ph filepath">env.txt</span> 中的配置。<ol class="- topic/ol ol" id="file_system_division__ol_ss4_r1z_c1c" data-ofbid="file_system_division__ol_ss4_r1z_c1c">
+                    <li class="- topic/li li" data-ofbid="d38134e332__20250123155159"><strong class="+ topic/ph hi-d/b ph b">修改 U-Boot 所在分区</strong>：<div class="table-container"><table class="- topic/table table frame-all" id="file_system_division__table_trx_s1z_c1c" data-ofbid="file_system_division__table_trx_s1z_c1c" data-cols="3"><caption></caption><colgroup><col style="width:41.95250659630607%"/><col style="width:26.385224274406333%"/><col style="width:31.662269129287594%"/></colgroup><thead class="- topic/thead thead">
+                                    <tr class="- topic/row">
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_trx_s1z_c1c__entry__1">eMMC</th>
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_trx_s1z_c1c__entry__2">SPI NOR</th>
+                                        <th class="- topic/entry entry colsep-0 rowsep-1" id="file_system_division__table_trx_s1z_c1c__entry__3">SPI NAND</th>
+                                    </tr>
+                                </thead><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_trx_s1z_c1c__entry__1">CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_trx_s1z_c1c__entry__2">CONFIG_SYS_SPI_U_BOOT_OFFS</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="file_system_division__table_trx_s1z_c1c__entry__3">CONFIG_SYS_SPI_NAND_U_BOOT_OFFS</td>
+                                    </tr>
+                                </tbody></table></div><p class="- topic/p p" data-ofbid="d38134e377__20250123155159">修改之后，对应 <span class="+ topic/ph sw-d/filepath ph filepath">defconfig</span> 中的位置也应该同步更新。</p></li>
+                    <li class="- topic/li li" data-ofbid="d38134e383__20250123155159"><strong class="+ topic/ph hi-d/b ph b">修改 ENV 所在的分区</strong>：<div class="table-container"><table class="- topic/table table frame-all" id="file_system_division__table_rdb_v1z_c1c" data-ofbid="file_system_division__table_rdb_v1z_c1c" data-cols="3"><caption></caption><colgroup><col style="width:34.57943925233645%"/><col style="width:34.267912772585674%"/><col style="width:31.15264797507788%"/></colgroup><thead class="- topic/thead thead">
+                                    <tr class="- topic/row">
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_rdb_v1z_c1c__entry__1">eMMC</th>
+                                        <th class="- topic/entry entry colsep-1 rowsep-1" id="file_system_division__table_rdb_v1z_c1c__entry__2">SPI NOR</th>
+                                        <th class="- topic/entry entry colsep-0 rowsep-1" id="file_system_division__table_rdb_v1z_c1c__entry__3">SPI NAND</th>
+                                    </tr>
+                                </thead><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__1">CONFIG_ENV_OFFSET</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__2">CONFIG_ENV_OFFSET</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__3">CONFIG_ENV_OFFSET</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__1">CONFIG_ENV_OFFSET_REDUND</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__2">CONFIG_ENV_OFFSET_REDUND</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__3">CONFIG_ENV_RANGE</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__1">CONFIG_ENV_SIZE</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__2">CONFIG_ENV_SIZE</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="file_system_division__table_rdb_v1z_c1c__entry__3">-</td>
+                                    </tr>
+                                    <tr class="- topic/row">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_rdb_v1z_c1c__entry__1">-</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="file_system_division__table_rdb_v1z_c1c__entry__2">CONFIG_ENV_SECT_SIZE</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="file_system_division__table_rdb_v1z_c1c__entry__3">-</td>
+                                    </tr>
+                                </tbody></table></div><p class="- topic/p p" data-ofbid="d38134e464__20250123155159">修改之后，对应 <span class="+ topic/ph sw-d/filepath ph filepath">defconfig</span> 中的位置也应该同步更新。</p></li>
+                    <li class="- topic/li li" data-ofbid="d38134e470__20250123155159">如果 RootFS 所在的分区位置变化，需要修改 <span class="+ topic/keyword pr-d/parmname keyword parmname">bootargs</span> 相关的配置。<p class="- topic/p p" data-ofbid="d38134e475__20250123155159">相关的文件常用路径为
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">chip</var>/common/env.txt</span>
+                            或
+                                <span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">chip</var>/<var class="+ topic/keyword sw-d/varname keyword varname">board</var>/env.txt</span>。</p><ul class="- topic/ul ul" id="file_system_division__ul_v1x_fxq_sdc" data-ofbid="file_system_division__ul_v1x_fxq_sdc">
+                            <li class="- topic/li li" data-ofbid="d38134e494__20250123155159">
+                                <div class="- topic/p p" data-ofbid="d38134e496__20250123155159">仅当 RootFS 分区名为 <kbd class="+ topic/ph sw-d/userinput ph userinput">rootfs</kbd> 时，eMMC 的
+                                        <span class="+ topic/keyword pr-d/parmname keyword parmname">root=</span> 参数可自动生成。如果 RootFS 分区名发生了改变，
+                                    则同步修改下列参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_xp5_y1z_c1c" data-ofbid="file_system_division__codeblock_xp5_y1z_c1c"><code>set_mmc_root=part number mmc ${boot_devnum} rootfs rootfs_part; \
+         setexpr rootfs_part ${rootfs_part} + <span class="hl-number">0</span>; \
+         setenv mmc_root <span class="hl-string">"/dev/mmcblk${boot_devnum}p${rootfs_part}"</span>;</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d38134e508__20250123155159">
+                                <div class="- topic/p p" data-ofbid="d38134e510__20250123155159">如果 SPI NOR 中的 RootFS
+                                    分区位置发生变化时，则同步修改下列参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_qgg_z1z_c1c" data-ofbid="file_system_division__codeblock_qgg_z1z_c1c"><code>nor_root=/dev/mtdblock4</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d38134e516__20250123155159">
+                                <div class="- topic/p p" data-ofbid="d38134e518__20250123155159">如果 SPI NAND 中的 RootFS
+                                    的位置发生变化，则同步修改下列参数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="file_system_division__codeblock_lfm_z1z_c1c" data-ofbid="file_system_division__codeblock_lfm_z1z_c1c"><code>nand_root=ubi0:rootfs
+ubi_rootfs_mtd=<span class="hl-number">4</span></code></pre></div>
+                                <p class="- topic/p p" data-ofbid="d38134e523__20250123155159"> SPI NAND 中的 RootFS  分区通常放在 UBI 中。</p>
+                            </li>
+                        </ul></li>
+                </ol></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#file_system_division__section_zwm_qvq_sdc" data-tocid="file_system_division__section_zwm_qvq_sdc">配置存储介质分区</a></div></li><li class="section-item"><div class="section-title"><a href="#file_system_division__section_sqn_n1z_c1c" data-tocid="file_system_division__section_sqn_n1z_c1c">配置启动相关分区</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

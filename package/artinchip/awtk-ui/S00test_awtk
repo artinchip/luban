@@ -23,7 +23,6 @@ start() {
       fi
       sync
 
-      cd /usr/local/share/awtk_data/res
       #PID=`$DAEMON $DAEMONOPTS > /dev/console 2>&1 & echo $!`
       PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
 
@@ -38,7 +37,7 @@ start() {
 stop() {
 	printf "Stopping test_awtk: "
         PID=`cat $PIDFILE`
-        if [ -f $PIDFILE]; then
+        if [ -f $PIDFILE ]; then
             kill -HUP $PID
             printf "OK \n"
             rm -f $PIDFILE

@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2025 Artinchip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
@@ -14,8 +14,9 @@
 #define WDT_MAX_TIMEOUT			(60 * 60)
 #define WDT_MIN_TIMEOUT			1
 #define WDT_DEV_PATH			"/dev/watchdog"
+#define WDT_FEED_TIMES			5
 
-static const char sopts[] = "ic:s:gp:Gku";
+static const char sopts[] = "ic:s:gp:Gk:u";
 static const struct option lopts[] = {
 	{"info",		no_argument, NULL, 'd'},
 	{"channel",		required_argument, NULL, 'c'},
@@ -40,10 +41,11 @@ int usage(char *program)
 	printf("\t -g, --get-timeout\tGet the current timeout, in second\n");
 	printf("\t -p, --set-pretimeout\tSet a pretimeout, in second\n");
 	printf("\t -G, --get-pretimeout\tGet the current pretimeout, in second\n");
-	printf("\t -k, --keepalive\tKeepalive the watchdog\n");
+	printf("\t -k, --keepalive\tKeep feed the watchdog 5 times\n");
 	printf("\t -u, --usage \n");
 	printf("\n");
 	printf("Example: %s -c 0 -s 12\n", program);
+	printf("Example: %s -c 0 -s 3 -k 2\n", program);
 	printf("Example: %s -c 1 -s 100 -p 90\n\n", program);
 	return 0;
 }
@@ -115,7 +117,27 @@ err:
 	return ret;
 }
 
-int wdt_set_timeout(int chan, int timeout, int pretimeout)
+int wdt_keepalive(int chan, int fd, int feed)
+{
+	struct timeval now;
+	int ret = 0, i;
+
+	for (i = 0; i < WDT_FEED_TIMES; i++) {
+		gettimeofday(&now, NULL);
+		ret = ioctl(fd, WDIOC_KEEPALIVE, NULL);
+		if (ret < 0)
+			ERR("Failed to keepalive %d[%s]\n", errno, strerror(errno));
+		else
+			printf("[%ld.%03ld] %d/%d. Feed watchdog chan%d\n",
+				   now.tv_sec, now.tv_usec / 1000, i, WDT_FEED_TIMES, chan);
+
+		usleep((feed * 1000 + 10) * 1000);
+	}
+
+	return ret;
+}
+
+int wdt_set_timeout(int chan, int timeout, int pretimeout, int feed)
 {
 	int ret = 0, devfd = -1;
 
@@ -123,7 +145,8 @@ int wdt_set_timeout(int chan, int timeout, int pretimeout)
 	if (devfd < 0)
 		return -1;
 
-	DBG("Set chan%d timeout %d, pretimeout %d\n", chan, timeout, pretimeout);
+	printf("Set watchdog chan%d timeout %d, pretimeout %d, feed %d\n",
+		   chan, timeout, pretimeout, feed);
 	ret = ioctl(devfd, WDIOC_SETTIMEOUT, &timeout);
 	if (ret < 0)
 		ERR("Failed to set timeout %d[%s]\n", errno, strerror(errno));
@@ -131,9 +154,11 @@ int wdt_set_timeout(int chan, int timeout, int pretimeout)
 	if (pretimeout) {
 		ret = ioctl(devfd, WDIOC_SETPRETIMEOUT, &pretimeout);
 		if (ret < 0)
-			ERR("Failed to set pretimeout %d[%s]\n",
-			    errno, strerror(errno));
+			ERR("Failed to set pretimeout %d[%s]\n", errno, strerror(errno));
 	}
+
+	if (!ret && feed)
+		ret = wdt_keepalive(chan, devfd, feed);
 
 	wdt_enable(devfd, 0);
 	close(devfd);
@@ -153,7 +178,7 @@ int wdt_get_timeout(int chan)
 	if (ret < 0)
 		ERR("Failed to get timeout %d[%s]\n", errno, strerror(errno));
 	else
-		DBG("Get chan%d timeout %d\n", chan, timeout);
+		printf("Get chan%d timeout %d\n", chan, timeout);
 
 	wdt_enable(devfd, 0);
 	close(devfd);
@@ -168,7 +193,7 @@ int wdt_set_pretimeout(int chan, int pretimeout)
 	if (devfd < 0)
 		return -1;
 
-	DBG("Set chan%d pretimeout %d\n", chan, pretimeout);
+	printf("Set chan%d pretimeout %d\n", chan, pretimeout);
 	ret = ioctl(devfd, WDIOC_SETPRETIMEOUT, &pretimeout);
 	if (ret < 0)
 		ERR("Failed to set pretimeout %d[%s]\n", errno, strerror(errno));
@@ -191,26 +216,7 @@ int wdt_get_pretimeout(int chan)
 	if (ret < 0)
 		ERR("Failed to get pretimeout %d[%s]\n", errno, strerror(errno));
 	else
-		DBG("Get chan%d pretimeout %d\n", chan, pretimeout);
-
-	wdt_enable(devfd, 0);
-	close(devfd);
-	return ret;
-}
-
-int wdt_keepalive(int chan)
-{
-	int ret = 0, devfd = -1;
-
-	devfd = wdt_open(chan);
-	if (devfd < 0)
-		return -1;
-
-	ret = ioctl(devfd, WDIOC_KEEPALIVE, NULL);
-	if (ret < 0)
-		ERR("Failed to keepalive %d[%s]\n", errno, strerror(errno));
-	else
-		DBG("keepalive chan%d\n", chan);
+		printf("Get chan%d pretimeout %d\n", chan, pretimeout);
 
 	wdt_enable(devfd, 0);
 	close(devfd);
@@ -219,8 +225,9 @@ int wdt_keepalive(int chan)
 
 int main(int argc, char **argv)
 {
+	int timeout = 3, pretimeout = 2;
 	int c, chan = 0;
-	int timeout = 0, pretimeout = 0;
+	int feed = 0;
 
 	while ((c = getopt_long(argc, argv, sopts, lopts, NULL)) != -1) {
 		switch (c) {
@@ -230,27 +237,41 @@ int main(int argc, char **argv)
 				ERR("Invalid channel No.%s\n", optarg);
 				return -1;
 			}
-			DBG("You select the channel %d\n", chan);
+			printf("You select the channel %d\n", chan);
 			continue;
 		case 's':
 			timeout = str2int(optarg);
+			if (timeout < WDT_MIN_TIMEOUT || timeout > WDT_MAX_TIMEOUT) {
+				ERR("Invalid timeout: %s\n", optarg);
+				return -1;
+			}
 			continue;
 		case 'g':
 			return wdt_get_timeout(chan);
 		case 'p':
 			pretimeout = str2int(optarg);
+			if (pretimeout < WDT_MIN_TIMEOUT || pretimeout > WDT_MAX_TIMEOUT) {
+				ERR("Invalid pretimeout: %s\n", optarg);
+				return -1;
+			}
 			continue;
 		case 'G':
 			return wdt_get_pretimeout(chan);
 		case 'i':
 			return wdt_info(chan);
 		case 'k':
-			return wdt_keepalive(chan);
+			feed = str2int(optarg);
+			break;
 		case 'u':
 		default:
 			return usage(argv[0]);
 		}
 	}
 
-	return wdt_set_timeout(chan, timeout, pretimeout);
+	if (pretimeout >= timeout) {
+		ERR("pretimeout %d is bigger than timeout %d\n", pretimeout, timeout);
+		pretimeout = timeout - 1;
+	}
+
+	return wdt_set_timeout(chan, timeout, pretimeout, feed);
 }

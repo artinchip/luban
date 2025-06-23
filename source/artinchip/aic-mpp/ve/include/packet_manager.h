@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc:  packet (video bitstream container) manager
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc:  packet (video bitstream container) manager
+ */
 
 #ifndef PACKET_MANAGER_H
 #define PACKET_MANAGER_H

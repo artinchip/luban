@@ -10,6 +10,7 @@
 #include <linux/device.h>
 #include <linux/dma-mapping.h>
 #include <linux/of_device.h>
+#include <linux/of_address.h>
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
 #include <linux/phy/phy.h>
@@ -55,6 +56,9 @@ static void aic_epint_handle_complete_in(struct aic_usb_gadget *gg,
 static void aic_kill_ep_reqs(struct aic_usb_gadget *gg,
 			     struct aic_usb_ep *ep,
 			     int result);
+
+static int aic_ep_enable(struct usb_ep *ep,
+			 const struct usb_endpoint_descriptor *desc);
 static int aic_ep_disable(struct usb_ep *ep);
 static int aic_ep_disable_nolock(struct usb_ep *ep);
 static int aic_set_test_mode(struct aic_usb_gadget *gg, int testmode);
@@ -1070,6 +1074,55 @@ bad_mps:
 	dev_err(gg->dev, "ep%d: bad mps of %d\n", ep, mps);
 }
 
+static void aic_gg_set_usb_res(void __iomem *ctl_reg, u32 resis)
+{
+	u32 val;
+
+	if (ctl_reg == NULL)
+		return;
+
+	resis &= SYSCFG_USB_RES_CAL_VAL_MASK;
+
+	val = readl(ctl_reg);
+	val &= ~SYSCFG_USB_RES_CAL_VAL_MASK;
+	val |= resis << SYSCFG_USB_RES_CAL_VAL_SHIFT;
+	val |= 1 << SYSCFG_USB_RES_CAL_EN_SHIFT;
+
+	writel(val, ctl_reg);
+}
+
+static int aic_gg_get_res_cfg(struct device_node *np, struct aic_usb_res_cfg *cfg,
+				const char *property)
+{
+	int len, index, offset, res;
+	const __be32 *prop;
+	struct device_node *child_np;
+
+	prop = of_get_property(np, property, &len);
+	if (!prop || len < 4 * sizeof(__be32))
+		return -ENODEV;
+
+	child_np = of_find_node_by_phandle(be32_to_cpup(prop++));
+	if (!child_np)
+		return -ENODEV;
+
+	index = be32_to_cpup(prop++);
+	offset = be32_to_cpup(prop++);
+	res = be32_to_cpup(prop);
+
+	cfg->addr = of_iomap(child_np, index);
+	if (!cfg->addr)
+		return -ENOMEM;
+	cfg->addr += offset;
+	cfg->resis = res;
+
+	pr_debug("device property : %s \n", property);
+	pr_debug("child_np : %s \n", child_np->name);
+	pr_debug("offset : %#x  res : %#x \n", offset, res);
+
+	return 0;
+}
+
 static int aic_core_hw_init1(struct aic_usb_gadget *gg, bool is_usb_reset)
 {
 	u32 reg = 0;
@@ -1169,7 +1222,8 @@ static void aic_core_hw_init2(struct aic_usb_gadget *gg, bool is_usb_reset)
 
 	/* set IN endpoint interrupt mask */
 	reg = INEPINTMSK_EPDISBLDMSK | INEPINTMSK_XFERCOMPLMSK |
-		INEPINTMSK_TIMEOUTMSK | INEPINTMSK_AHBERRMSK;
+		INEPINTMSK_TIMEOUTMSK | INEPINTMSK_AHBERRMSK |
+		INEPINTMSK_INTKNEPMISMSK;
 	aic_writel(gg, reg, INEPINTMSK);
 
 	/* set OUT endpoint interrupt mask */
@@ -1191,6 +1245,8 @@ static void aic_core_hw_init2(struct aic_usb_gadget *gg, bool is_usb_reset)
 	/* Enable interrupts for EP0 in and out */
 	aic_ctrl_epint(gg, 0, 0, 1);
 	aic_ctrl_epint(gg, 0, 1, 1);
+
+	gg->tx_fifo_map |= 1;
 
 	if (!is_usb_reset) {
 		/* power-on programming done */
@@ -1229,6 +1285,8 @@ static int aic_core_init(struct aic_usb_gadget *gg,
 			  bool is_usb_reset)
 {
 	int ret = 0;
+
+	aic_gg_set_usb_res(gg->params.usb_res_cfg.addr, gg->params.usb_res_cfg.resis);
 
 	ret = aic_core_hw_init1(gg, is_usb_reset);
 	if (ret)
@@ -1877,8 +1935,10 @@ static void aic_epint_handle_outdone(struct aic_usb_gadget *gg, int epnum)
 
 	if (epnum == 0 && gg->ep0_state == AIC_EP0_DATA_OUT) {
 		/* Move to STATUS IN */
-		if (!gg->delayed_status)
+		if (!gg->delayed_status) {
 			aic_ep0_program_zlp(gg, true);
+			ret = -EISCONN;
+		}
 	}
 
 	/* Set actual frame number for completed transfers */
@@ -1886,6 +1946,153 @@ static void aic_epint_handle_outdone(struct aic_usb_gadget *gg, int epnum)
 		req->frame_number = gg->frame_number;
 
 	aic_ep_complete_request(gg, a_ep, a_req, ret);
+}
+
+/* func: aic_inep0_open
+ * gg->eps_in/out[0]->ep.desc(ep0) dose not have usb_endpoint_descriptor,
+ * using aic_ep_enable will cause NULL point.
+ * So use this func to enable ep0 IN_EP0_CFG.
+ */
+static void aic_inep0_open(struct aic_usb_gadget *gg)
+{
+	u32 reg = 0;
+	unsigned int mps;
+
+	/* mark tx_fifo_map */
+	gg->tx_fifo_map |= (1 << 0);
+
+	mps = aic_ep0_mps(gg->eps_in[0]->ep.maxpacket);
+
+	reg = aic_readl(gg, INEPCFG0);
+	reg |= mps | EPCTL_SETD0PID | EPCTL_USBACTEP;
+	aic_writel(gg, reg, INEPCFG0);
+
+	/* Enable interrupts for EP0 in */
+	aic_ctrl_epint(gg, 0, 1, 1);
+}
+
+static int aic_npinep_rewrite(struct aic_usb_gadget *gg, unsigned int idx)
+{
+	unsigned int pending_map = 0;
+	int i = 0, j = 0, fail = 0;
+	u32 reg = 0;
+
+	for (i = 0U, j = 0U; i < gg->params.num_ep; i++) {
+		reg = aic_readl(gg, INEPCFG(i));
+		if (!((gg->tx_fifo_map & (1 << i)) && (reg & EPCTL_EPENA)))
+			continue;
+		/* mark the fifo which need to be rewrite */
+		j++;
+		pending_map |= (1 << i);
+	}
+
+	/* Mismatch must be caused by two or more ep */
+	if (j <= 1)
+		return 0;
+
+	dev_dbg(gg->dev, "mismatch ep pending_map:0x%x\n", pending_map);
+
+	/* (1) close all no-periodic ep */
+	/* (1.1) Set Global In NP NAK in Shared FIFO for non periodic ep */
+	reg = aic_readl(gg, USBINTSTS);
+	if (!(reg & USBINTSTS_GINNAKEFF)) {
+		reg = aic_readl(gg, USBDEVFUNC);
+		reg |= USBDEVFUNC_SGNPINNAK;
+		aic_writel(gg, reg, USBDEVFUNC);
+	} else {
+		dev_err(gg->dev,
+			"%s GNINAKEFF is not 0, reg:0x%x, check bit:0x%x\n",
+			__func__, reg, (unsigned int)(reg & USBINTSTS_GINNAKEFF));
+	}
+
+	for (i = 0; i < DIS_EP_TIMOUT; i++) {
+		reg = aic_readl(gg, USBINTSTS);
+		/* wait for SGNPINNAK to take effect, this bit will be set to 1 */
+		if (reg & USBINTSTS_GINNAKEFF)
+			break;
+		udelay(1);
+	}
+	dev_dbg(gg->dev, "USBINTSTS(0x%x) val:0x%x\n", (unsigned int)USBINTSTS, reg);
+
+	if (i == DIS_EP_TIMOUT)
+		dev_err(gg->dev, "%s timeout USBINTSTS.GOUTNAKEFF\n", __func__);
+
+	/* (1.2) Disable ep */
+	for (i = 0U; i < gg->params.num_ep; i++) {
+		reg = aic_readl(gg, INEPCFG(i));
+		if (!((gg->tx_fifo_map & (1 << i)) && (reg & EPCTL_EPENA)))
+			continue;
+
+		/* set NACK and disabled ep */
+		reg |= EPCTL_SNAK;
+		reg |= EPCTL_EPDIS;
+		aic_writel(gg, reg, INEPCFG(i));
+	}
+
+	/* check if ep disabled complete */
+	for (j = 0; j < DIS_EP_TIMOUT; j++) {
+		fail = 0;
+		for (i = 0U; i < gg->params.num_ep; i++) {
+			if (!(pending_map & (1 << i)))
+				continue;
+			/* wait for ep disabled finish */
+			reg = aic_readl(gg, INEPINT(i));
+			if (!(reg & EPINT_EPDISBLD)) {
+				fail = i + 1;
+				break;
+			}
+		}
+		if (!fail)
+			break;
+		udelay(1);
+	}
+
+	if (j == DIS_EP_TIMOUT)
+		dev_err(gg->dev,
+			"%s ep%d timeout OUTEPCFG.EPDisable\n", __func__, fail - 1);
+
+	/* Clear EPDISBLD interrupt */
+	for (i = 0U; i < gg->params.num_ep; i++) {
+		if (!(pending_map & (1 << i)))
+			continue;
+		reg = aic_readl(gg, INEPINT(i));
+		reg |= EPINT_EPDISBLD;
+		aic_writel(gg, reg, INEPINT(i));
+	}
+
+	/* (1.3) Flush TX FIFO0 */
+	aic_flush_tx_fifo(gg, 0);
+
+	/* (1.4) Clear Global In NP NAK in Shared FIFO for non periodic ep */
+	reg = aic_readl(gg, USBDEVFUNC);
+	reg |= USBDEVFUNC_CGNPINNAK;
+	aic_writel(gg, reg, USBDEVFUNC);
+
+	/* (2) reopen current ep */
+	if (idx == 0)
+		aic_inep0_open(gg);
+	else
+		aic_ep_enable(&gg->eps_in[idx]->ep, gg->eps_in[idx]->ep.desc);
+
+	/* (3) rewrite current ep */
+	dev_dbg(gg->dev, "start req: ep%d, req:%p\n", idx, gg->eps_in[idx]->req);
+	if (pending_map & (1 << idx))
+		aic_ep_start_req(gg, gg->eps_in[idx], gg->eps_in[idx]->req, false);
+
+	/* (4) reopen & rewrite other ep, let's receive ep mismtach interrupt */
+	for (i = 0U; i < gg->params.num_ep; i++) {
+		if (!(pending_map & (1 << i)) || i == idx)
+			continue;
+		dev_dbg(gg->dev, "deal with another ep%d\n", i);
+		if (i == 0)
+			aic_inep0_open(gg);
+		else
+			aic_ep_enable(&gg->eps_in[i]->ep, gg->eps_in[i]->ep.desc);
+
+		aic_ep_start_req(gg, gg->eps_in[i], gg->eps_in[i]->req, true);
+	}
+
+	return 0;
 }
 
 static void aic_epint_irq(struct aic_usb_gadget *gg, unsigned int idx,
@@ -1997,6 +2204,8 @@ static void aic_epint_irq(struct aic_usb_gadget *gg, unsigned int idx,
 		if (ints & EPINT_INTKNEPMIS) {
 			dev_warn(gg->dev, "%s: ep%d: INTknEP\n",
 				 __func__, idx);
+			aic_npinep_rewrite(gg, idx);
+
 		}
 	}
 }
@@ -2585,7 +2794,22 @@ static void aic_ep_complete_request(struct aic_usb_gadget *gg,
 	aic_handle_unaligned_req_complete(gg, a_ep, a_req);
 
 	/* dequeue */
-	a_ep->req = NULL;
+	/* When the device receives a out-data packet, device needs to send
+	 * an empty in-status packet. Due to using aic_ep0_program_zlp()
+	 * instead of ep_queue() which will result in gg->eps_in/out[]->req
+	 * being cleared. To proceed with the next transfer, it is necessary
+	 * to alloc a new req.
+	 * When handling mismatch function, aic_npinep_rewrite() use the old
+	 * req instead of allocing a new req. When using aic_ep0_program_zlp()
+	 * to send a in-status packet to host, aic_ep_start_req() which was
+	 * called by aic_ep_start_req, can not send in-status packet bacause
+	 * req is NULL.
+	 * So, when not alloc req to send empty packet, do not clear req.
+	 */
+	if (result != -EISCONN) {
+		a_ep->req = NULL;
+		result = 0;
+	}
 	list_del_init(&a_req->queue);
 
 	/* call complete function */
@@ -2863,6 +3087,7 @@ static int aic_ep_disable_nolock(struct usb_ep *ep)
 
 	/* free fifo */
 	gg->fifo_map &= ~(1 << a_ep->fifo_index);
+	gg->tx_fifo_map &= ~(1 << a_ep->index);
 	a_ep->fifo_index = 0;
 	a_ep->fifo_size = 0;
 
@@ -3011,6 +3236,9 @@ static int aic_ep_enable(struct usb_ep *ep,
 		gg->fifo_map |= 1 << fifo_index;
 		a_ep->fifo_index = fifo_index;
 		a_ep->fifo_size = fifo_size;
+	} else {
+		if (dir_in)
+			gg->tx_fifo_map |= 1 << index;
 	}
 
 	/* (4) for non iso endpoints, set PID to D0 */
@@ -3519,6 +3747,7 @@ static int aic_udc_probe(struct platform_device *dev)
 	}
 
 	/* regulator */
+	aic_gg_get_res_cfg(dev->dev.of_node, &gg->params.usb_res_cfg, "aic,usbd-ext-resistance");
 
 	/* clock */
 	for (i = 0; i < USB_MAX_CLKS_RSTS; i++) {

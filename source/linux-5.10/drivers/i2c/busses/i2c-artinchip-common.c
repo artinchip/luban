@@ -125,7 +125,12 @@ void i2c_disable_interrupts(struct aic_i2c_dev *i2c_dev)
 
 void i2c_enable(struct aic_i2c_dev *i2c_dev)
 {
-	writel(1, i2c_dev->base + I2C_ENABLE);
+	int ret;
+
+	ret = readl(i2c_dev->base + I2C_ENABLE);
+	ret |= I2C_SDA_STUCK_RECOVERY_ENABLE | I2C_ENABLE_BIT;
+
+	writel(ret, i2c_dev->base + I2C_ENABLE);
 }
 
 void i2c_disable(struct aic_i2c_dev *i2c_dev)
@@ -137,35 +142,35 @@ void i2c_disable(struct aic_i2c_dev *i2c_dev)
 		dev_err(i2c_dev->dev, "I2C disable failed\n");
 		return;
 	}
-	writel(0, i2c_dev->base + I2C_ENABLE);
+
+	ret = readl(i2c_dev->base + I2C_ENABLE);
+	ret &= ~I2C_ENABLE_BIT;
+
+	writel(ret, i2c_dev->base + I2C_ENABLE);
 }
 
-int i2c_scl_cnt(u32 ic_clk, enum aic_i2c_speed aic_speed,
-			u16 *hcnt, u16 *lcnt)
+int i2c_scl_cnt(u32 module_clk, u32 rate, u16 *hcnt, u16 *lcnt)
 {
 	u16 hcnt_tmp;
 	u16 lcnt_tmp;
+	u32 temp;
+	u32 duty_cycle = 50;	/* low/(low + high) time */
+
+	if (rate > 384000) {
+		/* When the i2c rate is greater than 384KHz,
+		 * it is necessary to ensure that lcnt is not less than 1300ns,
+		 * so the duty cycle needs to be adjusted.
+		 */
+		duty_cycle = (13 * rate) / 100000 + (((13 * rate) % 100000) ? 1 : 0);
+	}
+
+	temp = module_clk / rate;
 
 	if (!hcnt || !lcnt)
 		return -EINVAL;
 
-	switch (aic_speed) {
-	case I2C_SPEED_STD:
-		/* Minimum value of tHIGH in standard mode is 4000ns
-		 * Plus 2 is just to increase the time of tHIGH, appropriately
-		 */
-		hcnt_tmp = SS_MIN_SCL_HIGH * ic_clk / USEC_PER_SEC + 2;
-		lcnt_tmp = SS_MIN_SCL_LOW * ic_clk / USEC_PER_SEC + 2;
-		break;
-	case I2C_SPEED_FAST:
-	default:
-		/* Minimum value of tHIGH in fast mode is 600ns
-		 * Plus 2 is just to increase the time of tHIGH, appropriately
-		 */
-		hcnt_tmp = FS_MIN_SCL_HIGH * ic_clk / USEC_PER_SEC + 2;
-		lcnt_tmp = FS_MIN_SCL_LOW * ic_clk / USEC_PER_SEC + 2;
-		break;
-	}
+	lcnt_tmp = temp * duty_cycle / 100 + ((temp * duty_cycle % 100) ? 1 : 0) - 1;
+	hcnt_tmp = temp - lcnt_tmp - 8 - 2;
 
 	*hcnt = hcnt_tmp;
 	*lcnt = lcnt_tmp;
@@ -178,6 +183,8 @@ static int i2c_probe(struct platform_device *pdev)
 	struct i2c_timings *t;
 	struct resource *mem;
 	int irq, ret;
+	u32 module_clk, hold_time;
+	u8 setup_time;
 
 	i2c_dev = devm_kzalloc(&pdev->dev,
 				sizeof(struct aic_i2c_dev), GFP_KERNEL);
@@ -195,6 +202,12 @@ static int i2c_probe(struct platform_device *pdev)
 	if (IS_ERR(i2c_dev->clk)) {
 		dev_err(i2c_dev->dev, "Failed to get I2C clock\n");
 		return PTR_ERR(i2c_dev->clk);
+	}
+
+	module_clk = clk_get_rate(i2c_dev->clk);
+	if (!module_clk) {
+		dev_err(i2c_dev->dev, "get i2c clock rate failed\n");
+		return -EINVAL;
 	}
 
 	if (clk_prepare_enable(i2c_dev->clk)) {
@@ -229,10 +242,27 @@ static int i2c_probe(struct platform_device *pdev)
 
 	t = &i2c_dev->timings;
 	i2c_parse_fw_timings(&pdev->dev, t, false);
-	if (t->bus_freq_hz == 100000)
+	if (t->bus_freq_hz >= 200 && t->bus_freq_hz <= 100000) {
 		i2c_dev->i2c_speed = I2C_SPEED_STD;
-	else
+		i2c_dev->target_rate = t->bus_freq_hz;
+	} else if (t->bus_freq_hz > 100000 && t->bus_freq_hz <= 400000) {
 		i2c_dev->i2c_speed = I2C_SPEED_FAST;
+		i2c_dev->target_rate = t->bus_freq_hz;
+	} else {
+		i2c_dev->i2c_speed = I2C_SPEED_FAST;
+		i2c_dev->target_rate = 400000;
+	}
+
+	if (t->sda_hold_ns != 0) {
+		hold_time = t->sda_hold_ns / (1000000000 / module_clk) + 1;
+		hold_time |= hold_time << 16;
+		i2c_writel(i2c_dev, hold_time, I2C_SDA_HOLD);
+	}
+
+	if (t->scl_int_delay_ns != 0) {
+		setup_time = t->scl_int_delay_ns / (1000000000 / module_clk) + 1;
+		i2c_writel(i2c_dev, setup_time, I2C_SDA_SETUP);
+	}
 
 	WARN_ON(pm_runtime_enabled(&pdev->dev));
 

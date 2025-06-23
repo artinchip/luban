@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 Artinchip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_file_stream
-*/
+ * Copyright (C) 2020-2023 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_file_stream
+ */
 
 #ifndef __AIC_FILE_STREAM_H__
 #define __AIC_FILE_STREAM_H__

@@ -172,13 +172,13 @@ int aes_set_encrypt_key(struct udevice *dev, void *key, u32 key_len)
 	struct aes_priv *aes;
 	struct crypto_priv *priv;
 
-	if ((key_len / 8) > AES_MAX_KEY_LEN)
+	if ((key_len > AES_MAX_KEY_LEN) || (key_len < AES_MIN_KEY_LEN))
 		return -1;
 
 	priv = dev_get_uclass_priv(dev);
 	aes = (struct aes_priv *)priv->aes;
-	memcpy(aes->key, key, key_len / 8);
-	aes->key_len = key_len / 8;
+	memcpy(aes->key, key, key_len);
+	aes->key_len = key_len;
 
 	return 0;
 }
@@ -188,13 +188,13 @@ int aes_set_decrypt_key(struct udevice *dev, void *key, u32 key_len)
 	struct aes_priv *aes;
 	struct crypto_priv *priv;
 
-	if ((key_len / 8) > AES_MAX_KEY_LEN)
+	if ((key_len > AES_MAX_KEY_LEN) || (key_len < AES_MIN_KEY_LEN))
 		return -1;
 
 	priv = dev_get_uclass_priv(dev);
 	aes = (struct aes_priv *)priv->aes;
-	memcpy(aes->key, key, key_len / 8);
-	aes->key_len = key_len / 8;
+	memcpy(aes->key, key, key_len);
+	aes->key_len = key_len;
 
 	return 0;
 }

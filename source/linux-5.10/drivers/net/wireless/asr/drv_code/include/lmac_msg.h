@@ -44,6 +44,10 @@ struct asr_wifi_config {
 	s8 tx_pwr[WIFI_CONFIG_PWR_NUM];
 	bool pwr_config;
 	struct cca_config_info cca_config;
+	u32 edca_bk;
+	u32 edca_be;
+	u32 edca_vi;
+	u32 edca_vo;
 };
 
 extern struct asr_wifi_config g_wifi_config;
@@ -446,6 +450,10 @@ enum mm_msg_tag {
 	MM_SET_FRAM_APPIE_CFM,
 	// Indication ap mode that station is disconnected
 	MM_STA_LINK_LOSS_IND,
+	// Request set efuse txpower
+	MM_SET_EFUSE_TXPWR_REQ,
+	// Confirmation set efuse txpower
+	MM_SET_EFUSE_TXPWR_CFM,
 
 
 #ifdef CONFIG_HW_MIB_TABLE
@@ -1191,6 +1199,7 @@ struct mm_ps_change_ind {
 	u8 sta_idx;
 	/// New PS state of the peer device (0: active, 1: sleeping)
 	u8 ps_state;
+	u8 tx_pkt;
 };
 
 /// Structure containing the parameters of the @ref MM_P2P_VIF_PS_CHANGE_IND message
@@ -1398,6 +1407,7 @@ struct mm_fw_softversion_cfm {
 
 struct mm_fw_macaddr_cfm {
 	u8 mac[MAC_ADDR_LEN];
+	u8 status;
 };
 
 struct mm_set_fw_macaddr_req {
@@ -1478,6 +1488,15 @@ struct mm_sta_link_loss_ind
     u8 staid;
 };
 
+struct mm_efuse_txpwr_info
+{
+    u8 status;
+    u8 iswrite;
+    u8 index;
+    u8 txpwr[6];
+    u8 txevm[6];
+    u8 freq_err;
+};
 ///////////////////////////////////////////////////////////////////////////////
 /////////// For Scan messages
 ///////////////////////////////////////////////////////////////////////////////
@@ -1722,7 +1741,7 @@ enum {
 	/// RC fixed rate request
 	ME_RC_SET_RATE_REQ,
 	/// Request disable tx_aggr
-	ME_TX_AGG_DISABLE_REQ,
+	ME_HOST_DBG_CMD_REQ,
 #ifdef CONFIG_ASR595X
 	/// Configure monitor interface
 	ME_CONFIG_MONITOR_REQ,
@@ -1780,10 +1799,10 @@ struct me_config_req {
 struct me_chan_config_req {
 	/// List of 2.4GHz supported channels
 	struct mac_chan_def chan2G4[MAC_DOMAINCHANNEL_24G_MAX];
-        #ifndef BASS_SUPPORT
+        //#ifndef BASS_SUPPORT
 	/// List of 5GHz supported channels
 	struct mac_chan_def chan5G[MAC_DOMAINCHANNEL_5G_MAX];
-        #endif
+        //#endif
 	/// Number of 2.4GHz channels in the list
 	uint8_t chan2G4_cnt;
 	/// Number of 5GHz channels in the list
@@ -2007,9 +2026,12 @@ struct me_rc_set_rate_req {
 	/// Rate configuration to be set
 	u16 fixed_rate_cfg;
 };
-struct me_tx_agg_disable_req {
-	/// Boolean indicating if tx aggr shall be disabled or not
-	bool tx_agg_disable;
+
+struct me_host_dbg_cmd_req {
+    /// host dbg cmd send to fw.
+    u32  host_dbg_cmd;
+    u32  host_dbg_reg;
+    u32  host_dbg_value;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2080,7 +2102,7 @@ struct sm_auth_req {
 	u32 ie_buf[64];
 	/// Length of ie buffer in octets
 	u16 ie_len;		//both stage
-#ifdef CONFIG_SAE
+#if 1 //def CONFIG_SAE
 	//Non-IE data to use with SAE or %NULL. This starts with Authentication transaction sequence number field.
 	u8 sae_data[512];	// SAE_COMMIT_MAX_LEN = 1538, use group19 sae_data length
 	//Length of sae_data buffer in octets
@@ -2488,6 +2510,16 @@ enum {
 	PS_MODE_ON,
 	/// Power-save on - Dynamic mode
 	PS_MODE_ON_DYN,
+
+
+	/// modem sleep with xtal not gate,no gpio pin
+	PS_MODE_MODEMSLEEP_0_PIN,
+	/// modem sleep with xtal gate,2 gpio pin
+	PS_MODE_MODEMSLEEP_2_PIN,
+	/// light sleep with 1 pin,host wakeup card,for jichegn
+	PS_MODE_LIGHTSLEEP_1_PIN,
+	/// light sleep with 2 pin for sdio ,or no pin for usb
+	PS_MODE_LIGHTSLEEP,
 };
 
 #endif // LMAC_MSG_H_

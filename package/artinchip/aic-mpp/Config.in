@@ -17,6 +17,30 @@ config BR2_PACKAGE_AIC_MPP_AAC_DECODER
 	default n
 endif
 
-endif
+if BR2_PACKAGE_AIC_MPP_MIDDLEWARE
+config BR2_PACKAGE_AIC_MPP_WAV_DEMUXER
+	bool "enable wav demuxer"
+	default n
 
+config BR2_PACKAGE_AIC_MPP_AVI_DEMUXER
+	bool "enable avi demuxer"
+	default n
+
+config BR2_PACKAGE_AIC_MPP_MKV_DEMUXER
+	bool "enable mkv demuxer"
+	default n
+
+config BR2_PACKAGE_AIC_MPP_TS_DEMUXER
+	bool "enable ts demuxer"
+	default n
+
+config BR2_PACKAGE_AIC_MPP_FLV_DEMUXER
+	bool "enable flv demuxer"
+	default n
+
+config BR2_PACKAGE_AIC_MPP_RTSP_DEMUXER
+	bool "enable rtsp demuxer"
+	default n
+endif
+endif
 

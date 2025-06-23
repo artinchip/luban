@@ -138,9 +138,14 @@ void ipc_host_init(struct ipc_host_env_tag *env, struct ipc_host_cb_tag *cb, voi
 	env->rx_bufnb = IPC_RXBUF_CNT;
 	env->rx_bufsz = IPC_RXBUF_SIZE;
 
-    #ifdef SDIO_DEAGGR
+        #ifdef SDIO_DEAGGR
 	env->rx_bufnb_sdio_deagg = IPC_RXBUF_CNT_SDIO_DEAGG;
 	env->rx_bufsz_sdio_deagg = IPC_RXBUF_SIZE_SDIO_DEAGG;
+
+        #ifdef CONFIG_ASR595X
+	env->rx_bufnb_sdio_deagg_amsdu = IPC_RXBUF_CNT_SDIO_DEAGG_AMSDU;
+	env->rx_bufsz_sdio_deagg_amsdu = IPC_RXBUF_SIZE_SDIO_DEAGG_AMSDU;
+        #endif
 	#endif
 
 	env->rx_bufnb_split = IPC_RXBUF_CNT_SPLIT;
@@ -186,7 +191,31 @@ u32 direct_fwd_cnt;
 u32 rxdesc_refwd_cnt;
 u32 rxdesc_del_cnt;
 u32 min_deaggr_free_cnt = 336;
+u32 min_deaggr_amsdu_free_cnt = 336;
+u32 asr_total_rx_sk_deaggrbuf_cnt;
+u32 asr_wait_rx_sk_deaggrbuf_cnt;
 #define ASR_MAX_AMSDU_RX 4096
+
+int asr_wait_rx_sk_deaggrbuf(struct asr_hw *asr_hw)
+{
+    int wait_mem_cnt = 0;
+    int ret = 0;
+
+    asr_wait_rx_sk_deaggrbuf_cnt++;
+
+    do {
+        wait_mem_cnt++;
+        asr_sched_timeout(2);
+
+    } while (skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list) && (wait_mem_cnt < 100));
+
+    if (skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list))
+        ret = -1;
+
+    return ret;
+}
+
+
 u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 {
     struct sk_buff *skb = skb_head;
@@ -197,38 +226,83 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 	u16 sdio_rx_len = 0;
     int num = aggr_num;
 	bool need_wakeup_rxos_thread = false;
+	bool is_amsdu_skb = false;
     #ifdef CFG_OOO_UPLOAD
     bool forward_skb = false;
     #ifdef CONFIG_ASR_KEY_DBG
     int free_deaggr_skb_cnt;
+    #ifdef SDIO_DEAGGR_AMSDU
+    int free_deaggr_amsdu_skb_cnt;
     #endif
     #endif
-
+    #endif
+    if (host_rx_desc == NULL)
+        return 1;
     while(num--)
     {
-            #ifdef CFG_OOO_UPLOAD
-            if (host_rx_desc->id == HOST_RX_DATA_ID)
-			#endif
-			{
+		#ifdef CFG_OOO_UPLOAD
+		if (host_rx_desc->id == HOST_RX_DATA_ID)
+		#endif
+		{
 					sdio_rx_len = host_rx_desc->sdio_rx_len;
-				    if (!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list) && (skb = skb_dequeue(&asr_hw->rx_sk_sdio_deaggr_list)))
-					{
-			            // get data skb.
-			            msdu_offset = host_rx_desc->pld_offset;
-						frame_len = host_rx_desc->frmlen;
-						
-						if (host_rx_desc->totol_frmlen > ASR_MAX_AMSDU_RX)
-						    dev_err(asr_hw->dev, "unlikely host_rx_desc : %d, %d , %d  \n", msdu_offset,frame_len,host_rx_desc->totol_frmlen);
-						
-			            memcpy(skb->data, host_rx_desc, msdu_offset + frame_len);
 
-	                    #ifdef CFG_OOO_UPLOAD
+					if (host_rx_desc->totol_frmlen > ASR_MAX_AMSDU_RX)
+						dev_err(asr_hw->dev, "unlikely host_rx_desc : %d, %d , %d  \n", msdu_offset,frame_len,host_rx_desc->totol_frmlen);
+
+					// get data skb info.
+					msdu_offset = host_rx_desc->pld_offset;
+					frame_len = host_rx_desc->frmlen;
+					is_amsdu_skb = (msdu_offset + frame_len > IPC_RXBUF_SIZE_SDIO_DEAGG);
+
+					if (msdu_offset + frame_len  > WLAN_AMSDU_RX_LEN)
+						dev_err(asr_hw->dev, "unlikely amsdu host_rx_desc : %d + %d > %d , %d  \n", msdu_offset,frame_len,
+                                                                                                                      WLAN_AMSDU_RX_LEN,
+                                                                                                                      host_rx_desc->totol_frmlen);
+					#ifdef SDIO_DEAGGR_AMSDU
+					if (skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_amsdu_list) && (is_amsdu_skb == true)) {
+						 /* dynamic allocate a new amsdu buffer */
+						 if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu, &skb)) {
+							 dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
+						 } else {
+							 memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu);
+							 // Add the sk buffer structure in the table of rx buffer
+							 skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_amsdu_list, skb);
+						 }
+					}
+					#endif
+
+					// schedule to wait deaggr skb.
+					asr_total_rx_sk_deaggrbuf_cnt++;
+					if (skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list) && (is_amsdu_skb == false)) {
+						asr_wait_rx_sk_deaggrbuf(asr_hw);
+					}
+
+					if ((!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list) && (is_amsdu_skb == false))
+						#ifdef SDIO_DEAGGR_AMSDU
+						|| (!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_amsdu_list) && (is_amsdu_skb == true))
+						#endif
+						)
+					{
+						#ifdef SDIO_DEAGGR_AMSDU
+						if (is_amsdu_skb) {
+							//dev_err(asr_hw->dev, "wifi6 amsdu : %d + %d > %d ,  %d  \n", msdu_offset,frame_len,IPC_RXBUF_SIZE_SDIO_DEAGG,host_rx_desc->totol_frmlen);
+							// use rx_sk_sdio_deaggr_amsdu_list
+							skb = skb_dequeue(&asr_hw->rx_sk_sdio_deaggr_amsdu_list);
+						} else
+						#endif
+						{
+							skb = skb_dequeue(&asr_hw->rx_sk_sdio_deaggr_list);
+						}
+
+						memcpy(skb->data, host_rx_desc, msdu_offset + frame_len);
+
+						#ifdef CFG_OOO_UPLOAD
 						// ooo refine : check if pkt is forward.
 						if (rx_ooo_upload) {
 								struct host_rx_desc *host_rx_desc = (struct host_rx_desc *)skb->data;
 								//dev_err(asr_hw->dev, "RX_DATA_ID : host_rx_desc =%p , rx_status=0x%x \n", host_rx_desc,host_rx_desc->rx_status);
 
-								if (host_rx_desc && (host_rx_desc->rx_status & RX_STAT_FORWARD)){
+								if (host_rx_desc && (host_rx_desc->rx_status & (RX_STAT_FORWARD | RX_STAT_MONITOR))){
 									forward_skb = true;
 									direct_fwd_cnt++;
 								} else if (host_rx_desc && (host_rx_desc->rx_status & RX_STAT_ALLOC)){
@@ -244,11 +318,19 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 																	host_rx_desc->seq_num,
 																	host_rx_desc->fn_num);
 								} else {
-									dev_err(asr_hw->dev, "unlikely: host_rx_desc =%p , rx_status=0x%x\n", host_rx_desc,host_rx_desc->rx_status);
-									//dev_kfree_skb(skb);
-									memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
-									// Add the sk buffer structure in the table of rx buffer
-									skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);	
+									dev_err(asr_hw->dev, "unlikely: host_rx_desc =%p , rx_status=0x%x, flags=0x%x \n", host_rx_desc,host_rx_desc->rx_status,host_rx_desc->flags);
+									#ifdef SDIO_DEAGGR_AMSDU
+									if (is_amsdu_skb) {
+										memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu);
+										// Add the sk buffer structure in the table of rx buffer
+										skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_amsdu_list, skb);
+									} else
+									#endif
+									{
+										memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+										// Add the sk buffer structure in the table of rx buffer
+										skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+									}
 								}
 
 						} else {
@@ -263,10 +345,10 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 						}
 
 		            }else {
-		                pr_err("%s: unlikely, rx_sk_sdio_deaggr_list empty\n", __func__);
+		                pr_err("%s: unlikely, runout deaggr skb,just skip (%d + %d < %d) %d \n", __func__,msdu_offset,frame_len,IPC_RXBUF_SIZE_SDIO_DEAGG,IPC_RXBUF_CNT_SDIO_DEAGG);
 		            }
             }
-            #ifdef CFG_OOO_UPLOAD
+			#ifdef CFG_OOO_UPLOAD
 			else if ((host_rx_desc->id == HOST_RX_DESC_ID) && rx_ooo_upload) {
 				// ooo refine: parse ooo rxdesc
 				//	   RX_STAT_FORWARD : move pkt from rx_pending_skb_list to rx_to_os_skb_list and trigger
@@ -335,11 +417,20 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 									   forward_pending_skb_cnt++;
 									   rxdesc_refwd_cnt++;
 								   } else if (rxu_stat_handle->status & RX_STAT_DELETE) {
-									   //dev_kfree_skb(skb_pending);
-									   memset(skb_pending->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
-									   // Add the sk buffer structure in the table of rx buffer
-									   skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb_pending);
-                                       rxdesc_del_cnt++;
+									#ifdef SDIO_DEAGGR_AMSDU
+									if (host_rx_desc_pending->pld_offset + host_rx_desc_pending->frmlen > IPC_RXBUF_SIZE_SDIO_DEAGG) {
+										   memset(skb_pending->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu);
+										   // Add the sk buffer structure in the table of rx buffer
+										   skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_amsdu_list, skb_pending);
+									   } else
+									   #endif
+									   {
+										   memset(skb_pending->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+										   // Add the sk buffer structure in the table of rx buffer
+										   skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb_pending);
+									   }
+
+										rxdesc_del_cnt++;
 								   } else {
 									   dev_err(asr_hw->dev, "unlikely: status =0x%x\n", rxu_stat_handle->status);
 								   }
@@ -347,17 +438,17 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
 							   if (ooo_match_cnt == (rxu_stat_handle->amsdu_fn_num + 1))
 								   break;
 						   }
-			
+
 						   //get next rxu_stat_val
 						   start_addr += sizeof(struct rxu_stat_val);
 						   rxu_stat_desc_cnt--;
 					}
-			
+
 					// trigger
 					if (forward_pending_skb_cnt) {
 						need_wakeup_rxos_thread = true;
 					}
-				}			
+				}
 			}else {
 				dev_err(asr_hw->dev, "id = 0x%x, not support! \n", host_rx_desc->id);
 			}
@@ -370,10 +461,17 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
             }
     }
 
-    #ifdef CONFIG_ASR_KEY_DBG
+	#ifdef CONFIG_ASR_KEY_DBG
 	free_deaggr_skb_cnt  = skb_queue_len(&asr_hw->rx_sk_sdio_deaggr_list);
 	if (free_deaggr_skb_cnt < min_deaggr_free_cnt)
 		min_deaggr_free_cnt = free_deaggr_skb_cnt;
+
+	#ifdef SDIO_DEAGGR_AMSDU
+	free_deaggr_amsdu_skb_cnt  = skb_queue_len(&asr_hw->rx_sk_sdio_deaggr_amsdu_list);
+	if (free_deaggr_amsdu_skb_cnt < min_deaggr_amsdu_free_cnt)
+		min_deaggr_amsdu_free_cnt = free_deaggr_amsdu_skb_cnt;
+	#endif
+
 	#endif
 
     if (need_wakeup_rxos_thread) {
@@ -384,17 +482,215 @@ u8 asr_sdio_deaggr(struct asr_hw *asr_hw,struct sk_buff *skb_head,u8 aggr_num)
     // deagg sdio buf done, free skb_head here.
 	memset(skb_head->data, 0, asr_hw->ipc_env->rx_bufsz);
 	// Add the sk buffer structure in the table of rx buffer
-	#ifndef SDIO_RXBUF_SPLIT
-	skb_queue_tail(&asr_hw->rx_sk_list, skb_head);
-	#else
 	skb_queue_tail(&asr_hw->rx_data_sk_list, skb_head);
-	#endif
 
     return 0;
 }
-#endif
 
-int ipc_host_process_rx_sdio(int port, struct asr_hw *asr_hw, struct sk_buff *skb,u8 aggr_num)
+void asr_get_rx_sdio_sg_list(struct asr_hw *asr_hw,
+			u8 start_port, u8 aggr_num, const u8 asr_sdio_reg[])
+{
+	struct sk_buff *skb;
+	u8 port = start_port;
+	u16 port_size;
+
+	while(aggr_num--) {
+		// schedule to wait deaggr skb.
+		asr_total_rx_sk_deaggrbuf_cnt++;
+		if (skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list))
+			asr_wait_rx_sk_deaggrbuf(asr_hw);
+
+		if (!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list)) {
+			skb = skb_dequeue(&asr_hw->rx_sk_sdio_deaggr_list);
+
+			port_size = asr_sdio_reg[RD_LEN_L(port)];
+			port_size |= asr_sdio_reg[RD_LEN_U(port)] << 8;
+			skb->len = port_size;
+			skb_queue_tail(&asr_hw->rx_sdio_sg_list, skb);
+		}
+
+		port++;
+		if (port == 16)
+			port = 2;
+	}
+}
+
+void asr_free_rx_sdio_sg_list(struct asr_hw *asr_hw)
+{
+	struct sk_buff *skb;
+
+	while (!skb_queue_empty(&asr_hw->rx_sdio_sg_list)) {
+		skb = skb_dequeue(&asr_hw->rx_sdio_sg_list);
+		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+		skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+	}
+}
+
+void asr_process_rx_sdio_sg_list(struct asr_hw *asr_hw, u8 aggr_num)
+{
+	struct sk_buff *skb;
+	struct sk_buff *pnext;
+	struct host_rx_desc *host_rx_desc = NULL;
+#ifdef CFG_OOO_UPLOAD
+    bool forward_skb = false;
+#endif
+	bool need_wakeup_rxos_thread = false;
+
+	skb_queue_walk_safe(&asr_hw->rx_sdio_sg_list, skb, pnext) {
+		host_rx_desc = (struct host_rx_desc*)skb->data;
+		#ifdef CFG_OOO_UPLOAD
+		if (host_rx_desc->id == HOST_RX_DATA_ID)
+		{
+			// ooo refine : check if pkt is forward.
+			if (rx_ooo_upload) {
+				if (host_rx_desc && (host_rx_desc->rx_status & (RX_STAT_FORWARD | RX_STAT_MONITOR))) {
+					forward_skb = true;
+					direct_fwd_cnt++;
+				} else if (host_rx_desc && (host_rx_desc->rx_status & RX_STAT_ALLOC)) {
+					skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+					skb_queue_tail(&asr_hw->rx_pending_skb_list, skb);
+					forward_skb = false;
+					pending_data_cnt++;
+
+					if (lalalaen)
+						dev_err(asr_hw->dev, "RX_DATA_ID pending: host_rx_desc %p, rx_status 0x%x (%d %d %d %d)\n",
+											host_rx_desc,
+											host_rx_desc->rx_status,
+											host_rx_desc->sta_idx,
+											host_rx_desc->tid,
+											host_rx_desc->seq_num,
+											host_rx_desc->fn_num);
+				} else {
+					dev_err(asr_hw->dev, "unlikely: host_rx_desc %p, rx_status 0x%x, flags 0x%x\n",
+										host_rx_desc, host_rx_desc->rx_status, host_rx_desc->flags);
+					skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+					memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+					skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+					forward_skb = false;
+				}
+			} else {
+				forward_skb = true;
+			}
+
+			if (forward_skb)
+			{
+				skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+				skb_queue_tail(&asr_hw->rx_to_os_skb_list, skb);
+				need_wakeup_rxos_thread = true;
+			}
+		} else if ((host_rx_desc->id == HOST_RX_DESC_ID) && rx_ooo_upload) {
+			// ooo refine: parse ooo rxdesc
+			// RX_STAT_FORWARD : move pkt from rx_pending_skb_list to rx_to_os_skb_list and trigger
+			// RX_STAT_DELETE  : move pkt from rx_pending_skb_list and free
+			struct ipc_ooo_rxdesc_buf_hdr *ooo_rxdesc = (struct ipc_ooo_rxdesc_buf_hdr *)host_rx_desc;
+			uint8_t rxu_stat_desc_cnt = ooo_rxdesc->rxu_stat_desc_cnt;
+			struct rxu_stat_val *rxu_stat_handle;
+			uint8_t *start_addr = (void *)ooo_rxdesc + sizeof(struct ipc_ooo_rxdesc_buf_hdr);
+			int forward_pending_skb_cnt = 0;
+			struct sk_buff *skb_pending;
+			struct sk_buff *ptmp;
+			struct host_rx_desc *host_rx_desc_pending = NULL;
+			uint16_t ooo_match_cnt = 0;
+
+			if (lalalaen)
+				dev_err(asr_hw->dev, "RX_DESC_ID: ooo_rxdesc %p, rxu_stat_desc_cnt %d, start_addr %p, hdr_len %u\n",
+									ooo_rxdesc, rxu_stat_desc_cnt, start_addr, (unsigned int)sizeof(struct ipc_ooo_rxdesc_buf_hdr));
+
+			if (ooo_rxdesc && rxu_stat_desc_cnt) {
+				while (rxu_stat_desc_cnt > 0) {
+					rxu_stat_handle = (struct rxu_stat_val *)start_addr;
+					if (lalalaen)
+						dev_err(asr_hw->dev, "RX_DESC_ID search: ooo_rxdesc %p cnt %d, rxu_stat_handle status 0x%x (%d %d %d %d)\n",
+											ooo_rxdesc,rxu_stat_desc_cnt,
+											rxu_stat_handle->status,
+											rxu_stat_handle->sta_idx,
+											rxu_stat_handle->tid,
+											rxu_stat_handle->seq_num,
+											rxu_stat_handle->amsdu_fn_num);
+
+					// search and get from asr_hw->rx_pending_skb_list.
+					skb_queue_walk_safe(&asr_hw->rx_pending_skb_list, skb_pending, ptmp) {
+						host_rx_desc_pending = (struct host_rx_desc *)skb_pending->data;
+						ooo_match_cnt = 0;
+
+						if (lalalaen)
+							dev_err(asr_hw->dev, "RX_DESC_ID walk: pending host_rx_desc rx_status 0x%x (%d %d %d %d)\n",
+												host_rx_desc_pending->rx_status,
+												host_rx_desc_pending->sta_idx,
+												host_rx_desc_pending->tid,
+												host_rx_desc_pending->seq_num,
+												host_rx_desc_pending->fn_num);
+
+						if ((host_rx_desc_pending->sta_idx == rxu_stat_handle->sta_idx) &&
+							(host_rx_desc_pending->tid	  == rxu_stat_handle->tid) &&
+							(host_rx_desc_pending->seq_num == rxu_stat_handle->seq_num) &&
+							(host_rx_desc_pending->fn_num  <= rxu_stat_handle->amsdu_fn_num)) {
+							skb_unlink(skb_pending, &asr_hw->rx_pending_skb_list);
+							ooo_match_cnt++;
+
+							if (lalalaen)
+								dev_err(asr_hw->dev, "RX_DESC_ID hit: ooo_rxdesc %p cnt %d, rx_status 0x%x (%d %d %d %d)\n",
+													ooo_rxdesc,rxu_stat_desc_cnt,
+													host_rx_desc_pending->rx_status,
+													host_rx_desc_pending->sta_idx,
+													host_rx_desc_pending->tid,
+													host_rx_desc_pending->seq_num,
+													host_rx_desc_pending->fn_num);
+
+							if (rxu_stat_handle->status & RX_STAT_FORWARD) {
+								host_rx_desc_pending->rx_status |= RX_STAT_FORWARD;
+								skb_queue_tail(&asr_hw->rx_to_os_skb_list, skb_pending);
+								forward_pending_skb_cnt++;
+								rxdesc_refwd_cnt++;
+							} else if (rxu_stat_handle->status & RX_STAT_DELETE) {
+								memset(skb_pending->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+								// Add the sk buffer structure in the table of rx buffer
+								skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb_pending);
+								rxdesc_del_cnt++;
+							} else {
+								dev_err(asr_hw->dev, "unlikely: status 0x%x\n", rxu_stat_handle->status);
+							}
+						}
+						if (ooo_match_cnt == (rxu_stat_handle->amsdu_fn_num + 1))
+							break;
+					}
+
+					//get next rxu_stat_val
+					start_addr += sizeof(struct rxu_stat_val);
+					rxu_stat_desc_cnt--;
+				}
+
+				// trigger
+				if (forward_pending_skb_cnt)
+					need_wakeup_rxos_thread = true;
+			}
+
+			skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+		} else {
+			dev_err(asr_hw->dev, "id 0x%x, not support! \n", host_rx_desc->id);
+
+			skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+		}
+		#else
+		skb_unlink(skb, &asr_hw->rx_sdio_sg_list);
+		skb_queue_tail(&asr_hw->rx_to_os_skb_list, skb);
+		need_wakeup_rxos_thread = true;
+		#endif // #ifdef CFG_OOO_UPLOAD
+	}
+
+	if (need_wakeup_rxos_thread) {
+		set_bit(ASR_FLAG_RX_TO_OS_BIT, &asr_hw->ulFlag);
+		wake_up_interruptible(&asr_hw->waitq_rx_to_os_thead);
+	}
+}
+#endif // #ifdef SDIO_DEAGGR
+
+extern bool asr_sdio_rw_sg;
+int ipc_host_process_rx_sdio(int port, struct asr_hw *asr_hw, struct sk_buff *skb, u8 aggr_num)
 {
 	u8 type;
 	ASR_DBG(ASR_FN_ENTRY_STR);
@@ -408,21 +704,23 @@ int ipc_host_process_rx_sdio(int port, struct asr_hw *asr_hw, struct sk_buff *sk
 	}
 	else if (port == SDIO_PORT_IDX(1))	//log
 	{
+	    // directly output log.
 		ipc_host_dbg_handler(asr_hw->ipc_env, skb);
 		type = HIF_RX_LOG;
 	}
 	else {
-
 		#ifndef SDIO_DEAGGR
 		skb_queue_tail(&asr_hw->rx_to_os_skb_list, skb);
 		set_bit(ASR_FLAG_RX_TO_OS_BIT, &asr_hw->ulFlag);
 		wake_up_interruptible(&asr_hw->waitq_rx_to_os_thead);
 		#else
-
-		// start_port > 1, de-agg sdio multi-port read here.
-		// when enable ooo, sdio buf contain data or rxdesc.
-                // like ipc_host_process_rx_usb , process ooo here.
-		asr_sdio_deaggr(asr_hw,skb,aggr_num);
+		if (asr_sdio_rw_sg)
+			asr_process_rx_sdio_sg_list(asr_hw, aggr_num);
+		else
+			// start_port > 1, de-agg sdio multi-port read here.
+			// when enable ooo, sdio buf contain data or rxdesc.
+			// like ipc_host_process_rx_usb , process ooo here.
+			asr_sdio_deaggr(asr_hw, skb, aggr_num);
 		#endif
 		type = HIF_RX_DATA;
 	}
@@ -464,60 +762,65 @@ static int port_dispatch(struct asr_hw *asr_hw, u16 port_size,
 		addr = ASR_IOPORT(asr_hw) | 0x1000 | start_port | (io_addr_bmp << 4);
 	}
 
-    #ifndef SDIO_RXBUF_SPLIT
-	skb = skb_dequeue(&asr_hw->rx_sk_list);
-	#else
-    if (start_port == SDIO_PORT_IDX(0))
-	    skb = skb_dequeue(&asr_hw->rx_msg_sk_list);
-    else
-	    skb = skb_dequeue(&asr_hw->rx_data_sk_list);
-	#endif
-	if (!skb) {
-		dev_err(asr_hw->dev, "%s no more skb buffer\n", __func__);
-		return -ENOMEM;
-	}
-	//seconds = ktime_to_us(ktime_get());
-	//dbg("rdb %d\n%s",seconds, "\0");
-
-#ifndef SDIO_RXBUF_SPLIT
-	if (port_size > IPC_RXBUF_SIZE) {
-		dev_err(asr_hw->dev, "[%s][%d %d]!!!!len2 %d\n", __func__, start_port, end_port, port_size);
-	}
-#else
-	if (((port_size > IPC_RXBUF_SIZE) && (start_port != SDIO_PORT_IDX(0))) ||
-		((port_size > IPC_MSG_RXBUF_SIZE) && (start_port == SDIO_PORT_IDX(0)))) {
-		dev_err(asr_hw->dev, "[%s][%d %d]!!!!len2 %d\n", __func__, start_port, end_port, port_size);
-	}
+#ifdef SDIO_DEAGGR
+	if (asr_sdio_rw_sg && (start_port > 1)) {
+		asr_get_rx_sdio_sg_list(asr_hw, start_port, aggr_num, asr_sdio_reg);
+	} else
 #endif
+	{
+		if (start_port == SDIO_PORT_IDX(0))
+			skb = skb_dequeue(&asr_hw->rx_msg_sk_list);
+		else if (start_port == SDIO_PORT_IDX(1))
+			skb = skb_dequeue(&asr_hw->rx_log_sk_list);
+		else
+			skb = skb_dequeue(&asr_hw->rx_data_sk_list);
+
+		if (!skb) {
+			dev_err(asr_hw->dev, "%s no more skb buffer\n", __func__);
+			return -ENOMEM;
+		}
+	}
+
+	if (((port_size > IPC_RXBUF_SIZE) && (start_port != SDIO_PORT_IDX(0) && start_port != SDIO_PORT_IDX(1))) ||
+		((port_size > IPC_MSG_RXBUF_SIZE) && (start_port == SDIO_PORT_IDX(0))) ||
+		((port_size > IPC_LOG_RXBUF_SIZE) && (start_port == SDIO_PORT_IDX(1)))
+	    ) {
+		dev_err(asr_hw->dev, "[%s][%d %d]!!!!len2 %d\n", __func__, start_port, end_port, port_size);
+	}
 
 	if (test_host_re_read) {
 		ret = -84;
 	} else {
 		sdio_claim_host(func);
-		ret = sdio_readsb(func, skb->data, addr, port_size);
+#ifdef SDIO_DEAGGR
+		if (asr_sdio_rw_sg && (start_port > 1))
+			ret = asr_sdio_rw_extended_sg(func, 0, addr, 0, &(asr_hw->rx_sdio_sg_list), port_size);
+		else
+#endif
+			ret = sdio_readsb(func, skb->data, addr, port_size);
 		sdio_release_host(func);
 	}
-
-	//sss5 = ktime_to_us(ktime_get());
-
-	//seconds = ktime_to_us(ktime_get());
-	//dbg("rda %d\n%s",((int)ktime_to_us(ktime_get())-seconds), "\0");
 
 	if (ret) {
 		dev_err(asr_hw->dev, "%s read data failed %x %x\n", __func__, addr, port_size);
 
-        #ifndef SDIO_RXBUF_SPLIT
-		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
-		skb_queue_tail(&asr_hw->rx_sk_list, skb);
-		#else
-        if (start_port == SDIO_PORT_IDX(0)) {
-		    memset(skb->data, 0, IPC_MSG_RXBUF_SIZE);
-		    skb_queue_tail(&asr_hw->rx_msg_sk_list, skb);
-		} else {
-		    memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
-		    skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
+#ifdef SDIO_DEAGGR
+		if (asr_sdio_rw_sg && (start_port > 1)) {
+			asr_free_rx_sdio_sg_list(asr_hw);
+		} else
+#endif
+		{
+			if (start_port == SDIO_PORT_IDX(0)) {
+				memset(skb->data, 0, IPC_MSG_RXBUF_SIZE);
+				skb_queue_tail(&asr_hw->rx_msg_sk_list, skb);
+			} else if (start_port == SDIO_PORT_IDX(1)) {
+				memset(skb->data, 0, IPC_LOG_RXBUF_SIZE);
+				skb_queue_tail(&asr_hw->rx_log_sk_list, skb);
+			} else {
+				memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
+				skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
+			}
 		}
-		#endif
 		return ret;
 	}
 
@@ -556,8 +859,8 @@ u8 asr_get_rx_aggr_end_port(struct asr_hw *asr_hw, u8 start_port,
 	//while(bitcount(*hw_bitmap)>1)
 	while (*hw_bitmap) {
 		if (*hw_bitmap & (1 << end_port)) {
-			*hw_bitmap &= ~(1 << end_port);
 
+			// first check port size
 			port_size = asr_sdio_reg[RD_LEN_L(end_port)];
 			port_size |= asr_sdio_reg[RD_LEN_U(end_port)] << 8;
 			if (port_size == 0) {
@@ -566,19 +869,22 @@ u8 asr_get_rx_aggr_end_port(struct asr_hw *asr_hw, u8 start_port,
 			}
 			//if(lalalaen)
 			//    dev_err(asr_hw->dev, "len %d %d %d",port_size,asr_hw->sdio_reg[RD_LEN_L(end_port)],asr_hw->sdio_reg[RD_LEN_U(end_port)]);
-			
-			// add max len check.
+
+			// second check max len.
 			if ((*len + port_size) > IPC_RXBUF_SIZE) {
-			    dev_err(asr_hw->dev, "len=%d oversize,max=%d ,%d %d",*len,IPC_RXBUF_SIZE,start_port,end_port);
-			
+			    //dev_err(asr_hw->dev, "len=%d oversize,max=%d ,%d %d",*len,IPC_RXBUF_SIZE,start_port,end_port);
+
 			    if (end_port == 2)
 				    end_port = 15;
 				else
 				    end_port--;
-					
+
 				return end_port;
 			}
-			
+
+			// now we can use this port.
+			*hw_bitmap &= ~(1 << end_port);
+
 			*len += port_size;
 
 			if (end_port < start_port) {
@@ -712,28 +1018,6 @@ extern int asr_rxdataind_run_cnt;
 extern bool asr_rx_to_os_task_state;
 extern int main_task_from_thread_cnt;
 
-
-#ifndef SDIO_RXBUF_SPLIT
-int asr_wait_rx_sk_buf(struct asr_hw *asr_hw)
-{
-	int wait_mem_cnt = 0;
-	int ret = 0;
-
-	do {
-		wait_mem_cnt++;
-		asr_sched_timeout(2);	// wait 20ms
-
-	} while ((skb_queue_empty(&asr_hw->rx_sk_list))
-		 && (wait_mem_cnt < 100));
-
-	if (skb_queue_empty(&asr_hw->rx_sk_list))
-		ret = -1;
-
-	dev_err(asr_hw->dev, "%s ,ret=%d \n", __func__,ret);
-
-	return ret;
-}
-#else
 int asr_wait_rx_data_sk_buf(struct asr_hw *asr_hw)
 {
 	int wait_mem_cnt = 0;
@@ -773,7 +1057,27 @@ int asr_wait_rx_msg_sk_buf(struct asr_hw *asr_hw)
 
 	return ret;
 }
-#endif
+
+int asr_wait_rx_log_sk_buf(struct asr_hw *asr_hw)
+{
+	int wait_mem_cnt = 0;
+	int ret = 0;
+
+	do {
+		wait_mem_cnt++;
+		asr_sched_timeout(2);	// wait 20ms
+
+	} while ((skb_queue_empty(&asr_hw->rx_log_sk_list))
+		 && (wait_mem_cnt < 100));
+
+	if (skb_queue_empty(&asr_hw->rx_log_sk_list))
+		ret = -1;
+
+	dev_err(asr_hw->dev, "%s ,ret=%d \n", __func__,ret);
+
+	return ret;
+}
+
 
 extern int min_rx_skb_free_cnt;
 extern struct mutex asr_process_int_mutex;
@@ -782,7 +1086,7 @@ int read_sdio_block(struct asr_hw *asr_hw, u8 * dst, unsigned int addr)
 {
 	int ret;
 
-	if (!asr_hw->sdio_reg_buff) {
+	if (!asr_hw || !asr_hw->sdio_reg_buff || !asr_hw->plat || !asr_hw->plat->func) {
 		dev_err(asr_hw->dev, "%s: sdio_reg_buff is null\n", __func__);
 		return -1;
 	}
@@ -932,11 +1236,7 @@ extern int port_dispatch_nomem_retry(struct asr_hw *asr_hw, u16 size,
 
 		asr_sched_timeout(2);	// wait 20ms
 
-		#ifndef SDIO_RXBUF_SPLIT
-		rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_sk_list);
-		#else
 		rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_data_sk_list);
-		#endif
 		rx_skb_to_os_cnt = skb_queue_len(&asr_hw->rx_to_os_skb_list);
 		rx_sk_split_cnt = skb_queue_len(&asr_hw->rx_sk_split_list);
 		dev_err(asr_hw->dev,
@@ -1093,14 +1393,14 @@ static u16 rx_once(struct asr_hw *asr_hw, u8 rd_bitmap, u8 * regs)
 }
 
 // return reschedule
-static int host_int_rx(struct asr_hw *asr_hw, u8 * regs, u8 * sdio_ireg)
+static int host_int_rx(struct asr_hw *asr_hw, u8 * regs)
 {
 	u16 rd_bitmap;
 	u16 rd_bitmap_new = 0;
 #ifdef CONFIG_ASR_KEY_DBG
 	int rx_skb_free_cnt;
 #endif
-	int ret;
+	int ret = 0;
 
 	rd_bitmap = regs[RD_BITMAP_L];
 	rd_bitmap |= regs[RD_BITMAP_U] << 8;
@@ -1120,32 +1420,19 @@ static int host_int_rx(struct asr_hw *asr_hw, u8 * regs, u8 * sdio_ireg)
 	/*
 	   need consider fw provide available port method(2->3->4...>15->2?)
 	 */
-    #ifndef SDIO_RXBUF_SPLIT
-	rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_sk_list);
-	#else
 	rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_data_sk_list);
-	#endif
 	if (rx_skb_free_cnt < min_rx_skb_free_cnt)
 		min_rx_skb_free_cnt = rx_skb_free_cnt;
 #endif
 
 //int_rx_retry:
-
-    #ifndef SDIO_RXBUF_SPLIT
-	if (skb_queue_empty(&asr_hw->rx_sk_list)) {
-		if (asr_wait_rx_sk_buf(asr_hw) < 0) {
-			return 1;
-		}
-	}
-	#else
+	//msg port start
 	if (skb_queue_empty(&asr_hw->rx_msg_sk_list)) {
 		if (asr_wait_rx_msg_sk_buf(asr_hw) < 0) {
 			return 1;
 		}
 	}
-	#endif
 
-	//msg
 	if (rd_bitmap & (1 << SDIO_PORT_IDX(0))) {
 		if ((ret = port_dispatch(asr_hw, 0, 0, 0, 0, 0, regs)))
 			dev_err(asr_hw->dev, "lalala rx MSG err %d\n", ret);
@@ -1155,15 +1442,13 @@ static int host_int_rx(struct asr_hw *asr_hw, u8 * regs, u8 * sdio_ireg)
 		rd_bitmap &= 0xFFFE;
 	}
 
-    #ifdef SDIO_RXBUF_SPLIT
-	if (skb_queue_empty(&asr_hw->rx_data_sk_list)) {
-		if (asr_wait_rx_data_sk_buf(asr_hw) < 0) {
+	//log port start
+	if (skb_queue_empty(&asr_hw->rx_log_sk_list)) {
+		if (asr_wait_rx_log_sk_buf(asr_hw) < 0) {
 			return 1;
 		}
 	}
-	#endif
-	
-	//log
+
 	if (rd_bitmap & (1 << SDIO_PORT_IDX(1))) {
 		if ((ret = port_dispatch(asr_hw, 0, 1, 1, 0, 0, regs)))
 			dev_err(asr_hw->dev, "lalala rx LOG err %d\n", ret);
@@ -1177,46 +1462,29 @@ static int host_int_rx(struct asr_hw *asr_hw, u8 * regs, u8 * sdio_ireg)
 		//dev_err(asr_hw->dev, "[%s %d]get rd_bitmap failed\n", __func__,__LINE__);
 		return 0;
 	}
+
 	//data port start
 	mutex_lock(&asr_process_int_mutex);
 	if (!(rd_bitmap & (1 << asr_hw->rx_data_cur_idx))) {
-		#if 0
-		ret = read_sdio_block_retry(asr_hw, regs, sdio_ireg);
-
-		rd_bitmap_new = regs[RD_BITMAP_L] | regs[RD_BITMAP_U] << 8;
-
-		if (!ret && (rd_bitmap_new & (1 << asr_hw->rx_data_cur_idx))) {
-
-			rd_bitmap = rd_bitmap_new;
-
-			mutex_unlock(&asr_process_int_mutex);
-			goto int_rx_retry;
-		}
-		#endif
 
 		mutex_unlock(&asr_process_int_mutex);
 
-		//if (rd_bitmap_new) {
-			dev_err(asr_hw->dev, "%s:idx %d no data(0x%x,0x%x),%d,%d\n ",
-				__func__, asr_hw->rx_data_cur_idx, rd_bitmap, rd_bitmap_new, ret, asr_hw->restart_flag);
-		//}
+		dev_err(asr_hw->dev, "%s:idx %d no data(0x%x,0x%x),%d,%d\n ",
+			__func__, asr_hw->rx_data_cur_idx, rd_bitmap, rd_bitmap_new, ret, asr_hw->restart_flag);
 
 		return 0;
 	}
 
-    #ifndef SDIO_RXBUF_SPLIT
-	if (skb_queue_empty(&asr_hw->rx_sk_list)) {
-		if (asr_wait_rx_sk_buf(asr_hw) < 0) {
-			mutex_unlock(&asr_process_int_mutex);
-			return 1;
+    #ifdef SDIO_DEAGGR
+	if (asr_sdio_rw_sg == false) {
+    #endif
+		if (skb_queue_empty(&asr_hw->rx_data_sk_list)) {
+			if (asr_wait_rx_data_sk_buf(asr_hw) < 0) {
+				mutex_unlock(&asr_process_int_mutex);
+				return 1;
+			}
 		}
-	}
-	#else
-	if (skb_queue_empty(&asr_hw->rx_data_sk_list)) {
-		if (asr_wait_rx_data_sk_buf(asr_hw) < 0) {
-			mutex_unlock(&asr_process_int_mutex);
-			return 1;
-		}
+	#ifdef SDIO_DEAGGR
 	}
 	#endif
 
@@ -1246,7 +1514,7 @@ static int host_int_rx(struct asr_hw *asr_hw, u8 * regs, u8 * sdio_ireg)
 	return 0;
 }
 
-int asr_process_int_status(struct ipc_host_env_tag *env, int *type, bool restart_flag)
+int asr_process_int_status(struct ipc_host_env_tag *env)
 {
 	int ret = 0;
 	u8 sdio_ireg;
@@ -1276,7 +1544,7 @@ int asr_process_int_status(struct ipc_host_env_tag *env, int *type, bool restart
 
 
 	if (sdio_ireg & HOST_INT_UPLD_ST) {
-		ret = host_int_rx(asr_hw, sdio_regs, &sdio_ireg);
+		ret = host_int_rx(asr_hw, sdio_regs);
 	}
 
 	if (sdio_ireg & HOST_INT_DNLD_ST) {
@@ -1396,7 +1664,7 @@ int ipc_host_process_rx_usb(u16 id, struct asr_hw *asr_hw, struct sk_buff *skb)
 	    //     RX_STAT_FORWARD : move pkt from rx_pending_skb_list to rx_to_os_skb_list and trigger
 	    //     RX_STAT_DELETE  : move pkt from rx_pending_skb_list and free.
 		struct ipc_ooo_rxdesc_buf_hdr *ooo_rxdesc = (struct ipc_ooo_rxdesc_buf_hdr *)skb->data;
-		uint8_t rxu_stat_desc_cnt = ooo_rxdesc->rxu_stat_desc_cnt;
+		uint8_t rxu_stat_desc_cnt = (ooo_rxdesc != NULL) ? ooo_rxdesc->rxu_stat_desc_cnt : 0;
 		struct rxu_stat_val *rxu_stat_handle;
 		uint8_t * start_addr = (void *)skb->data + sizeof(struct ipc_ooo_rxdesc_buf_hdr);
         int forward_pending_skb_cnt = 0;

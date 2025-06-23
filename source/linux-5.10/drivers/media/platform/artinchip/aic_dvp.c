@@ -7,6 +7,7 @@
  */
 
 #include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
@@ -185,6 +186,12 @@ static int aic_dvp_notifier_init(struct aic_dvp *dvp)
 	if (ret)
 		goto out;
 
+	dvp->cfg.field_active = 1;
+	fwnode_property_read_u32(ep, "aic,field-active",
+				 &dvp->cfg.field_active);
+	if (fwnode_property_read_bool(ep, "aic,interlaced"))
+		dvp->cfg.field = V4L2_FIELD_INTERLACED;
+
 	dvp->bus = vep.bus.parallel;
 	dvp->cfg.input = aic_dvp_bustype2input(vep.bus_type);
 
@@ -360,7 +367,8 @@ static int aic_dvp_pm_suspend(struct device *dev)
 	struct aic_dvp *dvp = dev_get_drvdata(dev);
 
 	aic_dvp_enable(dvp, 0);
-	clk_disable_unprepare(dvp->clk);
+	if (__clk_is_enabled(dvp->clk))
+		clk_disable_unprepare(dvp->clk);
 	return 0;
 }
 
@@ -369,7 +377,8 @@ static int aic_dvp_pm_resume(struct device *dev)
 	struct aic_dvp *dvp = dev_get_drvdata(dev);
 
 	clk_set_rate(dvp->clk, dvp->clk_rate);
-	clk_prepare_enable(dvp->clk);
+	if (!__clk_is_enabled(dvp->clk))
+		clk_prepare_enable(dvp->clk);
 	aic_dvp_enable(dvp, 1);
 	return 0;
 }

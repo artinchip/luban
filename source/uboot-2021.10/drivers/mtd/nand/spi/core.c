@@ -1028,7 +1028,7 @@ spinand_select_op_variant(struct spinand_device *spinand,
  */
 int spinand_match_and_init(struct spinand_device *spinand,
 			   const struct spinand_info *table,
-			   unsigned int table_size, u8 devid)
+			   unsigned int table_size, u8 *devid)
 {
 	struct nand_device *nand = spinand_to_nand(spinand);
 	unsigned int i;
@@ -1037,8 +1037,11 @@ int spinand_match_and_init(struct spinand_device *spinand,
 		const struct spinand_info *info = &table[i];
 		const struct spi_mem_op *op;
 
-		if (devid != info->devid)
+		if (memcmp(devid, info->devid.id, info->devid.len))
 			continue;
+
+		dev_info(spinand->slave->dev, "devid = 0x%x 0x%x info->devid.len = %d\n",
+			 info->devid.id[0], info->devid.id[1], info->devid.len);
 
 		nand->memorg = table[i].memorg;
 		nand->eccreq = table[i].eccreq;
@@ -1298,10 +1301,6 @@ static int spinand_probe(struct udevice *dev)
 		return ret;
 	}
 
-#ifdef CONFIG_NAND_BBT_MANAGE
-	aic_nand_bbt_init(spinand);
-#endif
-
 #ifdef CONFIG_ARTINCHIP_SPIENC
 	spinand->priv = spi_mem_enc_init(spinand->slave);
 #endif
@@ -1315,6 +1314,10 @@ static int spinand_probe(struct udevice *dev)
 		dev_err(dev, "Failed to add mtd device\n");
 		goto err_spinand_cleanup;
 	}
+
+#ifdef CONFIG_NAND_BBT_MANAGE
+	aic_nand_bbt_init(spinand);
+#endif
 
 	dev_info(dev, "%s done.\n", __func__);
 	return 0;

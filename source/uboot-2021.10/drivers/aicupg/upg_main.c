@@ -78,12 +78,29 @@ static char *get_upg_mode_name(int mode)
 		"Burn UserID",
 		"Dump partition",
 		"Force upgrade",
+		"Burn frozen",
 	};
 	char *invalid = "Invalid mode";
 
 	if (mode < 0 || mode >= UPG_MODE_INVALID)
 		return invalid;
 	return modes[mode];
+}
+
+void aicupg_show_upg_cfg_mode(int mode)
+{
+	printf("UPGMODE: %s\n", get_upg_mode_name(mode));
+}
+
+void aicupg_show_init_cfg_mode(int mode_bits)
+{
+	int i;
+
+	printf("Init UPGMODE:\n");
+	for (i = 0; i < UPG_MODE_INVALID; i++) {
+		if (mode_bits & (1 << i))
+			printf("    %s\n", get_upg_mode_name(i));
+	}
 }
 
 s32 aicupg_set_upg_cfg(struct upg_cfg *cfg)
@@ -94,15 +111,15 @@ s32 aicupg_set_upg_cfg(struct upg_cfg *cfg)
 	}
 
 	memcpy(&upg_info.cfg, cfg, sizeof(*cfg));
-	printf("%s, mode = %s\n", __func__,
-	       get_upg_mode_name(upg_info.cfg.mode));
+	aicupg_show_upg_cfg_mode(upg_info.cfg.mode);
 
 	return 0;
 }
 
 s32 aicupg_initialize(struct upg_init *param)
 {
-	upg_info.init.mode = param->mode;
+	upg_info.init.mode_bits = param->mode_bits;
+	aicupg_show_init_cfg_mode(upg_info.init.mode_bits);
 	return 0;
 }
 

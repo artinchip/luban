@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-
-# SPDX-License-Identifier: GPL-2.0+
-
-# Copyright (C) 2021 ArtInChip
+# -*- coding:utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
 # Wu Dehuang
 #
 # Tool to encrypt RSA private key or public key
 #
 
-import sys, os
+import sys
+import os
 import binascii
 import argparse
-from Crypto.Cipher import DES
-from Crypto.Cipher import AES
-from Crypto.PublicKey import RSA
-from Crypto.Util import asn1
+from Cryptodome.Cipher import DES
+from Cryptodome.Cipher import AES
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Util import asn1
+
 
 def gen_encrypt_rsa_key(args):
     aes_flag = False
@@ -49,18 +50,19 @@ def gen_encrypt_rsa_key(args):
         sys.exit(1)
 
     fname, ext = os.path.splitext(args.rsakey)
-    if rsakey.size() > 3072:
+    print(rsakey.size_in_bits())
+    if rsakey.size_in_bits() > 3072:
         keysize = int(4096 / 8)
-    elif rsakey.size() > 2048:
+    elif rsakey.size_in_bits() > 2048:
         keysize = int(3072 / 8)
-    elif rsakey.size() > 1024:
+    elif rsakey.size_in_bits() > 1024:
         keysize = int(2048 / 8)
-    elif rsakey.size() > 512:
+    elif rsakey.size_in_bits() > 512:
         keysize = int(1024 / 8)
-    elif rsakey.size() > 500:
+    elif rsakey.size_in_bits() > 500:
         keysize = int(512 / 8)
     else:
-        print('Not supported key size' + str(rsakey.size()))
+        print('Not supported key size' + str(rsakey.size_in_bits()))
         sys.exit(1)
 
     # Encrypt RSA key file
@@ -91,7 +93,7 @@ def gen_encrypt_rsa_key(args):
         data = rsakey.d.to_bytes(keysize, byteorder='little', signed=False)
         enc_data = cipher.encrypt(data)
         d2 = int.from_bytes(enc_data, byteorder='little', signed=False)
-        newkey = RSA.construct((n2, e2, d2, p2, q2, rsakey.u))
+        newkey = RSA.construct((n2, e2, d2, p2, q2, rsakey.u), False)
     else:
         newkey = RSA.construct((n2, e2))
         # PKCS#1 asn.1 format public key
@@ -106,6 +108,7 @@ def gen_encrypt_rsa_key(args):
     fname = fname + '_encrypted.der'
     with open(fname, 'wb') as fder:
         fder.write(newkeydata)
+
 
 def gen_pkcs1_pub_key(args):
     fname, ext = os.path.splitext(args.rsakey)
@@ -127,8 +130,9 @@ def gen_pkcs1_pub_key(args):
         print('Failed to open file: ' + fname)
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Tool to encrypt RSA key file by using AES/DES ECB')
+    parser = argparse.ArgumentParser(description='Tool to encrypt RSA key file')
     parser.add_argument("-d", "--deskey", type=str, help="DES 64bit key binary file")
     parser.add_argument("-a", "--aeskey", type=str, help="AES 128bit key binary file")
     parser.add_argument("-r", "--rsakey", type=str, required=True, help="DER/PEM key file")
@@ -141,4 +145,3 @@ if __name__ == "__main__":
         gen_pkcs1_pub_key(args)
     else:
         gen_encrypt_rsa_key(args)
-

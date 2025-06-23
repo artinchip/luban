@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: h264 sps/pps parse
-*
-*/
+ * Copyright (C) 2020-2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: h264 sps/pps parse
+ *
+ */
 #include <stdlib.h>
 #include <string.h>
 #include "h264_decoder.h"
@@ -392,6 +394,11 @@ int h264_decode_sps(struct h264_dec_ctx *s)
 	int level_idc =  read_bits(&s->gb, 8);
 	int sps_id = read_ue_golomb(&s->gb);
 
+	if (sps_id > SPS_MAX_NUM - 1) {
+		loge("sps_id:%d\n",sps_id);
+		return -1;
+	}
+
 	// if currenct sps is not exist before, alloc buffer for it
 	if(s->sps_buffers[sps_id] == NULL) {
 		s->sps_buffers[sps_id] = (struct h264_sps_info*)mpp_alloc(sizeof(struct h264_sps_info));
@@ -518,6 +525,11 @@ int h264_decode_pps(struct h264_dec_ctx *s)
 	int pps_id = read_ue_golomb(&s->gb);
 	logd("pps_id: %d", pps_id);
 	logd("gb index: %d", read_bits_count(&s->gb));
+
+	if (pps_id > PPS_MAX_NUM - 1) {
+		loge("pps_id:%d\n",pps_id);
+		return -1;
+	}
 
 	if(s->pps_buffers[pps_id] == NULL) {
 		s->pps_buffers[pps_id] = (struct h264_pps_info*)mpp_alloc(sizeof(struct h264_pps_info));
@@ -796,16 +808,18 @@ static void set_frame_info(struct h264_dec_ctx *s)
 {
 	struct h264_sps_info* cur_sps = s->sps_buffers[s->active_sps_id];
 	struct frame* f = s->frame_info.cur_pic_ptr->frame;
-	int crop_unit_y = 2 - cur_sps->frame_mbs_only_flag;
+	int sub = (cur_sps->chroma_format_idc == 1) ? 1 : 0;
+	int crop_unit_y = (2 - cur_sps->frame_mbs_only_flag) << sub;
+	int crop_unit_x = 1 << sub;
 
 	f->mpp_frame.pts = s->curr_packet->pts;
 	f->mpp_frame.buf.crop_en = 1;
-	f->mpp_frame.buf.crop.x	= cur_sps->frame_cropping_rect_left_offset;
+	f->mpp_frame.buf.crop.x	= crop_unit_x * cur_sps->frame_cropping_rect_left_offset;
 	f->mpp_frame.buf.crop.y	= crop_unit_y * cur_sps->frame_cropping_rect_top_offset;
 	f->mpp_frame.buf.crop.height	= s->height - crop_unit_y * cur_sps->frame_cropping_rect_bottom_offset
 		- crop_unit_y * cur_sps->frame_cropping_rect_top_offset;
-	f->mpp_frame.buf.crop.width	= s->width - cur_sps->frame_cropping_rect_left_offset
-		- cur_sps->frame_cropping_rect_right_offset;
+	f->mpp_frame.buf.crop.width	= s->width - crop_unit_x * cur_sps->frame_cropping_rect_left_offset
+		- crop_unit_x * cur_sps->frame_cropping_rect_right_offset;
 }
 
 // check whether last frame is error
@@ -826,8 +840,9 @@ static int check_last_frame(struct h264_dec_ctx *s)
 			cur_pic->frame->mpp_frame.flags |= FRAME_FLAG_ERROR;
 			loge("last picture error, decoded_mb: %d, total_mbs: %d",
 				s->decode_mb_num, s->mbs_in_pic);
-
-			execute_ref_pic_marking(s);
+			if (s->nal_ref_idc_pre) {
+				execute_ref_pic_marking(s);
+			}
 			select_output_frame(s);
 			s->frame_info.cur_pic_ptr = NULL;
 		}
@@ -859,6 +874,8 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 	if(sh->first_mb_in_slice == 0) {
 		s->cur_slice_num = 0;
 	} else if(s->cur_slice_num == 0) {
+		s->error = H264_DECODER_ERROR_SLICENUM;
+		loge("first_mb_in_slice:%d,cur_slice_num:%d\n", sh->first_mb_in_slice,s->cur_slice_num);
 		return -1;
 	}
 
@@ -867,16 +884,26 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 	sh->slice_type = read_ue_golomb(&s->gb);
 	if(sh->slice_type > 9) {
 		loge("slice type(%d) error", sh->slice_type);
+		s->error = H264_DECODER_ERROR_SLICETYPE;
 		return -1;
 	}
 	sh->slice_type = (sh->slice_type > 4) ? sh->slice_type-5 : sh->slice_type;
 
 	sh->pps_id = read_ue_golomb(&s->gb);
-	if(sh->pps_id > 255 || s->pps_buffers[sh->pps_id] == NULL) {
+
+	if(sh->pps_id > 255) {
+		s->error = H264_DECODER_ERROR_PPS;
 		loge("slice header pps id(%d) error", sh->pps_id);
 		return -1;
 	}
-	logi("SH: slice_type: %d, pps_id: %d, bit offset: %d", sh->slice_type, sh->pps_id, read_bits_count(&s->gb));
+
+	if(s->pps_buffers[sh->pps_id] == NULL) {
+		s->error = H264_DECODER_ERROR_PPS;
+		loge("slice header pps id:%d,pps_buffers==NULL", sh->pps_id);
+		return -1;
+	}
+
+	//logi("SH: slice_type: %d, pps_id: %d, bit offset: %d", sh->slice_type, sh->pps_id, read_bits_count(&s->gb));
 
 	s->active_pps_id = sh->pps_id;
 	s->active_sps_id = s->pps_buffers[s->active_pps_id]->sps_id;
@@ -939,6 +966,7 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 			// last field not match
 			if(s->picture_structure == PICT_FRAME || s->picture_structure == last_pic_structure) {
 				s->first_field = 0;
+				s->error = H264_DECODER_ERROR_PICTURESTRUCTUTE;
 				loge("picture struct error");
 				return -1;
 			} else {
@@ -959,9 +987,26 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 				s->picture_structure = last_pic_structure;
 				s->first_field = last_first_field;
 				//pm_reclaim_ready_packet(s->decoder.pm, s->curr_packet);
+				s->error = H264_DECODER_ERROR_NOEMPTYFRAME;
 				return DEC_NO_EMPTY_FRAME;
 			}
-
+			// top_field_col_addr & top_field_col_addr are fixed addr.
+			// s->frame_info.picture[f->mpp_frame.id].top_field_col_addr = 0;
+			// s->frame_info.picture[f->mpp_frame.id].bot_field_col_addr = 0;
+			s->frame_info.picture[f->mpp_frame.id].mbaff_frame = 0;
+			s->frame_info.picture[f->mpp_frame.id].nal_ref_idc[0] = 0;
+			s->frame_info.picture[f->mpp_frame.id].nal_ref_idc[1] = 0;
+			s->frame_info.picture[f->mpp_frame.id].picture_structure = 0;
+			s->frame_info.picture[f->mpp_frame.id].displayed_flag = 0;
+			s->frame_info.picture[f->mpp_frame.id].field_poc[0] = 0;
+			s->frame_info.picture[f->mpp_frame.id].field_poc[1] = 0;
+			s->frame_info.picture[f->mpp_frame.id].poc = 0;
+			s->frame_info.picture[f->mpp_frame.id].frame_num = 0;
+			s->frame_info.picture[f->mpp_frame.id].pic_id = 0;
+			s->frame_info.picture[f->mpp_frame.id].long_ref = 0;
+			s->frame_info.picture[f->mpp_frame.id].ref_count[0] = 0;
+			s->frame_info.picture[f->mpp_frame.id].ref_count[1] = 0;
+			f->mpp_frame.flags = 0;
 			s->frame_info.picture[f->mpp_frame.id].frame = f;
 			s->frame_info.picture[f->mpp_frame.id].refrence = 0;
 			s->frame_info.picture[f->mpp_frame.id].buf_idx = f->mpp_frame.id;
@@ -1062,6 +1107,7 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 	if(s->nal_ref_idc) {
 		if(dec_ref_pic_marking(s) < 0) {
 			loge("dec_ref_pic_marking error");
+			s->error = H264_DECODER_ERROR_REFPICMARKING;
 		}
 	}
 
@@ -1088,6 +1134,7 @@ int h264_decode_slice_header(struct h264_dec_ctx *s)
 	if(cur_pps->deblocking_filter_control_present_flag) {
 		sh->deblocking_filter = read_ue_golomb(&s->gb);
 		if(sh->deblocking_filter > 2) {
+			s->error = H264_DECODER_ERROR_DEBLOCKINGFILTER;
 			loge("deblocking_filter(%d) out of range", sh->deblocking_filter);
 		}
 

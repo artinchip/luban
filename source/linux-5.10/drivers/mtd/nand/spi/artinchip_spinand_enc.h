@@ -258,7 +258,7 @@ static ssize_t spinand_enc_write(struct spinand_device *spinand,
 		memset(&ivinfo, 0, sizeof(ivinfo));
 		ivinfo.spi_id = priv->spi_id;
 		ivinfo.addr = priv->xinfo.addr;
-		ivinfo.cpos = op.cmd.opcode + op.addr.nbytes + op.dummy.nbytes;
+		ivinfo.cpos = op.cmd.nbytes + op.addr.nbytes + op.dummy.nbytes;
 
 		skcipher_request_set_callback(priv->req, 0,
 					      spinand_enc_xcrypt_done, priv);

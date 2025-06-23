@@ -1,0 +1,307 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="测试环境 硬件 测试板：带有第三方 codec 芯片的测试板 PC：用于和测试板交互 串口线：连接测试板的调试串口 软件 PC 端串口终端软件 alsa-lib 和 alsa-utils 第三方软件包 第三方 codec 驱动 创建声卡的 machine 驱动 创建声卡 machine 驱动 声卡的驱动分为三部分：platform 驱动、codec 驱动、machine ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/i2s/i2s_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/i2s/i2s_config_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/i2s/i2s_design.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="i2s_test_guide"/><meta name="DC.language" content="zh-CN"/><title>测试指南</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="i2s_test_guide-d4445e5708"/><meta name="wh-source-relpath" content="topics/sdk/i2s/i2s_test_guide.dita"/><meta name="wh-out-relpath" content="topics/sdk/i2s/i2s_test_guide.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="i2s_test_guide" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="i2s"><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html">I2S 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="i2s_test_guide"><div class="title"><a href="../../../topics/sdk/i2s/i2s_test_guide.html">测试指南</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/i2s/i2s_config_guide.html" title="I2S 配置" aria-label="上一主题: I2S 配置" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/i2s/i2s_design.html" title="设计说明" aria-label="下一主题: 设计说明" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="i2s_configuration-d4445e5694" class="topicref" data-id="i2s_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_config_guide.html" id="i2s_configuration-d4445e5694-link">I2S 配置</a></div></div></li><li role="treeitem" class="active"><div data-tocid="i2s_test_guide-d4445e5708" class="topicref" data-id="i2s_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_test_guide.html" id="i2s_test_guide-d4445e5708-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s_design_intro-d4445e5722" class="topicref" data-id="i2s_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s_design_intro-d4445e5722-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_design.html" id="i2s_design_intro-d4445e5722-link">设计说明</a></div></div></li><li role="treeitem"><div data-tocid="i2s_common_issues-d4445e5792" class="topicref" data-id="i2s_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_faq.html" id="i2s_common_issues-d4445e5792-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/i2s/i2s_test_guide.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">测试指南</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="i2s_test_guide__section_dy2_jvl_4dc" data-ofbid="i2s_test_guide__section_dy2_jvl_4dc"><h2 class="- topic/title title sectiontitle">测试环境</h2>
+            
+            <div class="- topic/p p" data-ofbid="d103786e38__20250123155208">
+                <ul class="- topic/ul ul" id="i2s_test_guide__ul_nhq_xf3_d1c" data-ofbid="i2s_test_guide__ul_nhq_xf3_d1c">
+                    <li class="- topic/li li" data-ofbid="d103786e42__20250123155208">硬件<ul class="- topic/ul ul" id="i2s_test_guide__ul_pcc_xf3_d1c" data-ofbid="i2s_test_guide__ul_pcc_xf3_d1c">
+                            <li class="- topic/li li" data-ofbid="d103786e46__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e48__20250123155208">测试板：带有第三方 codec 芯片的测试板</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e52__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e54__20250123155208">PC：用于和测试板交互</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e58__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e60__20250123155208">串口线：连接测试板的调试串口</p>
+                            </li>
+                        </ul></li>
+                    <li class="- topic/li li" data-ofbid="d103786e65__20250123155208">软件<ul class="- topic/ul ul" id="i2s_test_guide__ul_qcc_xf3_d1c" data-ofbid="i2s_test_guide__ul_qcc_xf3_d1c">
+                            <li class="- topic/li li" data-ofbid="d103786e69__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e71__20250123155208">PC 端串口终端软件</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e75__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e77__20250123155208">alsa-lib 和 alsa-utils 第三方软件包</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e81__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e83__20250123155208">第三方 codec 驱动</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e87__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e89__20250123155208">创建声卡的 machine 驱动</p>
+                            </li>
+                        </ul></li>
+                </ul>
+            </div>
+        </section>
+        <section class="- topic/section section" id="i2s_test_guide__section_rcc_xf3_d1c" data-ofbid="i2s_test_guide__section_rcc_xf3_d1c"><h2 class="- topic/title title sectiontitle">创建声卡 </h2>
+            
+            <div class="- topic/p p" data-ofbid="d103786e102__20250123155208">
+                <ol class="- topic/ol ol" id="i2s_test_guide__ol_n5k_cg3_d1c" data-ofbid="i2s_test_guide__ol_n5k_cg3_d1c">
+                    <li class="- topic/li li" data-ofbid="d103786e106__20250123155208">machine 驱动<p class="- topic/p p" data-ofbid="d103786e108__20250123155208">声卡的驱动分为三部分：platform 驱动、codec 驱动、machine 驱动。对于本章节来说，platform 驱动即 S 驱动。codec 驱动一般会由 codec 厂家提供，内核中也提供了大量的 codec 驱动源码，可以选择相应的 codec 芯片进行测试，本章节会选用 allwinner 的 ac102 芯片。所以在测试前需要做的就是编写声卡的 machine 驱动，machine 驱动实现 platform 驱动和 codec 驱动的耦合，创建声卡，同时确定 dai 和 codec_dai 的连接方式以及支持的格式、采样深度等信息。</p><div class="- topic/p p" data-ofbid="d103786e110__20250123155208">创建声卡的一个非常重要的结构体是 link，该结构体用来指定 platform 和 codec 的耦合关系，主要的成员变量如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_tyd_dg3_d1c" data-ofbid="i2s_test_guide__codeblock_tyd_dg3_d1c"><code><strong class="hl-keyword">struct</strong> snd_soc_dai_link {
+    <em class="hl-comment">/* config - must be set by machine driver */</em>
+    <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> *name;
+    <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> *stream_name;
+    <strong class="hl-keyword">struct</strong> snd_soc_dai_link_component *cpus;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> num_cpus;
+    <strong class="hl-keyword">struct</strong> snd_soc_dai_link_component *codecs;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> num_codecs;
+    <strong class="hl-keyword">struct</strong> snd_soc_dai_link_component *platforms;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> num_platforms;
+    <em class="hl-comment">/* format to set on init */</em>
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> dai_fmt;
+    <em class="hl-comment">/* machine stream operations */</em>
+    <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> snd_soc_ops *ops;
+    ...
+};</code></pre></div><div class="- topic/p p" data-ofbid="d103786e114__20250123155208">dai_link 中成员变量的一些定义规则(规则定义可参考 link 结构体定义或函数 soc_dai_link_sanity_check)：<ol class="- topic/ol ol" type="a" id="i2s_test_guide__ol_tcc_xf3_d1c" data-ofbid="i2s_test_guide__ol_tcc_xf3_d1c">
+                                <li class="- topic/li li" data-ofbid="d103786e118__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d103786e120__20250123155208">codecs 必须定义，codecs-&gt;name 和 codecs-&gt;of_node 必须定义其一，不可以都定义，也不可以都不定义。codecs-&gt;dai_name 必须定义</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d103786e124__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d103786e126__20250123155208">cpus 可不定义。但定义时，cpus-&gt;name 和 cpus-&gt;of_node 二者定义其一，不可以都定义。cpus-&gt;dai_name 可定义，也可不定义。cpus-&gt;name 和 cpus-&gt;of_node 未定义时，将会通过 cpus-&gt;dai_name 进行匹配。cpus-&gt;dai_name 未定义时，将会通过 cpus-&gt;name 或 cpus-&gt;of_node 进行匹配。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d103786e130__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d103786e132__20250123155208">platforms 可不定义。但定义时 platforms-&gt;name 和 platforms-&gt;of_node 二者定义其一，不可以都定义。platforms-&gt;dai_name 在 ALSA 框架中并未使用。</p>
+                                    <p class="- topic/p p" data-ofbid="d103786e135__20250123155208">ALSA 框架中提供了一些宏，用来定义上述的一些成员变量，比较常用的是通过宏 DEFS 进行定义。现在内核中比较通用的做法是通过 DEFS 将成员变量定义为空，在声卡的 probe 函数中通过读取 DTS 定义 cpus/codecs/platforms 的 node 变量。这样做的优点是修改 codec 外部配置或连接方式时，只需编译 DTS 即可，不需要重新编译内核。</p>
+                                    <p class="- topic/p p" data-ofbid="d103786e138__20250123155208">dai_fmt 变量定义 S 和 codec 之间的音频数据传输方式。</p>
+                                    <p class="- topic/p p" data-ofbid="d103786e141__20250123155208">ops 定义 machine 驱动所支持的操作函数集。</p>
+                                    <p class="- topic/p p" data-ofbid="d103786e144__20250123155208">将定义的 link 结构体变量赋值给 struct
+                                        snd_soc_card 结构体的 link 成员变量，然后调用 card 即可完成声卡的注册，具体可参考内核中提供的一些 machine 驱动。</p>
+                                </li>
+                            </ol></div></li>
+                    <li class="- topic/li li" data-ofbid="d103786e149__20250123155208">声卡 DTS
+                             配置<div class="- topic/p p" data-ofbid="d103786e151__20250123155208">需要在 DTS 中配置声卡的结点，才能正确调用声卡的 machine 驱动。DTS 中声卡的结点配置如下(以 allwinner 的 ac102 为例说明)：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_ijz_fg3_d1c" data-ofbid="i2s_test_guide__codeblock_ijz_fg3_d1c"><code>soundCard {
+            compatible = <span class="hl-string">"artinchip,aic-ac102"</span>;
+            aic,codec-chip = &lt;&amp;ac102&gt;;
+            aic,i2s-controller = &lt;&amp;i2s1&gt;;
+            status = <span class="hl-string">"okay"</span>;
+    };</code></pre></div><div class="- topic/p p" data-ofbid="d103786e155__20250123155208">machine 驱动通过读取 aic,codec-chip 和 aic,i2s-controller 属性获取相应的 s 和 codec 结点。SOC 一般是通过 C 接口对 codec 芯片进行控制，所以需要在 C 控制器下挂接 codec 芯片<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_q5d_gg3_d1c" data-ofbid="i2s_test_guide__codeblock_q5d_gg3_d1c"><code>&amp;i2c3 {
+        pinctrl-names = <span class="hl-string">"default"</span>;
+        pinctrl-<span class="hl-number">0</span> = &lt;&amp;i2c3_pins_b&gt;;
+        status = <span class="hl-string">"okay"</span>;
+        ac102: ac102@<span class="hl-number">33</span> {
+                compatible = <span class="hl-string">"allwinner,ac102"</span>;
+                reg = &lt;<span class="hl-number">0x33</span>&gt;;
+        };
+};</code></pre></div></li>
+                </ol>
+            </div>
+        </section>
+        <section class="- topic/section section" id="i2s_test_guide__section_ucc_xf3_d1c" data-ofbid="i2s_test_guide__section_ucc_xf3_d1c"><h2 class="- topic/title title sectiontitle">音频测试</h2>
+            
+            <div class="- topic/p p" data-ofbid="d103786e168__20250123155208">
+                <ol class="- topic/ol ol" id="i2s_test_guide__ol_bl2_jg3_d1c" data-ofbid="i2s_test_guide__ol_bl2_jg3_d1c">
+                    <li class="- topic/li li" data-ofbid="d103786e172__20250123155208">测试音频播放<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_fmk_2jj_g1c" data-ofbid="i2s_test_guide__codeblock_fmk_2jj_g1c"><code>aplay test.wav
+</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_el3_fjj_g1c" data-ofbid="i2s_test_guide__codeblock_el3_fjj_g1c"><code>test_wavplay /sdcard/wav/test.wav       <em class="hl-comment">//播放 SD 卡音频文件</em></code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d103786e179__20250123155208">测试音频录音<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="i2s_test_guide__codeblock_lf1_gjj_g1c" data-ofbid="i2s_test_guide__codeblock_lf1_gjj_g1c"><code>arecord -d <span class="hl-number">10</span> -f dat -t wav test.wav
+</code></pre><ul class="- topic/ul ul" id="i2s_test_guide__ul_mn5_kg3_d1c" data-ofbid="i2s_test_guide__ul_mn5_kg3_d1c">
+                            <li class="- topic/li li" data-ofbid="d103786e185__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e187__20250123155208">-d：指定录音时长，单位为秒</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e191__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e193__20250123155208">-f：指定录制的格式，dat 表示 16bit 小端数据，48K 采样率，立体声</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e197__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e199__20250123155208">-t：指定生成的文件格式，为 wav 文件</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d103786e203__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d103786e205__20250123155208">test.wav：生成的 wav 文件名</p>
+                            </li>
+                        </ul></li>
+                </ol>
+            </div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#i2s_test_guide__section_dy2_jvl_4dc" data-tocid="i2s_test_guide__section_dy2_jvl_4dc">测试环境</a></div></li><li class="section-item"><div class="section-title"><a href="#i2s_test_guide__section_rcc_xf3_d1c" data-tocid="i2s_test_guide__section_rcc_xf3_d1c">创建声卡 </a></div></li><li class="section-item"><div class="section-title"><a href="#i2s_test_guide__section_ucc_xf3_d1c" data-tocid="i2s_test_guide__section_ucc_xf3_d1c">音频测试</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

@@ -191,8 +191,12 @@ static inline struct lmac_msg *asr_msg_zalloc(lmac_msg_id_t const id,
 	msg->src_id = src_id;
 	msg->param_len = param_len;
 
-	memcpy((u8 *) msg + sizeof(struct lmac_msg) + param_len, &tx_data_end_token, 4);
-
+	//memcpy((u8 *)msg + sizeof(struct lmac_msg) + param_len, &tx_data_end_token, 4);
+    #ifdef CONFIG_ASR_SDIO
+    memcpy((u8*)msg + ASR_ALIGN_BLKSZ_HI(sizeof(struct lmac_msg) + param_len + 4) - 4, &tx_data_end_token, 4);
+    #else
+    memcpy((u8 *)msg + sizeof(struct lmac_msg) + param_len, &tx_data_end_token, 4);
+    #endif
 	return msg;
 }
 
@@ -221,6 +225,8 @@ static int asr_send_msg(struct asr_hw *asr_hw, struct lmac_msg *msg, int reqcfm,
 	    reqid != ME_CONFIG_CFM && reqid != MM_SET_PS_MODE_CFM &&
 	    reqid != ME_CHAN_CONFIG_CFM && reqid != MM_FW_SOFTVERSION_CFM &&
 	    reqid != MM_FW_MAC_ADDR_CFM && reqid != MM_SET_FW_MAC_ADDR_CFM &&
+	    reqid != MM_SET_EFUSE_TXPWR_CFM &&
+	    reqid != DBG_SET_MOD_FILTER_CFM &&
 #ifdef CONFIG_ASR_SDIO
 	    reqid != MM_HIF_SDIO_INFO_IND &&
 #endif
@@ -299,6 +305,26 @@ int asr_send_start(struct asr_hw *asr_hw)
 	kfree(msg);
 	return ret;
 }
+u8 get_ps_mode_type(bool ps_on)
+{
+	u8 mode = PS_MODE_OFF;
+	if(!ps_on)
+		return mode;
+
+	#if (!defined CONFIG_ASR_PM && !defined CONFIG_ASR_USB_PM)
+		mode = PS_MODE_MODEMSLEEP_0_PIN;
+	#elif (defined CONFIG_ASR_USB_PM)
+		mode = PS_MODE_LIGHTSLEEP;
+	#elif (defined CONFIG_GPIO_WAKEUP_MOD && !defined CONFIG_GPIO_WAKEUP_HOST && defined CONFIG_ASR5505)
+		mode = PS_MODE_LIGHTSLEEP_1_PIN;
+	#elif (defined CONFIG_GPIO_WAKEUP_MOD && defined CONFIG_GPIO_WAKEUP_HOST && defined CONFIG_ASR5505)
+		mode = PS_MODE_LIGHTSLEEP;
+	#elif (defined CONFIG_GPIO_WAKEUP_MOD && defined CONFIG_GPIO_WAKEUP_HOST && defined CONFIG_ASR5825)
+		mode = PS_MODE_MODEMSLEEP_2_PIN;
+	#endif
+
+	return mode;
+}
 
 int asr_send_set_ps_mode(struct asr_hw *asr_hw, bool ps_on)
 {
@@ -313,11 +339,8 @@ int asr_send_set_ps_mode(struct asr_hw *asr_hw, bool ps_on)
 
 	set_ps_mode_req_param = (struct mm_set_ps_mode_req *)msg->param;
 
-	if (ps_on) {
-		set_ps_mode_req_param->new_state = PS_MODE_ON_DYN;
-	} else {
-		set_ps_mode_req_param->new_state = PS_MODE_OFF;
-	}
+	set_ps_mode_req_param->new_state = get_ps_mode_type(ps_on);
+
 
 	ret = asr_send_msg(asr_hw, msg, 1, MM_SET_PS_MODE_CFM, NULL);
 
@@ -1467,23 +1490,25 @@ int asr_send_me_rc_set_rate(struct asr_hw *asr_hw, u8 sta_idx, u16 rate_cfg)
 	return ret;
 }
 
-int asr_send_me_tx_agg_disable(struct asr_hw *asr_hw, bool tx_agg_disable)
+int asr_send_me_host_dbg_cmd(struct asr_hw *asr_hw, unsigned int host_dbg_cmd, unsigned int reg, unsigned int value)
 {
-	struct me_tx_agg_disable_req *req = NULL;
+	struct me_host_dbg_cmd_req *req = NULL;
 	struct lmac_msg *msg = NULL;
 	int ret = 0;
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
 	/* Build the ME_RC_SET_RATE_REQ message */
-	msg = asr_msg_zalloc(ME_TX_AGG_DISABLE_REQ, TASK_ME, DRV_TASK_ID, sizeof(struct me_tx_agg_disable_req));
+	msg = asr_msg_zalloc(ME_HOST_DBG_CMD_REQ, TASK_ME, DRV_TASK_ID, sizeof(struct me_host_dbg_cmd_req));
 	if (!msg)
 		return -ENOMEM;
 
-	req = (struct me_tx_agg_disable_req *)msg->param;
+	req = (struct me_host_dbg_cmd_req *)msg->param;
 
 	/* Set parameters for the ME_RC_SET_RATE_REQ message */
-	req->tx_agg_disable = tx_agg_disable;
+	req->host_dbg_cmd = host_dbg_cmd;
+	req->host_dbg_reg = reg;
+	req->host_dbg_value = value;
 
 	/* Send the ME_RC_SET_RATE_REQ message to FW */
 	ret = asr_send_msg(asr_hw, msg, 0, 0, NULL);
@@ -1626,6 +1651,10 @@ int asr_send_sm_auth_req(struct asr_hw *asr_hw,
 		memcpy(req->ie_buf, auth_req->ie, auth_req->ie_len);
 	req->ie_len = auth_req->ie_len;
 	dev_info(asr_hw->dev, "  * ch :ie_len=%d,total_len=%u  \n", req->ie_len, (unsigned int)sizeof(struct sm_auth_req));
+
+        // clear sae data and length.
+        memset(req->sae_data,0,sizeof(req->sae_data));
+        req->sae_data_len = 0;
 
 #ifdef CONFIG_SAE
 	// Non-IE data to use with SAE or %NULL.
@@ -1835,7 +1864,7 @@ int asr_send_itwt_config(struct asr_hw *asr_hw, wifi_twt_config_t * wifi_twt_par
 	if (!msg)
 		return -ENOMEM;
 
-	if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+	if (asr_hw->vif_index < asr_hw->vif_max_num) {
 		asr_vif = asr_hw->vif_table[asr_hw->vif_index];
 	}
 
@@ -1879,7 +1908,7 @@ int asr_send_itwt_del(struct asr_hw *asr_hw, uint8_t flow_id)
 	if (!msg)
 		return -ENOMEM;
 
-	if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+	if (asr_hw->vif_index < asr_hw->vif_max_num) {
 		asr_vif = asr_hw->vif_table[asr_hw->vif_index];
 	}
 
@@ -2223,7 +2252,7 @@ int asr_send_apm_stop_req(struct asr_hw *asr_hw, struct asr_vif *vif)
 int asr_send_scanu_req(struct asr_hw *asr_hw, struct asr_vif *asr_vif, struct cfg80211_scan_request *param)
 {
 	struct scanu_start_req *req = NULL;
-	int i;
+	int i,k;
 	u8 chan_flags = 0;
 	struct lmac_msg *msg = NULL;
 	int ret = 0;
@@ -2297,7 +2326,9 @@ int asr_send_scanu_req(struct asr_hw *asr_hw, struct asr_vif *asr_vif, struct cf
 	}
 
 	for (i = 0; i < req->chan_cnt; i++) {
-		struct ieee80211_channel *chan = param->channels[i];
+		struct ieee80211_channel *chan=NULL;
+		k = (asr_hw->scan_reverse)?(req->chan_cnt-1-i):i;
+		chan = param->channels[k];
 
 		req->chan[i].band = chan->band;
 		req->chan[i].freq = chan->center_freq;
@@ -2310,6 +2341,7 @@ int asr_send_scanu_req(struct asr_hw *asr_hw, struct asr_vif *asr_vif, struct cf
 #endif
 	}
 	//dev_info(asr_hw->dev, "asr_send_scanu_req %d %d, %d\n",req->chan_cnt,req->ssid_cnt,req->add_ie_len);
+	asr_hw->scan_reverse =!asr_hw->scan_reverse;
 	/* Send the SCANU_START_REQ message to LMAC FW */
 	ret = asr_send_msg(asr_hw, msg, 0, 0, NULL);
 	if (ret) {
@@ -2616,6 +2648,7 @@ int asr_send_fw_macaddr_req(struct asr_hw *asr_hw, struct mm_fw_macaddr_cfm *cfm
 int asr_send_set_fw_macaddr_req(struct asr_hw *asr_hw, const uint8_t * macaddr)
 {
 	struct mm_set_fw_macaddr_req *req = NULL;
+	struct mm_fw_macaddr_cfm cfm;
 	struct lmac_msg *msg = NULL;
 	int ret = 0;
 
@@ -2629,9 +2662,12 @@ int asr_send_set_fw_macaddr_req(struct asr_hw *asr_hw, const uint8_t * macaddr)
 	req = (struct mm_set_fw_macaddr_req *)msg->param;
 
 	memcpy(req->mac, macaddr, MAC_ADDR_LEN);
+	memset(&cfm, 0, sizeof(struct mm_fw_macaddr_cfm));
 
 	/* Send the MM_CFG_RSSI_REQ message to LMAC FW */
-	ret = asr_send_msg(asr_hw, msg, 1, MM_SET_FW_MAC_ADDR_CFM, NULL);
+	ret = asr_send_msg(asr_hw, msg, 1, MM_SET_FW_MAC_ADDR_CFM, &cfm);
+
+	dev_info(asr_hw->dev, "%s: %d,%d\n", __func__, ret, cfm.status);
 
 	kfree(msg);
 	return ret;
@@ -2886,4 +2922,50 @@ int asr_send_fram_appie_req(struct asr_hw *asr_hw, u8 vif_idx, u16 fram_type, u8
 
 	kfree(msg);
 	return ret;
+}
+
+int asr_send_efuse_txpwr_req(struct asr_hw *asr_hw, uint8_t * txpwr, uint8_t * txevm, uint8_t *freq_err, bool iswrite, uint8_t *index)
+{
+	struct mm_efuse_txpwr_info *req = NULL;
+	struct mm_efuse_txpwr_info cfm;
+	struct lmac_msg *msg = NULL;
+	int ret = 0;
+
+	ASR_DBG(ASR_FN_ENTRY_STR);
+
+	if (!asr_hw || !txpwr || !txevm) {
+		return -EINVAL;
+	}
+
+	msg = asr_msg_zalloc(MM_SET_EFUSE_TXPWR_REQ, TASK_MM, DRV_TASK_ID, sizeof(struct mm_efuse_txpwr_info));
+	if (!msg)
+		return -ENOMEM;
+
+	req = (struct mm_efuse_txpwr_info *)msg->param;
+
+	memset(&cfm, 0, sizeof(struct mm_efuse_txpwr_info));
+
+	if (iswrite) {
+		req->iswrite = iswrite;
+		memcpy(req->txpwr, txpwr, 6);
+		memcpy(req->txevm, txevm, 6);
+		req->freq_err = *freq_err;
+	}
+
+	/* Send the MM_CFG_RSSI_REQ message to LMAC FW */
+	ret = asr_send_msg(asr_hw, msg, 1, MM_SET_EFUSE_TXPWR_CFM, &cfm);
+
+	if (!iswrite) {
+		memcpy(txpwr, cfm.txpwr, 6);
+		memcpy(txevm, cfm.txevm, 6);
+		*freq_err = cfm.freq_err;
+	}
+
+	*index = cfm.index;
+
+	dev_info(asr_hw->dev, "%s: %d,%d,%d,%pM,%pM,%u,0x%X\n"
+		, __func__, ret, req->iswrite, cfm.status, cfm.txpwr, cfm.txevm, cfm.index,cfm.freq_err);
+
+	kfree(msg);
+	return ret | cfm.status;
 }

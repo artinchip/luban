@@ -94,7 +94,7 @@ static int aic_dvp_buf_reload(struct aic_dvp *dvp, struct aic_dvp_buf *buf)
 
 	dvp->vbuf[index] = vb;
 
-	aic_dvp_update_buf_addr(dvp, buf);
+	aic_dvp_update_buf_addr(dvp, buf, 0);
 	aic_dvp_update_ctl(dvp);
 	return 0;
 }
@@ -123,9 +123,36 @@ static void aic_dvp_buf_mark_done(struct aic_dvp *dvp,
 	dvp->vbuf[index] = NULL;
 }
 
+static int aic_dvp_top_field_done(struct aic_dvp *dvp, u32 err)
+{
+	struct aic_dvp_buf *cur_buf = NULL;
+
+	if (list_empty(&dvp->buf_list)) {
+		dev_err(dvp->dev, "%s() - No buf available!\n", __func__);
+		return 0;
+	}
+
+	cur_buf = list_first_entry(&dvp->buf_list, struct aic_dvp_buf, list);
+	dev_dbg(dvp->dev, "%s() - cur: index %d, dvp_using %d\n",
+		__func__, cur_buf->vb.vb2_buf.index, cur_buf->dvp_using);
+	if (BUF_IS_INVALID(cur_buf->vb.vb2_buf.index)) {
+		dev_err(dvp->dev, "%s() - Invalid buf %d\n",
+			__func__, cur_buf->vb.vb2_buf.index);
+		return -1;
+	}
+
+	dev_dbg(dvp->dev, "Add offset %d of cur buf %d",
+		dvp->cfg.stride[0], cur_buf->vb.vb2_buf.index);
+
+	aic_dvp_update_buf_addr(dvp, cur_buf, dvp->cfg.stride[0]);
+	aic_dvp_update_ctl(dvp);
+	dvp->sequence++;
+	return 0;
+}
+
 static int aic_dvp_frame_done(struct aic_dvp *dvp, u32 err)
 {
-	struct aic_dvp_buf *cur_buf;
+	struct aic_dvp_buf *cur_buf = NULL;
 
 	if (list_empty(&dvp->buf_list)) {
 		dev_err(dvp->dev, "%s() - No buf available!\n", __func__);
@@ -158,7 +185,7 @@ static int aic_dvp_frame_done(struct aic_dvp *dvp, u32 err)
 	return 0;
 }
 
-static int aic_dvp_update_done(struct aic_dvp *dvp)
+static int aic_dvp_update_addr(struct aic_dvp *dvp)
 {
 	struct aic_dvp_buf *cur_buf;
 	struct aic_dvp_buf *next_buf;
@@ -258,6 +285,7 @@ static int aic_dvp_start_streaming(struct vb2_queue *vq, unsigned int count)
 	dev_dbg(dvp->dev, "Starting capture\n");
 
 	dvp->sequence = 0;
+	aic_dvp_field_tag_clr();
 
 	ret = media_pipeline_start(&dvp->vdev.entity, &dvp->vdev.pipe);
 	if (ret < 0)
@@ -315,6 +343,7 @@ static void aic_dvp_stop_streaming(struct vb2_queue *vq)
 	dev_dbg(dvp->dev, "Stopping capture\n");
 
 	v4l2_subdev_call(dvp->src_subdev, video, s_stream, 0);
+	aic_dvp_enable_int(dvp, 0);
 	aic_dvp_capture_stop(dvp);
 	aic_dvp_update_ctl(dvp);
 
@@ -342,6 +371,7 @@ static irqreturn_t aic_dvp_isr(int irq, void *data)
 	struct aic_dvp *dvp = data;
 	u32 sta, err = 0;
 	unsigned long flags;
+	static u32 recv_first_field;
 
 	sta = aic_dvp_clr_int(dvp);
 	dev_dbg(dvp->dev, "IRQ status %#x, sequence %d\n", sta, dvp->sequence);
@@ -350,15 +380,29 @@ static irqreturn_t aic_dvp_isr(int irq, void *data)
 		err = 1;
 	} else if (sta & DVP_IRQ_STA_XY_CODE_ERR) {
 		dev_warn(dvp->dev, "%s() XY code error %#x\n", __func__, sta);
-		err = 1;
+		aic_dvp_clr_fifo(dvp);
 		return IRQ_HANDLED;
 	}
 
-	/* FRAME_DONE and UPDATE_DONE may come in one single interrupt,
-	 * so process FRAME_DONE first. */
 	if (sta & DVP_IRQ_EN_FRAME_DONE) {
 		if (err)
 			aic_dvp_clr_fifo(dvp);
+
+		if (V4L2_FIELD_IS_INTERLACED(dvp->cfg.field)) {
+			/* If the first field is a bottom field, ignore it */
+			if (!recv_first_field && aic_dvp_is_bottom_field()) {
+				dev_info(dvp->dev,
+					 "The first is bottom field - ignored\n");
+				aic_dvp_clr_fifo(dvp);
+				recv_first_field = 1;
+				return IRQ_HANDLED;
+			}
+
+			if (aic_dvp_is_top_field()) {
+				recv_first_field = 1;
+				return IRQ_HANDLED;
+			}
+		}
 
 		spin_lock_irqsave(&dvp->qlock, flags);
 		if (aic_dvp_frame_done(dvp, err))
@@ -366,9 +410,28 @@ static irqreturn_t aic_dvp_isr(int irq, void *data)
 				 __func__);
 		spin_unlock_irqrestore(&dvp->qlock, flags);
 	}
-	if (sta & DVP_IRQ_STA_UPDATE_DONE) {
+	if (sta & DVP_IRQ_STA_HNUM) {
+		if (V4L2_FIELD_IS_INTERLACED(dvp->cfg.field)) {
+			aic_dvp_get_current_xy(dvp);
+
+			if (aic_dvp_is_top_field()) {
+				spin_lock_irqsave(&dvp->qlock, flags);
+				aic_dvp_top_field_done(dvp, err);
+				spin_unlock_irqrestore(&dvp->qlock, flags);
+				recv_first_field = 1;
+				return IRQ_HANDLED;
+			}
+
+			/* If the first field is a bottom field, ignore it */
+			if (!recv_first_field) {
+				dev_dbg(dvp->dev,
+					"The first is bottom field - ignore\n");
+				return IRQ_HANDLED;
+			}
+		}
+
 		spin_lock_irqsave(&dvp->qlock, flags);
-		if (aic_dvp_update_done(dvp))
+		if (aic_dvp_update_addr(dvp))
 			dev_warn(dvp->dev, "%s() - Failed to update buf\n",
 				 __func__);
 		spin_unlock_irqrestore(&dvp->qlock, flags);

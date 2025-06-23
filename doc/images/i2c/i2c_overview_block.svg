@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 i2c_overview_block.svg overview_block -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="4.44373in" height="3.81403in"
+		viewBox="0 0 319.949 274.61" xml:space="preserve" color-interpolation-filters="sRGB" class="st8">
+	<v:documentProperties v:langID="2052" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvSubprocessMaster" v:prompt="" v:val="VT4(Rectangle)"/>
+			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:none;stroke:#000000;stroke-width:0.25}
+		.st2 {fill:#000000;font-family:方正书宋_GBK;font-size:0.833336em;font-weight:bold}
+		.st3 {fill:#000000;font-family:方正书宋_GBK;font-size:0.833336em}
+		.st4 {fill:none;stroke:#000000;stroke-width:0.5}
+		.st5 {fill:none;stroke:none;stroke-width:0.25}
+		.st6 {fill:none;stroke:#000000;stroke-width:0.75}
+		.st7 {fill:none;stroke:#000000;stroke-width:1}
+		.st8 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<g v:mID="26" v:index="5" v:groupContext="foregroundPage">
+		<v:userDefs>
+			<v:ud v:nameU="msvThemeOrder" v:val="VT0(0):26"/>
+		</v:userDefs>
+		<title>overview_block</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<g id="shape1-1" v:mID="1" v:groupContext="shape" transform="translate(90.523,-31.0059)">
+			<title>矩形.91</title>
+			<desc>寄存器模块</desc>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="31.748" cy="180.075" width="63.5" height="189.071"/>
+			<rect x="0" y="85.5394" width="63.4961" height="189.071" class="st1"/>
+			<text x="6.65" y="183.07" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>寄存器模块</text>		</g>
+		<g id="shape2-4" v:mID="2" v:groupContext="shape" transform="translate(168.507,-175.943)">
+			<title>矩形.2</title>
+			<desc>发送控制</desc>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.937" cy="263.272" width="51.88" height="22.6772"/>
+			<rect x="0" y="251.933" width="51.874" height="22.6772" class="st1"/>
+			<text x="5.94" y="266.27" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>发送控制</text>		</g>
+		<g id="shape3-7" v:mID="3" v:groupContext="shape" transform="translate(168.507,-135.58)">
+			<title>矩形.3</title>
+			<desc>FIFO</desc>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.937" cy="263.272" width="51.88" height="22.6772"/>
+			<rect x="0" y="251.933" width="51.874" height="22.6772" class="st1"/>
+			<text x="15.41" y="266.27" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>FIFO</text>		</g>
+		<g id="shape4-10" v:mID="4" v:groupContext="shape" transform="translate(-80.166,116.353) rotate(-90)">
+			<title>普通箭头.89</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(2):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L7.09 268.94 L7.09 271.78 L17.69 271.78 L17.69 274.61 L17.69 277.44 L7.09 277.44 L7.09 280.28 L0 274.61
+						 Z" class="st4"/>
+		</g>
+		<g id="shape5-12" v:mID="5" v:groupContext="shape" transform="translate(163.121,-130.219)">
+			<title>矩形.5</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<rect x="0" y="184.209" width="63.4961" height="90.401" class="st1"/>
+		</g>
+		<g id="shape8-14" v:mID="8" v:groupContext="shape" transform="translate(118.869,-202.116)">
+			<title>工作表.8</title>
+			<desc>发送模块</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="76" cy="264.61" width="152" height="20"/>
+			<rect x="0" y="254.61" width="152" height="20" class="st5"/>
+			<text x="55.92" y="267.61" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>发送模块</text>		</g>
+		<g id="shape10-17" v:mID="10" v:groupContext="shape" transform="translate(168.507,-76.9593)">
+			<title>矩形.10</title>
+			<desc>接收控制</desc>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.937" cy="263.272" width="51.88" height="22.6772"/>
+			<rect x="0" y="251.933" width="51.874" height="22.6772" class="st1"/>
+			<text x="5.94" y="266.27" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>接收控制</text>		</g>
+		<g id="shape11-20" v:mID="11" v:groupContext="shape" transform="translate(168.507,-36.5965)">
+			<title>矩形.11</title>
+			<desc>FIFO</desc>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.937" cy="263.272" width="51.88" height="22.6772"/>
+			<rect x="0" y="251.933" width="51.874" height="22.6772" class="st1"/>
+			<text x="15.41" y="266.27" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>FIFO</text>		</g>
+		<g id="shape12-23" v:mID="12" v:groupContext="shape" transform="translate(469.055,197.651) rotate(90)">
+			<title>普通箭头.12</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(2):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L7.09 268.94 L7.09 271.78 L17.69 271.78 L17.69 274.61 L17.69 277.44 L7.09 277.44 L7.09 280.28 L0 274.61
+						 Z" class="st4"/>
+		</g>
+		<g id="shape13-25" v:mID="13" v:groupContext="shape" transform="translate(163.121,-31.2348)">
+			<title>矩形.13</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<rect x="0" y="184.209" width="63.4961" height="90.401" class="st1"/>
+		</g>
+		<g id="shape14-27" v:mID="14" v:groupContext="shape" transform="translate(118.869,-103.132)">
+			<title>工作表.14</title>
+			<desc>接收模块</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="76" cy="264.61" width="152" height="20"/>
+			<rect x="0" y="254.61" width="152" height="20" class="st5"/>
+			<text x="55.92" y="267.61" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>接收模块</text>		</g>
+		<g id="shape15-30" v:mID="15" v:groupContext="shape" transform="translate(79.1844,-18.25)">
+			<title>矩形.15</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<rect x="0" y="36.5" width="164.409" height="238.11" class="st1"/>
+		</g>
+		<g id="shape16-32" v:mID="16" v:groupContext="shape" transform="translate(85.3892,-230.691)">
+			<title>工作表.16</title>
+			<desc>I2C 模块</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="76" cy="264.61" width="152" height="20"/>
+			<rect x="0" y="254.61" width="152" height="20" class="st5"/>
+			<text x="57.46" y="267.61" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>I2C 模块</text>		</g>
+		<g id="shape17-35" v:mID="17" v:groupContext="shape" transform="translate(19.6569,-101.396)">
+			<title>工作表.17</title>
+			<desc>IRQ</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="32.5932" cy="270.068" width="65.19" height="9.08518"/>
+			<rect x="0" y="265.525" width="65.1864" height="9.08518" class="st5"/>
+			<text x="24.29" y="273.07" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>IRQ</text>		</g>
+		<g id="shape18-38" v:mID="18" v:groupContext="shape" transform="translate(25.4272,-94.7854)">
+			<title>普通箭头.90</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(2):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L8.5 268.94 L8.5 271.78 L52.94 271.78 L52.94 274.61 L52.94 277.44 L8.5 277.44 L8.5 280.28 L0 274.61
+						 Z" class="st6"/>
+		</g>
+		<g id="shape19-40" v:mID="19" v:groupContext="shape" transform="translate(236.512,-99.8735)">
+			<title>工作表.19</title>
+			<desc>SCL</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="32.5932" cy="270.068" width="65.19" height="9.08518"/>
+			<rect x="0" y="265.525" width="65.1864" height="9.08518" class="st5"/>
+			<text x="24.29" y="273.07" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>SCL</text>		</g>
+		<g id="shape20-43" v:mID="20" v:groupContext="shape" transform="translate(295.539,454.435) rotate(180)">
+			<title>普通箭头.20</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(2):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L8.5 268.94 L8.5 271.78 L50.53 271.78 L50.53 274.61 L50.53 277.44 L8.5 277.44 L8.5 280.28 L0 274.61
+						 Z" class="st6"/>
+		</g>
+		<g id="shape21-45" v:mID="21" v:groupContext="shape" transform="translate(235.095,-191.999)">
+			<title>工作表.21</title>
+			<desc>SDA</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="32.5932" cy="270.068" width="65.19" height="9.08518"/>
+			<rect x="0" y="265.525" width="65.1864" height="9.08518" class="st5"/>
+			<text x="23.47" y="273.07" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>SDA</text>		</g>
+		<g id="shape22-48" v:mID="22" v:groupContext="shape" transform="translate(295.539,362.309) rotate(180)">
+			<title>普通箭头.22</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(2):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L8.5 268.94 L8.5 271.78 L50.53 271.78 L50.53 274.61 L50.53 277.44 L8.5 277.44 L8.5 280.28 L0 274.61
+						 Z" class="st6"/>
+		</g>
+		<g id="shape23-50" v:mID="23" v:groupContext="shape" transform="translate(18.25,-193.522)">
+			<title>工作表.23</title>
+			<desc>APB</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="32.5932" cy="270.068" width="65.19" height="9.08518"/>
+			<rect x="0" y="265.525" width="65.1864" height="9.08518" class="st5"/>
+			<text x="23.45" y="273.07" class="st3" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>APB</text>		</g>
+		<g id="shape25-53" v:mID="25" v:groupContext="shape" transform="translate(28.4757,-188.329)">
+			<title>普通双箭头</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+				<v:ud v:nameU="ArrowType" v:prompt="" v:val="VT0(3):26"/>
+			</v:userDefs>
+			<path d="M0 274.61 L11.15 268.94 L11.15 271.78 L37.86 271.78 L37.86 268.94 L49.01 274.61 L37.86 280.28 L37.86 277.44
+						 L11.15 277.44 L11.15 280.28 L0 274.61 Z" class="st7"/>
+		</g>
+	</g>
+</svg>

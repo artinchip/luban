@@ -1,9 +1,14 @@
 #!/bin/sh
 
-cd  /sys/devices/platform/soc/*.rtc
-echo 1 > aicupg
+# Default goto BROM upgmode
+UPGVAL=1
+if [ "$1" == "gotobl" ]; then
+	# Goto U-Boot upgmode
+	UPGVAL=2
+fi
+cd  /sys/devices/platform/soc/*.wri || exit
+echo "$UPGVAL" > aicupg
 
 echo Will reboot after 3 seconds ...
 sleep 3
 reboot
-

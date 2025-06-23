@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2021 ArtInChip Technology Co., Ltd
+ * Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
+ * Author: Dehuang Wu <dehuang.wu@artinchip.com>
  */
 
 #include <common.h>
@@ -15,6 +16,7 @@
 #include <config_parse.h>
 #include <dm/uclass.h>
 #include <env.h>
+#include <linux/delay.h>
 
 #if 0
 #undef debug
@@ -30,7 +32,7 @@ static int curr_device = -1;
 static int image_header_check(struct image_header_pack *header)
 {
 	/*check header*/
-	if ((strcmp(header->hdr.magic, "AIC.FW") != 0)) {
+	if (strcmp(header->hdr.magic, "AIC.FW") != 0) {
 		pr_err("Error:image check failed,maybe not have a image in media!\n");
 		return -1;
 	}
@@ -38,10 +40,26 @@ static int image_header_check(struct image_header_pack *header)
 }
 #endif
 
-__weak void do_brom_upg(void)
+__weak void do_brom_upg(char *upg_mode)
 {
 	printf("%s is not implemented.\n", __func__);
 }
+
+void fat_upg_progress(u32 percent)
+{
+#ifdef CONFIG_PROGRESS_BAR
+	/* Show to screen */
+	draw_progress_bar(percent);
+#endif
+	/*
+	 * User can add more code to show the progress in customize way
+	 */
+	printf("progress: %d%%\n", percent);
+}
+
+#define CHECK_MODE_WAITING 0
+#define CHECK_MODE_OK    1
+#define CHECK_MODE_TIMEOUT 2
 
 static int check_upg_mode(long start_tm, long tmo)
 {
@@ -51,41 +69,39 @@ static int check_upg_mode(long start_tm, long tmo)
 	cur_tm = timer_get_us();
 	tm = (cur_tm - start_tm);
 
-	if (tm < tmo)
-		return 0;
-
 	mode = aicupg_get_upg_mode();
 	if (mode == UPG_MODE_BURN_USER_ID)
-		return 0;
+		return CHECK_MODE_OK;
 	if (mode == UPG_MODE_BURN_IMG_FORCE)
-		return 0;
+		return CHECK_MODE_OK;
 
-	return 1;
+	if (tm < tmo)
+		return CHECK_MODE_WAITING;
+
+	return CHECK_MODE_TIMEOUT;
 }
 
 static int do_usb_protocol_upg(int intf)
 {
-	int ret, ck_mode;
+	int ret, need_ckmode;
 	long start_tm;
 	char *p;
 	struct upg_init init;
 
-	start_tm = timer_get_us();
-
-	ck_mode = 0;
-	init.mode = INIT_MODE(UPG_MODE_FULL_DISK_UPGRADE);
+	need_ckmode = 0;
+	init.mode_bits = INIT_MODE(UPG_MODE_FULL_DISK_UPGRADE);
 	p = env_get("upg_mode");
 	if (p) {
 		if (!strcmp(p, "userid")) {
-			ck_mode = 1;
-			init.mode = INIT_MODE(UPG_MODE_BURN_USER_ID);
+			need_ckmode = 1;
+			init.mode_bits = INIT_MODE(UPG_MODE_BURN_USER_ID);
 #ifdef CONFIG_AICUPG_FORCE_USBUPG_SUPPORT
 			/* Enter burn USERID mode also support force burn image */
-			init.mode |= INIT_MODE(UPG_MODE_BURN_IMG_FORCE);
+			init.mode_bits |= INIT_MODE(UPG_MODE_BURN_IMG_FORCE);
 #endif
 		} else if (!strcmp(p, "force")) {
-			ck_mode = 1;
-			init.mode = INIT_MODE(UPG_MODE_BURN_IMG_FORCE);
+			need_ckmode = 1;
+			init.mode_bits = INIT_MODE(UPG_MODE_BURN_IMG_FORCE);
 		}
 		/* Remove this information after used, avoid to be saved
 		 * to env partition
@@ -105,19 +121,31 @@ static int do_usb_protocol_upg(int intf)
 	if (ret)
 		return CMD_RET_FAILURE;
 
+	start_tm = timer_get_us();
 	while (1) {
 		if (g_dnl_detach())
 			break;
 		if (ctrlc())
 			break;
-		if (ck_mode && check_upg_mode(start_tm, WAIT_UPG_MODE_TMO_US)) {
-			/* Host tool not set the mode, exit usb loop
-			 * and boot kernel
-			 */
-			ret = CMD_RET_FAILURE;
-			goto exit;
-		}
 		usb_gadget_handle_interrupts(intf);
+		if (need_ckmode) {
+			/* Need to check the correct upg mode for Burn UserID
+			 * and Force Image upgrading
+			 */
+			int rst = check_upg_mode(start_tm, WAIT_UPG_MODE_TMO_US);
+			if (rst == CHECK_MODE_TIMEOUT) {
+				/* Host tool not set the mode in WAIT_UPG_MODE_TMO_US
+				 * exit upg loop and boot kernel
+				 */
+				ret = CMD_RET_FAILURE;
+				goto exit;
+			} else if (rst == CHECK_MODE_OK) {
+				/* Update the start time.
+				 * Host tool may change the mode to exit loop
+				 */
+				start_tm = timer_get_us();
+			}
+		}
 	}
 	ret = CMD_RET_SUCCESS;
 
@@ -264,6 +292,8 @@ static int do_fat_upg(int intf, char *const blktype)
 	char image_name[IMG_NAME_MAX_SIZ] = {0};
 	char protection[PROTECTION_PARTITION_LEN] = {0};
 
+	aicupg_fat_set_process_cb(fat_upg_progress);
+
 	mmc = NULL;
 	hdrpack = (struct image_header_pack *)malloc(sizeof(struct image_header_pack));
 	if (!hdrpack) {
@@ -273,12 +303,12 @@ static int do_fat_upg(int intf, char *const blktype)
 	memset((struct image_header_pack *)hdrpack, 0,
 		sizeof(struct image_header_pack));
 
-	file_buf = (char *)malloc(1024);
+	file_buf = (char *)malloc(2048);
 	if (!file_buf) {
 		pr_err("Error, malloc buf failed.\n");
 		goto err;
 	}
-	memset((void *)file_buf, 0, 1024);
+	memset((void *)file_buf, 0, 2048);
 
 	if (!strcmp(blktype, "mmc")) {
 		/*init MMC */
@@ -349,7 +379,7 @@ static int do_fat_upg(int intf, char *const blktype)
 	}
 
 	/*load header*/
-	ret = fat_read_file("bootcfg.txt", (void *)file_buf, 0, 1024, &actread);
+	ret = fat_read_file("bootcfg.txt", (void *)file_buf, 0, 2048, &actread);
 	if (actread == 0 || ret != 0) {
 		printf("Error:read file bootcfg.txt failed!\n");
 		goto err;
@@ -390,11 +420,32 @@ static int do_fat_upg(int intf, char *const blktype)
 		goto err;
 	}
 #ifdef CONFIG_VIDEO_ARTINCHIP
+#ifdef CONFIG_PROGRESS_BAR
+	ret = 0;
+#else
 	ret = aic_disp_logo("burn_done", BD_SDFAT32);
 	if (ret)
 		pr_err("display burn done logo failed\n");
 #endif
+#endif
 
+	puts("\nPlug-out SDCard/UDISK to reboot device.\n");
+	printf(" CTRL+C exit to command line.\n");
+	/* Reboot when SDCard/UDISK plug-out */
+	while (1) {
+		ret = fat_read_file("bootcfg.txt", (void *)file_buf, 0, 2048,
+				    &actread);
+		if (actread == 0 || ret != 0) {
+			mdelay(1000);
+			do_reset(NULL, 0, 0, 0);
+		}
+
+		if (ctrlc()) {
+			/* Exit to cmd line */
+			break;
+		}
+		mdelay(100);
+	}
 	free(hdrpack);
 	free(file_buf);
 	ret = CMD_RET_SUCCESS;
@@ -414,8 +465,11 @@ static int do_aicupg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
 	char *devtype = NULL;
 	int intf, ret = CMD_RET_USAGE;
 
-	if ((argc == 1) || ((argc == 2) && !strcmp(argv[1], "brom"))) {
-		do_brom_upg();
+	if (argc <= 2) {
+		if (argc == 1)
+			do_brom_upg("aicusb");
+		else
+			do_brom_upg(argv[1]);
 		return 0;
 	}
 	if ((argc < 3) || (argc > AICUPG_ARGS_MAX))
@@ -442,7 +496,7 @@ static int do_aicupg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
 U_BOOT_CMD(aicupg, AICUPG_ARGS_MAX, 0, do_aicupg,
 	"ArtInChip firmware upgrade",
 	"[devtype] [interface]\n"
-	"  - devtype: should be usb, mmc, fat, brom\n"
+	"  - devtype: should be usb, mmc, fat\n"
 	"  - interface: specify the controller id\n"
 	"e.g.\n"
 	"aicupg\n"

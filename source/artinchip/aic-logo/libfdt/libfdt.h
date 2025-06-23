@@ -1,10 +1,6 @@
-/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause) */
+/* SPDX-License-Identifier: Apache-2.0 */
 #ifndef LIBFDT_H
 #define LIBFDT_H
-/*
- * libfdt - Flat Device Tree manipulation
- * Copyright (C) 2006 David Gibson, IBM Corporation.
- */
 
 #include "libfdt_env.h"
 #include "fdt.h"

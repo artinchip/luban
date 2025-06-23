@@ -50,6 +50,7 @@ struct aic_spienc_platdata {
 	struct reset_ctl reset;
 	u32 tweak;
 	u32 tweak_sel;
+	u32 bypass;
 };
 
 static int aic_spienc_attach_bus(struct udevice *dev, u32 bus)
@@ -104,7 +105,11 @@ static int aic_spienc_ioctl(struct udevice *dev, unsigned long req, void *buf)
 			if (cfg->tweak)
 				tweak = cfg->tweak;
 		}
-		aic_spienc_attach_bus(dev, cfg->spi_id);
+
+		if (plat->bypass)
+			aic_spienc_attach_bus(dev, SPI_CTLR_INVAL);
+		else
+			aic_spienc_attach_bus(dev, cfg->spi_id);
 		writel(cfg->addr, (plat->base + SPIE_REG_ADDR));
 		writel(cfg->cpos, (plat->base + SPIE_REG_CPOS));
 		writel(cfg->clen, (plat->base + SPIE_REG_CLEN));
@@ -121,6 +126,12 @@ static int aic_spienc_ioctl(struct udevice *dev, unsigned long req, void *buf)
 		val = readl((plat->base + SPIE_REG_CTL));
 		val &= ~SPIE_START_MSK;
 		writel(val, (plat->base + SPIE_REG_CTL));
+		break;
+	case AIC_SPIENC_IOCTL_BYPASS:
+		if (buf)
+			plat->bypass = 1;
+		else
+			plat->bypass = 0;
 		break;
 	case AIC_SPIENC_IOCTL_CHECK_EMPTY:
 		if (!p)

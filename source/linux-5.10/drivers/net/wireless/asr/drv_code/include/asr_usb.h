@@ -77,6 +77,11 @@ struct asr_usbdev_info {
 	int intr_size;		/* Size of interrupt message */
 	int interval;		/* Interrupt polling interval */
 	struct intr_transfer_buf intr;	/* Data buffer for interrupt endpoint */
+#ifdef CONFIG_ASR_USB_PM
+	int autosuspend_delay; /* auto suspend delay in milliseconds */
+	struct delayed_work pm_cmd_work;
+	wait_queue_head_t pm_waitq;
+#endif
 };
 
 // id num used in usb

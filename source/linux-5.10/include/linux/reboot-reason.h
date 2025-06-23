@@ -8,7 +8,7 @@ enum aic_reboot_reason {
 	REBOOT_REASON_CMD_SHUTDOWN = 2,
 	REBOOT_REASON_SUSPEND = 3,
 	REBOOT_REASON_UPGRADE = 4,
-	REBOOT_REASON_FASTBOOT = 5,
+	REBOOT_REASON_BL_UPGRADE = 5,
 
 	/* Some software exception reason */
 	REBOOT_REASON_SW_LOCKUP = 8,

@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_V4L_UTILS
+	bool "V4L utils"
+	default n
+	help
+	  Linux utilities and libraries to handle media devices
+	  (TV devices, capture devices, radio devices, remote controllers).
+
+	  http://git.linuxtv.org/v4l-utils.git
+
+if BR2_PACKAGE_V4L_UTILS
+config BR2_PACKAGE_V4L_UTILS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

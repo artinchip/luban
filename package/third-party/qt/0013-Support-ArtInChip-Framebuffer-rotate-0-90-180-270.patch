@@ -1,0 +1,66 @@
+From 4142d0ccb91ef2a246a4042260a93a113e16d404 Mon Sep 17 00:00:00 2001
+From: "huahui.mai" <huahui.mai@artinchip.com>
+Date: Mon, 7 Apr 2025 15:38:51 +0800
+Subject: [PATCH] Support ArtInChip Framebuffer rotate 0/90/180/270
+
+---
+ src/gui/embedded/qscreen_qws.cpp | 36 ++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/src/gui/embedded/qscreen_qws.cpp b/src/gui/embedded/qscreen_qws.cpp
+index 407366c0..57f1e122 100644
+--- a/src/gui/embedded/qscreen_qws.cpp
++++ b/src/gui/embedded/qscreen_qws.cpp
+@@ -590,6 +590,40 @@ void qt_solidFill_setup(QScreen *screen, const QColor &color,
+     screen->d_ptr->solidFill(screen, color, region);
+ }
+ 
++#include <linux/fb.h>
++static int g_fd = -1;
++static int g_rotate = -1;
++
++static void aic_fb_rotate(void)
++{
++    struct fb_var_screeninfo var = {0};
++    int zero = 0;
++
++    if (g_fd < 0) {
++        g_fd = open("/dev/fb0", O_RDWR);
++        if (g_fd < 0)
++            qFatal("open /dev/fb0 error\n");
++    }
++    if (g_rotate < 0) {
++        ioctl(g_fd, FBIOGET_VSCREENINFO, &var);
++        g_rotate = var.rotate;
++    }
++
++    if (g_rotate == 0)
++	    return;
++
++    var.rotate = g_rotate;
++
++    if (ioctl(g_fd, FBIOPAN_DISPLAY, &var) == 0) {
++        if (ioctl(g_fd, FBIO_WAITFORVSYNC, &zero) < 0) {
++            qWarning("ioctl FBIO_WAITFORVSYNC fail\n");
++            return;
++        }
++    } else {
++        qWarning("pan display err\n");
++    }
++}
++
+ template <typename DST, typename SRC>
+ static void blit_template(QScreen *screen, const QImage &image,
+                           const QPoint &topLeft, const QRegion &region)
+@@ -619,6 +653,8 @@ static void blit_template(QScreen *screen, const QImage &image,
+                                      screenStride, imageStride);
+         }
+     }
++
++    aic_fb_rotate();
+ }
+ 
+ #ifdef QT_QWS_DEPTH_32
+-- 
+2.25.1
+

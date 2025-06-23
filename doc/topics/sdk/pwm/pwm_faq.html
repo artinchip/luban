@@ -1,0 +1,309 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="每个 PWM 控制器的两路输出信号有什么关系？ 每个控制器可以控制两路输出 PWM 信号，这两路信号从设计上有三个约束条件： 共用同一个 time-base 信号 ， 即 DTS 参数 tb-clk-rate ，详见 PWM 自定义参数 。 共用同一个 PWM 信号频率 配置参数。 共用同一个 占空比 配置参数。 上述 “PWM 信号频率” 和 “占空比” 由 PWM 的 调用者运行时配置 。 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/pwm/pwm_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/pwm/pwm_design.html"/><meta name="DC.relation" content="../../../topics/sdk/rtp/rtp_user_guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>常见问题</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e6808"/><meta name="wh-source-relpath" content="topics/sdk/pwm/pwm_faq.dita"/><meta name="wh-out-relpath" content="topics/sdk/pwm/pwm_faq.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html">PWM 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/pwm/pwm_faq.html">常见问题</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/pwm/pwm_design.html" title="设计说明" aria-label="上一主题: 设计说明" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/rtp/rtp_user_guide.html" title="RTP 使用指南" aria-label="下一主题: RTP 使用指南" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="pwm_configuration-d4445e6752" class="topicref" data-id="pwm_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_config.html" id="pwm_configuration-d4445e6752-link">PWM 配置</a></div></div></li><li role="treeitem"><div data-tocid="pwm_debug_guide-d4445e6766" class="topicref" data-id="pwm_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_debug.html" id="pwm_debug_guide-d4445e6766-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="pwm_test_guide-d4445e6780" class="topicref" data-id="pwm_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_test.html" id="pwm_test_guide-d4445e6780-link">测试指南</a></div></div></li><li role="treeitem"><div data-tocid="pwm_design_intro-d4445e6794" class="topicref" data-id="pwm_design_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_design.html" id="pwm_design_intro-d4445e6794-link">设计说明</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e6808" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_faq.html" id="id-d4445e6808-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/pwm/pwm_faq.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">常见问题</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <section class="- topic/section section" id="id__section_atp_kls_21c" data-ofbid="id__section_atp_kls_21c"><h2 class="- topic/title title sectiontitle">每个 PWM 控制器的两路输出信号有什么关系？</h2>
+            
+            <p class="- topic/p p" data-ofbid="d107741e33__20250123155209">每个控制器可以控制两路输出 PWM 信号，这两路信号从设计上有三个约束条件：</p>
+            <ol class="- topic/ol ol" id="id__ol_btp_kls_21c" data-ofbid="id__ol_btp_kls_21c">
+                <li class="- topic/li li" data-ofbid="d107741e38__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e40__20250123155209">共用同一个 <strong class="+ topic/ph hi-d/b ph b">time-base 信号</strong>，<span class="- topic/ph ph">即 DTS 参数
+                                <code class="+ topic/ph pr-d/codeph ph codeph">tb-clk-rate</code>，详见<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="pwm_config.html#pwm_configuration__table_mqy_23s_21c">PWM 自定义参数</a>。</span></p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e56__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e58__20250123155209">共用同一个 <strong class="+ topic/ph hi-d/b ph b">PWM 信号频率</strong> 配置参数。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e65__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e67__20250123155209">共用同一个 <strong class="+ topic/ph hi-d/b ph b">占空比</strong> 配置参数。</p>
+                </li>
+            </ol>
+            <p class="- topic/p p" data-ofbid="d107741e75__20250123155209">上述 “PWM 信号频率” 和 “占空比” 由 PWM 的 <strong class="+ topic/ph hi-d/b ph b">调用者运行时配置</strong>。 两路信号可以完全相同，也可以做到亮点差别：</p>
+            <ol class="- topic/ol ol" id="id__ol_ctp_kls_21c" data-ofbid="id__ol_ctp_kls_21c">
+                <li class="- topic/li li" data-ofbid="d107741e83__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e85__20250123155209">相位相反，在占空比上看到的是一个为正、一个为负。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e89__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e91__20250123155209">可以关闭其中一路，在 DTS 参数中将对应的 Action 配置为 “none” 即可。</p>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__section_dtp_kls_21c" data-ofbid="id__section_dtp_kls_21c"><h2 class="- topic/title title sectiontitle">PWM 信号的占空比是反向的</h2>
+            
+            <p class="- topic/p p" data-ofbid="d107741e102__20250123155209"><span class="- topic/ph ph">通过 Backlight 设备配置了背光亮度后，</span>得到的占空比相位是反向的。比如配置 80%，得到的是 20%。</p>
+            <p class="- topic/p p" data-ofbid="d107741e107__20250123155209"><strong class="+ topic/ph hi-d/b ph b">原因分析</strong></p>
+            <p class="- topic/p p" data-ofbid="d107741e111__20250123155209">PWM 信号的电平跳变方向完全是由几个关键时点的配置参数决定，所以如果碰到占空比反向的情况，直接的调整方法是将配置参数反向设置即可。</p>
+            <p class="- topic/p p" data-ofbid="d107741e114__20250123155209"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="pwm_test.html#pwm_test_guide__section_oh4_cjs_21c">测试 PWM 信号</a>
+                提供了一些典型的参考配置，可以看到相邻的“负占空比”和“正占空比”参数配置基本是反向的。</p>
+        </section>
+        <section class="- topic/section section" id="id__section_etp_kls_21c" data-ofbid="id__section_etp_kls_21c"><h2 class="- topic/title title sectiontitle">PWM 信号的周期不准</h2>
+            
+            <p class="- topic/p p" data-ofbid="d107741e126__20250123155209">这个问题，通常出现在增减模式，看到周期值可能存在“差 1”的误差。</p>
+            <div class="- topic/p p" data-ofbid="d107741e129__20250123155209">解决方法：<ul class="- topic/ul ul" id="id__ul_vn1_sls_21c" data-ofbid="id__ul_vn1_sls_21c">
+                    <li class="- topic/li li" data-ofbid="d107741e133__20250123155209">
+                        <p class="- topic/p p" data-ofbid="d107741e135__20250123155209">对于增模式 和减模式，周期值的计算方法比较简单：</p>
+                        <p class="- topic/p p" data-ofbid="d107741e138__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">Tpwm = (TB Period + 1) / tb-clk-rate</code></p>
+                        <p class="- topic/p p" data-ofbid="d107741e142__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">Tpwm = 2 * TB Period / tb-clk-rate</code></p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d107741e147__20250123155209">
+                        <p class="- topic/p p" data-ofbid="d107741e149__20250123155209">对于 增加模式，周期值的计算方法是：</p>
+                        <p class="- topic/p p" data-ofbid="d107741e152__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">Tpwm = 2 * TB Period / tb-clk-rate</code></p>
+                        <p class="- topic/p p" data-ofbid="d107741e156__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">Fpwm = 1 / Tpwm</code></p>
+                    </li>
+                </ul></div>
+            <p class="- topic/p p" data-ofbid="d107741e162__20250123155209">其中：</p>
+            <ul class="- topic/ul ul" id="id__ul_jtp_kls_21c" data-ofbid="id__ul_jtp_kls_21c">
+                <li class="- topic/li li" data-ofbid="d107741e167__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e169__20250123155209">tb-clk-rate: 时基计数器的工作时钟</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e173__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e175__20250123155209">Tpwm: PWM 信号的周期值</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e179__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e181__20250123155209">Fpwm: PWM 信号的频率值</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d107741e185__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d107741e187__20250123155209">TB Period: 时基计数器的计数值，假设此值是 100，那么从 0 计数到 99 就是一个增模式 PWM 信号的周期</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d107741e193__20250123155209">在 PWM 驱动中，tb-clk-rate 是从 DTS 中获取的，其他几个值的计算顺序是：</p>
+            <p class="- topic/p p" data-ofbid="d107741e196__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">Tpwm(即 period_ns) -&gt; Fpwm（即 freq） -&gt; TB Period(即 prd)</code></p>
+            <div class="- topic/p p" data-ofbid="d107741e200__20250123155209">代码详见函数
+                aic_pwm_config()中：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_gkg_yls_21c" data-ofbid="id__codeblock_gkg_yls_21c"><code>arg-&gt;freq = NSEC_PER_SEC / period_ns;
+prd = arg-&gt;tb_clk_rate / arg-&gt;freq;
+<strong class="hl-keyword">if</strong> (arg-&gt;mode == PWM_MODE_UP_DOWN_COUNT)
+    prd &gt;≥ <span class="hl-number">1</span>;
+<strong class="hl-keyword">else</strong>
+    prd--;</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d107741e205__20250123155209">可以看到上面 TB Period(即 prd) 的计算过程中有一次 <strong class="+ topic/ph hi-d/b ph b">除 2 操作</strong>，所以可能会引入“差 1”的误差。</p>
+        </section>
+        <section class="- topic/section section" id="id__section_fpz_q1z_gdc" data-ofbid="id__section_fpz_q1z_gdc"><h2 class="- topic/title title sectiontitle">PWM 输出频率范围如何计算</h2>
+            
+            <p class="- topic/p p" data-ofbid="d107741e217__20250123155209">目前 Luban-Lite 中会根据配置的周期（单位纳秒），自动计算出最佳工作时基。本节仅描述如何计算同一时基下的最大最小频率。</p>
+            <p class="- topic/p p" data-ofbid="d107741e220__20250123155209">PWM 输出频率与工作时钟频率、配置的周期以及 <code class="+ topic/ph pr-d/codeph ph codeph">action</code>信息相关。</p>
+            <p class="- topic/p p" data-ofbid="d107741e226__20250123155209">工作时钟频率和父时钟、分频有关。更多时钟问题，参考 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="pwm_config.html#pwm_configuration__section_lhg_fyn_4dc">时钟配置</a>。</p>
+            <div class="- topic/p p" data-ofbid="d107741e233__20250123155209">以 24 MHz 为例，可推导出最大最小频率：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_f43_hbz_gdc" data-ofbid="id__codeblock_f43_hbz_gdc"><code>Tclk = <span class="hl-number">1</span> / fclk
+Tprd = Tclk * (prd + <span class="hl-number">1</span>)
+Tprd = (prd + <span class="hl-number">1</span>) / fclk
+fprd = fclk / (prd + <span class="hl-number">1</span>)</code></pre><ul class="- topic/ul ul" id="id__ul_ms2_3bz_gdc" data-ofbid="id__ul_ms2_3bz_gdc">
+                    <li class="- topic/li li" data-ofbid="d107741e239__20250123155209">
+                        <p class="- topic/p p" data-ofbid="d107741e241__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">fclk</code>：工作时钟频率。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d107741e247__20250123155209">
+                        <p class="- topic/p p" data-ofbid="d107741e249__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">fprd</code>：PWM 输出频率：</p>
+                    </li>
+                </ul></div>
+            <div class="- topic/p p" data-ofbid="d107741e257__20250123155209">根据上述公式可以获得 PWM 的输出频率，如下所示：<ul class="- topic/ul ul" id="id__ul_lmy_xbz_gdc" data-ofbid="id__ul_lmy_xbz_gdc">
+                    <li class="- topic/li li" data-ofbid="d107741e261__20250123155209"><p class="- topic/p p" data-ofbid="d107741e262__20250123155209">最小频率： fprd = 24000000 / (0xFFFF + 1) ≈ 367 Hz </p><p class="- topic/p p" data-ofbid="d107741e264__20250123155209"><code class="+ topic/ph pr-d/codeph ph codeph">PRD</code>
+                            则可以不动作，“互补”工作交由 <code class="+ topic/ph pr-d/codeph ph codeph">ZRO</code> 与 <code class="+ topic/ph pr-d/codeph ph codeph">CMP</code>
+                            即可。</p><img class="- topic/image image" id="id__image_gsx_gcz_gdd" src="../../../images/sdk/minfreq.png" alt="mminfreq"/>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d107741e281__20250123155209"><p class="- topic/p p" data-ofbid="d107741e282__20250123155209">最大频率： fprd = 24000000 / (1 + 1) = 12 MHz</p><p class="- topic/p p" data-ofbid="d107741e284__20250123155209">当 <code class="+ topic/ph pr-d/codeph ph codeph">prd 寄存器</code>
+                            设置为 1 （最小为 1 ）时，<code class="+ topic/ph pr-d/codeph ph codeph">action</code>
+                            <code class="+ topic/ph pr-d/codeph ph codeph">CMP</code> 部分应配置为不动作，<code class="+ topic/ph pr-d/codeph ph codeph">PRD</code> 与
+                                <code class="+ topic/ph pr-d/codeph ph codeph">ZRO</code> 互补高低电平，即可输出 12 MHz。</p><img class="- topic/image image" id="id__image_gsx_gcz_gdc" src="../../../images/sdk/maxfreq.png" alt="maxfreq"/></li>
+                </ul></div>
+            
+            <div class="- topic/div div">
+                <p class="- topic/p p" data-ofbid="d107741e312__20250123155209">最大频率可与最小频率、正常输出频率时一样，只配置 <code class="+ topic/ph pr-d/codeph ph codeph">CMP</code> 与 <code class="+ topic/ph pr-d/codeph ph codeph">ZRO</code> 动作，
+                        <code class="+ topic/ph pr-d/codeph ph codeph">PRD</code> 不动作，此时配置 <code class="+ topic/ph pr-d/codeph ph codeph">cmp 寄存器</code> 与
+                        <code class="+ topic/ph pr-d/codeph ph codeph">prd 寄存器</code> 相等理论上能产生一样的效果。但由于驱动中默认设计当 <code class="+ topic/ph pr-d/codeph ph codeph">cmp 寄存器</code> 与
+                        <code class="+ topic/ph pr-d/codeph ph codeph">prd 寄存器</code> 相等时，为了输出 100% 占空比，<code class="+ topic/ph pr-d/codeph ph codeph">cmp 寄存器</code> 会默认增加
+                    1。这个问题我们在下章节毛刺问题作出解析。</p>
+            </div>
+        </section>
+        
+
+
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_atp_kls_21c" data-tocid="id__section_atp_kls_21c">每个 PWM 控制器的两路输出信号有什么关系？</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_dtp_kls_21c" data-tocid="id__section_dtp_kls_21c">PWM 信号的占空比是反向的</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_etp_kls_21c" data-tocid="id__section_etp_kls_21c">PWM 信号的周期不准</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_fpz_q1z_gdc" data-tocid="id__section_fpz_q1z_gdc">PWM 输出频率范围如何计算</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

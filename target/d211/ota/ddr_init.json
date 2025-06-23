@@ -46,7 +46,7 @@
 			"upgmode_pin_input_val": "0x0", // Bit VAL
 			"upgmode_pin_pullup_dly": "500", // n * 1us delay, limited to between 500us and 100ms
 		},
-		"uart": { // PBP's uart setting
+		"uart": { // PBP's uart setting, remove uart setting to disable log in PBP
 			"main": {
 				// "uart_id": "0", // UART0 for log output
 				// "uart_tx_pin_cfg_reg": "0x18700080", // PA0

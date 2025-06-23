@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_audio_decoder interface
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0E
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_audio_decoder interface
+ */
 
 #define LOG_TAG "audio_packet_manager"
 

@@ -42,8 +42,8 @@ static int i2c_set_timmings_master(struct aic_i2c_dev *i2c_dev)
 			return -EINVAL;
 		}
 
-		ret = i2c_scl_cnt(ic_clk / 1000, i2c_dev->i2c_speed,
-				&i2c_dev->scl_hcnt, &i2c_dev->scl_lcnt);
+		ret = i2c_scl_cnt(ic_clk, i2c_dev->target_rate,
+					&i2c_dev->scl_hcnt, &i2c_dev->scl_lcnt);
 		if (ret) {
 			dev_err(i2c_dev->dev, "set i2c scl cnt error\n");
 			return ret;
@@ -329,7 +329,7 @@ static const struct i2c_algorithm i2c_algo = {
 int i2c_probe_master(struct aic_i2c_dev *i2c_dev)
 {
 	struct i2c_adapter *adap = &i2c_dev->adap;
-	int ret;
+	int ret, cmd, rate;
 
 	init_completion(&i2c_dev->cmd_complete);
 
@@ -348,6 +348,27 @@ int i2c_probe_master(struct aic_i2c_dev *i2c_dev)
 	/* disable all interrupt and clear interrupt flags */
 	i2c_disable_interrupts(i2c_dev);
 	i2c_writel(i2c_dev, 0xFFFF, I2C_INTR_CLR);
+
+	/* Enable SDA &SCL Stuck Timeout Restore */
+	cmd = i2c_readl(i2c_dev, I2C_CTL);
+	i2c_writel(i2c_dev, I2C_CTL_BUS_CLEAR_FEATURE | cmd, I2C_CTL);
+
+	cmd = i2c_readl(i2c_dev, I2C_ENABLE);
+	i2c_writel(i2c_dev, I2C_SDA_STUCK_RECOVERY_ENABLE | cmd, I2C_ENABLE);
+	msleep(1);
+
+	/* Set I2C SDA & SCL Sutuck Time*/
+	rate = i2c_dev->target_rate;
+	if (rate <= 10000) {
+		i2c_writel(i2c_dev, 0xa00000, I2C_SDA_STUCK_TIMEOUT);
+		i2c_writel(i2c_dev, 0xa00000, I2C_SCL_STUCK_TIMEOUT);
+	} else if (rate > 10000 && rate < 100000) {
+		i2c_writel(i2c_dev, 0x6000, I2C_SDA_STUCK_TIMEOUT);
+		i2c_writel(i2c_dev, 0x6000, I2C_SCL_STUCK_TIMEOUT);
+	} else {
+		i2c_writel(i2c_dev, 0x1000, I2C_SDA_STUCK_TIMEOUT);
+		i2c_writel(i2c_dev, 0x1000, I2C_SCL_STUCK_TIMEOUT);
+	}
 
 	ret = devm_request_irq(i2c_dev->dev, i2c_dev->irq, i2c_isr, 0,
 				dev_name(i2c_dev->dev), i2c_dev);

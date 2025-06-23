@@ -1,0 +1,290 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="寄存器地址空间映射 由于寄存器是在用户空间配置，VE 驱动需要实现 mmap 接口，将寄存器地址空间映射到用户态进程的虚拟地址空间，以便用户态程序读写寄存器。 不同 VE 硬件版本，寄存器基地址和寄存器地址范围可能不一样，因此需要在 board.dts 中针对不同平台正确配置 reg 项（如下所示）。 ve: ve@ 0x18c00000 { ... reg = &lt; 0x0 0x18c00000 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/ve/ve_design_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/ve/ve-architecture-luban-lite.html"/><meta name="DC.relation" content="../../../topics/sdk/ve/ve-data_structure.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="ve_key_procedure"/><meta name="DC.language" content="zh-CN"/><title>关键流程设计</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="ve_key_procedure-d4445e4707"/><meta name="wh-source-relpath" content="topics/sdk/ve/ve-key_procedure.dita"/><meta name="wh-out-relpath" content="topics/sdk/ve/ve-key_procedure.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="ve_key_procedure" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="ve"><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html">VE 使用指南</a></div></div></li><li><div class="topicref" data-id="ve_design_intro"><div class="title"><a href="../../../topics/sdk/ve/ve_design_guide.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="ve_key_procedure"><div class="title"><a href="../../../topics/sdk/ve/ve-key_procedure.html">关键流程设计</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/ve/ve-architecture-luban-lite.html" title="模块架构" aria-label="上一主题: 模块架构" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/ve/ve-data_structure.html" title="数据结构设计" aria-label="下一主题: 数据结构设计" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ve_configuration-d4445e4651" class="topicref" data-id="ve_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-config.html" id="ve_configuration-d4445e4651-link">VE 配置</a></div></div></li><li role="treeitem"><div data-tocid="ve_test_guide-d4445e4665" class="topicref" data-id="ve_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-test_guide.html" id="ve_test_guide-d4445e4665-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="ve_design_intro-d4445e4679" class="topicref" data-id="ve_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ve_design_intro-d4445e4679-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve_design_guide.html" id="ve_design_intro-d4445e4679-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ve_architecture_luban_lite-d4445e4693" class="topicref" data-id="ve_architecture_luban_lite" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-architecture-luban-lite.html" id="ve_architecture_luban_lite-d4445e4693-link">模块架构</a></div></div></li><li role="treeitem" class="active"><div data-tocid="ve_key_procedure-d4445e4707" class="topicref" data-id="ve_key_procedure" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-key_procedure.html" id="ve_key_procedure-d4445e4707-link">关键流程设计</a></div></div></li><li role="treeitem"><div data-tocid="ve_data_structure-d4445e4721" class="topicref" data-id="ve_data_structure" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-data_structure.html" id="ve_data_structure-d4445e4721-link">数据结构设计</a></div></div></li><li role="treeitem"><div data-tocid="ve_interface_design-d4445e4735" class="topicref" data-id="ve_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/ic/ve/ve-interface_design.html" id="ve_interface_design-d4445e4735-link">接口设计</a></div></div></li><li role="treeitem"><div data-tocid="ve_demo-d4445e4749" class="topicref" data-id="ve_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-demo.html" id="ve_demo-d4445e4749-link">Demo</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="ve_common_issues-d4445e4763" class="topicref" data-id="ve_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-faq.html" id="ve_common_issues-d4445e4763-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/ve/ve-key_procedure.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">关键流程设计</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="ve_key_procedure__section_lqc_vhb_d1c" data-ofbid="ve_key_procedure__section_lqc_vhb_d1c"><h2 class="- topic/title title sectiontitle">寄存器地址空间映射</h2>
+            
+            <p class="- topic/p p" data-ofbid="d136343e38__20250123155213">由于寄存器是在用户空间配置，VE 驱动需要实现 mmap 接口，将寄存器地址空间映射到用户态进程的虚拟地址空间，以便用户态程序读写寄存器。</p>
+            <p class="- topic/p p" data-ofbid="d136343e41__20250123155213">不同 VE 硬件版本，寄存器基地址和寄存器地址范围可能不一样，因此需要在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 中针对不同平台正确配置 reg
+                项（如下所示）。</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="ve_key_procedure__pre_mqc_vhb_d1c" data-ofbid="ve_key_procedure__pre_mqc_vhb_d1c"><code>ve: ve@<span class="hl-number">0x18c00000</span> {
+        ...
+        reg = &lt;<span class="hl-number">0x0</span> <span class="hl-number">0x18c00000</span> <span class="hl-number">0x0</span> <span class="hl-number">0x4000</span>&gt;;
+        ...
+};</code></pre>
+            <p class="- topic/p p" data-ofbid="d136343e50__20250123155213">用户态程序映射寄存器地址空间步骤如下：</p>
+            <ul class="- topic/ul ul" id="ve_key_procedure__ul_nqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_nqc_vhb_d1c">
+                <li class="- topic/li li" data-ofbid="d136343e56__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e58__20250123155213">通过 ioctl 获取寄存器地址范围。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d136343e62__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e64__20250123155213">调用 mmap 映射寄存器地址空间到虚拟地址空间，并得到寄存器在虚拟地址空间的起始地址。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d136343e68__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e70__20250123155213">根据寄存器起始地址和偏移地址读写 VE 寄存器。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="ve_key_procedure__section_oqc_vhb_d1c" data-ofbid="ve_key_procedure__section_oqc_vhb_d1c"><h2 class="- topic/title title sectiontitle">中断处理流程</h2>
+            
+            <p class="- topic/p p" data-ofbid="d136343e81__20250123155213">VE 中断类型有三种，包括：</p>
+            <ul class="- topic/ul ul" id="ve_key_procedure__ul_pqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_pqc_vhb_d1c">
+                <li class="- topic/li li" data-ofbid="d136343e86__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e88__20250123155213">finish 中断：VE 任务正常结束</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d136343e92__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e94__20250123155213">error 中断：VE 处理任务过程中出错</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d136343e98__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d136343e100__20250123155213">bit request 中断：当前数据不足以完成一次完整的任务，需要继续发送数据</p>
+                </li>
+            </ul>
+            <div class="- topic/p p" data-ofbid="d136343e105__20250123155213"><span class="- topic/ph ph">VE 的中断处理分为两部分：VE 驱动和用户态程序：</span><ul class="- topic/ul ul" id="ve_key_procedure__ul_afm_zhb_d1c" data-ofbid="ve_key_procedure__ul_afm_zhb_d1c">
+                    <li class="- topic/li li" data-ofbid="d136343e110__20250123155213">内核 VE 驱动的中断处理比较简单，只是把中断状态返回到用户态<ul class="- topic/ul ul" id="ve_key_procedure__ul_rqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_rqc_vhb_d1c">
+                            <li class="- topic/li li" data-ofbid="d136343e114__20250123155213">读模块的状态寄存器，并将状态值返回到用户态，由用户态程序处理。</li>
+                            <li class="- topic/li li" data-ofbid="d136343e117__20250123155213">关闭中断，避免中断重复发送。</li>
+                            <li class="- topic/li li" data-ofbid="d136343e120__20250123155213">中断超时处理，当中断在规定时间（默认值为 2 s）内未收到，则表示出现异常，此时返回出错由用户态处理。<div class="- topic/note note note note_note" id="ve_key_procedure__note_ynd_b3b_d1c" data-ofbid="ve_key_procedure__note_ynd_b3b_d1c"><span class="note__title">注：</span> <div class="note__body">
+                                    <ul class="- topic/ul ul" id="ve_key_procedure__ol_sqc_vhb_d1c" data-ofbid="ve_key_procedure__ol_sqc_vhb_d1c">
+                                        <li class="- topic/li li" data-ofbid="d136343e126__20250123155213">不同模块（H264/JPEG/PNG
+                                            等）的状态寄存器不一样，读状态寄存器时需要根据模块获取相应状态寄存器的值。</li>
+                                        <li class="- topic/li li" data-ofbid="d136343e129__20250123155213">VE 每次任务处理完后，都会关闭中断，因此在下次启动 VE 前，必须再次使能 VE 中断。</li>
+                                    </ul>
+                                </div></div></li>
+                        </ul></li>
+                    <li class="- topic/li li" data-ofbid="d136343e135__20250123155213"><span class="- topic/ph ph">用户态程序根据 VE 驱动返回的中断状态并处理中断</span><ul class="- topic/ul ul" id="ve_key_procedure__ul_uqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_uqc_vhb_d1c">
+                            <li class="- topic/li li" data-ofbid="d136343e140__20250123155213">finish 中断处理：VE 正常结束，释放 VE 硬件设备独占权限</li>
+                            <li class="- topic/li li" data-ofbid="d136343e143__20250123155213">bit request 中断处理：再次发送一笔数据，重新启动 VE 执行任务，重复以上过程，直到 VE 返回 finish 或
+                                error 中断</li>
+                            <li class="- topic/li li" data-ofbid="d136343e146__20250123155213">error 中断：VE 执行出错，必须对 VE 进行硬件复位避免错误影响下次任务</li>
+                            <li class="- topic/li li" data-ofbid="d136343e149__20250123155213">等中断超时：此时 VE 出现未知异常，必须对 VE 进行硬件复位</li>
+                        </ul><div class="- topic/note note note note_note" id="ve_key_procedure__note_txk_whb_d1c" data-ofbid="ve_key_procedure__note_txk_whb_d1c"><span class="note__title">注：</span> <div class="note__body">处理 bit request 中断时，不能释放 VE
+                            硬件设备独占权限，因为两次任务处理有相关性。如果这两次任务之间执行其他任务，会影响 VE
+                        内部状态，从而导致该次任务执行出错。</div></div></li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="ve_key_procedure__section_vqc_vhb_d1c" data-ofbid="ve_key_procedure__section_vqc_vhb_d1c"><h2 class="- topic/title title sectiontitle">多进程支持</h2>
+            
+            <p class="- topic/p p" data-ofbid="d136343e162__20250123155213">VE 设备只有一个，所以同一时间只能执行一个任务。当多个进程同时操作 VE 驱动时，VE 只能分时复用。因此<span class="- topic/ph ph">用户态进程</span>在操作 VE 之前，必须获得 VE
+                的独占权限。 VE 驱动通过 IOC_VE_GET_CLIENT/IOC_VE_PUT_CLIENT 这两个 ioctl 接口为用户态进程提供获取和释放 VE
+                独占权限功能。</p>
+            <div class="- topic/p p" data-ofbid="d136343e168__20250123155213">VE 驱动实现这一功能的几个概念：<ul class="- topic/ul ul" id="ve_key_procedure__ul_wqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_wqc_vhb_d1c">
+                    <li class="- topic/li li" data-ofbid="d136343e172__20250123155213">client：与进程相关的对象，保存该进程的信息，包括：进程 pid、该进程的 task、该进程使用的 dmabuf 队列等</li>
+                    <li class="- topic/li li" data-ofbid="d136343e175__20250123155213">service：与 VE 资源相关的唯一对象，所有 client 通过 service 获取 VE 硬件的使用权限</li>
+                </ul></div>
+            <div class="- topic/p p" data-ofbid="d136343e179__20250123155213">具体实现如下：<ul class="- topic/ul ul" id="ve_key_procedure__ul_xqc_vhb_d1c" data-ofbid="ve_key_procedure__ul_xqc_vhb_d1c">
+                    <li class="- topic/li li" data-ofbid="d136343e183__20250123155213">
+                        <p class="- topic/p p" data-ofbid="d136343e185__20250123155213">VE 驱动在 probe 中创建一个唯一的 service 对象，用于管理 VE 资源</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d136343e189__20250123155213">
+                        <p class="- topic/p p" data-ofbid="d136343e191__20250123155213">VE 驱动为每个进程创建一个 client 对象，用于维护该进程的 VE 状态</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d136343e195__20250123155213">
+                        <p class="- topic/p p" data-ofbid="d136343e197__20250123155213">用户态进程调用 IOC_VE_GET_CLIENT 接口时，对应进程的 client 会通过 service 判断当前 VE
+                            是否正在运行。如果是，当前 client 在此等待 VE 资源释放信号。否则得到 VE 操作权限</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d136343e201__20250123155213">
+                        <p class="- topic/p p" data-ofbid="d136343e203__20250123155213">用户态进程等待当前解码任务执行完成后（等到中断），调用 IOC_VE_PUT_CLIENT 接口，当前 client 发出释放 VE
+                            资源信号通知其它 client</p>
+                    </li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="ve_key_procedure__section_yqc_vhb_d1c" data-ofbid="ve_key_procedure__section_yqc_vhb_d1c"><h2 class="- topic/title title sectiontitle">多线程支持</h2>
+            
+            <p class="- topic/p p" data-ofbid="d136343e214__20250123155213">当一个进程中的多个线程同时操作 VE 驱动时，VE 只能分时复用。为避免每个线程都执行 VE
+                驱动初始化等重复操作，建议用户态程序使用单例模式实现 VE 驱动调用。具体实现可参考 mpp 代码（base/ve/ve.c）。</p>
+            
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#ve_key_procedure__section_lqc_vhb_d1c" data-tocid="ve_key_procedure__section_lqc_vhb_d1c">寄存器地址空间映射</a></div></li><li class="section-item"><div class="section-title"><a href="#ve_key_procedure__section_oqc_vhb_d1c" data-tocid="ve_key_procedure__section_oqc_vhb_d1c">中断处理流程</a></div></li><li class="section-item"><div class="section-title"><a href="#ve_key_procedure__section_vqc_vhb_d1c" data-tocid="ve_key_procedure__section_vqc_vhb_d1c">多进程支持</a></div></li><li class="section-item"><div class="section-title"><a href="#ve_key_procedure__section_yqc_vhb_d1c" data-tocid="ve_key_procedure__section_yqc_vhb_d1c">多线程支持</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

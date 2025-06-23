@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aac_decoder
-*/
+ * Copyright (C) 2020-2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aac_decoder
+ */
 
 #include <string.h>
 #include <pthread.h>
@@ -100,15 +102,15 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
     aac_decoder->curr_packet = audio_pm_dequeue_ready_packet(aac_decoder->decoder.pm);
     memset(&frame_info, 0x00, sizeof(NeAACDecFrameInfo));
     pcm_data = NeAACDecDecode(aac_decoder->aac_handle, &frame_info, aac_decoder->curr_packet->data, aac_decoder->curr_packet->size);
-    if (frame_info.error != 0) {
-        audio_pm_enqueue_empty_packet(aac_decoder->decoder.pm, aac_decoder->curr_packet);
-        loge("NeAACDecDecode error\n");
-        return DEC_ERR_NOT_SUPPORT;
+
+    if (frame_info.error && !aac_decoder->decoder.fm) {
+        loge("decoder  fail !!!\n");
+        return DEC_ERR_NULL_PTR;
     }
 
-    if (frame_info.samples == 0) {
+    if (frame_info.error == 0 && frame_info.samples == 0) {
         audio_pm_enqueue_empty_packet(aac_decoder->decoder.pm, aac_decoder->curr_packet);
-        loge("size:%d,pts:%lld\n", aac_decoder->curr_packet->size, aac_decoder->curr_packet->pts);
+        logd("size:%d,pts:%lld\n", aac_decoder->curr_packet->size, aac_decoder->curr_packet->pts);
         return DEC_OK;
     }
 
@@ -123,10 +125,12 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
 
     audio_pm_enqueue_empty_packet(aac_decoder->decoder.pm, aac_decoder->curr_packet);
 
-    aac_decoder->channels = frame_info.channels;
-    aac_decoder->sample_rate = frame_info.samplerate;
-    aac_decoder->samples = frame_info.samples;
-    aac_decoder->bits_per_sample = 16; //fixed
+    if (frame_info.error == 0) {
+        aac_decoder->channels = frame_info.channels;
+        aac_decoder->sample_rate = frame_info.samplerate;
+        aac_decoder->samples = frame_info.samples;
+        aac_decoder->bits_per_sample = 16; //fixed
+    }
     //pcm_data_size = aac_decoder->channels *  aac_decoder->samples * aac_decoder->bits_per_sample/8;
     pcm_data_size = aac_decoder->samples * aac_decoder->bits_per_sample / 8;
     if (aac_decoder->decoder.fm == NULL) {
@@ -161,7 +165,13 @@ int __aac_decode_frame(struct aic_audio_decoder *decoder)
     frame->pts = aac_decoder->curr_packet->pts;
     frame->bits_per_sample = aac_decoder->bits_per_sample;
     frame->id = aac_decoder->frame_id++;
-    memcpy(frame->data, pcm_data, pcm_data_size);
+    if (frame_info.error == 0) {
+        memcpy(frame->data, pcm_data, pcm_data_size);
+    } else {
+        memset(frame->data, 0x00, pcm_data_size);
+        loge("NeAACDecDecode error\n");
+    }
+
     if (aac_decoder->curr_packet->flag & PACKET_FLAG_EOS) {
         frame->flag |= PACKET_FLAG_EOS;
         logd("aac_decoder last packet!!!!\n");

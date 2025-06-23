@@ -1,0 +1,822 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="硬件授权认证是一种基于身份认证原理以及硬件安全密钥实现的安全功能，可以让软件或者第三方合作伙伴对芯片的合法性进行认证。 身份认证原理 下图展示了 RSA 的认证流程： 芯片拥有一个 RSA 私钥：RSA-PRIV 软件拥有对应的 RSA 公钥：RSA-PUB 软件指定一笔数据：Nonce 芯片通过私钥：RSA-PRIV 对 Nonce 进行加密，并返回加密结果给软件 软件通过公钥：RSA-PUB ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/secure/chapter-secure.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/firmware_encryption_for_luban.html"/><meta name="DC.relation" content="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="hw_authentication"/><meta name="DC.language" content="zh-CN"/><title>硬件授权认证</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="hw_authentication-d4445e1635"/><meta name="wh-source-relpath" content="topics/sdk/secure/hw_authorization.dita"/><meta name="wh-out-relpath" content="topics/sdk/secure/hw_authorization.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="hw_authentication" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="concept_rcx_czh_pzb"><div class="title"><a href="../../../topics/sdk/chapter-app.html">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html">安全方案</a></div></div></li><li class="active"><div class="topicref" data-id="hw_authentication"><div class="title"><a href="../../../topics/sdk/secure/hw_authorization.html">硬件授权认证 </a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/secure/firmware_encryption_for_luban.html" title="Linux 固件加密使用说明" aria-label="上一主题: Linux 固件加密使用说明" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html" title="烧写 eFuse" aria-label="下一主题: 烧写 eFuse" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1377" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1377-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burnsys_user_guide.html" id="id-d4445e1377-link">系统更新</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1491" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1491-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ota/ota_guide.html" id="id-d4445e1491-link">OTA 方案</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1607" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1607-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/chapter-secure.html" id="id-d4445e1607-link">安全方案</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="firmware-encryption-for-luban-d4445e1621" class="topicref" data-id="firmware-encryption-for-luban" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/firmware_encryption_for_luban.html" id="firmware-encryption-for-luban-d4445e1621-link">Linux 固件加密使用说明</a></div></div></li><li role="treeitem" class="active"><div data-tocid="hw_authentication-d4445e1635" class="topicref" data-id="hw_authentication" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/hw_authorization.html" id="hw_authentication-d4445e1635-link">硬件授权认证 </a></div></div></li><li role="treeitem"><div data-tocid="burn_efuse-d4445e1649" class="topicref" data-id="burn_efuse" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/secure/burn-eFuse-with-upgcmd.html" id="burn_efuse-d4445e1649-link">烧写 eFuse</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="id-d4445e1663" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/burnsys/burner_offline.html" id="id-d4445e1663-link">离线烧录</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/secure/hw_authorization.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">硬件授权认证 </h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 10 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <p class="- topic/p p" data-ofbid="d49946e28__20250123155201">硬件授权认证是一种基于身份认证原理以及硬件安全密钥实现的安全功能，可以让软件或者第三方合作伙伴对芯片的合法性进行认证。 </p>
+        
+        <section class="- topic/section section" id="hw_authentication__section_i1s_j1q_wcc" data-ofbid="hw_authentication__section_i1s_j1q_wcc"><h2 class="- topic/title title sectiontitle">身份认证原理</h2>
+            
+            <div class="- topic/p p" data-ofbid="d49946e36__20250123155201">下图展示了 RSA 的认证流程： <ul class="- topic/ul ul" id="hw_authentication__ul_dfn_xk4_fdc" data-ofbid="hw_authentication__ul_dfn_xk4_fdc">
+                    <li class="- topic/li li" data-ofbid="d49946e40__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e42__20250123155201">芯片拥有一个 RSA 私钥：RSA-PRIV</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e46__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e48__20250123155201">软件拥有对应的 RSA 公钥：RSA-PUB</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e52__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e54__20250123155201">软件指定一笔数据：Nonce</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e58__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e60__20250123155201">芯片通过私钥：RSA-PRIV 对 Nonce 进行加密，并返回加密结果给软件</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e64__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e66__20250123155201">软件通过公钥：RSA-PUB 对 加密的 Nonce 进行解密，解密结果和 Nonce 匹配则认证成功</p>
+                    </li>
+                </ul></div>
+            <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="hw_authentication__image_fsb_drt_vcc" src="../../../images/secure/identification.png" alt="identification"/></div><br/>
+            <div class="- topic/div div"><strong class="+ topic/ph hi-d/b ph b">RSA 私钥存储</strong><div class="- topic/p p" data-ofbid="d49946e80__20250123155201">RSA 私钥：RSA-PRIV 较大，通常不直接保存在 芯片的 eFuse 中，而是通过额外的 PSK（Protection
+                    Secure Key）进行加密后保存。 eFuse 中仅保存 PSK ，而 RSA 私钥则通过 PSK 加密后直接发布。具体步骤为：<ul class="- topic/ul ul" id="hw_authentication__ul_xfg_fl4_fdc" data-ofbid="hw_authentication__ul_xfg_fl4_fdc">
+                        <li class="- topic/li li" data-ofbid="d49946e84__20250123155201">
+                            <p class="- topic/p p" data-ofbid="d49946e86__20250123155201">通过 AES/DES 加密的方式，将 RSA 私钥加密。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d49946e90__20250123155201">
+                            <p class="- topic/p p" data-ofbid="d49946e92__20250123155201">使用时，通过 PSK 将 RSA 私钥解密到安全 SRAM，软件不可读写</p>
+                        </li>
+                    </ul></div></div>
+            <div class="- topic/div div"><strong class="+ topic/ph hi-d/b ph b">D211 方案 RSA 私钥存储示例</strong><p class="- topic/p p" data-ofbid="d49946e100__20250123155201">D211 的方案通过硬件安全密钥的方式，加密保存 RSA
+                    私钥。</p><dl class="- topic/dl dl" id="hw_authentication__dl_mmh_ysw_fdc" data-ofbid="hw_authentication__dl_mmh_ysw_fdc">
+                    
+                        <dt class="- topic/dt dt dlterm" data-ofbid="d49946e106__20250123155201">D211 硬件特性：</dt>
+                        <dd class="- topic/dd dd">
+                            <ol class="- topic/ol ol" id="hw_authentication__ol_nmh_ysw_fdc" data-ofbid="hw_authentication__ol_nmh_ysw_fdc">
+                                <li class="- topic/li li" data-ofbid="d49946e113__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e115__20250123155201">eFuse 可以通过读写禁止位，控制安全密钥区域是否可以被软件读和写</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d49946e119__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e121__20250123155201">eFuse 的安全密钥区域，一旦被设置为读禁止之后，仅 CE 硬件可访问</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d49946e125__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e127__20250123155201">CE 内部有独立的安全 SRAM，与外界隔绝，仅 CE 可访问，可安全存放密钥</p>
+                                </li>
+                            </ol>
+                        </dd>
+                    
+                    
+                        <dt class="- topic/dt dt dlterm" data-ofbid="d49946e136__20250123155201">具体步骤：</dt>
+                        <dd class="- topic/dd dd">
+                            <ol class="- topic/ol ol" id="hw_authentication__ol_pmh_ysw_fdc" data-ofbid="hw_authentication__ol_pmh_ysw_fdc">
+                                <li class="- topic/li li" data-ofbid="d49946e143__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e145__20250123155201">通过 AES/DES 加密的方式，将 RSA 私钥加密</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d49946e149__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e151__20250123155201">将解密的 AES/DES 密钥，烧录在 eFuse 安全密钥区域，软件不可读写</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d49946e155__20250123155201">
+                                    <p class="- topic/p p" data-ofbid="d49946e157__20250123155201">使用时，将 RSA 私钥解密到安全 SRAM</p>
+                                </li>
+                            </ol>
+                        </dd>
+                    
+                </dl></div>
+        </section>
+        <section class="- topic/section section" id="hw_authentication__id4" data-ofbid="hw_authentication__id4"><h2 class="- topic/title title sectiontitle">软件授权认证</h2>
+            
+            <p class="- topic/p p" data-ofbid="d49946e171__20250123155201">芯片身份认证可在软件授权认证中应用，特别是在需要确保软件仅能运行在特定芯片或硬件平台上时。通过芯片身份认证，软件厂商可以确保其软件和算法只在合法、授权的硬件上运行，从而保护知识产权并防止未经授权的使用。</p>
+            <p class="- topic/p p" data-ofbid="d49946e174__20250123155201">在实际应用中，设备可能会集成了不同厂商的软件和算法。软件厂商会有相关知识产权保护、软件授权上的需求，确保能够限定自身的软件只能运行在指定芯片型号上。</p>
+            <p class="- topic/p p" data-ofbid="d49946e177__20250123155201">通过 PSK (Partner Secret Key) 机制，可以实现芯片身份认证在软件授权认证中的应用，具体步骤如下：</p>
+            <div class="- topic/p p" data-ofbid="d49946e180__20250123155201">
+                <ol class="- topic/ol ol arabic simple" id="hw_authentication__ol_osb_drt_vcd" data-ofbid="hw_authentication__ol_osb_drt_vcd">
+                    <li class="- topic/li li" data-ofbid="d49946e184__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e186__20250123155201">设备厂商将一个 eFuse PSK 区域分配给合作伙伴。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e190__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e192__20250123155201">软件厂商将自己的密钥烧录到 PSK 区域，并且设置为软件不可读写。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e196__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e198__20250123155201">软件厂商生成 RSA 密钥对，并且使用 PSK 将 RSA 私钥 (RSA-PRIV) 加密，生成加密的 RSA 私钥
+                            (RSA-PRIV-e)。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e202__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e204__20250123155201">将加密后的 RSA 私钥 (RSA-PRIV-e) 以及对应的 RSA 公钥集成到软件中。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e208__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e210__20250123155201">需要进行授权检查时，软件设置 CE 使用 PSK，将加密的 RSA 私钥解密到安全 SRAM。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e215__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e217__20250123155201">认证软件使用安全 SRAM 中的 RSA 私钥对一段随机数 (Nonce) 进行加密，生成加密数据 (EncNonce) 返回给认证软件。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e221__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e223__20250123155201">认证软件使用对应的 RSA 公钥 (RSA-PUB) 对 EncNonce 进行解密，还原出原始的 Nonce 数据。比较解密后的 Nonce
+                            与原始 Nonce 是否一致，以验证软件的合法性。</p>
+                        <p class="- topic/p p" data-ofbid="d49946e226__20250123155201">如果结果正确，说明该芯片是合法授权的芯片。</p>
+                    </li>
+                </ol>
+            </div>
+            <figure class="- topic/fig fig fignone" data-ofbid="d49946e233__20250123155201">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="hw_authentication__image_psb_drt_vcc" src="../../../images/secure/sw_certification.png" width="480" alt="sw_certification"/></div><br/>
+            </figure>
+            <div class="- topic/note note note note_note" id="hw_authentication__note_vp5_qn3_ddc" data-ofbid="hw_authentication__note_vp5_qn3_ddc"><span class="note__title">注：</span> <div class="note__body">
+                <ul class="- topic/ul ul" id="hw_authentication__ul_xcr_ygl_jdc" data-ofbid="hw_authentication__ul_xcr_ygl_jdc">
+                    <li class="- topic/li li" data-ofbid="d49946e246__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e248__20250123155201">D13x 共有四组 PSK 开放给终端厂商使用。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e252__20250123155201">
+                        <p class="- topic/p p" data-ofbid="d49946e254__20250123155201">D211 共有五组保护密钥，一组是 PNK，出厂烧录。另外四组是 PSK，由终端厂商自行烧录。</p>
+                    </li>
+                </ul>
+            </div></div>
+        </section>
+        <section class="- topic/section section" id="hw_authentication__id8" data-ofbid="hw_authentication__id8"><h2 class="- topic/title title sectiontitle">烧写保护密钥</h2>
+            
+            <div class="- topic/p p" data-ofbid="d49946e266__20250123155201">用户可以根据实际情况烧录对应的密钥，以 PSK0 为例。<ol class="- topic/ol ol" id="hw_authentication__ol_dsx_5l4_fdc" data-ofbid="hw_authentication__ol_dsx_5l4_fdc">
+                    <li class="- topic/li li" data-ofbid="d49946e270__20250123155201">
+                        <div class="- topic/p p" data-ofbid="d49946e272__20250123155201">在开发板平台命令行执行下列命令，烧录 PSK0 到 eFuse
+                            中。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_edb_x11_wcc" data-ofbid="hw_authentication__codeblock_edb_x11_wcc"><code>efuse writestr <span class="hl-number">0x70</span> PASSWORD</code></pre></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d49946e278__20250123155201">
+                        <div class="- topic/p p" data-ofbid="d49946e280__20250123155201">禁止 PSK0
+                            读写。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_iwj_dn4_fdc" data-ofbid="hw_authentication__codeblock_iwj_dn4_fdc"><code>efuse writehex <span class="hl-number">0x00</span> <span class="hl-number">00000030</span>
+efuse writehex <span class="hl-number">0x08</span> <span class="hl-number">00000030</span>
+</code></pre></div>
+                    </li>
+                </ol><div class="- topic/note note note note_note" id="hw_authentication__note_ll2_1n4_fdc" data-ofbid="hw_authentication__note_ll2_1n4_fdc"><span class="note__title">注：</span> <div class="note__body">
+                    <ul class="- topic/ul ul" id="hw_authentication__ul_t1f_1n4_fdc" data-ofbid="hw_authentication__ul_t1f_1n4_fdc">
+                        <li class="- topic/li li" data-ofbid="d49946e290__20250123155201">
+                            <p class="- topic/p p" data-ofbid="d49946e292__20250123155201">PSK 存储用于解密 RSA 私钥的密码。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d49946e296__20250123155201">
+                            <p class="- topic/p p" data-ofbid="d49946e298__20250123155201">PSK 烧录到 eFuse 后就不可以被看到，因此必须妥善保管。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d49946e302__20250123155201">
+                            <p class="- topic/p p" data-ofbid="d49946e304__20250123155201">PSK 只能烧录一次，不可更改。</p>
+                        </li>
+                    </ul>
+                </div></div></div>
+        </section>
+        <section class="- topic/section section" id="hw_authentication__rsa" data-ofbid="hw_authentication__rsa"><h2 class="- topic/title title sectiontitle">生成 RSA 密钥</h2>
+            
+            <p class="- topic/p p" data-ofbid="d49946e316__20250123155201">RSA 算法需要有密钥对（私钥和公钥），详细的密钥生成流程如下：</p>
+            <ol class="- topic/ol ol" id="hw_authentication__ol_bjv_gn4_fdc" data-ofbid="hw_authentication__ol_bjv_gn4_fdc">
+                <li class="- topic/li li" data-ofbid="d49946e321__20250123155201">在主机端执行以下命令生成 RSA
+                        私钥和公钥：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_wlb_tb1_wcc" data-ofbid="hw_authentication__codeblock_wlb_tb1_wcc"><code>openssl genrsa -out rsa_private_key.pem <span class="hl-number">2048</span></code></pre><p class="- topic/p p" data-ofbid="d49946e325__20250123155201">结果：生成一对公钥和私钥，保存在
+                            <span class="+ topic/ph sw-d/filepath ph filepath">rsa_private_key.pem</span> 文件中。 </p></li>
+                <li class="- topic/li li" data-ofbid="d49946e331__20250123155201">执行下列命令从密钥对中提取公钥：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_kvs_pn4_fdc" data-ofbid="hw_authentication__codeblock_kvs_pn4_fdc"><code>openssl rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem</code></pre><p class="- topic/p p" data-ofbid="d49946e335__20250123155201">在实际使用时，通常私钥保密存储，公钥需要发送给其他相关方，因此需要提取公钥。</p></li>
+                <li class="- topic/li li" data-ofbid="d49946e338__20250123155201">执行以下命令将生成的公钥和私钥转换为 DER
+                        二进制。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_llq_mn4_fdc" data-ofbid="hw_authentication__codeblock_llq_mn4_fdc"><code>openssl base64 -d -in rsa_public_key.pem -out rsa_public_key.der
+openssl base64 -d -in rsa_private_key.pem -out rsa_private_key.der
+</code></pre><p class="- topic/p p" data-ofbid="d49946e342__20250123155201">DER 是 ASN.1 密钥结构描述的二进制编码实现。</p></li>
+                <li class="- topic/li li" data-ofbid="d49946e345__20250123155201">使用 PSK0
+                        加密私钥。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_pyj_sn4_fdc" data-ofbid="hw_authentication__codeblock_pyj_sn4_fdc"><code>./tools/scripts/encrypt_rsa_key.py -h -d psk0.bin -r rsa_private_key.der
+</code></pre><p class="- topic/p p" data-ofbid="d49946e349__20250123155201">通过上述命令，得到加密过的私钥文件
+                            <span class="+ topic/ph sw-d/filepath ph filepath">rsa_private_key_encrypted.der</span>。</p></li>
+                <li class="- topic/li li" data-ofbid="d49946e355__20250123155201">
+                    <p class="- topic/p p" data-ofbid="d49946e357__20250123155201">使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">xxd -i rsa_private_key_encrypted.der</span> 和 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">xxd -i
+                            rsa_public_key.der</span> 命令，将加密私钥和公钥转成 C 语言数组格式，方便在代码中直接使用。</p>
+                    <p class="- topic/p p" data-ofbid="d49946e366__20250123155201"><code class="+ topic/ph pr-d/codeph ph codeph">xxd</code> 是 Linux 的一个 16 进制处理命令。</p>
+                </li>
+            </ol>
+            <p class="- topic/p p" data-ofbid="d49946e373__20250123155201">完成上述所有操作后，编译镜像并直接使用 AiBurn 工具进行烧录，重启后在开发板平台执行
+                    <code class="+ topic/ph pr-d/codeph ph codeph">aic_hw_authorization_test</code> 即可进行测试，当显示 <samp class="+ topic/ph sw-d/systemoutput ph systemoutput sysout">App xxx
+                    running.</samp> 则表示授权认证成功，否则授权认证失败。</p>
+        </section>
+        
+        <section class="- topic/section section" id="hw_authentication__id11" data-ofbid="hw_authentication__id11"><h2 class="- topic/title title sectiontitle">接口设计</h2>
+            
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" data-ofbid="d49946e389__20250123155201" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_rsa_priv_enc</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型 </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_rsa_priv_enc(int flen, unsigned char *from, unsigned
+                                    char *to, struct ak_options *opts)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明 </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用私钥进行加密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义 </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">int flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被加密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出加密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值 </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回加密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项 </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" id="hw_authentication__table_shx_h44_fdc" data-ofbid="hw_authentication__table_shx_h44_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_rsa_pub_dec</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_rsa_pub_dec(int flen, unsigned char *from, unsigned
+                                    char *to, struct ak_options *opts)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用公钥进行解密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">int flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被解密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出解密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回解密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" id="hw_authentication__table_ims_h44_fdc" data-ofbid="hw_authentication__table_ims_h44_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_rsa_pub_enc</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_rsa_pub_enc(int flen, unsigned char *from, unsigned
+                                    char *to, struct ak_options *opts)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用公钥进行加密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">int flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被加密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出加密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回加密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" id="hw_authentication__table_mcn_h44_fdc" data-ofbid="hw_authentication__table_mcn_h44_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_rsa_priv_dec</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_rsa_priv_dec(int flen, unsigned char *from, unsigned
+                                    char *to, struct ak_options *opts)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用私钥进行解密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">int flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被解密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出解密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回解密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" id="hw_authentication__table_y5f_h44_fdc" data-ofbid="hw_authentication__table_y5f_h44_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 5</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hwp_rsa_priv_enc</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hwp_rsa_priv_enc(int flen, unsigned char *from,
+                                    unsigned char *to, struct ak_options *opts, char *algo)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用经过 <code class="+ topic/ph pr-d/codeph ph codeph">保护密钥加密过的私钥</code> 进行加密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被加密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出加密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                        <div class="- topic/div div">algo</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">指定选用烧录在 eFuse 中的保护密钥</div>
+                                            <div class="- topic/div div">PNK_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK0_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK1_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK2_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK3_PROTECTED_RSA</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回加密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+                <div class="table-container"><table class="- topic/table table colwidths-given docutils align-default frame-all" id="hw_authentication__table_xtx_g44_fdc" data-ofbid="hw_authentication__table_xtx_g44_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 6</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hwp_rsa_priv_dec</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">函数原型
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hwp_rsa_priv_dec(int flen, unsigned char *from,
+                                    unsigned char *to, struct ak_options *opts, char *algo)</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">功能说明
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">使用经过 <code class="+ topic/ph pr-d/codeph ph codeph">保护密钥加密过的私钥</code> 进行解密。</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">参数定义
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">flen</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入数据长度</div>
+                                        </div>
+                                        <div class="- topic/div div">from</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输入需要被解密的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">to</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">输出解密后的数据</div>
+                                        </div>
+                                        <div class="- topic/div div">opts</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">一些其它参数</div>
+                                        </div>
+                                        <div class="- topic/div div">algo</div>
+                                        <div class="- topic/div div">
+                                            <div class="- topic/div div">指定选用烧录在 eFuse 中的保护密钥</div>
+                                            <div class="- topic/div div">PNK_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK0_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK1_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK2_PROTECTED_RSA</div>
+                                            <div class="- topic/div div">PSK3_PROTECTED_RSA</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1">返回值
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1">
+                                    <div class="- topic/div div">
+                                        <div class="- topic/div div">成功返回解密后数据长度，失败返回-1</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0">注意事项
+                                </td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                            </tr>
+                        </tbody></table></div>
+        </section>
+        
+        <section class="- topic/section section" id="hw_authentication__section_prc_ptw_fdc" data-ofbid="hw_authentication__section_prc_ptw_fdc"><h2 class="- topic/title title sectiontitle">API 使用 DEMO</h2>
+            
+            <p class="- topic/p p" data-ofbid="d49946e1094__20250123155201">授权的检查可以在 APP/中间件 启动时进行，或者在运行时随机进行。</p>
+            <p class="- topic/p p" data-ofbid="d49946e1097__20250123155201">Demo 见
+                    <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip/aic-authorization/test/test_aic_hw_authorization.c</span></p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_cwg_qtw_fdc" data-ofbid="hw_authentication__codeblock_cwg_qtw_fdc"><code><strong class="hl-keyword">int</strong> app_hw_authorization_check(<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *from, <strong class="hl-keyword">int</strong> flen,
+                <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *esk, <strong class="hl-keyword">int</strong> esk_len,
+                <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *pk, <strong class="hl-keyword">int</strong> pk_len, <strong class="hl-keyword">char</strong> *algo)
+{
+    <strong class="hl-keyword">struct</strong> ak_options opts = {<span class="hl-number">0</span>};
+    uint8_t *inbuf = NULL, *outbuf = NULL;
+    uint8_t esk_buf[esk_len];
+    uint8_t pk_buf[pk_len];
+    size_t pagesize = (size_t)sysconf(_SC_PAGESIZE);
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>, rlen, nonce;
+
+    <strong class="hl-keyword">if</strong> (posix_memalign((<strong class="hl-keyword">void</strong> **)&amp;inbuf, pagesize, <span class="hl-number">2</span> * pagesize)) {
+        printf(<span class="hl-string">"Failed to allocate inbuf.\n"</span>);
+        ret = -ENOMEM;
+        <strong class="hl-keyword">goto</strong> out;
+    }
+    <strong class="hl-keyword">if</strong> (posix_memalign((<strong class="hl-keyword">void</strong> **)&amp;outbuf, pagesize, <span class="hl-number">2</span> * pagesize)) {
+        printf(<span class="hl-string">"Failed to allocate outbuf.\n"</span>);
+        ret = -ENOMEM;
+        <strong class="hl-keyword">goto</strong> out;
+    }
+
+    <em class="hl-comment">// 1. Set RSA key parameters</em>
+    memcpy(esk_buf, esk, esk_len);
+    memcpy(pk_buf, pk, pk_len);
+    opts.esk_buf = esk_buf;
+    opts.esk_len = esk_len;
+    opts.pk_buf = pk_buf;
+    opts.pk_len = pk_len;
+
+    <em class="hl-comment">// 2. Nonce private key encryption</em>
+    rlen = aic_hwp_rsa_priv_enc(flen, from, outbuf, &amp;opts, algo);
+    <strong class="hl-keyword">if</strong> (rlen &lt; <span class="hl-number">0</span>) {
+        printf(<span class="hl-string">"aic_hwp_rsa_priv_enc failed.\n"</span>);
+        <strong class="hl-keyword">goto</strong> out;
+    }
+    memcpy(inbuf, outbuf, rlen);
+    memset(outbuf, <span class="hl-number">0</span>, <span class="hl-number">2</span> * pagesize);
+
+    <em class="hl-comment">// 3. EncNonce public key decryption</em>
+    rlen = aic_rsa_pub_dec(rlen, inbuf, outbuf, &amp;opts);
+    <strong class="hl-keyword">if</strong> (rlen &lt; <span class="hl-number">0</span>) {
+        printf(<span class="hl-string">"aic_rsa_pub_dec failed.\n"</span>);
+        <strong class="hl-keyword">goto</strong> out;
+    }
+
+    <em class="hl-comment">// 4. Compare Nonce and DecNonce</em>
+    <strong class="hl-keyword">if</strong> (memcmp(from, outbuf, rlen))
+    {
+        hexdump(<span class="hl-string">"Expect"</span>, (<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, rlen);
+        hexdump(<span class="hl-string">"Got Result"</span>, (<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)outbuf, rlen);
+        printf(<span class="hl-string">"App %s stop.\n"</span>, algo);
+        ret = -<span class="hl-number">1</span>;
+    } <strong class="hl-keyword">else</strong> {
+        printf(<span class="hl-string">"App %s running.\n"</span>, algo);
+        ret = <span class="hl-number">0</span>;
+    }
+
+out:
+    <strong class="hl-keyword">if</strong> (inbuf)
+        free(inbuf);
+    <strong class="hl-keyword">if</strong> (outbuf)
+        free(outbuf);
+
+    <strong class="hl-keyword">return</strong> ret;
+}</code></pre>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="hw_authentication__codeblock_mrs_qtw_fdc" data-ofbid="hw_authentication__codeblock_mrs_qtw_fdc"><code><strong class="hl-keyword">int</strong> main()
+{
+    <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+    <strong class="hl-keyword">int</strong> nonce, flen, esk_len, pk_len;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *esk, *pk;
+    <strong class="hl-keyword">char</strong> *algo;
+
+    esk = rsa_private_key2048_encrypted_der;
+    esk_len = rsa_private_key2048_encrypted_der_len;
+    pk = rsa_public_key2048_der;
+    pk_len = rsa_public_key2048_der_len;
+    <strong class="hl-keyword">while</strong>(<span class="hl-number">1</span>) {
+        nonce = rand();     <em class="hl-comment">/* Generate random number Nonce */</em>
+        flen = <strong class="hl-keyword">sizeof</strong>(nonce);
+        algo = PNK_PROTECTED_RSA;   <em class="hl-comment">/* Specify hardware protection key */</em>
+        ret = app_hw_authorization_check((<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, flen,
+                        esk, esk_len, pk, pk_len, algo);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            printf(<span class="hl-string">"Application %s not authorization.\n"</span>, algo);
+        }
+
+        nonce = rand();     <em class="hl-comment">/* Generate random number Nonce */</em>
+        flen = <strong class="hl-keyword">sizeof</strong>(nonce);
+        algo = PSK0_PROTECTED_RSA;  <em class="hl-comment">/* Specify hardware protection key */</em>
+        ret = app_hw_authorization_check((<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, flen,
+                        esk, esk_len, pk, pk_len, algo);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            printf(<span class="hl-string">"Application %s not authorization.\n"</span>, algo);
+        }
+
+        nonce = rand();     <em class="hl-comment">/* Generate random number Nonce */</em>
+        flen = <strong class="hl-keyword">sizeof</strong>(nonce);
+        algo = PSK1_PROTECTED_RSA;  <em class="hl-comment">/* Specify hardware protection key */</em>
+        ret = app_hw_authorization_check((<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, flen,
+                        esk, esk_len, pk, pk_len, algo);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            printf(<span class="hl-string">"Application %s not authorization.\n"</span>, algo);
+        }
+
+        nonce = rand();     <em class="hl-comment">/* Generate random number Nonce */</em>
+        flen = <strong class="hl-keyword">sizeof</strong>(nonce);
+        algo = PSK2_PROTECTED_RSA;  <em class="hl-comment">/* Specify hardware protection key */</em>
+        ret = app_hw_authorization_check((<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, flen,
+                        esk, esk_len, pk, pk_len, algo);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            printf(<span class="hl-string">"Application %s not authorization.\n"</span>, algo);
+        }
+
+        nonce = rand();     <em class="hl-comment">/* Generate random number Nonce */</em>
+        flen = <strong class="hl-keyword">sizeof</strong>(nonce);
+        algo = PSK3_PROTECTED_RSA;  <em class="hl-comment">/* Specify hardware protection key */</em>
+        ret = app_hw_authorization_check((<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">char</strong> *)&amp;nonce, flen,
+                        esk, esk_len, pk, pk_len, algo);
+        <strong class="hl-keyword">if</strong> (ret &lt; <span class="hl-number">0</span>) {
+            printf(<span class="hl-string">"Application %s not authorization.\n"</span>, algo);
+        }
+
+        sleep(<span class="hl-number">2</span>);
+    }
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}</code></pre>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#hw_authentication__section_i1s_j1q_wcc" data-tocid="hw_authentication__section_i1s_j1q_wcc">身份认证原理</a></div></li><li class="section-item"><div class="section-title"><a href="#hw_authentication__id4" data-tocid="hw_authentication__id4">软件授权认证</a></div></li><li class="section-item"><div class="section-title"><a href="#hw_authentication__id8" data-tocid="hw_authentication__id8">烧写保护密钥</a></div></li><li class="section-item"><div class="section-title"><a href="#hw_authentication__rsa" data-tocid="hw_authentication__rsa">生成 RSA 密钥</a></div></li><li class="section-item"><div class="section-title"><a href="#hw_authentication__id11" data-tocid="hw_authentication__id11">接口设计</a></div></li><li class="section-item"><div class="section-title"><a href="#hw_authentication__section_prc_ptw_fdc" data-tocid="hw_authentication__section_prc_ptw_fdc">API 使用 DEMO</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

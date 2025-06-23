@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Copyright (c) 2020 ArtInChip Inc.
+ * Copyright (c) 2020-2024 ArtInChip Inc.
  */
 #include <common.h>
 #include <mapmem.h>
@@ -225,7 +225,7 @@ static struct aic_periph_clk clk_periphs[] = {
 #endif
 	AIC_CLK_PERIPH(CLK_RGB,             CLK_SCLK,	    CLK_RGB_REG),
 	AIC_CLK_PERIPH(CLK_LVDS,            CLK_SCLK,	    CLK_LVDS_REG),
-	AIC_CLK_PERIPH(CLK_MIPIDSI,         CLK_SCLK,	    CLK_MIPIDSI_REG),
+	AIC_CLK_PERIPH(CLK_MIPIDSI,         CLK_PLL_FRA2,	CLK_MIPIDSI_REG),
 	AIC_CLK_PERIPH(CLK_DE,              CLK_PLL_INT1,   CLK_DE_REG),
 	AIC_CLK_PERIPH(CLK_GE,              CLK_PLL_INT1,   CLK_GE_REG),
 	AIC_CLK_PERIPH(CLK_VE,              CLK_PLL_INT1,   CLK_VE_REG),
@@ -551,13 +551,11 @@ static int aic_clk_probe(struct udevice *dev)
 
 static const struct udevice_id aic_clk_ids[] = {
 	{ .compatible = "artinchip,aic-cmu-v1.0", },
-	{ .compatible = "artinchip,aic-cmu-v1.3", },
 	{ }
 };
 
 U_BOOT_DRIVER(artinchip_cmu) = {
 	.name                     = "artinchip_aic_cmu_v1_0",
-	//.name                     = "artinchip_aic_cmu_v1_3",
 	.id                       = UCLASS_CLK,
 	.of_match                 = aic_clk_ids,
 	.probe                    = aic_clk_probe,

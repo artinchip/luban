@@ -1,0 +1,376 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="在设计实现 SPI_ENC 的驱动时，主要考虑了 SPI_ENC 的本身特点，以及与 SPI NOR / SPI NAND 驱动的结合。 融入内核加密子系统 内核加密子系统提供了一个框架，通过该框架提供了不同算法的对接方法， 常见的算法以及对应的硬件加速实现都可以通过该框架提供给使用者。 SPI_ENC 硬件模块实现了 AES-128-CTR 算法，但是由于 COUNTER ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/spienc/spi-enc-design_intro.html"/><meta name="DC.relation" content="../../../topics/sdk/spienc/spi-enc-architecture.html"/><meta name="DC.relation" content="../../../topics/sdk/spienc/spi-enc-key_procedures.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="spi_enc_key_design_intro"/><meta name="DC.language" content="zh-CN"/><title>设计要点</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="spi_enc_key_design_intro-d4445e8283"/><meta name="wh-source-relpath" content="topics/sdk/spienc/spi-enc-key-design-intro.dita"/><meta name="wh-out-relpath" content="topics/sdk/spienc/spi-enc-key-design-intro.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="spi_enc_key_design_intro" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-safety"><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="spi_enc_user_guide"><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-user-guide.html">SPI ENC</a></div></div></li><li><div class="topicref" data-id="spi_enc_design_intro"><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-design_intro.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="spi_enc_key_design_intro"><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-key-design-intro.html">设计要点</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/spienc/spi-enc-architecture.html" title="模块架构" aria-label="上一主题: 模块架构" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/spienc/spi-enc-key_procedures.html" title="关键流程设计" aria-label="下一主题: 关键流程设计" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ce_user_guide-d4445e7961" class="topicref" data-id="ce_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ce_user_guide-d4445e7961-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_user_guide.html" id="ce_user_guide-d4445e7961-link">CE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="efuse_user_guide-d4445e8115" class="topicref" data-id="efuse_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action efuse_user_guide-d4445e8115-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/efuse/efuse_user_guide.html" id="efuse_user_guide-d4445e8115-link">eFuse 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="spi_enc_user_guide-d4445e8185" class="topicref" data-id="spi_enc_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action spi_enc_user_guide-d4445e8185-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-user-guide.html" id="spi_enc_user_guide-d4445e8185-link">SPI ENC</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="spi_enc_terms-d4445e8199" class="topicref" data-id="spi_enc_terms" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-terms.html" id="spi_enc_terms-d4445e8199-link">术语定义</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_configuration-d4445e8213" class="topicref" data-id="spi_enc_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-configuration.html" id="spi_enc_configuration-d4445e8213-link">SPI ENC 配置</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_debug_guide-d4445e8227" class="topicref" data-id="spi_enc_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-debug_guide.html" id="spi_enc_debug_guide-d4445e8227-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_test_guide-d4445e8241" class="topicref" data-id="spi_enc_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-test_guide.html" id="spi_enc_test_guide-d4445e8241-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="spi_enc_design_intro-d4445e8255" class="topicref" data-id="spi_enc_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action spi_enc_design_intro-d4445e8255-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-design_intro.html" id="spi_enc_design_intro-d4445e8255-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="spi_enc_architecture-d4445e8269" class="topicref" data-id="spi_enc_architecture" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-architecture.html" id="spi_enc_architecture-d4445e8269-link">模块架构</a></div></div></li><li role="treeitem" class="active"><div data-tocid="spi_enc_key_design_intro-d4445e8283" class="topicref" data-id="spi_enc_key_design_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-key-design-intro.html" id="spi_enc_key_design_intro-d4445e8283-link">设计要点</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_key_procedures-d4445e8297" class="topicref" data-id="spi_enc_key_procedures" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-key_procedures.html" id="spi_enc_key_procedures-d4445e8297-link">关键流程设计</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_data_structure_design-d4445e8311" class="topicref" data-id="spi_enc_data_structure_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-data_structure_design.html" id="spi_enc_data_structure_design-d4445e8311-link">数据结构设计</a></div></div></li><li role="treeitem"><div data-tocid="spi_enc_interface_design-d4445e8325" class="topicref" data-id="spi_enc_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-interface_design.html" id="spi_enc_interface_design-d4445e8325-link">接口设计</a></div></div></li></ul></li></ul></li></ul></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/spienc/spi-enc-key-design-intro.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">设计要点</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d153153e33__20250123155215">在设计实现 SPI_ENC 的驱动时，主要考虑了 SPI_ENC 的本身特点，以及与 SPI NOR / SPI NAND 驱动的结合。</p>
+        <section class="- topic/section section" id="spi_enc_key_design_intro__section_pqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__section_pqv_rrx_21c"><h2 class="- topic/title title sectiontitle">融入内核加密子系统</h2><p class="- topic/p p" data-ofbid="d153153e39__20250123155215">内核加密子系统提供了一个框架，通过该框架提供了不同算法的对接方法，
+                常见的算法以及对应的硬件加速实现都可以通过该框架提供给使用者。</p><p class="- topic/p p" data-ofbid="d153153e41__20250123155215">SPI_ENC 硬件模块实现了 AES-128-CTR 算法，但是由于 COUNTER
+                的生成方式是通过自定义规则生成， 密钥由硬件从 eFuse 中读取等，使得该算法与正常的 AES-128-CTR 不同，因此融入内核加密子系统时， <strong class="+ topic/ph hi-d/b ph b">将
+                    SPI_ENC 抽象为一种特殊的 AES-128-CTR 算法实现</strong> ，通过 AES-128-CTR 的 API 进行使用， 但是做一些特殊处理。</p><div class="- topic/p p" data-ofbid="d153153e46__20250123155215">
+                <figure class="- topic/fig fig fignone" id="spi_enc_key_design_intro__fig_mv3_5rx_21c" data-ofbid="spi_enc_key_design_intro__fig_mv3_5rx_21c">
+                    
+                    <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi_enc_key_design_intro__image_qqv_rrx_21c" src="../../../images/spienc/spienc_kenerl_crypto_arch.png" alt="spienc_kenerl_crypto_arch"/></div><br/>
+                <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">加入内核加密子系统</span></figcaption></figure>
+            </div><p class="- topic/p p" data-ofbid="d153153e60__20250123155215">将 SPI_ENC 的 AES-128-CTR
+                算法注册到内核加密子系统：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="spi_enc_key_design_intro__pre_rqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__pre_rqv_rrx_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> aic_spienc_alg spienc_alg = {
+    .alg = {
+        .base.cra_name = <span class="hl-string">"ctr(aes)"</span>,
+        .base.cra_driver_name = <span class="hl-string">"ctr-aes-spienc-aic"</span>,
+        .base.cra_priority = <span class="hl-number">200</span>,
+        .base.cra_flags = CRYPTO_ALG_ASYNC |
+                  CRYPTO_ALG_ALLOCATES_MEMORY |
+                  CRYPTO_ALG_KERN_DRIVER_ONLY,
+        .base.cra_blocksize = <span class="hl-number">1</span>,
+        .base.cra_ctxsize = <strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> aic_spienc_ctx),
+        .base.cra_alignmask = <span class="hl-number">0xf</span>,
+        .base.cra_module = THIS_MODULE,
+        .init = aic_spienc_alg_init,
+        .decrypt = aic_spienc_decrypt,
+        .encrypt = aic_spienc_encrypt,
+        .ivsize = AES_BLOCK_SIZE,
+    },
+};</code></pre><p class="- topic/p p" data-ofbid="d153153e64__20250123155215">设置说明：</p><ul class="- topic/ul ul" id="spi_enc_key_design_intro__ul_tqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__ul_tqv_rrx_21c">
+                <li class="- topic/li li" data-ofbid="d153153e68__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e70__20250123155215"><code class="+ topic/ph pr-d/codeph ph codeph">cra_blocksize</code>: 设置为 1，即使用本算法，可以按字节设置加解密的数据长度。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d153153e76__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e78__20250123155215"><code class="+ topic/ph pr-d/codeph ph codeph">ivsize</code>: 设置为 AES_BLOCK_SIZE，外部通过 IV 来提供地址、SPI ID 等信息</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d153153e84__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e86__20250123155215"><code class="+ topic/ph pr-d/codeph ph codeph">min_keysize</code>/<code class="+ topic/ph pr-d/codeph ph codeph">max_keysize</code>: 不设置，使用 eFuse
+                        密钥，非外部密钥</p>
+                </li>
+            </ul><p class="- topic/p p" data-ofbid="d153153e95__20250123155215">提供给外部（SPI NAND / SPI NOR）使用的 API：</p><div class="table-container"><table class="- topic/table table frame-all" id="spi_enc_key_design_intro__table_uqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__table_uqv_rrx_21c" data-cols="3"><caption></caption><colgroup><col style="width:14.164305949008499%"/><col style="width:50.42492917847026%"/><col style="width:35.41076487252124%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">-</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">加密子系统 API</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">1</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">struct crypto_skcipher *crypto_alloc_skcipher( const char
+                                *alg_name, u32 type, u32 mask)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">直接指定算法驱动名字<code class="+ topic/ph pr-d/codeph ph codeph">ctr-aes-spienc-aic</code></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">2</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">struct skcipher_request *skcipher_request_alloc( struct
+                                crypto_skcipher *tfm, gfp_t gfp)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">分配一个数据请求结构体</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">3</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">void skcipher_request_set_callback(struct skcipher_request *req,
+                                u32 flags,crypto_completion_t compl, void *data)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">设置处理完毕时的回调函数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">4</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">void skcipher_request_set_crypt(struct skcipher_request
+                                *req,struct scatterlist *src, struct scatterlist *dst, unsigned int
+                                cryptlen, void *iv)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">无输入输出 buffer，仅提供数据长度。通过 IV 提供地址、SPI ID</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">5</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">int crypto_skcipher_decrypt(struct skcipher_request *req)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">启动解密，用于读</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">6</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">int crypto_skcipher_encrypt(struct skcipher_request *req)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">启动加密，用于写</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">7</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">void skcipher_request_free(struct skcipher_request *req)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">释放资源</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__1">8</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__2">void crypto_free_skcipher(struct crypto_skcipher *tfm)</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="spi_enc_key_design_intro__table_uqv_rrx_21c__entry__3">释放资源</td>
+                        </tr>
+                    </tbody></table></div><p class="- topic/p p" data-ofbid="d153153e225__20250123155215">注解</p>由于 SPI_ENC 内部使用 eFuse 所提供的密钥，因此不需要通过外部设置密钥函数：int
+            crypto_skcipher_setkey(struct crypto_skcipher *tfm, const u8 *key, unsigned int
+                keylen);来设置密钥。<p class="- topic/p p" data-ofbid="d153153e229__20250123155215">调用 <code class="+ topic/ph pr-d/codeph ph codeph">skcipher_request_set_crypt()</code> API 时，通过
+                    <code class="+ topic/ph pr-d/codeph ph codeph">iv</code> 提供的并不是 COUNTER 值，而是用于生成 COUNTER
+            值的信息，具体为：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="spi_enc_key_design_intro__pre_vqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__pre_vqv_rrx_21c"><code><strong class="hl-keyword">struct</strong> aic_spienc_iv {
+    u32 addr;       <em class="hl-comment">// 要读写的数据在 SPI NAND / SPI NOR 上的地址</em>
+    u32 cpos;       <em class="hl-comment">// 密文在本次传输数据中开始位置</em>
+    u32 tweak;      <em class="hl-comment">// 生成 COUNTER 的调整值</em>
+    u32 spi_id;     <em class="hl-comment">// 要使用的 SPI 控制器 ID</em>
+};</code></pre></section>
+        <section class="- topic/section section" id="spi_enc_key_design_intro__section_wqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__section_wqv_rrx_21c"><h2 class="- topic/title title sectiontitle">数据读写时启用</h2>
+            
+            <p class="- topic/p p" data-ofbid="d153153e245__20250123155215">SPI NAND / SPI NOR 驱动通过发送命令的方式与 SPI NAND / SPI NOR 器件进行交互，从而实现数据的读写。 在使能 SPI_ENC
+                之后，SPI NAND / SPI NOR 驱动需要进行区分：</p>
+            <ul class="- topic/ul ul" id="spi_enc_key_design_intro__ul_yqv_rrx_21c" data-ofbid="spi_enc_key_design_intro__ul_yqv_rrx_21c">
+                <li class="- topic/li li" data-ofbid="d153153e250__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e252__20250123155215">非存储数据的 SPI 传输，不启动 SPI_ENC，按照原有驱动的流程执行</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d153153e256__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e258__20250123155215">存储数据的 SPI 传输，启动 SPI_ENC 进行加密或者解密</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d153153e263__20250123155215">因此 SPI NAND / SPI NOR 驱动需要做一些改动，在对存储数据进行读写时，使用 Crypto API 启动 SPI_ENC。</p>
+            <p class="- topic/p p" data-ofbid="d153153e266__20250123155215">以 SPI NAND 为例：</p>
+            <div class="- topic/p p" data-ofbid="d153153e270__20250123155215">probe 时首先进行加密相关的初始，读取 DTS 中的 <code class="+ topic/ph pr-d/codeph ph codeph">aic,encrypt</code> 和
+                    <code class="+ topic/ph pr-d/codeph ph codeph">aic,spi-id</code> 等信息。
+                <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="spi_enc_key_design_intro__codeblock_m4h_jzq_g1c" data-ofbid="spi_enc_key_design_intro__codeblock_m4h_jzq_g1c"><code> spinand_probe();
+ |-&gt; spinand_init(spinand);
+<span class="hl-string">"|-&gt; spinand_enc_init(spinand);
+</span> |-&gt; mtd_device_register(mtd, NULL, <span class="hl-number">0</span>);</code></pre></div>
+            
+            <div class="- topic/p p" data-ofbid="d153153e281__20250123155215">读操作流程：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="spi_enc_key_design_intro__codeblock_exk_jzq_g1c" data-ofbid="spi_enc_key_design_intro__codeblock_exk_jzq_g1c"><code>spinand_read_page();
+|-&gt; spinand_load_page_op(spinand, req);
+|-&gt; spinand_wait(spinand, &amp;status);
+|-&gt; spinand_read_from_cache_op();
+<span class="hl-string">"   |-&gt; spinand_enc_xfer_cfg(spinand, addr, clen);                          // 配置访问地址，以及密文的长度
+</span><span class="hl-string">"   |-&gt; spinand_enc_read();
+</span><span class="hl-string">"       |-&gt; spinand_enc_get_skcipher(spinand);
+</span><span class="hl-string">"       |   |-&gt; crypto_alloc_skcipher("</span>ctr-aes-spienc-aic<span class="hl-string">", 0, 0);
+</span><span class="hl-string">"       |   |-&gt; req = skcipher_request_alloc(tfm, GFP_NOFS);
+</span><span class="hl-string">"       |
+</span><span class="hl-string">"       |-&gt; skcipher_request_set_callback();
+</span><span class="hl-string">"       |-&gt; skcipher_request_set_crypt(req, 0, 0, decrypt_len, &amp;ivinfo);    // 设置本次加密数据信息
+</span><span class="hl-string">"       |-&gt; crypto_skcipher_decrypt(req);                                   // 启动 SPI_ENC
+</span>        |-&gt; spi_mem_exec_op(desc-&gt;mem, &amp;op);                                <em class="hl-comment">// 调用标准的 SPI API 进行数据传输</em>
+<span class="hl-string">"       |-&gt; spinand_enc_wait(spinand-&gt;priv);                                // 等待解密处理结束</span></code></pre></div>
+            <div class="- topic/p p" data-ofbid="d153153e286__20250123155215">写操作流程：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="spi_enc_key_design_intro__codeblock_kgm_jzq_g1c" data-ofbid="spi_enc_key_design_intro__codeblock_kgm_jzq_g1c"><code>spinand_write_page();
+|-&gt; spinand_write_enable_op(spinand);
+|-&gt; spinand_write_to_cache_op(spinand, req);
+|  <span class="hl-string">"|-&gt; spinand_enc_xfer_cfg(spinand, addr, clen);                          // 配置访问地址，以及密文的长度
+</span>|  <span class="hl-string">"|-&gt; spinand_enc_write();
+</span>|  <span class="hl-string">"    |-&gt; spinand_enc_get_skcipher(spinand);
+</span>|  <span class="hl-string">"    |   |-&gt; crypto_alloc_skcipher("</span>ctr-aes-spienc-aic<span class="hl-string">", 0, 0);
+</span>|  <span class="hl-string">"    |   |-&gt; req = skcipher_request_alloc(tfm, GFP_NOFS);
+</span>|  <span class="hl-string">"    |
+</span>|  <span class="hl-string">"    |-&gt; skcipher_request_set_callback();
+</span>|  <span class="hl-string">"    |-&gt; skcipher_request_set_crypt(req, 0, 0, decrypt_len, &amp;ivinfo);    // 设置本次加密数据信息
+</span>|  <span class="hl-string">"    |-&gt; crypto_skcipher_encrypt(req);                                   // 启动 SPI_ENC
+</span>|       |-&gt; spi_mem_exec_op(desc-&gt;mem, &amp;op);                                <em class="hl-comment">// 调用标准的 SPI API 进行数据传输</em>
+|  <span class="hl-string">"    |-&gt; spinand_enc_wait(spinand-&gt;priv);                                // 等待加密处理结束
+</span>|-&gt; spinand_program_op(spinand, req);
+|-&gt; spinand_wait(spinand, &amp;status);</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="spi_enc_key_design_intro__section_crv_rrx_21c" data-ofbid="spi_enc_key_design_intro__section_crv_rrx_21c"><h2 class="- topic/title title sectiontitle">空数据块的检测</h2>
+            
+            <p class="- topic/p p" data-ofbid="d153153e297__20250123155215">SPI NAND / SPI NOR 在执行了擦除之后，存储单元上的数据被认为是空的，值都是 <code class="+ topic/ph pr-d/codeph ph codeph">0xFF</code> 。
+                但是在使用过程中，读取程序并不一定知道所读取的区域是否是被擦除过，因此在使能了 SPI_ENC 之后， 通过 SPI 读取回来该区域的数据都是被 SPI_ENC
+                解密后的数据。原本是被擦除后的 <code class="+ topic/ph pr-d/codeph ph codeph">0xFF</code> ， 读回来的却是其他数据。</p>
+            <p class="- topic/p p" data-ofbid="d153153e306__20250123155215">带来的问题：</p>
+            <p class="- topic/p p" data-ofbid="d153153e309__20250123155215">有些程序，如文件系统，会判断读回来的数据是否都为 <code class="+ topic/ph pr-d/codeph ph codeph">0xFF</code> ，如果是，则认为是未使用的块，做特殊处理。
+                现在读回来的数据却被改变了，会导致原来的处理逻辑全部失效。</p>
+            <p class="- topic/p p" data-ofbid="d153153e315__20250123155215">为了解决上述问题，SPI_ENC 提供了一个空块检测功能。如下图所示：</p>
+            <ul class="- topic/ul ul" id="spi_enc_key_design_intro__ul_frv_rrx_21c" data-ofbid="spi_enc_key_design_intro__ul_frv_rrx_21c">
+                <li class="- topic/li li" data-ofbid="d153153e321__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e323__20250123155215">首先按照正常的流程读取一块数据</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d153153e327__20250123155215">
+                    <p class="- topic/p p" data-ofbid="d153153e329__20250123155215">传输完成之后，检查 SPI_ENC 的状态，如果提示解密前的所有数据都是 <code class="+ topic/ph pr-d/codeph ph codeph">0xFF</code> ，则软件将读取的结果全部置为
+                            <code class="+ topic/ph pr-d/codeph ph codeph">0xFF</code></p>
+                </li>
+            </ul>
+            <figure class="- topic/fig fig fignone" id="spi_enc_key_design_intro__fig_cmh_srx_21c" data-ofbid="spi_enc_key_design_intro__fig_cmh_srx_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="spi_enc_key_design_intro__image_grv_rrx_21c" src="../../../images/spienc/spienc_empty_detect1.png" alt="spienc_empty_detect1"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">空块检测</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d153153e351__20250123155215">相关的软件操作，在 <code class="+ topic/ph pr-d/codeph ph codeph">spinand_enc_read()</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">spi_nor_enc_read()</code>
+                中完成。</p>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#spi_enc_key_design_intro__section_pqv_rrx_21c" data-tocid="spi_enc_key_design_intro__section_pqv_rrx_21c">融入内核加密子系统</a></div></li><li class="section-item"><div class="section-title"><a href="#spi_enc_key_design_intro__section_wqv_rrx_21c" data-tocid="spi_enc_key_design_intro__section_wqv_rrx_21c">数据读写时启用</a></div></li><li class="section-item"><div class="section-title"><a href="#spi_enc_key_design_intro__section_crv_rrx_21c" data-tocid="spi_enc_key_design_intro__section_crv_rrx_21c">空数据块的检测</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

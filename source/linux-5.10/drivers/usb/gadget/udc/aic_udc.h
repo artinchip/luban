@@ -51,6 +51,7 @@ struct aic_usb_ep {
 #define EP0_MPS_LIMIT			64
 #define IRQ_RETRY_MASK			(USBINTSTS_NPTXFEMP | \
 					USBINTSTS_RXFLVL)
+#define DIS_EP_TIMOUT			100
 
 #define aic_gadget_driver_cb(_hs, _entry) \
 do { \
@@ -105,7 +106,19 @@ enum aic_ep0_state {
 #define AIC_SPEED_PARAM_FULL		1
 #define AIC_SPEED_PARAM_LOW		2
 
+#define SYSCFG_USB_RES_CAL_EN_SHIFT		8
+#define SYSCFG_USB_RES_CAL_EN_MASK		BIT(8)
+#define SYSCFG_USB_RES_CAL_VAL_SHIFT		0
+#define SYSCFG_USB_RES_CAL_VAL_MASK		GENMASK(7, 0)
+#define SYSCFG_USB_RES_CAL_VAL_DEF		0x40
+
+struct aic_usb_res_cfg {
+	void __iomem *addr;
+	u32 resis;
+};
+
 struct aic_gadget_params {
+	struct aic_usb_res_cfg		usb_res_cfg;
 	unsigned int			num_ep;
 	unsigned int			num_perio_in_ep;
 	unsigned int			total_fifo_size;
@@ -148,6 +161,7 @@ struct aic_usb_gadget {
 	void				*ctrl_buff;
 
 	u32				fifo_map;
+	u32				tx_fifo_map;
 	unsigned int			enabled:1;
 	unsigned int			connected:1;
 	unsigned int			remote_wakeup_allowed:1;

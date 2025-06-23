@@ -54,6 +54,13 @@ config AIC_PANEL_DSI_ST7701S
 	  Say Y here if you want to enable support for the ST7701S
 	  2-lane 480x800 MIPI DSI panel.
 
+config AIC_PANEL_DSI_TS8224S
+	tristate "ArtInChip dsi panel driver for ts8224s"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the TS8224S(ST7701S)
+	  2-lane 480x800 MIPI DSI panel.
+
 config AIC_PANEL_DSI_XM91080
 	tristate "ArtInChip dsi panel driver for xm91080"
 	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
@@ -74,6 +81,13 @@ config AIC_PANEL_DSI_S070WV20
 	help
 	  Say Y here if you want to enable support for the s070wv20
 	  800x480 MIPI DSI panel.
+
+config AIC_PANEL_DSI_SC7707
+	tristate "ArtInChip dsi panel driver for sc7707"
+	depends on BACKLIGHT_CLASS_DEVICE && AIC_DISP_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the sc7707
+	  720x1560 MIPI DSI panel.
 
 config AIC_PANEL_DBI_ILI9486L
 	tristate "ArtInChip dbi panel driver for ILI9486L"

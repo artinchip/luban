@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Thermal Sensor driver of Artinchip SoC
+ * Thermal Sensor driver of ArtInChip SoC
  *
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
@@ -69,6 +69,9 @@ enum aic_tsen_mode {
 #define TSEN_INTR_CH_INT_FLAG(n)	(BIT(16) << (n))
 #define TSEN_INTR_CH_INT_EN(n)		(BIT(0) << (n))
 
+#define TSENn_CFG_ADC_ACQ_VAL		0xff
+#define TSENn_CFG_ADC_ACQ_SHIFT		8
+#define TSENn_CFG_ADC_ACQ_MASK		GENMASK(15, 8)
 #define TSENn_CFG_HIGH_ADC_PRIORITY	BIT(4)
 #define TSENn_CFG_PERIOD_SAMPLE_EN	BIT(1)
 #define TSENn_CFG_SINGLE_SAMPLE_EN	BIT(0)
@@ -99,8 +102,6 @@ enum aic_tsen_mode {
 #define TSENn_HLTA_RM_THD_SHIFT		16
 #define TSENn_HLTA_RM_THD_MASK		GENMASK(27, 16)
 #define TSENn_HLTA_THD_MASK		GENMASK(11, 0)
-#define TSENn_HTA_RM_THD(t)		((t) - 3)
-#define TSENn_LTA_RM_THD(t)		((t) + 3)
 
 #define TSENn_OTPV_EN			BIT(31)
 #define TSENn_OTPV_VAL_MASK		GENMASK(11, 0)
@@ -120,7 +121,7 @@ enum aic_tsen_mode {
 #define TSEN_THS_ENV_TEMP_HIGH			5
 #define TSEN_THS_ENV_TEMP_HIGH_MASK		BIT(8)
 #define TSEN_LDO30_BG_CTRL			6
-#define TSEN_LDO30_BG_CTRL_MASK			BIT(8)
+#define TSEN_LDO30_BG_CTRL_MASK			GENMASK(7, 0)
 #define TSEN_CP_VERSION				7
 #define TSEN_CP_VERSION_MASK			BIT(6)
 #define TSEN_ENV_TEMP_LOW_SIGN_MASK		BIT(3)
@@ -133,13 +134,15 @@ enum aic_tsen_mode {
 #define TSEN_ORIGIN_STANDARD_VOLTAGE		3000 // = 3 * 1000
 
 #define TSEN_CP_VERSION_DIFF_TYPE		0xA
-#define TSEN_SINGLE_POINT_CALI_K_CPU		-1151
-#define TSEN_SINGLE_POINT_CALI_K_GPAI		-1155
+#define TSEN_SINGLE_POINT_CALI_K_CPU		-1132
+#define TSEN_SINGLE_POINT_CALI_K_GPAI		-1159
 
 #define TSEN_CPU_ZONE_TRIPS_NUM			1
 #define TSEN_GPAI_ZONE_TRIPS_NUM		0
 
 #define THERMAL_CORE_TEMP_AMPN_SCALE		1000
+#define TSENn_HTA_RM_THD(t)			((t) - 3 * THERMAL_CORE_TEMP_AMPN_SCALE)
+#define TSENn_LTA_RM_THD(t)			((t) + 3 * THERMAL_CORE_TEMP_AMPN_SCALE)
 #define TSEN_CALIB_ACCURACY_SCALE		10 // = 10000 / 1000
 
 struct aic_tsen_ch {
@@ -237,6 +240,7 @@ static void tsen_enable(void __iomem *regs, int enable)
 	else
 		mcr &= ~TSEN_MCR_EN;
 
+	mcr |= TSENn_CFG_ADC_ACQ_MASK;
 	writel(mcr, regs + TSEN_MCR);
 	spin_unlock_irqrestore(&user_lock, flags);
 }
@@ -288,11 +292,18 @@ static void tsen_int_enable(void __iomem *regs, u32 ch, u32 enable, u32 detail)
 
 static void tsen_single_mode(void __iomem *regs, u32 ch)
 {
+	u32 val;
 	unsigned long flags;
 
 	spin_lock_irqsave(&user_lock, flags);
 
 	writel(TSENn_FIL_8_POINTS, regs + TSENn_FIL(ch));
+
+	val = readl(regs + TSENn_CFG(ch));
+	val &= ~TSENn_CFG_ADC_ACQ_MASK;
+	val |= TSENn_CFG_ADC_ACQ_VAL << TSENn_CFG_ADC_ACQ_SHIFT;
+	writel(val, regs + TSENn_CFG(ch));
+
 	writel(TSENn_CFG_SINGLE_SAMPLE_EN | readl(regs + TSENn_CFG(ch)),
 	       regs + TSENn_CFG(ch));
 
@@ -363,6 +374,11 @@ static void tsen_period_mode(struct aic_tsen_dev *tsen, u32 ch)
 	else
 		writel(chan->smp_period << TSENn_ITV_SHIFT | 0xFFFF,
 		       regs + TSENn_ITV(ch));
+
+	val = readl(regs + TSENn_CFG(ch));
+	val &= ~TSENn_CFG_ADC_ACQ_MASK;
+	val |= TSENn_CFG_ADC_ACQ_VAL << TSENn_CFG_ADC_ACQ_SHIFT;
+	writel(val, regs + TSENn_CFG(ch));
 
 	writel(readl(regs + TSENn_CFG(ch)) | TSENn_CFG_PERIOD_SAMPLE_EN,
 	       regs + TSENn_CFG(ch));
@@ -755,7 +771,7 @@ static void aic_tsen_get_cali_param(int ch_id, int y1, int y2, int x1, int x2,
 /* The temperature obtained from nvmem contains sign bits.
  * For this purpose, this function converts data through sign bit mask
  */
-static u8 aic_tsen_env_temp_cali(u8 sign_mask, u8 val)
+static int aic_tsen_env_temp_cali(u8 sign_mask, u8 val)
 {
 	if (val & sign_mask)
 		return -(val & (sign_mask - 1));
@@ -765,8 +781,8 @@ static u8 aic_tsen_env_temp_cali(u8 sign_mask, u8 val)
 
 static int aic_tsen_get_nvmem_cell(struct aic_tsen_dev *tsen)
 {
-	int i;
-	size_t len;
+	int i, ret = 0;
+	size_t len = 0;
 	struct device *dev = &tsen->pdev->dev;
 	char *cell_name[TSEN_NVMEM_CELL_NUM] = {"t0_low", "t1_low", "t0_high",
 						"t1_high", "envtemp_low",
@@ -774,19 +790,38 @@ static int aic_tsen_get_nvmem_cell(struct aic_tsen_dev *tsen)
 						"ldo30_bg_ctrl", "cp_version"};
 
 	for (i = 0; i < TSEN_NVMEM_CELL_NUM ; i++) {
-		struct nvmem_cell *cell;
+		struct nvmem_cell *cell = NULL;
+		void *data = NULL;
 
 		cell = devm_nvmem_cell_get(dev, cell_name[i]);
 		if (IS_ERR(cell)) {
 			dev_info(dev, "Failed to get cell\n");
+			ret = PTR_ERR(cell);
 			return -1;
 		}
-		tsen->cell_data[i] = *(int *)nvmem_cell_read(cell, &len);
+
+		data = nvmem_cell_read(cell, &len);
+		if (IS_ERR(data)) {
+			dev_info(dev, "Failed to read cell %s: %ld\n", cell_name[i], PTR_ERR(data));
+			ret = PTR_ERR(data);
+			break;
+		}
+
+		if (len != sizeof(int)) {
+			dev_info(dev, "Unexpected data length for cell %s: %zu\n", cell_name[i],
+				 len);
+			kfree(data);
+			ret = -EINVAL;
+			break;
+		}
+
+		tsen->cell_data[i] = *(int *)data;
 		if (tsen->cell_data[i] == 0)
-			dev_info(dev,
-				 "Efuse%d didn't burn calibration value\n", i);
+			dev_info(dev, "Efuse%d didn't burn calibration value\n", i);
+
+		kfree(data);
 	}
-	return 0;
+	return ret;
 }
 
 #if 0
@@ -823,34 +858,35 @@ int aic_tsen_single_point_cali_for_correct(struct aic_tsen_dev *tsen)
 	int env_temp_low = TSEN_ENV_TEMP_LOW_BASE;
 	int standard_vol = TSEN_ORIGIN_STANDARD_VOLTAGE;
 	int vol_scale_unit = TSEN_VOLTAGE_SCALE_UNIT;
-	struct aic_tsen_ch_dat dat;
+	struct aic_tsen_ch_dat *dat;
 
 	env_temp_low += aic_tsen_env_temp_cali(TSEN_ENV_TEMP_LOW_SIGN_MASK,
 					       buf[TSEN_THS_ENV_TEMP_LOW]);
 	cali_scale = THERMAL_CORE_TEMP_AMPN_SCALE * TSEN_CALIB_ACCURACY_SCALE;
 
-	ldo30_bg_ctrl = buf[TSEN_LDO30_BG_CTRL];
+	ldo30_bg_ctrl = buf[TSEN_LDO30_BG_CTRL] & TSEN_LDO30_BG_CTRL_MASK;
+
 
 	if (ldo30_bg_ctrl > TSEN_TRIM_VOLTAGE_BOUNDARY_VAL)
 		origin_vol = standard_vol - (255 - ldo30_bg_ctrl) * vol_scale_unit;
 	else
 		origin_vol = standard_vol + ldo30_bg_ctrl * vol_scale_unit;
-
 	for (i = 0; i < tsen->ch_num; i++) {
-		dat = tsen->data->ch[i];
+		dat = &tsen->data->ch[i];
 		switch (i) {
 		case AIC_TSEN_CH_CPU:
 			origin_adc = origin_vol * buf[TSEN_THS0_ADC_VAL_LOW] / standard_vol;
-			dat.slope = TSEN_SINGLE_POINT_CALI_K_CPU;
+			dat->slope = TSEN_SINGLE_POINT_CALI_K_CPU;
 			break;
 		case AIC_TSEN_CH_GPAI:
 			origin_adc = origin_vol * buf[TSEN_THS1_ADC_VAL_LOW] / standard_vol;
-			dat.slope = TSEN_SINGLE_POINT_CALI_K_GPAI;
+			dat->slope = TSEN_SINGLE_POINT_CALI_K_GPAI;
 			break;
 		default:
 			return -1;
 		}
-		dat.offset = env_temp_low * cali_scale - dat.slope * origin_adc;
+		dat->offset = env_temp_low * cali_scale - dat->slope * origin_adc;
+
 	}
 	return 0;
 }
@@ -861,22 +897,22 @@ int aic_tsen_single_point_cali(struct aic_tsen_dev *tsen)
 	int cali_scale;
 	u32 *buf = tsen->cell_data;
 	int env_temp_low = TSEN_ENV_TEMP_LOW_BASE;
-	struct aic_tsen_ch_dat dat;
+	struct aic_tsen_ch_dat *dat;
 
 	env_temp_low += aic_tsen_env_temp_cali(TSEN_ENV_TEMP_LOW_SIGN_MASK,
 					       buf[TSEN_THS_ENV_TEMP_LOW]);
 	cali_scale = THERMAL_CORE_TEMP_AMPN_SCALE * TSEN_CALIB_ACCURACY_SCALE;
 
 	for (i = 0; i < tsen->ch_num; i++) {
-		dat = tsen->data->ch[i];
+		dat = &tsen->data->ch[i];
 		switch (i) {
 		case AIC_TSEN_CH_CPU:
-			dat.slope = TSEN_SINGLE_POINT_CALI_K_CPU;
-			dat.offset = env_temp_low * cali_scale - dat.slope * buf[TSEN_THS0_ADC_VAL_LOW];
+			dat->slope = TSEN_SINGLE_POINT_CALI_K_CPU;
+			dat->offset = env_temp_low * cali_scale - dat->slope * buf[TSEN_THS0_ADC_VAL_LOW];
 			break;
 		case AIC_TSEN_CH_GPAI:
-			dat.slope = TSEN_SINGLE_POINT_CALI_K_GPAI;
-			dat.offset = env_temp_low * cali_scale - dat.slope * buf[TSEN_THS1_ADC_VAL_LOW];
+			dat->slope = TSEN_SINGLE_POINT_CALI_K_GPAI;
+			dat->offset = env_temp_low * cali_scale - dat->slope * buf[TSEN_THS1_ADC_VAL_LOW];
 			break;
 		default:
 			return -1;
@@ -889,13 +925,23 @@ void aic_tsen_curve_fitting(struct aic_tsen_dev *tsen)
 {
 	int cp_version = tsen->cell_data[TSEN_CP_VERSION];
 
-	if (cp_version >= TSEN_CP_VERSION_DIFF_TYPE)
-		aic_tsen_single_point_cali(tsen);
-	else
+	if (cp_version == 0)
+		return;
+	else if (cp_version < TSEN_CP_VERSION_DIFF_TYPE)
 		aic_tsen_single_point_cali_for_correct(tsen);
+	else
+		aic_tsen_single_point_cali(tsen);
 }
 
 static const struct of_device_id aic_tsen_id_table[];
+
+static struct thermal_zone_params tsen_cpu_zone_params = {
+	.no_hwmon = false,
+};
+
+static struct thermal_zone_params tsen_gpai_zone_params = {
+	.no_hwmon = false,
+};
 
 static int aic_tsen_probe(struct platform_device *pdev)
 {
@@ -906,6 +952,8 @@ static int aic_tsen_probe(struct platform_device *pdev)
 	const struct of_device_id *of_id = NULL;
 	struct thermal_zone_device_ops *ops[AIC_TSEN_MAX_CH] = {
 		&tsen_cpu_ops, &tsen_gpai_ops, NULL, NULL};
+	struct thermal_zone_params *params[AIC_TSEN_MAX_CH] = {
+		&tsen_cpu_zone_params, &tsen_gpai_zone_params, NULL, NULL};
 
 	tsen = devm_kzalloc(&pdev->dev, sizeof(*tsen), GFP_KERNEL);
 	if (!tsen)
@@ -964,6 +1012,10 @@ static int aic_tsen_probe(struct platform_device *pdev)
 	tsen->ch_num = tsen->data->num;
 	tsen->pdev = pdev;
 	tsen_parse_dt(tsen);
+
+	aic_tsen_get_nvmem_cell(tsen);
+	aic_tsen_curve_fitting(tsen);
+
 	for (i = 0; i < tsen->ch_num; i++) {
 		struct aic_tsen_ch *chan = &tsen->chan[i];
 		int trips[AIC_TSEN_MAX_CH] = {TSEN_CPU_ZONE_TRIPS_NUM,
@@ -974,7 +1026,7 @@ static int aic_tsen_probe(struct platform_device *pdev)
 
 		zone_dev = thermal_zone_device_register(tsen->data->ch[i].name,
 							trips[i], 0, tsen,
-							ops[i], NULL, 0, 0);
+							ops[i], params[i], 0, 0);
 		if (IS_ERR(zone_dev)) {
 			dev_err(&pdev->dev, "zone device %d failed!\n", i);
 			ret = PTR_ERR(zone_dev);
@@ -983,21 +1035,26 @@ static int aic_tsen_probe(struct platform_device *pdev)
 
 		chan->zone = zone_dev;
 
+		if (!chan->zone) {
+			dev_err(&pdev->dev, "Thermal zone %d device is NULL\n", i);
+			goto disable_rst;
+		}
+		if (!chan->zone->tzp) {
+			dev_err(&pdev->dev, "Thermal zone %d params is NULL\n", i);
+			goto disable_rst;
+		}
+		chan->zone->tzp->offset = tsen->data->ch[i].offset;
+		chan->zone->tzp->slope = tsen->data->ch[i].slope;
+
 		tsen_ch_init(tsen, i);
 
-		if (i == AIC_TSEN_CH_CPU) {
-			ret = thermal_zone_device_enable(zone_dev);
-			if (ret) {
-				dev_err(&pdev->dev,
-					"zone device %d enable failed!\n",
-					AIC_TSEN_CH_CPU);
+		ret = thermal_zone_device_enable(zone_dev);
+		if (ret) {
+			dev_err(&pdev->dev, "zone device %d enable failed!\n", i);
 				thermal_zone_device_unregister(zone_dev);
 				zone_dev = ERR_PTR(ret);
-				}
 		}
 	}
-	aic_tsen_get_nvmem_cell(tsen);
-	aic_tsen_curve_fitting(tsen);
 
 	tsen->attrs.attrs = aic_tsen_attr;
 	ret = sysfs_create_group(&pdev->dev.kobj, &tsen->attrs);

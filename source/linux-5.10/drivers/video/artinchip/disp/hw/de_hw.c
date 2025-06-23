@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (C) 2020-2022 ArtInChip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -73,6 +73,49 @@ static int cos_table[60] = {
 	3937,     3917,     3895,     3872,     3848,
 	3823,     3797,     3770,     3741,     3712,
 	3681,     3649,     3616,     3582,     3547,
+};
+
+static const unsigned int scaling_coeffs[4][32] = {
+	[0] = {
+		0x00000000, 0x00000000, 0x00000000, 0x00000000,
+		0x00000000, 0x00000000, 0x00000000, 0x00000000,
+		0x0f001000, 0x0d000e00, 0x0b000c00, 0x09000a00,
+		0x07000800, 0x05000600, 0x03000400, 0x01000200,
+		0x01000000, 0x03000200, 0x05000400, 0x07000600,
+		0x09000800, 0x0b000a00, 0x0d000c00, 0x0f000e00,
+		0x00000000, 0x00000000, 0x00000000, 0x00000000,
+		0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	},
+	[1] = {
+		0x03a10405, 0x02f80352, 0x023f0299, 0x019701e9,
+		0x0103014a, 0x008400c1, 0x001b004d, 0x00000000,
+		0x07ed07f6, 0x07bd07d9, 0x07660795, 0x06f60731,
+		0x067006b6, 0x05d70625, 0x05300585, 0x047204d5,
+		0x04720405, 0x053004d5, 0x05d70585, 0x06700625,
+		0x06f606b6, 0x07660731, 0x07bd0795, 0x07ed07d9,
+		0x00000000, 0x001b0000, 0x0084004d, 0x010300c1,
+		0x0197014a, 0x023f01e9, 0x02f80299, 0x03a10352,
+	},
+	[2] = {
+		0x0420045e, 0x03a703e3, 0x0333036d, 0x02c502fb,
+		0x025b028f, 0x01f80229, 0x019a01c8, 0x0141016d,
+		0x061a062c, 0x05f10606, 0x05c205da, 0x058d05a8,
+		0x05530571, 0x05130534, 0x04ce04f1, 0x048504aa,
+		0x0485045e, 0x04ce04aa, 0x051304f1, 0x05530534,
+		0x058d0571, 0x05c205a8, 0x05f105da, 0x061a0606,
+		0x01410118, 0x019a016d, 0x01f801c8, 0x025b0229,
+		0x02c5028f, 0x033302fb, 0x03a7036d, 0x042003e3,
+	},
+	[3] = {
+		0x04240444, 0x03e40404, 0x03a603c5, 0x03690387,
+		0x032d034b, 0x02f30310, 0x02ba02d6, 0x0281029d,
+		0x05070511, 0x04f104fc, 0x04da04e6, 0x04c204ce,
+		0x04a804b5, 0x048d049b, 0x0471047f, 0x04540463,
+		0x04540445, 0x04710463, 0x048d047f, 0x04a8049b,
+		0x04c204b5, 0x04da04ce, 0x04f104e6, 0x050704fc,
+		0x02810266, 0x02ba029d, 0x02f302d6, 0x032d0310,
+		0x0369034b, 0x03a60387, 0x03e403c5, 0x04240404,
+	},
 };
 
 void de_config_prefetch_line_set(void __iomem *base_addr, u32 line)
@@ -451,6 +494,21 @@ void de_ui_layer_rect_enable(void __iomem *base_addr, u32 index, u32 enable)
 	else
 		reg_clr_bit(base_addr + UI_LAYER_RECT_CTRL,
 			     UI_LAYER_RECT_CTRL_EN(index));
+}
+
+void de_scaler0_active_handle(void __iomem *base_addr, u32 index)
+{
+	const unsigned int *table;
+	int i;
+
+	table = scaling_coeffs[index];
+
+	reg_set_bit(base_addr + SCALER0_CTRL, SCALER0_CTRL_CH0_V_COEF_LUT_EN);
+	reg_set_bit(base_addr + SCALER0_CTRL, SCALER0_CTRL_CH1_V_COEF_LUT_EN);
+	for (i = 0; i < 32; i++) {
+		reg_write(base_addr + SCALER0_CH0_V_COEF(i), table[i]);
+		reg_write(base_addr + SCALER0_CH1_V_COEF(i), table[i]);
+	}
 }
 
 /**

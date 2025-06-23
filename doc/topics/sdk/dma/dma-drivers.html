@@ -1,0 +1,308 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="此处描述的 DMA 是 ArtInChip 平台上的系统 DMA。一些硬件 IP 内部自带的 DMA 不在这里描述的范围。 驱动框架 U-Boot 驱动模型支持 DMA，ArtInChip 平台中 DMA 驱动基于该框架进行实现。 相关配置为： CONFIG_DMA CONFIG_ARTINCHIP_DMA 相关源码有： include/dma.h drivers/dma/dma-uclass.c ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-driver-support.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/reset-drivers.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/spi-divers.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="dma_drivers"/><meta name="DC.language" content="zh-CN"/><title>DMA</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="dma_drivers-d4445e2537"/><meta name="wh-source-relpath" content="topics/sdk/dma/dma-drivers.dita"/><meta name="wh-out-relpath" content="topics/sdk/dma/dma-drivers.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="dma_drivers" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="uBoot"><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li><div class="topicref" data-id="concept_q5s_jn3_pzb"><div class="title"><a href="../../../topics/sdk/boot/uboot-driver-support.html">驱动支持</a></div></div></li><li class="active"><div class="topicref" data-id="dma_drivers"><div class="title"><a href="../../../topics/sdk/dma/dma-drivers.html">DMA</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/boot/reset-drivers.html" title="Reset" aria-label="上一主题: Reset" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/boot/spi-divers.html" title="SPI" aria-label="下一主题: SPI" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="_65-d4445e2187" class="topicref" data-id="_65" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-hardware-env.html" id="_65-d4445e2187-link">硬件运行环境</a></div></div></li><li role="treeitem"><div data-tocid="_1601-d4445e2201" class="topicref" data-id="_1601" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-parameter.html" id="_1601-d4445e2201-link">启动参数</a></div></div></li><li role="treeitem"><div data-tocid="_1601_0-d4445e2215" class="topicref" data-id="_1601_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/boot-memory.html" id="_1601_0-d4445e2215-link">内存相关</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_lbx_3n3_pzb-d4445e2229" class="topicref" data-id="concept_lbx_3n3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_lbx_3n3_pzb-d4445e2229-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/environment-variables.html" id="concept_lbx_3n3_pzb-d4445e2229-link">环境变量</a></div></div></li><li role="treeitem"><div data-tocid="dts-d4445e2271" class="topicref" data-id="dts" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-dts.html" id="dts-d4445e2271-link">DTS</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spl-d4445e2285" class="topicref" data-id="spl" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spl-d4445e2285-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spl-program-stage.html" id="spl-d4445e2285-link">SPL 阶段</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot_0-d4445e2411" class="topicref" data-id="uBoot_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot_0-d4445e2411-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-stage.html" id="uBoot_0-d4445e2411-link">U-Boot 阶段</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_q5s_jn3_pzb-d4445e2495" class="topicref" data-id="concept_q5s_jn3_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_q5s_jn3_pzb-d4445e2495-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-driver-support.html" id="concept_q5s_jn3_pzb-d4445e2495-link">驱动支持</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="clock-d4445e2509" class="topicref" data-id="clock" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-clock-drivers.html" id="clock-d4445e2509-link">Clock</a></div></div></li><li role="treeitem"><div data-tocid="reset-d4445e2523" class="topicref" data-id="reset" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/reset-drivers.html" id="reset-d4445e2523-link">Reset</a></div></div></li><li role="treeitem" class="active"><div data-tocid="dma_drivers-d4445e2537" class="topicref" data-id="dma_drivers" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dma/dma-drivers.html" id="dma_drivers-d4445e2537-link">DMA</a></div></div></li><li role="treeitem"><div data-tocid="spi_divers-d4445e2551" class="topicref" data-id="spi_divers" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spi-divers.html" id="spi_divers-d4445e2551-link">SPI</a></div></div></li><li role="treeitem"><div data-tocid="spiNand_1-d4445e2565" class="topicref" data-id="spiNand_1" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spi-nand-drivers.html" id="spiNand_1-d4445e2565-link">SPI NAND</a></div></div></li><li role="treeitem"><div data-tocid="spiNor_0-d4445e2579" class="topicref" data-id="spiNor_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spi-nor-drivers.html" id="spiNor_0-d4445e2579-link">SPI NOR</a></div></div></li><li role="treeitem"><div data-tocid="mmc_0-d4445e2593" class="topicref" data-id="mmc_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/mmc-drivers.html" id="mmc_0-d4445e2593-link">MMC</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="concept_l2d_xk3_pzb-d4445e2607" class="topicref" data-id="concept_l2d_xk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-partition-config.html" id="concept_l2d_xk3_pzb-d4445e2607-link">配置启动分区</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_afz_xk3_pzb-d4445e2621" class="topicref" data-id="concept_afz_xk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_afz_xk3_pzb-d4445e2621-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-core.html" id="concept_afz_xk3_pzb-d4445e2621-link">启动内核</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_uzy_yk3_pzb-d4445e2692" class="topicref" data-id="concept_uzy_yk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_uzy_yk3_pzb-d4445e2692-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/bundle-images.html" id="concept_uzy_yk3_pzb-d4445e2692-link">打包镜像</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_yfv_1l3_pzb-d4445e2832" class="topicref" data-id="concept_yfv_1l3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_yfv_1l3_pzb-d4445e2832-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-chapter-image-burn.html" id="concept_yfv_1l3_pzb-d4445e2832-link">镜像烧录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="userid-d4445e2888" class="topicref" data-id="userid" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action userid-d4445e2888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/userid-burn.html" id="userid-d4445e2888-link">UserID 烧录</a></div></div></li><li role="treeitem"><div data-tocid="concept_azt_bl3_pzb-d4445e2944" class="topicref" data-id="concept_azt_bl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/logo-display.html" id="concept_azt_bl3_pzb-d4445e2944-link">图像显示</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="_1601_1-d4445e2958" class="topicref" data-id="_1601_1" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _1601_1-d4445e2958-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/debug-configuration.html" id="_1601_1-d4445e2958-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="opensbi-d4445e3000" class="topicref" data-id="opensbi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/opensbi.html" id="opensbi-d4445e3000-link">OpenSBI</a></div></div></li><li role="treeitem"><div data-tocid="pbp-d4445e3014" class="topicref" data-id="pbp" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/pre-boot-program.html" id="pbp-d4445e3014-link">Pre-Boot Program (PBP)</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/dma/dma-drivers.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">DMA</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d158821e33__20250123155216">此处描述的 DMA 是 ArtInChip 平台上的系统 DMA。一些硬件 IP 内部自带的 DMA 不在这里描述的范围。</p>
+        <section class="- topic/section section" id="dma_drivers__section_og5_mnr_c1c" data-ofbid="dma_drivers__section_og5_mnr_c1c"><h2 class="- topic/title title sectiontitle">驱动框架</h2>
+            
+            <p class="- topic/p p" data-ofbid="d158821e41__20250123155216">U-Boot 驱动模型支持 DMA，ArtInChip 平台中 DMA 驱动基于该框架进行实现。 相关配置为：</p>
+            <ul class="- topic/ul ul" id="dma_drivers__ul_qg5_mnr_c1c" data-ofbid="dma_drivers__ul_qg5_mnr_c1c">
+                <li class="- topic/li li" data-ofbid="d158821e46__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e48__20250123155216">CONFIG_DMA</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d158821e52__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e54__20250123155216">CONFIG_ARTINCHIP_DMA</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d158821e59__20250123155216">相关源码有：</p>
+            <ul class="- topic/ul ul" id="dma_drivers__ul_sg5_mnr_c1c" data-ofbid="dma_drivers__ul_sg5_mnr_c1c">
+                <li class="- topic/li li" data-ofbid="d158821e64__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e66__20250123155216"><span class="+ topic/ph sw-d/filepath ph filepath">include/dma.h</span></p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d158821e71__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e73__20250123155216"><span class="+ topic/ph sw-d/filepath ph filepath">drivers/dma/dma-uclass.c</span></p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d158821e78__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e80__20250123155216"><span class="+ topic/ph sw-d/filepath ph filepath">drivers/dma/artinchip_dma.c</span></p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="dma_drivers__section_tg5_mnr_c1c" data-ofbid="dma_drivers__section_tg5_mnr_c1c"><h2 class="- topic/title title sectiontitle">驱动接口</h2>
+            
+            <div class="- topic/p p" data-ofbid="d158821e92__20250123155216">常用接口<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_f3l_rnr_c1c" data-ofbid="dma_drivers__codeblock_f3l_rnr_c1c"><code><strong class="hl-keyword">int</strong> dma_enable(<strong class="hl-keyword">struct</strong> dma *dma);
+<strong class="hl-keyword">int</strong> dma_disable(<strong class="hl-keyword">struct</strong> dma *dma);
+<strong class="hl-keyword">int</strong> dma_request(<strong class="hl-keyword">struct</strong> udevice *dev, <strong class="hl-keyword">struct</strong> dma *dma);
+<strong class="hl-keyword">int</strong> dma_free(<strong class="hl-keyword">struct</strong> dma *dma);
+<strong class="hl-keyword">int</strong> dma_memcpy(<strong class="hl-keyword">void</strong> *dst, <strong class="hl-keyword">void</strong> *src, size_t len);
+<strong class="hl-keyword">int</strong> dma_prepare_rcv_buf(<strong class="hl-keyword">struct</strong> dma *dma, <strong class="hl-keyword">void</strong> *dst, size_t size);
+<strong class="hl-keyword">int</strong> dma_receive(<strong class="hl-keyword">struct</strong> dma *dma, <strong class="hl-keyword">void</strong> **dst, <strong class="hl-keyword">void</strong> *metadata);
+<strong class="hl-keyword">int</strong> dma_send(<strong class="hl-keyword">struct</strong> dma *dma, <strong class="hl-keyword">void</strong> *src, size_t len, <strong class="hl-keyword">void</strong> *metadata);</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="dma_drivers__section_vg5_mnr_c1c" data-ofbid="dma_drivers__section_vg5_mnr_c1c"><h2 class="- topic/title title sectiontitle">实现说明</h2>
+            
+            <p class="- topic/p p" data-ofbid="d158821e103__20250123155216">ArtInChip 平台上有一个系统 DMA，其支持 8 个通道同时工作。如规格书所定义，DMA 可以在不同的硬件 IP 之间搬运数据，系统为各硬件 IP
+                分配了固定的数据端口号。 使用 DMA 时，软件需要先申请到一个空闲的 DMA 通道，并将源数据端口和目标数据端口等信息配置给 DMA 通道，然后启动 DMA
+                进行工作。</p>
+            <p class="- topic/p p" data-ofbid="d158821e106__20250123155216">然而上述的描述和使用方式并不能直接对应到 DTS 的配置方式以及 U-Boot 中的 DMA 表示方式， 中间需要做一些转换和说明。</p>
+            <p class="- topic/p p" data-ofbid="d158821e109__20250123155216">在 DTS 中，可以描述某个控制器是否支持 DMA，并且配置所使用的 DMA ID 号。 在 ArtInChip 平台中，实际只有一个 DMA，各硬件 IP
+                共享使用。在配置 DTS 时， 使用设备对应的 DMA 数据端口号作为 DMA ID，在运行时再给该 ID 分配可用的 DMA 通道。</p>
+            <div class="- topic/p p" data-ofbid="d158821e112__20250123155216">如下面的示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_mfj_qnr_c1c" data-ofbid="dma_drivers__codeblock_mfj_qnr_c1c"><code>spi0: spi@<span class="hl-number">10400000</span> {
+    compatible = <span class="hl-string">"artinchip,aic-spi-v1.0"</span>;
+    reg = &lt;<span class="hl-number">0x0</span> <span class="hl-number">0x10400000</span> <span class="hl-number">0x0</span> <span class="hl-number">0x1000</span>&gt;;
+    interrupts-extended = &lt;&amp;plic0 <span class="hl-number">44</span> IRQ_TYPE_LEVEL_HIGH&gt;;
+    clocks = &lt;&amp;cmu CLK_SPI0&gt;;
+    resets = &lt;&amp;rst RESET_SPI0&gt;;
+    dmas = &lt;&amp;dma DMA_SPI0&gt;, &lt;&amp;dma DMA_SPI0&gt;;
+    dma-names = <span class="hl-string">"rx"</span>, <span class="hl-string">"tx"</span>;
+    #address-cells = &lt;<span class="hl-number">1</span>&gt;;
+    #size-cells = &lt;<span class="hl-number">0</span>&gt;;
+    spi-max-frequency = &lt;<span class="hl-number">24000000</span>&gt;;
+};</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d158821e118__20250123155216">这里的 DMA 配置中，描述了 SPI0 控制器使用两个 DMA，分别是 “rx”, “tx”，它们的 DMA ID 都是 SPI0 对应的 DMA 数据端口号
+                10。</p>
+            <div class="- topic/p p" data-ofbid="d158821e121__20250123155216">上述的配置对应到 U-Boot 的 DMA 驱动实现时，会有一些问题。U-Boot DMA
+                在运行时使用下面的结构体表示：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_zxv_pnr_c1c" data-ofbid="dma_drivers__codeblock_zxv_pnr_c1c"><code><strong class="hl-keyword">struct</strong> dma {
+        <strong class="hl-keyword">struct</strong> udevice *dev;
+        <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">long</strong> id;
+};</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d158821e126__20250123155216">DMA 的实例化在 DMA 驱动框架 <span class="+ topic/ph sw-d/filepath ph filepath">dma-uclass.c</span> 中进行，其中的 <span class="+ topic/keyword pr-d/parmname keyword parmname">id</span> 值即为 DTS
+                中配置的 DMA ID。这里两个 DMA 使用了相同的 ID 号，如果直接使用，无法区分不同 DMA 所映射的 DMA 通道。</p>
+            <p class="- topic/p p" data-ofbid="d158821e135__20250123155216">ArtInChip 平台上通过对 DMA 结构体中的 <span class="+ topic/keyword pr-d/parmname keyword parmname">id</span> 进行了扩展，以方便区分实际使用的不同 DMA， 如下所示：</p>
+            <ul class="- topic/ul ul" id="dma_drivers__ul_zg5_mnr_c1c" data-ofbid="dma_drivers__ul_zg5_mnr_c1c">
+                <li class="- topic/li li" data-ofbid="d158821e143__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e145__20250123155216">bit[15:0] 表示 IP 端口号</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d158821e149__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d158821e151__20250123155216">bit[31:16] 表示 DMA 通道号</p>
+                </li>
+            </ul>
+            <div class="- topic/p p" data-ofbid="d158821e156__20250123155216">在 DMA 创建时赋值端口号区域，DMA request 时赋值通道号区域。由于上述两个动作是在一个调用中完成的，
+                因此不会有问题：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_e3z_4nr_c1c" data-ofbid="dma_drivers__codeblock_e3z_4nr_c1c"><code>dma_get_by_name(bus, <span class="hl-string">"tx"</span>, &amp;priv-&gt;tx_dma); <em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+|-&gt; dma_get_by_index(dev, index, dma); <em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+    |-&gt; dma_of_xlate_default(dma, &amp;args);
+    |   |-&gt; dma-&gt;id = args-&gt;args[<span class="hl-number">0</span>];
+    |
+    |-&gt; dma_request(dev_dma, dma); <em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+        |-&gt; aic_dma_request(dma); <em class="hl-comment">// drivers/dma/artinchip_dma.c</em>
+            |-&gt; phy_ch = aic_dma_phy_request(ud);
+            |-&gt; dma-&gt;id |= (phy_ch &lt;&lt; AIC_DMA_PHY_CH_OFF);</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d158821e162__20250123155216">U-Boot 对 <span class="+ topic/keyword pr-d/parmname keyword parmname">struct dma</span> 结构体中 <span class="+ topic/keyword pr-d/parmname keyword parmname">id</span> 的定义是唯一标识，只要能够做 DMA
+                区分即可， 因此上述扩展不会造成其他问题。</p>
+        </section>
+        <section class="- topic/section section" id="dma_drivers__section_bh5_mnr_c1c" data-ofbid="dma_drivers__section_bh5_mnr_c1c"><h2 class="- topic/title title sectiontitle">初始化流程</h2>
+            
+            <p class="- topic/p p" data-ofbid="d158821e177__20250123155216">DMA 驱动的初始化，在 DMA 第一次被使用时触发进行。</p>
+            <div class="- topic/p p" data-ofbid="d158821e180__20250123155216"><strong class="+ topic/ph hi-d/b ph b">情况 1：</strong> DRAM DMA
+                数据传输<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_vdq_nnr_c1c" data-ofbid="dma_drivers__codeblock_vdq_nnr_c1c"><code>dma_memcpy(dst_buf, src_buf, len);<em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+|-&gt; dma_get_device(DMA_SUPPORTS_MEM_TO_MEM, &amp;dev);
+    |-&gt; uclass_first_device(UCLASS_DMA, &amp;dev)
+        |-&gt; uclass_find_first_device(id, index, &amp;dev);
+        |-&gt; uclass_get_device_tail(dev, ret, devp);
+            |-&gt; device_probe(dev); <em class="hl-comment">// drivers/core/device.c</em>
+                |-&gt; drv-&gt;probe(dev);
+                    aic_dma_probe(dev); <em class="hl-comment">// drivers/dma/artinchip_dma.c</em></code></pre></div>
+            <div class="- topic/p p" data-ofbid="d158821e187__20250123155216"><strong class="+ topic/ph hi-d/b ph b">情况 2：</strong> 根据 DTS 配置申请
+                DMA<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dma_drivers__codeblock_gbg_4nr_c1c" data-ofbid="dma_drivers__codeblock_gbg_4nr_c1c"><code>dma_get_by_name(bus, <span class="hl-string">"tx"</span>, &amp;priv-&gt;tx_dma); <em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+|-&gt; dma_get_by_index(dev, index, dma); <em class="hl-comment">// drivers/dma/dma-uclass.c</em>
+    |-&gt; uclass_get_device_by_ofnode(UCLASS_DMA, args.node, &amp;dev_dma);
+        |   <em class="hl-comment">// drivers/core/uclass.c</em>
+        |-&gt; uclass_find_device_by_ofnode(id, node, &amp;dev);
+        |-&gt; uclass_get_device_tail(dev, ret, devp);
+            |-&gt; device_probe(dev); <em class="hl-comment">// drivers/core/device.c</em>
+                |-&gt; drv-&gt;probe(dev);
+                    aic_dma_probe(dev); <em class="hl-comment">// drivers/dma/artinchip_dma.c</em></code></pre></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#dma_drivers__section_og5_mnr_c1c" data-tocid="dma_drivers__section_og5_mnr_c1c">驱动框架</a></div></li><li class="section-item"><div class="section-title"><a href="#dma_drivers__section_tg5_mnr_c1c" data-tocid="dma_drivers__section_tg5_mnr_c1c">驱动接口</a></div></li><li class="section-item"><div class="section-title"><a href="#dma_drivers__section_vg5_mnr_c1c" data-tocid="dma_drivers__section_vg5_mnr_c1c">实现说明</a></div></li><li class="section-item"><div class="section-title"><a href="#dma_drivers__section_bh5_mnr_c1c" data-tocid="dma_drivers__section_bh5_mnr_c1c">初始化流程</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

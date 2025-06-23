@@ -305,6 +305,8 @@ void aicfb_draw_rect(struct udevice *dev,
 			u8 red, u8 green, u8 blue);
 int aic_bmp_display(struct udevice *dev, ulong bmp_image);
 
+void draw_progress_bar(int value);
+
 int aic_disp_logo(const char *name, int boot_param);
 
 #if defined(__cplusplus)

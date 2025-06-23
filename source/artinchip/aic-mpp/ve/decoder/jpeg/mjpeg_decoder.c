@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg decode
-*
-*/
+ * Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg decode
+ *
+ */
 
 #define LOG_TAG "jpeg_decoder"
 
@@ -57,32 +59,36 @@ ___________________________                  _______________________________
 */
 static void get_start_offset(struct mjpeg_dec_ctx *s)
 {
+	int rotate = MPP_ROTATION_GET(s->decoder.rotmir_flag);
+	int flip_v = MPP_FLIP_V_GET(s->decoder.rotmir_flag);
+	int flip_h = MPP_FLIP_H_GET(s->decoder.rotmir_flag);
+
 	s->h_offset[0] = s->h_offset[1] = s->h_offset[2] = 0;
 	s->v_offset[0] = s->v_offset[1] = s->v_offset[2] = 0;
-	if ((s->rotate == MPP_ROTATION_270 && s->mirror == 0) // 0001
-		|| (s->rotate == MPP_ROTATION_90 && s->mirror == (MPP_FLIP_V | MPP_FLIP_H))) { // 1111
+	if ((rotate == MPP_ROTATION_270 && !flip_h && !flip_v) // 0001
+		|| (rotate == MPP_ROTATION_90 && (flip_h && flip_v))) { // 1111
 		for(int k=0; k<3; k++)
 			s->v_offset[k] = s->rm_v_stride[k] - s->rm_v_real_size[k];
-	} else if ((s->rotate == MPP_ROTATION_180 && s->mirror == 0) // 0010
-		|| (s->rotate == MPP_ROTATION_0 && s->mirror == (MPP_FLIP_V | MPP_FLIP_H))) { //1100
+	} else if ((rotate == MPP_ROTATION_180 && !flip_h && !flip_v) // 0010
+		|| (rotate == MPP_ROTATION_0 && (flip_h && flip_v))) { //1100
 		for (int k = 0; k < 3; k++) {
 			s->v_offset[k] = s->rm_v_stride[k] - s->rm_v_real_size[k];
 			s->h_offset[k] = s->rm_h_stride[k] - s->rm_h_real_size[k];
 		}
-	} else if ((s->rotate == MPP_ROTATION_90 && s->mirror == 0) // 0011
-		|| (s->rotate == MPP_ROTATION_270 && s->mirror == (MPP_FLIP_V | MPP_FLIP_H))) { //1101
+	} else if ((rotate == MPP_ROTATION_90 && !flip_h && !flip_v) // 0011
+		|| (rotate == MPP_ROTATION_270 && (flip_h && flip_v))) { //1101
 		for (int k = 0; k<3; k++)
 			s->h_offset[k] = s->rm_h_stride[k] - s->rm_h_real_size[k];
-	} else if ((s->rotate == MPP_ROTATION_0 && s->mirror == MPP_FLIP_V) //0100
-		|| (s->rotate == MPP_ROTATION_180 && s->mirror == MPP_FLIP_H)) { // 1010
+	} else if ((rotate == MPP_ROTATION_0 && flip_v) //0100
+		|| (rotate == MPP_ROTATION_180 && flip_h)) { // 1010
 		for (int k = 0; k<3; k++)
 			s->v_offset[k] = s->rm_v_stride[k] - s->rm_v_real_size[k];
-	} else if ((s->rotate == MPP_ROTATION_0 && s->mirror == MPP_FLIP_H) // 1000
-		|| (s->rotate == MPP_ROTATION_180 && s->mirror == MPP_FLIP_V)) { // 0110
+	} else if ((rotate == MPP_ROTATION_0 && flip_h) // 1000
+		|| (rotate == MPP_ROTATION_180 && flip_v)) { // 0110
 		for (int k = 0; k<3; k++)
 			s->h_offset[k] = s->rm_h_stride[k] - s->rm_h_real_size[k];
-	} else if ((s->rotate == MPP_ROTATION_90 && s->mirror == MPP_FLIP_H) // 1011
-		|| (s->rotate == MPP_ROTATION_270 && s->mirror == MPP_FLIP_V)) { // 0101
+	} else if ((rotate == MPP_ROTATION_90 && flip_h) // 1011
+		|| (rotate == MPP_ROTATION_270 && flip_v)) { // 0101
 		for (int k = 0; k < 3; k++) {
 			s->h_offset[k] = s->rm_h_stride[k] - s->rm_h_real_size[k];
 			s->v_offset[k] = s->rm_v_stride[k] - s->rm_v_real_size[k];
@@ -90,8 +96,8 @@ static void get_start_offset(struct mjpeg_dec_ctx *s)
 	}
 
 	// do nothing for the cases below
-	// (s->rotate == MPP_ROTATION_270 && s->mirror == MPP_FLIP_H) //1001
-	// (s->rotate == MPP_ROTATION_90 && s->mirror == MPP_FLIP_V) // 0111
+	// (s->rotate == MPP_ROTATION_270 && flip_h) //1001
+	// (s->rotate == MPP_ROTATION_90 && flip_v) // 0111
 	// (s->rotate == MPP_ROTATION_0 && s->mirror == 0) 	// 0000
 	// (s->rotate == MPP_ROTATION_180 && s->mirror == (MPP_FLIP_V | MPP_FLIP_H)) // 1110
 }
@@ -312,15 +318,14 @@ int mjpeg_decode_sof(struct mjpeg_dec_ctx *s)
 	}
 
 	// get the output size of scale down
-	s->scale_en = s->hor_scale || s->ver_scale;
 	s->nb_mcu_width = (s->width + 8 * s->h_count[0] - 1) / (8 * s->h_count[0]);
 	s->nb_mcu_height = (s->height + 8 * s->v_count[0] - 1) / (8 * s->v_count[0]);
-	int h_stride_y = (s->nb_mcu_width * s->h_count[0] * 8) >> s->hor_scale;
-	int v_stride_y = (s->nb_mcu_height * s->v_count[0] * 8) >> s->ver_scale;
+	int h_stride_y = (s->nb_mcu_width * s->h_count[0] * 8) >> s->decoder.hor_scale;
+	int v_stride_y = (s->nb_mcu_height * s->v_count[0] * 8) >> s->decoder.ver_scale;
 	phy_h_stride[0] = phy_h_stride[1] = phy_h_stride[2] = (h_stride_y + 15) / 16 * 16;
 	phy_v_stride[0] = phy_v_stride[1] = phy_v_stride[2] = (v_stride_y + 15) / 16 * 16;
-	h_real_size[0] = s->width >> s->hor_scale;
-	v_real_size[0] = s->height >> s->ver_scale;
+	h_real_size[0] = s->width >> s->decoder.hor_scale;
+	v_real_size[0] = s->height >> s->decoder.ver_scale;
 
 	if (s->pix_fmt == MPP_FMT_YUV420P) {
 		phy_h_stride[1] = phy_h_stride[2] = phy_h_stride[0] / 2;
@@ -342,7 +347,8 @@ int mjpeg_decode_sof(struct mjpeg_dec_ctx *s)
 	}
 
 	// get the output size of rotate
-	if (s->rotate == MPP_ROTATION_270 || s->rotate == MPP_ROTATION_90) {
+	if (MPP_ROTATION_GET(s->decoder.rotmir_flag) == MPP_ROTATION_270 ||
+		MPP_ROTATION_GET(s->decoder.rotmir_flag) == MPP_ROTATION_90) {
 		for (int k = 0; k < 3; k++) {
 			s->rm_h_real_size[k] = v_real_size[k];
 			s->rm_v_real_size[k] = h_real_size[k];
@@ -358,6 +364,8 @@ int mjpeg_decode_sof(struct mjpeg_dec_ctx *s)
 		}
 	}
 
+	s->scale_width  = s->rm_h_stride[0];
+	s->scale_height = s->rm_v_stride[0];
 	// get the start offset of output
 	get_start_offset(s);
 
@@ -370,11 +378,12 @@ static void set_frame_info(struct mjpeg_dec_ctx *s)
 {
 	if(s->curr_packet->flag & PACKET_FLAG_EOS)
 		s->curr_frame->mpp_frame.flags |= FRAME_FLAG_EOS;
+	s->curr_frame->mpp_frame.buf.flags |= MPP_COLOR_SPACE_BT601_FULL_RANGE;
 	s->curr_frame->mpp_frame.buf.crop_en = 1;
 	s->curr_frame->mpp_frame.buf.crop.x = 0;
 	s->curr_frame->mpp_frame.buf.crop.y = 0;
-	s->curr_frame->mpp_frame.buf.crop.width = s->width;
-	s->curr_frame->mpp_frame.buf.crop.height = s->height;
+	s->curr_frame->mpp_frame.buf.crop.width = s->rm_h_real_size[0];
+	s->curr_frame->mpp_frame.buf.crop.height = s->rm_v_real_size[0];
 	s->curr_frame->mpp_frame.pts = s->curr_packet->pts;
 }
 
@@ -435,8 +444,8 @@ int mjpeg_decode_sos(struct mjpeg_dec_ctx *s,
 	if(s->decoder.fm == NULL) {
 		struct frame_manager_init_cfg cfg;
 		cfg.frame_count = 1 + s->extra_frame_num;
-		cfg.height = s->height;
-		cfg.width = s->width;
+		cfg.height = s->scale_height;
+		cfg.width = s->scale_width;
 		cfg.height_align = s->rm_v_stride[0];
 		cfg.stride = s->rm_h_stride[0];
 		cfg.pixel_format = s->pix_fmt;
@@ -759,6 +768,7 @@ int __mjpeg_decode_reset(struct mpp_decoder *ctx)
 {
 	// TODO
 	struct mjpeg_dec_ctx *s = (struct mjpeg_dec_ctx *)ctx;
+	fm_decoder_reclaim_all_used_frame(s->decoder.fm);
 	fm_reset(s->decoder.fm);
 	pm_reset(s->decoder.pm);
 	return 0;

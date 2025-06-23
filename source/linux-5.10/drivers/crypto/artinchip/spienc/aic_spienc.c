@@ -366,6 +366,8 @@ static int aic_spienc_probe(struct platform_device *pdev)
 	if (IS_ERR(drvdata->base))
 		return PTR_ERR(drvdata->base);
 
+	writel(0x3F, (drvdata->base + SPIE_REG_ISR));
+
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		dev_err(dev, "get irq failed.\n");
@@ -460,7 +462,17 @@ static struct platform_driver spienc_driver = {
 	},
 };
 
-module_platform_driver(spienc_driver);
+static int __init aic_spienc_init(void)
+{
+	return platform_driver_register(&spienc_driver);
+}
+subsys_initcall(aic_spienc_init);
+
+static void __exit aic_spienc_exit(void)
+{
+	return platform_driver_unregister(&spienc_driver);
+}
+module_exit(aic_spienc_exit);
 
 MODULE_AUTHOR("Dehuang Wu <dehuang.wu@artinchip.com>");
 MODULE_DESCRIPTION("Support for Artinchip SoC's SPI Enc");

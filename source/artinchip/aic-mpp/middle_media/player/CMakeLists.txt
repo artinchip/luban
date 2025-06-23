@@ -3,7 +3,7 @@ add_library(media_player SHARED
 	aic_player.c
 )
 
-target_link_libraries(media_player mpp_base openmax)
+target_link_libraries(media_player mpp_base mm_component)
 target_link_libraries(media_player pthread)
 
 target_include_directories(media_player PUBLIC
@@ -20,7 +20,7 @@ include_directories(./include ../base/include ../../base/include)
 
 add_executable(player_demo player_demo.c)
 
-target_link_libraries(player_demo mpp_base openmax media_player)
+target_link_libraries(player_demo mpp_base mm_component media_player)
 
 target_link_libraries(player_demo pthread)
 

@@ -1,0 +1,90 @@
+/* ==========================================================
+ * 
+ * <li>
+ * 
+ * An li element is a single item in an ordered (ol) or 
+ * unordered (ul) list. When a DITA topic is rendered, numbers 
+ * and alpha characters are usually displayed with list items 
+ * in ordered lists, while bullets and dashes are usually displayed 
+ * with list items in unordered lists.
+ * 
+ * <ol>
+ * 
+ * The ol element includes a list of items sorted by sequence or 
+ * order of importance.
+ * 
+ * <ul>
+ * 
+ * The ul element is a list of items in which the order of list items 
+ * is not significant. List items are typically styled on output 
+ * with a "bullet" character, depending on nesting level.
+ * 
+ */
+
+@media print {
+  *[class~="topic/ul"],
+  *[class~="topic/ol"] {
+      list-style-position: outside;
+  }
+ 
+  /* Dan: Prince mixes the counters for the inner OL's taking the initial 
+      value from the outer one. We make sure the counter is reset. */
+  *[class~="topic/ol"],
+  /* EXM-35991 Dan: It seems that the same problem is also for the UL's. Resetting the counter. */
+  *[class~="topic/ul"]{
+     counter-reset:list-item;
+  }
+}
+
+
+
+*[class~="topic/ul"] > *[class~="topic/li"] {
+  list-style-type: disc;
+  padding: 0;
+}
+*[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"] > *[class~="topic/li"] {
+  list-style-type: circle;
+  padding: 0;
+}
+*[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"] > *[class~="topic/li"] {
+  list-style-type: disc;
+  padding: 0;
+}
+*[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"]  > *[class~="topic/li"] *[class~="topic/ul"] > *[class~="topic/li"] {
+  list-style-type: circle;
+  padding: 0;
+}
+
+
+
+*[class~="topic/ol"] > *[class~="topic/li"] {
+list-style-type: decimal;
+
+}
+*[class~="topic/ol"]  > *[class~="topic/li"] *[class~="topic/ol"] > *[class~="topic/li"] {
+list-style-type: lower-alpha;
+}
+
+
+*[class~="topic/ol"] > *[class~="topic/li"] *[class~="topic/ol"] > *[class~="topic/li"] *[class~="topic/ol"] > *[class~="topic/li"] {
+  list-style-type: lower-roman;
+}
+
+
+/*lists in tables without indent*/
+
+.table [class~="topic/ol"] {
+  margin-left: 6pt;
+  padding-left: 6pt;
+}
+
+.table [class~="topic/ul"] {
+  margin-left: 6pt;
+  padding-left: 6pt;
+}
+
+
+
+
+   
+

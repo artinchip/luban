@@ -20,6 +20,9 @@
 #define GD5FXGQ4UXFXXG_STATUS_ECC_1_3_BITFLIPS	(1 << 4)
 #define GD5FXGQ4UXFXXG_STATUS_ECC_UNCOR_ERROR	(7 << 4)
 
+#define GD5F1GM7UE_STATUS_ECC_HAS_1_4_BITFLIPS 	(1 << 4)
+#define GD5F1GM7UE_STATUS_ECC_UNCOR_ERROR      	(2 << 4)
+
 static SPINAND_OP_VARIANTS(read_cache_variants,
 		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 1, NULL, 0),
 		SPINAND_PAGE_READ_FROM_CACHE_X4_OP(0, 1, NULL, 0),
@@ -203,6 +206,24 @@ static int gd5fxgq4uexxg_ecc_get_status(struct spinand_device *spinand,
 	return -EINVAL;
 }
 
+static int gd5f1gm7ue_ecc_get_status(struct spinand_device *spinand, u8 status)
+{
+    switch (status & STATUS_ECC_MASK) {
+        case STATUS_ECC_NO_BITFLIPS:
+            return 0;
+        case GD5F1GM7UE_STATUS_ECC_HAS_1_4_BITFLIPS:
+            return 4;
+        case GD5F1GM7UE_STATUS_ECC_UNCOR_ERROR:
+            return -EINVAL;
+        case STATUS_ECC_MASK:
+            return 8;
+        default:
+            break;
+    }
+
+    return -EINVAL;
+}
+
 static int gd5fxgq4ufxxg_ecc_get_status(struct spinand_device *spinand,
 					u8 status)
 {
@@ -294,6 +315,16 @@ static const struct spinand_info gigadevice_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&gd5fxgq4_variant2_ooblayout,
 				     gd5fxgq4ufxxg_ecc_get_status)),
+	SPINAND_INFO("GD5F1GM7UExxG",//
+		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0x91),
+		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
+		     NAND_ECCREQ(4, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&gd5fxgq4_variant2_ooblayout,
+				     gd5f1gm7ue_ecc_get_status)),
 	SPINAND_INFO("GD5F1GQ5UExxG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_ADDR, 0x51),
 		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),

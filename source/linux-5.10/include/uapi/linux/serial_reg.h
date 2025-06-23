@@ -153,6 +153,13 @@
 
 #define UART_SCR	7	/* I/O: Scratch Register */
 
+#define UART_USR	31	/* Out: User Status Register */
+#define UART_USR_RFF		0x10 /* Receive FIFO Full */
+#define UART_USR_RFNE		0x08 /* Receive FIFO Not Empty */
+#define UART_USR_TFE		0x04 /* Transmit FIFO Empty */
+#define UART_USR_TFNF		0x02 /* Transmit FIFO Not Full */
+#define UART_USR_BUSY		0x01 /* Uart Busy Bit */
+
 /*
  * DLAB=1
  */

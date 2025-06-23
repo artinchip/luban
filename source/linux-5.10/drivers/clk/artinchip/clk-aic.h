@@ -31,6 +31,12 @@ struct pll_clk_cfg {
 			       const struct pll_clk_cfg *cfg);
 };
 
+struct pll_vco {
+	unsigned long vco_min;
+	unsigned long vco_max;
+	const char *name;
+};
+
 enum aic_fixed_parent_type {
 	AIC_FPCLK_NORMAL,
 	AIC_FPCLK_FIXED_FACTOR,

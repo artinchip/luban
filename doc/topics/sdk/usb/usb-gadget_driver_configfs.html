@@ -1,0 +1,610 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Gadget Device 支撑了核心 Gadget Api 的实现，而 Function Layer 又需要使用这些 Api。怎么样将两者适配起来？Gadget Driver 就是用来完成这项工作的。 目前存在两种风格的 Gadget Driver，其中包括： Legacy。这是早期风格的 Gadget Driver，只能通过静态编译的方式指定使用哪些 Function。 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-device-device_layer.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-gadget_device.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-gadget_driver_legacy.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="usb_gadget_driver_configfs"/><meta name="DC.language" content="zh-CN"/><title>Gadget Driver (Configfs)</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="usb_gadget_driver_configfs-d4445e7860"/><meta name="wh-source-relpath" content="topics/sdk/usb/usb-gadget_driver_configfs.dita"/><meta name="wh-out-relpath" content="topics/sdk/usb/usb-gadget_driver_configfs.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="usb_gadget_driver_configfs" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="usb_user_guide"><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html">USB 使用指南</a></div></div></li><li><div class="topicref" data-id="usb_device_subsystem_code_structure"><div class="title"><a href="../../../topics/sdk/usb/usb-device_subsystem_code_structure.html">USB Device 子系统代码架构</a></div></div></li><li><div class="topicref" data-id="usb_device_device_layer"><div class="title"><a href="../../../topics/sdk/usb/usb-device-device_layer.html">USB Device Layer</a></div></div></li><li class="active"><div class="topicref" data-id="usb_gadget_driver_configfs"><div class="title"><a href="../../../topics/sdk/usb/usb-gadget_driver_configfs.html">Gadget Driver (Configfs)</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-gadget_device.html" title="Gadget Device" aria-label="上一主题: Gadget Device" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-gadget_driver_legacy.html" title="Gadget Driver Legacy" aria-label="下一主题: Gadget Driver Legacy" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="usb_configuration-d4445e7313" class="topicref" data-id="usb_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_configuration-d4445e7313-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_config.html" id="usb_configuration-d4445e7313-link">USB 配置</a></div></div></li><li role="treeitem"><div data-tocid="usb_debug_guide-d4445e7369" class="topicref" data-id="usb_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-debug_guide.html" id="usb_debug_guide-d4445e7369-link">调试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_test_guide-d4445e7383" class="topicref" data-id="usb_test_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_test_guide-d4445e7383-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-test_guide.html" id="usb_test_guide-d4445e7383-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_design_intro-d4445e7468" class="topicref" data-id="usb_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_design_intro-d4445e7468-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-design_intro.html" id="usb_design_intro-d4445e7468-link">设计说明</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_host_subsystem_code_structure-d4445e7594" class="topicref" data-id="usb_host_subsystem_code_structure" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_host_subsystem_code_structure-d4445e7594-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-host_subsystem_code_structure.html" id="usb_host_subsystem_code_structure-d4445e7594-link">USB Host 子系统代码架构</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_device_subsystem_code_structure-d4445e7762" class="topicref" data-id="usb_device_subsystem_code_structure" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_device_subsystem_code_structure-d4445e7762-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device_subsystem_code_structure.html" id="usb_device_subsystem_code_structure-d4445e7762-link">USB Device 子系统代码架构</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="usb_device_controller_layer-d4445e7776" class="topicref" data-id="usb_device_controller_layer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_device_controller_layer-d4445e7776-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-controller_layer.html" id="usb_device_controller_layer-d4445e7776-link">USB Device Controller Layer</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_device_device_layer-d4445e7818" class="topicref" data-id="usb_device_device_layer" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_device_device_layer-d4445e7818-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-device_layer.html" id="usb_device_device_layer-d4445e7818-link">USB Device Layer</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="usb_gadget_bus-d4445e7832" class="topicref" data-id="usb_gadget_bus" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-gadget_bus.html" id="usb_gadget_bus-d4445e7832-link">Gadget Bus</a></div></div></li><li role="treeitem"><div data-tocid="usb_gadget_device-d4445e7846" class="topicref" data-id="usb_gadget_device" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-gadget_device.html" id="usb_gadget_device-d4445e7846-link">Gadget Device</a></div></div></li><li role="treeitem" class="active"><div data-tocid="usb_gadget_driver_configfs-d4445e7860" class="topicref" data-id="usb_gadget_driver_configfs" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-gadget_driver_configfs.html" id="usb_gadget_driver_configfs-d4445e7860-link">Gadget Driver (Configfs)</a></div></div></li><li role="treeitem"><div data-tocid="usb_gadget_driver_legacy-d4445e7874" class="topicref" data-id="usb_gadget_driver_legacy" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-gadget_driver_legacy.html" id="usb_gadget_driver_legacy-d4445e7874-link">Gadget Driver Legacy</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_device_interface_layer-d4445e7888" class="topicref" data-id="usb_device_interface_layer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_device_interface_layer-d4445e7888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-interface_layer.html" id="usb_device_interface_layer-d4445e7888-link">USB Interface Layer</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="usb_common_issues-d4445e7930" class="topicref" data-id="usb_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_faq.html" id="usb_common_issues-d4445e7930-link">常见问题</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/usb/usb-gadget_driver_configfs.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Gadget Driver (Configfs)</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 10 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d205010e33__20250123155223">Gadget Device 支撑了核心 Gadget Api 的实现，而 Function Layer 又需要使用这些 Api。怎么样将两者适配起来？Gadget Driver
+            就是用来完成这项工作的。</p>
+        <p class="- topic/p p" data-ofbid="d205010e36__20250123155223">目前存在两种风格的 Gadget Driver，其中包括：</p>
+        <ul class="- topic/ul ul" id="usb_gadget_driver_configfs__ul_gzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__ul_gzn_drz_21c">
+            <li class="- topic/li li" data-ofbid="d205010e41__20250123155223">
+                <p class="- topic/p p" data-ofbid="d205010e43__20250123155223">Legacy。这是早期风格的 Gadget Driver，只能通过静态编译的方式指定使用哪些 Function。</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d205010e47__20250123155223">
+                <p class="- topic/p p" data-ofbid="d205010e49__20250123155223">Configfs。这是目前流行的 Gadget Driver，可以通过 configfs 文件系统，不用重新编译内核，动态的配置需要使用的
+                    Function。</p>
+            </li>
+        </ul>
+        <p class="- topic/p p" data-ofbid="d205010e54__20250123155223">我们首先介绍 configfs 风格的 Gadget Driver。</p>
+        <section class="- topic/section section" id="usb_gadget_driver_configfs__section_hzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__section_hzn_drz_21c"><h2 class="- topic/title title sectiontitle">Configfs 使用</h2>
+            
+            <p class="- topic/p p" data-ofbid="d205010e62__20250123155223">首先从使用上体验一下 configfs 的便捷。例如创建一个 ACM Function:</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_izn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_izn_drz_21c"><code><em class="hl-comment">// 1、挂载 configfs 文件系统。</em>
+mount -t configfs none /sys/kernel/config
+cd /sys/kernel/config/usb_gadget
+
+<em class="hl-comment">// 2、创建 g1 目录，实例化一个新的 gadget 模板 (composite device)。</em>
+mkdir g1
+cd g1
+
+<em class="hl-comment">// 3.1、定义 USB 产品的 VID 和 PID。</em>
+echo <span class="hl-string">"0x1d6b"</span> &gt; idVendor
+echo <span class="hl-string">"0x0104"</span> &gt; idProduct
+
+<em class="hl-comment">// 3.2、实例化英语语言 ID。(0x409 是 ID  美国英语，不是任意的，可以在 USBIF 网站上下载文档查询。)</em>
+mkdir strings/<span class="hl-number">0x409</span>
+ls strings/<span class="hl-number">0x409</span>/
+<em class="hl-comment">// 3.3、将开发商、产品和序列号字符串写入内核。</em>
+echo <span class="hl-string">"0123456789"</span> &gt; strings/<span class="hl-number">0x409</span>/serialnumber
+echo <span class="hl-string">"AAAA Inc."</span> &gt; strings/<span class="hl-number">0x409</span>/manufacturer
+echo <span class="hl-string">"Bar Gadget"</span> &gt; strings/<span class="hl-number">0x409</span>/product
+
+<em class="hl-comment">// 4、创建 `Function` 功能实例，需要注意的是，一个功能如果有多个实例的话，扩展名必须用数字编号。</em>
+mkdir functions/acm.GS0
+
+<em class="hl-comment">// 5.1、创建一个 USB `Configuration` 配置实例：</em>
+mkdir configs/c.<span class="hl-number">1</span>
+ls configs/c.<span class="hl-number">1</span>
+<em class="hl-comment">// 5.2、定义配置描述符使用的字符串</em>
+mkdir configs/c.<span class="hl-number">1</span>/strings/<span class="hl-number">0x409</span>
+ls configs/c.<span class="hl-number">1</span>/strings/<span class="hl-number">0x409</span>/
+echo <span class="hl-string">"ACM"</span> &gt; configs/c.<span class="hl-number">1</span>/strings/<span class="hl-number">0x409</span>/configuration
+
+<em class="hl-comment">// 6、捆绑功能 `Function` 实例到 `Configuration` 配置 c.1</em>
+ln -s functions/acm.GS0 configs/c.<span class="hl-number">1</span>
+
+<em class="hl-comment">// 7.1、查找本机可获得的 UDC 实例 (即 gadget device)</em>
+# ls /sys/class/udc/
+<span class="hl-number">10200000.u</span>sb
+<em class="hl-comment">// 7.2、将 gadget 驱动注册到 UDC 上，插上 USB 线到电脑上，电脑就会枚举 USB 设备。</em>
+echo <span class="hl-string">"10200000.usb"</span> &gt; UDC
+</code></pre>
+        </section>
+        <section class="- topic/section section" id="usb_gadget_driver_configfs__section_jzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__section_jzn_drz_21c"><h2 class="- topic/title title sectiontitle">Configfs 层次结构</h2>
+            
+            <p class="- topic/p p" data-ofbid="d205010e75__20250123155223">configfs 并不是 gadget 专用的，它是一个通用文件系统，方便用户通过文件系统创建文件夹、文件的方式来创建内核对象。</p>
+            <p class="- topic/p p" data-ofbid="d205010e78__20250123155223">configfs 是很好理解的， <code class="+ topic/ph pr-d/codeph ph codeph">struct config_group</code> 相当于一个文件夹， <code class="+ topic/ph pr-d/codeph ph codeph">struct
+                    config_item_type</code> 是这个文件夹的属性集。其中
+                    <code class="+ topic/ph pr-d/codeph ph codeph">config_item_type-&gt;ct_group_ops-&gt;make_group()/drop_item()</code>
+                定义了创建/销毁下一层子文件夹的方法， <code class="+ topic/ph pr-d/codeph ph codeph">config_item_type-&gt;ct_attrs</code> 定义了子文件和相关操作函数。</p>
+            <p class="- topic/p p" data-ofbid="d205010e93__20250123155223">我们通过解析 <code class="+ topic/ph pr-d/codeph ph codeph">drivers\usb\gadget\configfs.c</code> 文件来深入理解
+                    <code class="+ topic/ph pr-d/codeph ph codeph">configfs</code> 的使用方法：</p>
+            <ul class="- topic/ul ul" id="usb_gadget_driver_configfs__ul_kzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__ul_kzn_drz_21c">
+                <li class="- topic/li li" data-ofbid="d205010e104__20250123155223">
+                    <div class="- topic/p p" data-ofbid="d205010e106__20250123155223">首先创建首层文件夹 <code class="+ topic/ph pr-d/codeph ph codeph">/sys/kernel/config/usb_gadget</code>
+                        ：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__codeblock_anw_frz_21c" data-ofbid="usb_gadget_driver_configfs__codeblock_anw_frz_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> configfs_group_operations gadgets_ops = {
+    .make_group     = &amp;gadgets_make,
+    .drop_item      = &amp;gadgets_drop,
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> config_item_type gadgets_type = {
+    .ct_group_ops   = &amp;gadgets_ops,
+    .ct_owner       = THIS_MODULE,
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> configfs_subsystem gadget_subsys = {
+    .su_group = {
+        .cg_item = {
+            .ci_namebuf = <span class="hl-string">"usb_gadget"</span>,
+            .ci_type = &amp;gadgets_type,
+        },
+    },
+    .su_mutex = __MUTEX_INITIALIZER(gadget_subsys.su_mutex),
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> __init gadget_cfs_init(<strong class="hl-keyword">void</strong>)
+{
+    <strong class="hl-keyword">int</strong> ret;
+
+    config_group_init(&amp;gadget_subsys.su_group);
+
+    ret = configfs_register_subsystem(&amp;gadget_subsys);
+    <strong class="hl-keyword">return</strong> ret;
+}
+module_init(gadget_cfs_init);
+</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d205010e115__20250123155223">
+                    <div class="- topic/p p" data-ofbid="d205010e117__20250123155223">创建 <code class="+ topic/ph pr-d/codeph ph codeph">/sys/kernel/config/usb_gadget/g1</code> ，相当于创建一个全新的
+                            <code class="+ topic/ph pr-d/codeph ph codeph">composite device</code>。会调用顶层 <code class="+ topic/ph pr-d/codeph ph codeph">struct
+                            config_group</code> 的
+                            <code class="+ topic/ph pr-d/codeph ph codeph">config_item_type-&gt;ct_group_ops-&gt;make_group()</code> 函数，即
+                            <code class="+ topic/ph pr-d/codeph ph codeph">gadgets_make()</code>
+                        ：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_nzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_nzn_drz_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> config_group *gadgets_make(
+        <strong class="hl-keyword">struct</strong> config_group *group,
+        <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> *name)
+{
+    <strong class="hl-keyword">struct</strong> gadget_info *gi;
+
+    gi = kzalloc(<strong class="hl-keyword">sizeof</strong>(*gi), GFP_KERNEL);
+    <strong class="hl-keyword">if</strong> (!gi)
+        <strong class="hl-keyword">return</strong> ERR_PTR(-ENOMEM);
+
+    <em class="hl-comment">/* (1) 创建顶层文件夹 `/sys/kernel/config/usb_gadget/g1` 对应的 `struct config_group` 结构
+            `/sys/kernel/config/usb_gadget/g1` 下对应不少子文件，在 gadget_root_type.ct_attrs 中定义，即 `gadget_root_attrs`:
+            static struct configfs_attribute *gadget_root_attrs[] = {
+                &amp;gadget_dev_desc_attr_bDeviceClass,
+                &amp;gadget_dev_desc_attr_bDeviceSubClass,
+                &amp;gadget_dev_desc_attr_bDeviceProtocol,
+                &amp;gadget_dev_desc_attr_bMaxPacketSize0,
+                &amp;gadget_dev_desc_attr_idVendor,
+                &amp;gadget_dev_desc_attr_idProduct,
+                &amp;gadget_dev_desc_attr_bcdDevice,
+                &amp;gadget_dev_desc_attr_bcdUSB,
+                &amp;gadget_dev_desc_attr_UDC,
+                &amp;gadget_dev_desc_attr_max_speed,
+                NULL,
+            };
+    */</em>
+    config_group_init_type_name(&amp;gi-&gt;group, name, &amp;gadget_root_type);
+
+    <em class="hl-comment">/* (2) 创建子文件夹 `/sys/kernel/config/usb_gadget/g1/functions`
+            `functions_type` 中定义了进一步创建子文件夹的操作函数
+    */</em>
+    config_group_init_type_name(&amp;gi-&gt;functions_group, <span class="hl-string">"functions"</span>,
+            &amp;functions_type);
+    configfs_add_default_group(&amp;gi-&gt;functions_group, &amp;gi-&gt;group);
+
+    <em class="hl-comment">/* (3) 创建子文件夹 `/sys/kernel/config/usb_gadget/g1/configs`
+            `config_desc_type` 中定义了进一步创建子文件夹的操作函数
+    */</em>
+    config_group_init_type_name(&amp;gi-&gt;configs_group, <span class="hl-string">"configs"</span>,
+            &amp;config_desc_type);
+    configfs_add_default_group(&amp;gi-&gt;configs_group, &amp;gi-&gt;group);
+
+    <em class="hl-comment">/* (4) 创建子文件夹 `/sys/kernel/config/usb_gadget/g1/strings`
+            `gadget_strings_strings_type` 中定义了进一步创建子文件夹的操作函数
+    */</em>
+    config_group_init_type_name(&amp;gi-&gt;strings_group, <span class="hl-string">"strings"</span>,
+            &amp;gadget_strings_strings_type);
+    configfs_add_default_group(&amp;gi-&gt;strings_group, &amp;gi-&gt;group);
+
+    <em class="hl-comment">/* (5) 创建子文件夹 `/sys/kernel/config/usb_gadget/g1/os_desc`
+            `os_desc_type` 中定义了进一步创建哪些子文件
+    */</em>
+    config_group_init_type_name(&amp;gi-&gt;os_desc_group, <span class="hl-string">"os_desc"</span>,
+            &amp;os_desc_type);
+    configfs_add_default_group(&amp;gi-&gt;os_desc_group, &amp;gi-&gt;group);
+
+    <em class="hl-comment">/* (6) `configfs.c` 的目的很明确就是创建一个 `composite device`
+            由用户添加和配置这个 `device` 当中的多个 `interface` 即 `function`
+    */</em>
+    gi-&gt;composite.bind = configfs_do_nothing;
+    gi-&gt;composite.unbind = configfs_do_nothing;
+    gi-&gt;composite.suspend = NULL;
+    gi-&gt;composite.resume = NULL;
+    gi-&gt;composite.max_speed = USB_SPEED_SUPER_PLUS;
+
+    spin_lock_init(&amp;gi-&gt;spinlock);
+    mutex_init(&amp;gi-&gt;lock);
+    INIT_LIST_HEAD(&amp;gi-&gt;string_list);
+    INIT_LIST_HEAD(&amp;gi-&gt;available_func);
+
+    composite_init_dev(&amp;gi-&gt;cdev);
+    gi-&gt;cdev.desc.bLength = USB_DT_DEVICE_SIZE;
+    gi-&gt;cdev.desc.bDescriptorType = USB_DT_DEVICE;
+    gi-&gt;cdev.desc.bcdDevice = cpu_to_le16(get_default_bcdDevice());
+
+    gi-&gt;composite.gadget_driver = configfs_driver_template;
+
+    gi-&gt;composite.gadget_driver.function = kstrdup(name, GFP_KERNEL);
+    gi-&gt;composite.name = gi-&gt;composite.gadget_driver.function;
+
+    <strong class="hl-keyword">if</strong> (!gi-&gt;composite.gadget_driver.function)
+        <strong class="hl-keyword">goto</strong> err;
+
+    <strong class="hl-keyword">return</strong> &amp;gi-&gt;group;
+err:
+    kfree(gi);
+    <strong class="hl-keyword">return</strong> ERR_PTR(-ENOMEM);
+}
+</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d205010e139__20250123155223">
+                    <div class="- topic/p p" data-ofbid="d205010e141__20250123155223">创建 <code class="+ topic/ph pr-d/codeph ph codeph">/sys/kernel/config/usb_gadget/g1/functions/acm.GS0</code>。会调用
+                            <code class="+ topic/ph pr-d/codeph ph codeph">functions_type</code> 中定义的 function_make()
+                        函数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_pzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_pzn_drz_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> config_group *function_make(
+        <strong class="hl-keyword">struct</strong> config_group *group,
+        <strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong> *name)
+{
+    <strong class="hl-keyword">struct</strong> gadget_info *gi;
+    <strong class="hl-keyword">struct</strong> usb_function_instance *fi;
+    <strong class="hl-keyword">char</strong> buf[MAX_NAME_LEN];
+    <strong class="hl-keyword">char</strong> *func_name;
+    <strong class="hl-keyword">char</strong> *instance_name;
+    <strong class="hl-keyword">int</strong> ret;
+
+    ret = snprintf(buf, MAX_NAME_LEN, <span class="hl-string">"%s"</span>, name);
+    <strong class="hl-keyword">if</strong> (ret ≥ MAX_NAME_LEN)
+        <strong class="hl-keyword">return</strong> ERR_PTR(-ENAMETOOLONG);
+
+    <em class="hl-comment">/* (1) 把 `acm.GS0` 分割成两部分：
+            func_name = `acm`
+            instance_name = `GS0`
+    */</em>
+    func_name = buf;
+    instance_name = strchr(func_name, <span class="hl-string">'.'</span>);
+    <strong class="hl-keyword">if</strong> (!instance_name) {
+        pr_err(<span class="hl-string">"Unable to locate . in FUNC.INSTANCE\n"</span>);
+        <strong class="hl-keyword">return</strong> ERR_PTR(-EINVAL);
+    }
+    *instance_name = <span class="hl-string">'\0'</span>;
+    instance_name++;
+
+    <em class="hl-comment">/* (2) 根据 func_name 在全局链表中查找对应 function
+            usb_get_function_instance() → try_get_usb_function_instance() → fd-&gt;alloc_inst() → acm_alloc_instance():
+            并调用 usb_function_driver-&gt;alloc_inst() 分配一个 function 实例
+    */</em>
+    fi = usb_get_function_instance(func_name);
+    <strong class="hl-keyword">if</strong> (IS_ERR(fi))
+        <strong class="hl-keyword">return</strong> ERR_CAST(fi);
+
+    <em class="hl-comment">/* (3) 初始化 function 实例 */</em>
+    ret = config_item_set_name(&amp;fi-&gt;group.cg_item, <span class="hl-string">"%s"</span>, name);
+    <strong class="hl-keyword">if</strong> (ret) {
+        usb_put_function_instance(fi);
+        <strong class="hl-keyword">return</strong> ERR_PTR(ret);
+    }
+    <strong class="hl-keyword">if</strong> (fi-&gt;set_inst_name) {
+        ret = fi-&gt;set_inst_name(fi, instance_name);
+        <strong class="hl-keyword">if</strong> (ret) {
+            usb_put_function_instance(fi);
+            <strong class="hl-keyword">return</strong> ERR_PTR(ret);
+        }
+    }
+
+    gi = container_of(group, <strong class="hl-keyword">struct</strong> gadget_info, functions_group);
+
+    mutex_lock(&amp;gi-&gt;lock);
+    <em class="hl-comment">/* (4) 将 function 实例挂载到 composite device 的 function 链表当中去 */</em>
+    list_add_tail(&amp;fi-&gt;cfs_list, &amp;gi-&gt;available_func);
+    mutex_unlock(&amp;gi-&gt;lock);
+    <strong class="hl-keyword">return</strong> &amp;fi-&gt;group;
+}
+</code></pre></div>
+                    <p class="- topic/p p" data-ofbid="d205010e152__20250123155223">在 <code class="+ topic/ph pr-d/codeph ph codeph">ln -s functions/acm.GS0 configs/c.1</code> 时给 function
+                        实例安装实际的函数：</p>
+                    <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_qzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_qzn_drz_21c"><code>config_usb_cfg_link() → usb_get_function() → fi-&gt;fd-&gt;alloc_func() → acm_alloc_func()：
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> usb_function *acm_alloc_func(<strong class="hl-keyword">struct</strong> usb_function_instance *fi)
+{
+    <strong class="hl-keyword">struct</strong> f_serial_opts *opts;
+    <strong class="hl-keyword">struct</strong> f_acm *acm;
+
+    <em class="hl-comment">/* (2.1) 对应分配一个 func 实例 */</em>
+    acm = kzalloc(<strong class="hl-keyword">sizeof</strong>(*acm), GFP_KERNEL);
+    <strong class="hl-keyword">if</strong> (!acm)
+        <strong class="hl-keyword">return</strong> ERR_PTR(-ENOMEM);
+
+    spin_lock_init(&amp;acm-&gt;lock);
+
+    <em class="hl-comment">/* (2.2) 初始化 func 实例的成员函数 */</em>
+    acm-&gt;port.connect = acm_connect;
+    acm-&gt;port.disconnect = acm_disconnect;
+    acm-&gt;port.send_break = acm_send_break;
+
+    acm-&gt;port.func.name = <span class="hl-string">"acm"</span>;
+    acm-&gt;port.func.strings = acm_strings;
+    <em class="hl-comment">/* descriptors are per-instance copies */</em>
+    acm-&gt;port.func.bind = acm_bind;
+    acm-&gt;port.func.set_alt = acm_set_alt;
+    acm-&gt;port.func.setup = acm_setup;
+    acm-&gt;port.func.disable = acm_disable;
+
+    opts = container_of(fi, <strong class="hl-keyword">struct</strong> f_serial_opts, func_inst);
+    acm-&gt;port_num = opts-&gt;port_num;
+    acm-&gt;port.func.unbind = acm_unbind;
+    acm-&gt;port.func.free_func = acm_free_func;
+    acm-&gt;port.func.resume = acm_resume;
+    acm-&gt;port.func.suspend = acm_suspend;
+
+    <strong class="hl-keyword">return</strong> &amp;acm-&gt;port.func;
+}
+</code></pre>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="usb_gadget_driver_configfs__section_rzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__section_rzn_drz_21c"><h2 class="- topic/title title sectiontitle">Gadget Driver</h2>
+            
+            <p class="- topic/p p" data-ofbid="d205010e169__20250123155223">Configfs 风格的 gadget driver 的定义：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_szn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_szn_drz_21c"><code>drivers\usb\gadget\configfs.c：
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> usb_gadget_driver configfs_driver_template = {
+    .bind           = configfs_composite_bind,
+    .unbind         = configfs_composite_unbind,
+
+    .setup          = configfs_composite_setup,
+    .reset          = configfs_composite_disconnect,
+    .disconnect     = configfs_composite_disconnect,
+
+    .suspend        = configfs_composite_suspend,
+    .resume         = configfs_composite_resume,
+
+    .max_speed      = USB_SPEED_SUPER_PLUS,
+    .driver = {
+        .owner          = THIS_MODULE,
+        .name               = <span class="hl-string">"configfs-gadget"</span>,
+    },
+    .match_existing_only = <span class="hl-number">1</span>,
+};
+</code></pre>
+            <p class="- topic/p p" data-ofbid="d205010e175__20250123155223">在调用 <code class="+ topic/ph pr-d/codeph ph codeph">echo "/sys/class/udc/10200000.usb" &gt;
+                    /sys/kernel/config/usb_gadget/g1/UDC</code> 时，将上述 <code class="+ topic/ph pr-d/codeph ph codeph">gadget
+                    driver</code> 进行注册，和 UDC 已经注册好的 <code class="+ topic/ph pr-d/codeph ph codeph">gadget device</code> 进行动态适配。</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_tzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_tzn_drz_21c"><code>gadget_dev_desc_UDC_store() → usb_gadget_probe_driver(&amp;gi-&gt;composite.gadget_driver) → udc_bind_to_driver()
+</code></pre>
+            <p class="- topic/p p" data-ofbid="d205010e191__20250123155223">本质上是 使用 configfs 创建好的 <code class="+ topic/ph pr-d/codeph ph codeph">composite device</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">gadget
+                    device</code> 进行绑定：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_uzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_uzn_drz_21c"><code>gadget_dev_desc_UDC_store() → usb_gadget_probe_driver() → udc_bind_to_driver() → configfs_composite_bind() → usb_add_function() → function-&gt;bind() → acm_bind():
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong>
+acm_bind(<strong class="hl-keyword">struct</strong> usb_configuration *c, <strong class="hl-keyword">struct</strong> usb_function *f)
+{
+    <em class="hl-comment">/* (1) 这样 function 实例和 gadget device 进行了绑定 */</em>
+    <strong class="hl-keyword">struct</strong> usb_composite_dev *cdev = c-&gt;cdev;
+    <strong class="hl-keyword">struct</strong> f_acm            *acm = func_to_acm(f);
+
+    <em class="hl-comment">/* allocate instance-specific endpoints */</em>
+    <em class="hl-comment">/* (2) function 实例可以从 gadget device 中分配得到 endpoint */</em>
+    ep = usb_ep_autoconfig(cdev-&gt;gadget, &amp;acm_fs_in_desc);
+    <strong class="hl-keyword">if</strong> (!ep)
+        <strong class="hl-keyword">goto</strong> fail;
+    acm-&gt;port.in = ep;
+
+    ep = usb_ep_autoconfig(cdev-&gt;gadget, &amp;acm_fs_out_desc);
+    <strong class="hl-keyword">if</strong> (!ep)
+        <strong class="hl-keyword">goto</strong> fail;
+    acm-&gt;port.out = ep;
+
+    ep = usb_ep_autoconfig(cdev-&gt;gadget, &amp;acm_fs_notify_desc);
+    <strong class="hl-keyword">if</strong> (!ep)
+        <strong class="hl-keyword">goto</strong> fail;
+    acm-&gt;notify = ep;
+
+}
+</code></pre>
+            <p class="- topic/p p" data-ofbid="d205010e203__20250123155223">但是 bind() 以后 function 实例只是分配了 endpoint 资源还没有被启动，因为 Device 是被动状态，只有连上 Host，被 Host
+                    <code class="+ topic/ph pr-d/codeph ph codeph">Set Configuration</code> 操作以后。某一组 <code class="+ topic/ph pr-d/codeph ph codeph">Configuration</code>
+                被配置，相应的 <code class="+ topic/ph pr-d/codeph ph codeph">Function 实例</code> 才会被启用：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_gadget_driver_configfs__pre_vzn_drz_21c" data-ofbid="usb_gadget_driver_configfs__pre_vzn_drz_21c"><code>dwc2_hsotg_complete_setup() → dwc2_hsotg_process_control() → hsotg-&gt;driver-&gt;setup() → configfs_composite_setup() → composite_setup() → set_config() → f-&gt;set_alt() → acm_set_alt():
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> acm_set_alt(<strong class="hl-keyword">struct</strong> usb_function *f, <strong class="hl-keyword">unsigned</strong> intf, <strong class="hl-keyword">unsigned</strong> alt)
+{
+    <strong class="hl-keyword">struct</strong> f_acm            *acm = func_to_acm(f);
+    <strong class="hl-keyword">struct</strong> usb_composite_dev *cdev = f-&gt;config-&gt;cdev;
+
+    <em class="hl-comment">/* we know alt == 0, so this is an activation or a reset */</em>
+
+    <em class="hl-comment">/* (1) 使能 endpoint，并且提交 `struct usb_request` 请求  */</em>
+    <strong class="hl-keyword">if</strong> (intf == acm-&gt;ctrl_id) {
+        <strong class="hl-keyword">if</strong> (acm-&gt;notify-&gt;enabled) {
+            dev_vdbg(&amp;cdev-&gt;gadget-&gt;dev,
+                    <span class="hl-string">"reset acm control interface %d\n"</span>, intf);
+            usb_ep_disable(acm-&gt;notify);
+        }
+
+        <strong class="hl-keyword">if</strong> (!acm-&gt;notify-&gt;desc)
+            <strong class="hl-keyword">if</strong> (config_ep_by_speed(cdev-&gt;gadget, f, acm-&gt;notify))
+                <strong class="hl-keyword">return</strong> -EINVAL;
+
+        usb_ep_enable(acm-&gt;notify);
+
+    } <strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong> (intf == acm-&gt;data_id) {
+        <strong class="hl-keyword">if</strong> (acm-&gt;notify-&gt;enabled) {
+            dev_dbg(&amp;cdev-&gt;gadget-&gt;dev,
+                <span class="hl-string">"reset acm ttyGS%d\n"</span>, acm-&gt;port_num);
+            gserial_disconnect(&amp;acm-&gt;port);
+        }
+        <strong class="hl-keyword">if</strong> (!acm-&gt;port.in-&gt;desc || !acm-&gt;port.out-&gt;desc) {
+            dev_dbg(&amp;cdev-&gt;gadget-&gt;dev,
+                <span class="hl-string">"activate acm ttyGS%d\n"</span>, acm-&gt;port_num);
+            <strong class="hl-keyword">if</strong> (config_ep_by_speed(cdev-&gt;gadget, f,
+                        acm-&gt;port.in) ||
+                config_ep_by_speed(cdev-&gt;gadget, f,
+                        acm-&gt;port.out)) {
+                acm-&gt;port.in-&gt;desc = NULL;
+                acm-&gt;port.out-&gt;desc = NULL;
+                <strong class="hl-keyword">return</strong> -EINVAL;
+            }
+        }
+        gserial_connect(&amp;acm-&gt;port, acm-&gt;port_num);
+
+    } <strong class="hl-keyword">else</strong>
+        <strong class="hl-keyword">return</strong> -EINVAL;
+
+    <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}</code></pre>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#usb_gadget_driver_configfs__section_hzn_drz_21c" data-tocid="usb_gadget_driver_configfs__section_hzn_drz_21c">Configfs 使用</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_gadget_driver_configfs__section_jzn_drz_21c" data-tocid="usb_gadget_driver_configfs__section_jzn_drz_21c">Configfs 层次结构</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_gadget_driver_configfs__section_rzn_drz_21c" data-tocid="usb_gadget_driver_configfs__section_rzn_drz_21c">Gadget Driver</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

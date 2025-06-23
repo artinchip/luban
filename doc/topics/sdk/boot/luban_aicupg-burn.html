@@ -1,0 +1,547 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="ArtInChip 平台支持通过 USB 进行裸机烧录的功能。通常情况下，该功能在 BROM 阶段通过检测特定按键的方式，或者启动失败时进入。 完整的升级过程分为两个阶段： BROM 阶段 仅支持下载数据和组件到 SRAM/DRAM，以及执行下载的组件。不支持烧录组件到存储介质。 U-Boot 阶段 支持从主机端下载数据和组件，并且支持将组件烧录到指定的存储介质。 USB 裸机烧录的实现流程： ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-chapter-image-burn.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-chapter-image-burn.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/sdCard-burn.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="aicupg"/><meta name="DC.language" content="zh-CN"/><title>AICUPG 烧录</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="aicupg-d4445e2846"/><meta name="wh-source-relpath" content="topics/sdk/boot/luban_aicupg-burn.dita"/><meta name="wh-out-relpath" content="topics/sdk/boot/luban_aicupg-burn.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="aicupg" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="uBoot"><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li><div class="topicref" data-id="concept_yfv_1l3_pzb"><div class="title"><a href="../../../topics/sdk/boot/uboot-chapter-image-burn.html">镜像烧录</a></div></div></li><li class="active"><div class="topicref" data-id="aicupg"><div class="title"><a href="../../../topics/sdk/boot/luban_aicupg-burn.html">AICUPG 烧录</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/boot/uboot-chapter-image-burn.html" title="镜像烧录" aria-label="上一主题: 镜像烧录" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/boot/sdCard-burn.html" title="SDCard 烧录" aria-label="下一主题: SDCard 烧录" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="_65-d4445e2187" class="topicref" data-id="_65" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-hardware-env.html" id="_65-d4445e2187-link">硬件运行环境</a></div></div></li><li role="treeitem"><div data-tocid="_1601-d4445e2201" class="topicref" data-id="_1601" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-parameter.html" id="_1601-d4445e2201-link">启动参数</a></div></div></li><li role="treeitem"><div data-tocid="_1601_0-d4445e2215" class="topicref" data-id="_1601_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/boot-memory.html" id="_1601_0-d4445e2215-link">内存相关</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_lbx_3n3_pzb-d4445e2229" class="topicref" data-id="concept_lbx_3n3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_lbx_3n3_pzb-d4445e2229-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/environment-variables.html" id="concept_lbx_3n3_pzb-d4445e2229-link">环境变量</a></div></div></li><li role="treeitem"><div data-tocid="dts-d4445e2271" class="topicref" data-id="dts" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-dts.html" id="dts-d4445e2271-link">DTS</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spl-d4445e2285" class="topicref" data-id="spl" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spl-d4445e2285-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spl-program-stage.html" id="spl-d4445e2285-link">SPL 阶段</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot_0-d4445e2411" class="topicref" data-id="uBoot_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot_0-d4445e2411-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-stage.html" id="uBoot_0-d4445e2411-link">U-Boot 阶段</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_q5s_jn3_pzb-d4445e2495" class="topicref" data-id="concept_q5s_jn3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_q5s_jn3_pzb-d4445e2495-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-driver-support.html" id="concept_q5s_jn3_pzb-d4445e2495-link">驱动支持</a></div></div></li><li role="treeitem"><div data-tocid="concept_l2d_xk3_pzb-d4445e2607" class="topicref" data-id="concept_l2d_xk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-partition-config.html" id="concept_l2d_xk3_pzb-d4445e2607-link">配置启动分区</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_afz_xk3_pzb-d4445e2621" class="topicref" data-id="concept_afz_xk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_afz_xk3_pzb-d4445e2621-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-core.html" id="concept_afz_xk3_pzb-d4445e2621-link">启动内核</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_uzy_yk3_pzb-d4445e2692" class="topicref" data-id="concept_uzy_yk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_uzy_yk3_pzb-d4445e2692-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/bundle-images.html" id="concept_uzy_yk3_pzb-d4445e2692-link">打包镜像</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_yfv_1l3_pzb-d4445e2832" class="topicref" data-id="concept_yfv_1l3_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_yfv_1l3_pzb-d4445e2832-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-chapter-image-burn.html" id="concept_yfv_1l3_pzb-d4445e2832-link">镜像烧录</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="aicupg-d4445e2846" class="topicref" data-id="aicupg" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/luban_aicupg-burn.html" id="aicupg-d4445e2846-link">AICUPG 烧录</a></div></div></li><li role="treeitem"><div data-tocid="sdcard-d4445e2860" class="topicref" data-id="sdcard" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/sdCard-burn.html" id="sdcard-d4445e2860-link">SDCard 烧录</a></div></div></li><li role="treeitem"><div data-tocid="u-d4445e2874" class="topicref" data-id="u" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/usb-burn.html" id="u-d4445e2874-link">U 盘升级</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="userid-d4445e2888" class="topicref" data-id="userid" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action userid-d4445e2888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/userid-burn.html" id="userid-d4445e2888-link">UserID 烧录</a></div></div></li><li role="treeitem"><div data-tocid="concept_azt_bl3_pzb-d4445e2944" class="topicref" data-id="concept_azt_bl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/logo-display.html" id="concept_azt_bl3_pzb-d4445e2944-link">图像显示</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="_1601_1-d4445e2958" class="topicref" data-id="_1601_1" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _1601_1-d4445e2958-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/debug-configuration.html" id="_1601_1-d4445e2958-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="opensbi-d4445e3000" class="topicref" data-id="opensbi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/opensbi.html" id="opensbi-d4445e3000-link">OpenSBI</a></div></div></li><li role="treeitem"><div data-tocid="pbp-d4445e3014" class="topicref" data-id="pbp" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/pre-boot-program.html" id="pbp-d4445e3014-link">Pre-Boot Program (PBP)</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/boot/luban_aicupg-burn.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">AICUPG 烧录</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d205332e33__20250123155223">ArtInChip 平台支持通过 USB 进行裸机烧录的功能。通常情况下，该功能在 BROM 阶段通过检测特定按键的方式，或者启动失败时进入。</p>
+        <p class="- topic/p p" data-ofbid="d205332e36__20250123155223">完整的升级过程分为两个阶段：</p>
+        <ul class="- topic/ul ul" id="aicupg__ul_ul1_s2h_bzb" data-ofbid="aicupg__ul_ul1_s2h_bzb">
+            <li class="- topic/li li" data-ofbid="d205332e41__20250123155223">BROM 阶段<p class="- topic/p p" data-ofbid="d205332e43__20250123155223">仅支持下载数据和组件到 SRAM/DRAM，以及执行下载的组件。不支持烧录组件到存储介质。</p></li>
+            <li class="- topic/li li" data-ofbid="d205332e46__20250123155223"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="uboot-stage.html">U-Boot 阶段</a><p class="- topic/p p" data-ofbid="d205332e50__20250123155223">支持从主机端下载数据和组件，并且支持将组件烧录到指定的存储介质。</p></li>
+        </ul>
+        <div class="- topic/p p" data-ofbid="d205332e54__20250123155223"> USB 裸机烧录的实现流程：<ol class="- topic/ol ol" id="aicupg__ol_x4w_dnc_jzb" data-ofbid="aicupg__ol_x4w_dnc_jzb">
+                <li class="- topic/li li" data-ofbid="d205332e58__20250123155223">下载 SPL 组件到 SRAM 并执行，对 DRAM 进行初始化。</li>
+                <li class="- topic/li li" data-ofbid="d205332e61__20250123155223">下载 U-Boot 到 DRAM 并执行。</li>
+                <li class="- topic/li li" data-ofbid="d205332e64__20250123155223">进入 U-Boot AICUPG 升级模式。</li>
+            </ol></div>
+        <div class="- topic/p p" data-ofbid="d205332e68__20250123155223">遵照以下流程完成 AICUPG 烧录：<ol class="- topic/ol ol" id="aicupg__ol_yhk_znc_jzb" data-ofbid="aicupg__ol_yhk_znc_jzb">
+                <li class="- topic/li li" data-ofbid="d205332e72__20250123155223">
+                    <div class="- topic/p p" data-ofbid="d205332e74__20250123155223">U-Boot 中，使用下列方式可进入升级模式：<ul class="- topic/ul ul" id="aicupg__ul_nvc_5hx_5dc" data-ofbid="aicupg__ul_nvc_5hx_5dc">
+                            <li class="- topic/li li" data-ofbid="d205332e78__20250123155223">
+                                <p class="- topic/p p" data-ofbid="d205332e80__20250123155223">使用用于镜像升级的命令 <code class="+ topic/ph pr-d/codeph ph codeph">aicupg</code> ，手动进入升级模式。</p>
+                                <p class="- topic/p p" data-ofbid="d205332e86__20250123155223">源码实现位于 <code class="+ topic/ph pr-d/codeph ph codeph">cmd/aicupg.c</code> 文件中。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d205332e93__20250123155223">
+                                <p class="- topic/p p" data-ofbid="d205332e95__20250123155223">在 <span class="+ topic/ph sw-d/filepath ph filepath">env.txt</span>
+                                    启动脚本中通过检测启动设备信息，在启动过程中主动进入升级模式。</p>
+                            </li>
+                        </ul></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d205332e104__20250123155223">执行下列命令开始 USB
+                        升级初始化：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_xg2_nhx_5dc" data-ofbid="aicupg__codeblock_xg2_nhx_5dc"><code>aicupg usb <span class="hl-number">0</span></code></pre><div class="- topic/p p" data-ofbid="d205332e108__20250123155223">通过注册添加
+                        Gadget 到系统之后，即可循环检查和处理 USB
+                        数据。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_yg2_nhx_5dc" data-ofbid="aicupg__codeblock_yg2_nhx_5dc"><code>do_aicupg(); <em class="hl-comment">// cmd/aicupg.c</em>
+|-&gt; do_usb_protocol_upg(intf); <em class="hl-comment">// cmd/aicupg.c</em>
+    |-&gt; usb_gadget_initialize(intf); <em class="hl-comment">// drivers/usb/gadget/udc/udc-uclass.c</em>
+    |-&gt; g_dnl_register(<span class="hl-string">"usb_dnl_aicupg"</span>); <em class="hl-comment">// drivers/usb/gadget/g_dnl.c</em>
+    |
+    |   <em class="hl-comment">// 接下进入循环，不停调用下面的函数进行数据处理</em>
+    |-&gt; usb_gadget_handle_interrupts(intf);</code></pre></div><p class="- topic/p p" data-ofbid="d205332e112__20250123155223">此处注册的
+                            <kbd class="+ topic/ph sw-d/userinput ph userinput">usb_dnl_aicupg</kbd>即为
+                            <span class="+ topic/ph sw-d/filepath ph filepath">f_aicupgusb.c</span> 中实现的 Gadget。 </p><p class="- topic/p p" data-ofbid="d205332e120__20250123155223">关于 Gadget
+                        的详细说明，可查看 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__section_f12_r2x_5dc">Gadget 实现</a>。</p></li>
+                <li class="- topic/li li" data-ofbid="d205332e127__20250123155223">使用<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__id10">镜像升级命令</a>，按<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__fig_r3z_g3x_5dc">组件发送的顺序</a>将镜像文件中的组件逐个发送给设备端：<div class="- topic/note note note note_note" id="aicupg__note_xpj_44c_jzb" data-ofbid="aicupg__note_xpj_44c_jzb"><span class="note__title">注：</span> <div class="note__body">主机端在制作用于烧录的镜像时，根据 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                        的配置，为每一个组件生成 meta 信息，然后按照 <span class="+ topic/ph sw-d/filepath ph filepath">image_cfg.json</span>
+                        中的顺序将组件打包为一个镜像文件。</div></div><figure class="- topic/fig fig fignone" id="aicupg__fig_r3z_g3x_5dc" data-ofbid="aicupg__fig_r3z_g3x_5dc">
+                        
+                        <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="aicupg__aicupg_image_mm1_s2h_bzb" src="../../../images/sdk/aic_usb_fwc_order.png" width="480"/></div><br/>
+                    <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">组件发送的顺序</span></figcaption></figure></li>
+                <li class="- topic/li li" data-ofbid="d205332e153__20250123155223">进入 U-Boot 烧录阶段，U-Boot 将按照下列流程完成烧录。<ol class="- topic/ol ol" type="a" id="aicupg__ol_wz2_dpc_jzb" data-ofbid="aicupg__ol_wz2_dpc_jzb">
+                        <li class="- topic/li li" data-ofbid="d205332e157__20250123155223">获取关于升级镜像的基本信息。<p class="- topic/p p" data-ofbid="d205332e159__20250123155223">一个平台可能支持多个存储介质。升级开始时，平台端首先需要知道本次升级需要烧录的目标存储介质， 这样
+                                U-Boot 才能提前做好相应驱动的初始化。</p><div class="- topic/p p" data-ofbid="d205332e161__20250123155223">此阶段，U-Boot 通过接收和解析名为
+                                    <span class="+ topic/keyword pr-d/parmname keyword parmname">image.info</span> 的组件数据，来获取本次升级要烧录的存储介质信息。
+                                下面是交互过程中 <span class="+ topic/keyword pr-d/parmname keyword parmname">SEND_FWC_DATA</span>
+                                的写数据流程:<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_sgg_1tj_n1c" data-ofbid="aicupg__codeblock_sgg_1tj_n1c"><code>aicupg_data_packet_write(data, len);
+|   <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/upg_main.c</em>
+|-&gt; cmd = get_current_command();
+    |-&gt; CMD_SEND_FWC_DATA_write_input_data();
+        |   <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/fwc_cmd.c</em>
+        |-&gt; ram_fwc_data_write(fwc, buf, len);
+            <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/ram_fwc.c</em></code></pre></div></li>
+                        <li class="- topic/li li" data-ofbid="d205332e172__20250123155223">下载和烧录所有的组件。<div class="- topic/p p" data-ofbid="d205332e174__20250123155223">主机按顺序发送组件数据，U-Boot 将数据烧录到指定的分区/位置。此阶段中，U-Boot
+                                接收组件数据，并且烧录到具体的存储介质。以 NAND
+                                为例，数据接收流程如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_hx3_1tj_n1c" data-ofbid="aicupg__codeblock_hx3_1tj_n1c"><code>aicupg_data_packet_write(data, len);
+|   <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/upg_main.c</em>
+|-&gt; cmd = get_current_command();
+    |-&gt; CMD_SEND_FWC_DATA_write_input_data();
+        |   <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/fwc_cmd.c</em>
+        |-&gt; nand_fwc_data_write(fwc, buf, len);
+            |   <em class="hl-comment">// arch/arm/mach-artinchip/aicupg/nand_fwc.c</em>
+            |-&gt; nand_fwc_mtd_writer(fwc, buf, len);
+                |-&gt; mtd_write(mtd, offs, len, &amp;retlen, buf);</code></pre></div></li>
+                    </ol><p class="- topic/p p" data-ofbid="d205332e179__20250123155223">关于 U-Boot 的具体功能介绍，可查看<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="uboot-module.html" title="启动支持的基本功能以及运行时的基本硬件环境。">U-Boot</a>章节。</p></li>
+                <li class="- topic/li li" data-ofbid="d205332e189__20250123155223">
+                    <p class="- topic/p p" data-ofbid="d205332e191__20250123155223">打包镜像。</p>
+                    <p class="- topic/p p" data-ofbid="d205332e194__20250123155223">在打包镜像前，确保 <span class="+ topic/ph sw-d/filepath ph filepath">target/&lt;IC&gt;/&lt;Board&gt;/image_cfg.json</span> 文件中的
+                        device_id 与存储介质所使用的控制器 id 保持一致。例如，在 eMMC 存储介质中，使用的控制器为 SDMC0，则应该将 device_id
+                        的值设为 0。 如果 eMMC 存储介质所使用的控制器为 SDMC1，则应该将 device_id 设为 1。</p>
+                </li>
+            </ol></div>
+        <section class="- topic/section section" id="aicupg__section_b12_r2x_5dc" data-ofbid="aicupg__section_b12_r2x_5dc"><h2 class="- topic/title title sectiontitle">基本协议</h2>
+            
+            <p class="- topic/p p" data-ofbid="d205332e208__20250123155223">AICUPG 镜像升级和烧录功能使用自定义的通信协议，该通信协议基于 USB Bulk 传输进行了自定义扩展。</p>
+            <p class="- topic/p p" data-ofbid="d205332e211__20250123155223">从协议层次架构上看，通信协议分为：</p>
+            <ul class="- topic/ul ul" id="aicupg__ul_c12_r2x_5dc" data-ofbid="aicupg__ul_c12_r2x_5dc">
+                <li class="- topic/li li" data-ofbid="d205332e216__20250123155223">
+                    <p class="- topic/p p" data-ofbid="d205332e218__20250123155223">传输层</p>
+                    <p class="- topic/p p" data-ofbid="d205332e221__20250123155223">USB Bulk 传输协议仅定义了 Bulk 传输的基本行为和数据格式，其他具体应用协议可以在其基础之上进行扩展。</p>
+                    <p class="- topic/p p" data-ofbid="d205332e224__20250123155223">AICUPG 的传输层对 USB Bulk 的 CBW(Command Block Wrapper) 中自定义的命令数据块 (Command Block)
+                        部分进行了扩展定义，实现了 WRITE/READ 两个基本操作命令，具体如中<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__id7">CBW 扩展定义</a>的
+                            <code class="+ topic/ph pr-d/codeph ph codeph">bCommand</code> 所示。WRITE 操作用于主机发送数据包，READ 操作用于主机读取数据包。
+                        每个数据包的最大长度为 4KB。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d205332e235__20250123155223">
+                    <p class="- topic/p p" data-ofbid="d205332e237__20250123155223">应用层</p>
+                    <p class="- topic/p p" data-ofbid="d205332e240__20250123155223">AICUPG 应用层协议中，对 <code class="+ topic/ph pr-d/codeph ph codeph">CMD HEADER</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">RESP HEADER</code>
+                        定义，具体见 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__id8">CMD HEADER 数据格式</a>。</p>
+                    <p class="- topic/p p" data-ofbid="d205332e253__20250123155223">应用层协议还定义了用于镜像升级的命令，具体见<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="luban_aicupg-burn.html#aicupg__id10">镜像升级所用的命令</a>。</p>
+                </li>
+            </ul>
+            <figure class="- topic/fig fig fignone" id="aicupg__fig_w1g_w2x_5dc" data-ofbid="aicupg__fig_w1g_w2x_5dc">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="aicupg__image_d12_r2x_5dc" src="../../../images/boot/aic_usb_data_packet_1.png" alt="../../../../_images/aic_usb_data_packet_1.png"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">通信协议：主机发送</span></figcaption></figure>
+            <figure class="- topic/fig fig fignone" id="aicupg__fig_hyx_w2x_5dc" data-ofbid="aicupg__fig_hyx_w2x_5dc">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="aicupg__image_e12_r2x_5dc" src="../../../images/boot/aic_usb_data_packet_2.png" alt="../../../../_images/aic_usb_data_packet_2.png"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 3</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">通信协议：主机接收</span></figcaption></figure>
+            <div class="table-container"><table class="- topic/table table frame-all" id="aicupg__id7" data-ofbid="aicupg__id7" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">CBW 扩展定义</span></caption><colgroup><col style="width:30.232558139534888%"/><col style="width:21.141649048625794%"/><col style="width:48.625792811839325%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id7__entry__1">域</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id7__entry__2">字节</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="aicupg__id7__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">dCBWSignature</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">0 ~ 3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">魔数，标识 CBW 数据包，值为 “USBC”</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">dCBWTag</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">4 ~ 7</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">CBW 包的编号</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">dCBWDataTransferLength</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">8 ~ 11</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">CBW 之后紧跟的传输数据长度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">bmCBWFlags</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">12</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e363__20250123155223">0x00：数据传输方向为主机到设备</p>
+                                <p class="- topic/p p" data-ofbid="d205332e366__20250123155223">0x80：数据传输方向为设备到主机</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">bCBWLUN</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">13</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">没有使用，可忽略</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">bCBWCBLength</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">14</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">CBW 命令块有效长度，这里固定为 0x01</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__1">bCommand</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id7__entry__2">15</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id7__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e406__20250123155223">0x01: WRITE 表示写操作</p>
+                                <p class="- topic/p p" data-ofbid="d205332e409__20250123155223">0x02: READ 表示读操作</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id7__entry__1">Reserved</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id7__entry__2">16 ~ 30</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="aicupg__id7__entry__3"></td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="aicupg__id8" data-ofbid="aicupg__id8" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">CMD HEADER 数据格式</span></caption><colgroup><col style="width:30.000000000000004%"/><col style="width:22.22222222222222%"/><col style="width:47.77777777777777%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id8__entry__1">域</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id8__entry__2">字节</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="aicupg__id8__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">dMagic</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">0 ~ 3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3">魔数，值为 “UPGC”</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">bProtocol</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">4</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e480__20250123155223">自定义协议类型</p>
+                                <p class="- topic/p p" data-ofbid="d205332e483__20250123155223">0x01: USB 升级协议</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">bVersion</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">5</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e498__20250123155223">自定义协议的版本</p>
+                                <p class="- topic/p p" data-ofbid="d205332e501__20250123155223">0x01: Version 1</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">bCommand</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">6</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3">命令控制字</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">Reserved</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">7</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__1">dDataLength</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id8__entry__2">8 ~ 11</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id8__entry__3">CMD HEADER 之后传输给设备的数据长度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id8__entry__1">dCheckSum</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id8__entry__2">12 ~ 15</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="aicupg__id8__entry__3">CMD HEADER 前 12 字节 32-bit Checksum</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="aicupg__id9" data-ofbid="aicupg__id9" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">RESP HEADER 数据格式</span></caption><colgroup><col style="width:29.216152019002372%"/><col style="width:23.752969121140143%"/><col style="width:47.03087885985748%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id9__entry__1">域</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id9__entry__2">字节</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="aicupg__id9__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">dMagic</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">0 ~ 3</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">魔数，值为 “UPGR”</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">bProtocol</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">4</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e609__20250123155223">自定义协议类型</p>
+                                <p class="- topic/p p" data-ofbid="d205332e612__20250123155223">0x01: USB 升级协议</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">bVersion</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">5</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e627__20250123155223">自定义协议的版本</p>
+                                <p class="- topic/p p" data-ofbid="d205332e630__20250123155223">0x01: Version 1</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">bRespCommand</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">6</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">所响应的命令</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">bStatus</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">7</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">
+                                <p class="- topic/p p" data-ofbid="d205332e657__20250123155223">命令执行状态</p>
+                                <p class="- topic/p p" data-ofbid="d205332e660__20250123155223">0x00: OK</p>
+                                <p class="- topic/p p" data-ofbid="d205332e663__20250123155223">0x01: Failed</p>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__1">dDataLength</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id9__entry__2">8 ~ 11</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id9__entry__3">RESP HEADER 之后传输的数据长度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id9__entry__1">dCheckSum</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id9__entry__2">12 ~ 15</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="aicupg__id9__entry__3">RESP HEADER 前 12 字节 32-bit Checksum</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="aicupg__id10" data-ofbid="aicupg__id10" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">镜像升级所用的命令</span></caption><colgroup><col style="width:29.176470588235293%"/><col style="width:23.52941176470588%"/><col style="width:47.29411764705882%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id10__entry__1">命令</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="aicupg__id10__entry__2">值</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="aicupg__id10__entry__3">说明</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">GET_HWINFO</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x00</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">获取硬件相关信息</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">SET_FWC_META</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x10</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">发送组件(Firmware Component)的描述信息</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">GET_BLOCK_SIZE</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x11</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">获取传输的数据块大小， 发送的有效数据须以该块大小为单位</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">SEND_FWC_DATA</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x12</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">发送组件数据</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">GET_FWC_CRC</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x13</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">获取设备端对所接收数据计算的 CRC 值， 以确认传输是否出错</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__1">GET_FWC_BURN_RESULT</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="aicupg__id10__entry__2">0x14</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="aicupg__id10__entry__3">获取组件烧录后，设备端的校验结果</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id10__entry__1">GET_FWC_RUN_RESULT</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="aicupg__id10__entry__2">0x15</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="aicupg__id10__entry__3">获取组件在运行之后的返回结果</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+        <section class="- topic/section section" id="aicupg__section_f12_r2x_5dc" data-ofbid="aicupg__section_f12_r2x_5dc"><h2 class="- topic/title title sectiontitle">Gadget 实现</h2>
+            
+            <p class="- topic/p p" data-ofbid="d205332e820__20250123155223">USB 升级过程中，平台端是一个 USB 设备，因此在 U-Boot 中需要实现对应的 Gadget， 在 Gadget 中实现对相应的 USB 命令进行处理。</p>
+            <p class="- topic/p p" data-ofbid="d205332e823__20250123155223">U-Boot 的 USB 驱动框架支持实现自定义的 Gadget 设备，只需按照框架定义的方式实现相应函数， 并且提供相应的描述符信息即可。</p>
+            <figure class="- topic/fig fig fignone" id="aicupg__fig_ecz_nfx_5dc" data-ofbid="aicupg__fig_ecz_nfx_5dc">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="aicupg__image_g12_r2x_5dc" src="../../../images/boot/aic_usb_impl_framework.png" alt="../../../../_images/aic_usb_impl_framework.png"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 4</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">Gadget 实现框架图</span></figcaption></figure>
+            <div class="- topic/p p" data-ofbid="d205332e838__20250123155223">Gadget 实现的源码位于 <span class="+ topic/ph sw-d/filepath ph filepath">drivers/usb/gadget/f_aicupgusb.c</span>。<ol class="- topic/ol ol" id="aicupg__ul_knq_2gx_5dc" data-ofbid="aicupg__ul_knq_2gx_5dc">
+                    <li class="- topic/li li" data-ofbid="d205332e845__20250123155223">Gadget
+                        设备通过下面的宏进行声明：<pre class="- topic/pre pre" id="aicupg__codecell0" data-ofbid="aicupg__codecell0">DECLARE_GADGET_BIND_CALLBACK(usb_dnl_aicupg,aicupg_add);</pre></li>
+                    <li class="- topic/li li" data-ofbid="d205332e850__20250123155223">
+                        <div class="- topic/p p" data-ofbid="d205332e852__20250123155223">Gadget 描述符中相关的 Vendor ID 和 Product Number 则由 <span class="+ topic/ph sw-d/filepath ph filepath">Kconfig</span>
+                                配置：<ul class="- topic/ul ul" id="aicupg__ul_i12_r2x_5dc" data-ofbid="aicupg__ul_i12_r2x_5dc">
+                                <li class="- topic/li li" data-ofbid="d205332e859__20250123155223">
+                                    <p class="- topic/p p" data-ofbid="d205332e861__20250123155223">CONFIG_USB_GADGET_VENDOR_NUM</p>
+                                    <p class="- topic/p p" data-ofbid="d205332e864__20250123155223"><code class="+ topic/ph pr-d/codeph ph codeph">0x33C3</code> ArtInChip 的专有 Vendor ID。</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d205332e870__20250123155223">
+                                    <p class="- topic/p p" data-ofbid="d205332e872__20250123155223">CONFIG_USB_GADGET_PRODUCT_NUM</p>
+                                    <p class="- topic/p p" data-ofbid="d205332e875__20250123155223"><code class="+ topic/ph pr-d/codeph ph codeph">0x6677</code> 字符串 “fw” 的 ASCII 码值，表示专门用于镜像升级的
+                                        ID。</p>
+                                </li>
+                            </ul></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d205332e883__20250123155223">
+                        <div class="- topic/p p" data-ofbid="d205332e885__20250123155223">Gadget
+                            实现的接口函数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_ld4_fgx_5dc" data-ofbid="aicupg__codeblock_ld4_fgx_5dc"><code>f_upg-&gt;usb_function.name = <span class="hl-string">"f_aicupg"</span>;
+f_upg-&gt;usb_function.bind = aicupg_bind;
+f_upg-&gt;usb_function.unbind = aicupg_unbind;
+f_upg-&gt;usb_function.set_alt = aicupg_set_alt;
+f_upg-&gt;usb_function.disable = aicupg_disable;
+f_upg-&gt;usb_function.strings = aicupg_strings;</code></pre></div>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d205332e891__20250123155223"><div class="- topic/p p" data-ofbid="d205332e892__20250123155223">Gadget 层 USB
+                            数据输入输出函数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_b24_jgx_5dc" data-ofbid="aicupg__codeblock_b24_jgx_5dc"><code><strong class="hl-keyword">void</strong> aicupg_trans_layer_read_pkt(<strong class="hl-keyword">struct</strong> usb_ep *in_ep,
+                                 <strong class="hl-keyword">struct</strong> usb_request *in_req);
+<strong class="hl-keyword">void</strong> aicupg_trans_layer_write_pkt(<strong class="hl-keyword">struct</strong> usb_ep *out_ep,
+                                  <strong class="hl-keyword">struct</strong> usb_request *out_req);</code></pre></div>具体命令的处理代码位于
+                            <span class="+ topic/ph sw-d/filepath ph filepath">arch/arm/mach-artinchip/aicupg</span>。</li>
+                    <li class="- topic/li li" data-ofbid="d205332e901__20250123155223">
+                        <div class="- topic/p p" data-ofbid="d205332e903__20250123155223">Gadget 层通过下面的接口与 <code class="+ topic/ph pr-d/codeph ph codeph">aicupg</code>
+                            库进行交互：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="aicupg__codeblock_v45_jgx_5dc" data-ofbid="aicupg__codeblock_v45_jgx_5dc"><code>s32 aicupg_data_packet_read(u8 *data, s32 len);
+s32 aicupg_data_packet_write(u8 *data, s32 len);</code></pre></div>
+                    </li>
+                </ol></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#aicupg__section_b12_r2x_5dc" data-tocid="aicupg__section_b12_r2x_5dc">基本协议</a></div></li><li class="section-item"><div class="section-title"><a href="#aicupg__section_f12_r2x_5dc" data-tocid="aicupg__section_f12_r2x_5dc">Gadget 实现</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

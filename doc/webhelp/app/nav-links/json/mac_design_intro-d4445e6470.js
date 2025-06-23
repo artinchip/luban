@@ -1,0 +1,1 @@
+oxy_webhelp_navlinks = {"mac_design_intro-d4445e6470":{"topics":[{"title":"关键流程设计","shortdesc":"<p class=\"shortdesc\"\/>","href":"topics\/sdk\/mac\/mac-key-procedure.html","attributes":{"data-id":"mac_key_procedure"},"menu":{"hasChildren":false},"tocID":"mac_key_procedure-d4445e6484","topics":[]}]}};

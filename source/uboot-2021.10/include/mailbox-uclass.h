@@ -9,6 +9,7 @@
 /* See mailbox.h for background documentation. */
 
 #include <mailbox.h>
+#include <dm/ofnode.h>
 
 struct udevice;
 

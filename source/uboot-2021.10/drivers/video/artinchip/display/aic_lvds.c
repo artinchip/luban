@@ -41,12 +41,12 @@ static void aic_lvds_release_drvdata(void)
 
 }
 
-static void lvds_0_lines(struct aic_lvds_priv *priv, u32 value)
+static void lvds_0_lanes(struct aic_lvds_priv *priv, u32 value)
 {
 	reg_write(priv->regs + LVDS_0_SWAP, value);
 }
 
-static void lvds_1_lines(struct aic_lvds_priv *priv, u32 value)
+static void lvds_1_lanes(struct aic_lvds_priv *priv, u32 value)
 {
 	reg_write(priv->regs + LVDS_1_SWAP, value);
 }
@@ -71,7 +71,16 @@ static void lvds_phy_1_init(struct aic_lvds_priv *priv, u32 value)
 	reg_write(priv->regs + LVDS_1_PHY_CTL, value);
 }
 
-/*TODO: static function end*/
+static void lvds_get_option_config(ofnode np, const char *name, u32 *data)
+{
+	int i, ret;
+
+	for (i = 0; i < 2; i++) {
+		ret = ofnode_read_u32_index(np, name, i, data + i);
+		if (ret)
+			*(data + i) = 0x0;
+	}
+}
 
 static int lvds_parse_dt(struct udevice *dev)
 {
@@ -81,21 +90,12 @@ static int lvds_parse_dt(struct udevice *dev)
 	if (ofnode_read_u32(np, "sync-ctrl", &priv->sync_ctrl))
 		priv->sync_ctrl = 1;
 
-	/* optional: */
-	if (ofnode_read_u32(np, "pols", &priv->info.pols))
-		priv->info.pols = 0;
-
-	if (ofnode_read_u32(np, "phys", &priv->info.phys))
-		priv->info.phys = 0xFA;
-
-	if (ofnode_read_u32(np, "lines", &priv->info.lines) &&
-			/* swap property, compatible with older version */
-			ofnode_read_u32(np, "swap", &priv->info.lines))
-		priv->info.lines = 0x43210;
-
 	if (ofnode_read_u32(np, "link-swap", &priv->info.link_swap))
 		priv->info.link_swap = 0;
 
+	lvds_get_option_config(np, "pols", priv->info.pols);
+	lvds_get_option_config(np, "lanes", priv->info.lanes);
+	lvds_get_option_config(np, "pctrl", priv->info.phys);
 	return 0;
 }
 
@@ -128,33 +128,40 @@ static int lvds_clk_enable(void)
 	return 0;
 }
 
+static void
+lvds_set_mode(struct aic_lvds_priv *priv, struct panel_lvds *lvds)
+{
+	reg_set_bits(priv->regs + LVDS_CTL, LVDS_CTL_MODE_MASK,
+			 LVDS_CTL_MODE(lvds->mode));
+	reg_set_bits(priv->regs + LVDS_CTL, LVDS_CTL_LINK_MASK,
+			 LVDS_CTL_LINK(lvds->link_mode));
+}
+
+static void
+lvds_set_option_config(struct aic_lvds_priv *priv, struct panel_lvds *lvds)
+{
+	reg_set_bits(priv->regs + LVDS_CTL, LVDS_CTL_SYNC_MODE_MASK,
+			 LVDS_CTL_SYNC_MODE_EN(priv->sync_ctrl));
+	reg_set_bits(priv->regs + LVDS_CTL, LVDS_CTL_SWAP_MASK,
+			 LVDS_CTL_SWAP_EN(priv->info.link_swap));
+
+	lvds_0_lanes(priv, priv->info.lanes[0]);
+	lvds_1_lanes(priv, priv->info.lanes[1]);
+
+	lvds_0_pol(priv, priv->info.pols[0]);
+	lvds_1_pol(priv, priv->info.pols[1]);
+
+	lvds_phy_0_init(priv, priv->info.phys[0]);
+	lvds_phy_1_init(priv, priv->info.phys[1]);
+}
+
 static int lvds_enable(void)
 {
 	struct aic_lvds_priv *priv = aic_lvds_request_drvdata();
 	struct panel_lvds *lvds = priv->lvds;
 
-	if (priv->info.lines) {
-		lvds_0_lines(priv, priv->info.lines);
-		lvds_1_lines(priv, priv->info.lines);
-	}
-	if (priv->info.pols) {
-		lvds_0_pol(priv, priv->info.pols);
-		lvds_1_pol(priv, priv->info.pols);
-	}
-	if (priv->info.phys) {
-		lvds_phy_0_init(priv, priv->info.phys);
-		lvds_phy_1_init(priv, priv->info.phys);
-	}
-
-	reg_set_bits(priv->regs + LVDS_CTL,
-			 LVDS_CTL_MODE_MASK
-			 | LVDS_CTL_LINK_MASK
-			 | LVDS_CTL_SWAP_MASK
-			 | LVDS_CTL_SYNC_MODE_MASK,
-			 LVDS_CTL_MODE(lvds->mode)
-			 | LVDS_CTL_LINK(lvds->link_mode)
-			 | LVDS_CTL_SWAP_EN(priv->info.link_swap)
-			 | LVDS_CTL_SYNC_MODE_EN(priv->sync_ctrl));
+	lvds_set_mode(priv, lvds);
+	lvds_set_option_config(priv, lvds);
 
 	reg_set_bit(priv->regs + LVDS_CTL, LVDS_CTL_EN);
 	aic_lvds_release_drvdata();
@@ -222,7 +229,7 @@ static int lvds_probe(struct udevice *dev)
 
 	ret = reset_get_by_name(dev, "lvds0", &priv->reset);
 	if (ret) {
-		debug("Couldn't get reset line\n");
+		debug("Couldn't get reset\n");
 		return ret;
 	}
 

@@ -144,11 +144,21 @@ int panel_default_disable(struct aic_panel *panel)
 
 int panel_default_get_video_mode(struct aic_panel *panel, struct videomode **vm)
 {
+	int switch_gpio;
 	struct panel_comp *p = to_panel_comp(panel);
+
+	p->gpio_switch = devm_gpiod_get(p->panel.dev, "switch", GPIOD_IN);
+	if (IS_ERR(p->gpio_switch))
+		dev_warn(panel->dev, "Faild to get switch io\r\n");
+
+	switch_gpio = gpiod_get_value(p->gpio_switch);
+
+	if (switch_gpio < 0)
+		switch_gpio = 0;
 
 	if (p->use_dt_timing)
 		videomode_from_timings(p->timings, panel->vm,
-				p->timings->native_mode);
+				switch_gpio);
 
 	*vm = panel->vm;
 

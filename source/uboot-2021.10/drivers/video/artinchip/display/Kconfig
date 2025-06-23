@@ -50,12 +50,19 @@ config LOGO_PART_OFFSET
 	help
 	  logo partition start offset in nor
 
+config PROGRESS_BAR
+	bool "Support PROGRESS BAR (upgrading from SD card or UDISK)"
+	default n
+	depends on VIDEO_ARTINCHIP
+	help
+		Enable a progress bar during the system boot process, available when burning to SD card or upgrading from UDISK.
+
 config JPEG_LOGO_IMAGE
 	bool "Support JPEG BOOT LOGO"
-	depends on VIDEO_ARTINCHIP
 	default n
+	depends on VIDEO_ARTINCHIP
 	help
-	  Enable JPEG BOOT LOGO
+		Enable display of a JPEG image as the boot logo.
 
 config AIC_DISP_RGB
 	bool "ArtInChip display rgb support"

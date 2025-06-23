@@ -1,5 +1,7 @@
 menu "Host utilities"
 	comment "************************ System ******************************"
+	source package/third-party/go/Config.in.host
+	source package/third-party/go-bootstrap/Config.in.host
         source package/third-party/coreutils/Config.in.host
 	source package/third-party/fakeroot/Config.in.host
 	source package/third-party/kmod/Config.in.host

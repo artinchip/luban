@@ -62,7 +62,8 @@ static int gss01sqa_select_target(struct spinand_device *spinand,
 }
 
 static const struct spinand_info umtek_spinand_table[] = {
-	SPINAND_INFO("GSS01GAK1", 0xBA,
+	SPINAND_INFO("GSS01GAK1",
+		     SPINAND_ID(0xBA),
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(1, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -95,7 +96,7 @@ static int umtek_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, umtek_spinand_table,
 				     ARRAY_SIZE(umtek_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

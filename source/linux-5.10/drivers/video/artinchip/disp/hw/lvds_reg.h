@@ -12,9 +12,9 @@
 #include <linux/types.h>
 
 struct lvds_info {
-	u32 pols;
-	u32 phys;
-	u32 lines;
+	u32 pols[2];
+	u32 phys[2];
+	u32 lanes[2];
 	u32 link_swap;
 };
 

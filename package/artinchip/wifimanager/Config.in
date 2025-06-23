@@ -1,0 +1,15 @@
+menuconfig BR2_PACKAGE_WIFIMANAGER
+    bool "Enable ArtInChip wifi-manager"
+    default n
+
+#if BR2_PACKAGE_WIFIMANAGER
+#
+#    config BR2_PACKAGE_WIFIMANAGER_CMD_INSTALL
+#        bool "Install wifimanager cmd"
+#        default n
+#
+#    config BR2_PACKAGE_WIFIMANAGER_LIB_INSTALL
+#        bool "Install wifimanager lib"
+#        default n
+#
+#endif

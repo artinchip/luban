@@ -1,0 +1,323 @@
+#!/bin/sh
+################################################################################
+# Copyright (C) 2024 ArtInChip.
+#
+# List the module information in current board
+#
+################################################################################
+
+# $1 - 'probe': Do write test in all module register
+PROBE_TEST=$1
+
+if [ -n "$2" ]; then
+	MOD_INFO_FILE=$2
+else
+	MOD_INFO_FILE="/etc/config/.module.csv"
+fi
+
+RUN_TIME=`date +%Y-%m-%d_%H-%M`
+
+COLOR_BEGIN="\033["
+COLOR_RED="${COLOR_BEGIN}41;37m"
+COLOR_YELLOW="${COLOR_BEGIN}43;30m"
+COLOR_WHITE="${COLOR_BEGIN}47;30m"
+COLOR_END="\033[0m"
+
+usage()
+{
+	echo "You should input as follow:"
+	printf "\t$0         # List all the enabled module\n"
+	printf "\t$0 probe   # List all the available module\n"
+	echo
+	echo Attention: \'probe\' will damage the running environment!
+}
+
+pr_err()
+{
+	echo -e "${COLOR_RED}*** $*${COLOR_END}"
+}
+
+pr_warn()
+{
+	echo -e "${COLOR_YELLOW}!!! $*${COLOR_END}"
+}
+
+pr_info()
+{
+	echo -e "${COLOR_WHITE}>>> $*${COLOR_END}"
+}
+
+run_cmd()
+{
+	echo
+	pr_info $1
+	echo
+	eval $1
+}
+
+# $1 - the command name
+cmd_is_exist()
+{
+	which $1 > /dev/null
+	if [ $? -eq 0 ]; then
+		return 0
+	else
+		pr_err "The command $1 does not exist!"
+		return 1
+	fi
+}
+
+# $1 - register address
+readl()
+{
+	REG_VAL=`devmem $1 32`
+}
+
+# $1 - register address
+# $2 - register value
+writel()
+{
+	devmem $1 32 $2
+}
+
+hex_add()
+{
+	SUM=$(printf '0x%08x\n' $(($1 + $2)))
+}
+
+lm_prepare()
+{
+	if [ ! -f $MOD_INFO_FILE ]; then
+		pr_err "No config file found!"
+		exit 100
+	fi
+
+	cmd_is_exist devmem
+	if [ $? -ne 0 ]; then
+		pr_warn "Need enable devmem in Busybox menuconfig"
+		exit 100
+	fi
+}
+
+lm_exit()
+{
+	cd / > /dev/null
+}
+
+clk_is_enable()
+{
+	CLK_STATUS="-"
+	if [ "$CLK_REG" == "-" ]; then
+		MOD_ENABLE="Yes"
+		return 1
+	fi
+
+	readl $CLK_REG
+	CLK_STATUS=$REG_VAL
+	if [ "$CLK_STATUS" = "0x00000000" ]; then
+		CLK_STATUS="0x0"
+		return 0
+	else
+		if [ "${CLK_STATUS:6:1}" == "3" ] \
+			|| [ "${CLK_STATUS:6:1}" == "1" ] \
+			|| [ "${CLK_STATUS:7:1}" == "1" ]; then
+			MOD_ENABLE="Yes"
+			ENABLE_CNT=$(expr $ENABLE_CNT + 1)
+			return 1
+		else
+			return 0
+		fi
+	fi
+}
+
+enable_mod_clk()
+{
+	if [ "$CLK_REG" == "-" ]; then
+		return 0
+	fi
+	readl $CLK_REG
+	ORI_CLK_STATUS=$REG_VAL
+
+	writel $CLK_REG 0x3105
+	MOD_ENABLE_FOR_TEST="Yes"
+}
+
+disable_mod_clk()
+{
+	if [ "$CLK_REG" == "-" ]; then
+		return 0
+	fi
+	if [ "$MOD_ENABLE_FOR_TEST" == "Yes" ]; then
+		if [ "x$AIC_VERBOSE" = "xon" ]; then
+			printf "\tRestore the clock cfg to %s\n" $ORI_CLK_STATUS
+		fi
+
+		writel $CLK_REG $ORI_CLK_STATUS
+		unset MOD_ENABLE_FOR_TEST
+	fi
+}
+
+show_mod_version()
+{
+	VER_INFO="-"
+	if [ "$VER_REG" == "-" ]; then
+		return
+	fi
+
+	if [ ! "$MOD_ENABLE" = "Yes" ] && [ ! "$MOD_ENABLE_FOR_TEST" == "Yes" ]; then
+		return
+	fi
+
+	if [ ! "$MOD_BASE" = "-" ]; then
+		hex_add $MOD_BASE $VER_REG
+	else
+		SUM=$VER_REG
+	fi
+	readl $SUM
+	VER_INFO=$(echo $REG_VAL | sed 's/0x00000/0x/')
+
+	if [ "$CLK_REG" == "-" ] && [ ! "$VER_INFO" == "0x00000000" ]; then
+		ENABLE_CNT=$(expr $ENABLE_CNT + 1)
+	fi
+}
+
+probe_module()
+{
+	AVAIL_FLAG="-"
+	if [ "$TEST_REG_OFFSET" == "-" ]; then
+		if [ ! "$CLK_REG" == "-" ]; then
+			AVAIL_CNT=$(expr $AVAIL_CNT + 1)
+		fi
+		return
+	fi
+
+	if [ "$EXPECT_VAL" == "-" ]; then
+		return
+	fi
+
+	if [ ! "$MOD_BASE" = "-" ]; then
+		hex_add $MOD_BASE $TEST_REG_OFFSET
+	else
+		SUM=$TEST_REG_OFFSET
+	fi
+	TEST_REG=$SUM
+
+	readl $TEST_REG
+	ORI_VAL=$REG_VAL
+
+	writel $TEST_REG 0xFFFFFFFF
+	readl $TEST_REG
+	if [ "$REG_VAL" == "$EXPECT_VAL" ]; then
+		AVAIL_CNT=$(expr $AVAIL_CNT + 1)
+		AVAIL_FLAG="Yes"
+	else
+		AVAIL_FLAG=$REG_VAL
+	fi
+
+	writel $TEST_REG $ORI_VAL
+}
+
+# $1 - the No. of module
+# $2 - information string of module
+# Return: 1 - Found a valid module; 0 - Ignore the module
+check_one_module()
+{
+	NUM=$1
+	INFO_STR=$2
+	MOD_NAME=$(echo $INFO_STR | awk -F ',' '{printf $1}')
+
+	if [ "x$AIC_VERBOSE" = "xon" ]; then
+		printf "%-3s %-15s ...\n" $NUM ${MOD_NAME}
+	fi
+
+	if [ "${MOD_NAME:0:1}" == "#" ]; then
+		# The module is commented out
+		printf "%-3s %-15s can not access!\n" $NUM ${MOD_NAME:1}
+		return 1
+	fi
+
+	MOD_BASE=$(echo $INFO_STR | awk -F ',' '{printf $2}')
+	CLK_REG=$(echo $INFO_STR | awk -F ',' '{printf $3}')
+	VER_REG=$(echo $INFO_STR | awk -F ',' '{printf $4}')
+	TEST_REG_OFFSET=$(echo $INFO_STR | awk -F ',' '{printf $5}')
+	EXPECT_VAL=$(echo $INFO_STR | awk -F ',' '{printf $6}' | tr -d '\r')
+
+	MOD_ENABLE="-"
+	clk_is_enable
+	show_mod_version
+
+	if [ ! "x$PROBE_TEST" == "xprobe" ]; then
+		if [ "$MOD_ENABLE" == "Yes" ]; then
+			printf "%-3s %-15s %-11s %-10s %-11s\n" \
+				$NUM "$MOD_NAME" $MOD_BASE $VER_INFO $CLK_STATUS
+			return 1
+		else
+			return 0
+		fi
+	fi
+
+	if [ ! "$MOD_ENABLE" == "Yes" ]; then
+		enable_mod_clk
+		show_mod_version
+	fi
+
+	probe_module
+
+	if [ ! "$MOD_ENABLE" == "Yes" ]; then
+		disable_mod_clk
+	fi
+	printf "%-3s %-15s %-11s %-10s %-11s %-10s\n" \
+		$NUM "$MOD_NAME" $MOD_BASE $VER_INFO $CLK_STATUS $AVAIL_FLAG
+
+	return 1
+}
+
+if [ "x$1" == "xhelp" ]; then
+	usage
+	exit 0
+fi
+
+lm_prepare
+
+echo Current system time: "$(date)"
+
+if [ "x$PROBE_TEST" == "xprobe" ]; then
+	TABLE_BORDER="================================================================="
+	echo $TABLE_BORDER
+	echo "No. Module          BaseAddress Version    ClockStatus Available"
+	echo "--- --------------- ----------- ---------- ----------- ----------"
+else
+	TABLE_BORDER="======================================================"
+	echo $TABLE_BORDER
+	echo "No. Module          BaseAddress Version    ClockStatus"
+	echo "--- --------------- ----------- ---------- -----------"
+fi
+
+TOTAL_CNT=0
+AVAIL_CNT=0
+ENABLE_CNT=0
+INDEX=0
+while read line; do
+	if [ $INDEX -eq 0 ]; then
+		# Ignore the first line(the table head)
+		INDEX=$(expr $INDEX + 1)
+		continue
+	fi
+	# echo $line
+	TOTAL_CNT=$(expr $TOTAL_CNT + 1)
+
+	check_one_module $INDEX "$line"
+	if [ $? -eq 1 ]; then
+		INDEX=$(expr $INDEX + 1)
+	fi
+done < $MOD_INFO_FILE
+
+echo $TABLE_BORDER
+
+if [ "x$PROBE_TEST" == "xprobe" ]; then
+	echo Total: $TOTAL_CNT, Available: $AVAIL_CNT, Enable: $ENABLE_CNT
+else
+	echo Total: $TOTAL_CNT, Enable: $ENABLE_CNT
+fi
+
+lm_exit

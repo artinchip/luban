@@ -1,0 +1,14 @@
+menuconfig BR2_PACKAGE_LIBMODBUS
+	bool "libmodbus"
+	help
+	  libmodbus is a free software library to send/receive data
+	  according to the Modbus protocol. This library is written in C
+	  and supports RTU (serial) and TCP (Ethernet) communications.
+
+	  https://libmodbus.org
+
+if BR2_PACKAGE_LIBMODBUS
+config BR2_PACKAGE_LIBMODBUS_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+endif

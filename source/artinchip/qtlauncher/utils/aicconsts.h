@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef AICCONSTS_H
 #define AICCONSTS_H
 
@@ -17,5 +23,11 @@
 #define AIC_CENTRAL_BUTTON_HEIGHT 160
 #define AIC_CENTRAL_BUTTON_XMARGIN 48
 #define AIC_CENTRAL_BUTTON_YMARGIN 5
+
+#define AIC_PLAY_BUTTON_XMARGIN 480
+#define AIC_PLAY_BUTTON_YMARGIN 400
+
+#define AIC_PLAY_BUTTON_WIDTH  64
+#define AIC_PLAY_BUTTON_HEIGHT 64
 
 #endif // AICCONSTS_H

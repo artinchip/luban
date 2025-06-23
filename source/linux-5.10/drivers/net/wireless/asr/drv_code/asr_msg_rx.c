@@ -69,7 +69,7 @@ static inline int asr_rx_chan_pre_switch_ind(struct asr_hw *asr_hw, struct asr_c
 	list_for_each_entry(asr_vif, &asr_hw->vifs, list) {
 		if (asr_vif->up && asr_vif->ch_index == chan_idx) {
 #ifdef CONFIG_ASR_USB
-            netif_stop_queue(asr_vif->ndev);
+            netif_tx_stop_all_queues(asr_vif->ndev);
 #else
 			asr_txq_vif_stop(asr_vif, ASR_TXQ_STOP_CHAN, asr_hw);
 #endif
@@ -93,7 +93,7 @@ static inline int asr_rx_chan_switch_ind(struct asr_hw *asr_hw, struct asr_cmd *
 		list_for_each_entry(asr_vif, &asr_hw->vifs, list) {
 			if (asr_vif->up && asr_vif->ch_index == chan_idx) {
 #ifdef CONFIG_ASR_USB
-                netif_wake_queue(asr_vif->ndev);
+                netif_tx_wake_all_queues(asr_vif->ndev);
 #else
 				asr_txq_vif_start(asr_vif, ASR_TXQ_STOP_CHAN, asr_hw);
 #endif
@@ -340,6 +340,9 @@ static inline int asr_rx_ps_change_ind(struct asr_hw *asr_hw,
                ind->ps_state ? "ON" : "OFF");
 
     if (sta->valid) {
+	//dev_err(asr_hw->dev, "sta=%u,ps=%u,fw_tx_pkt=%u\n",ind->sta_idx,ind->ps_state,ind->tx_pkt);
+	sta->fw_tx_pkt = ind->tx_pkt;
+	sta->ps_tx_pkt = 0;
         asr_ps_bh_enable(asr_hw, sta, ind->ps_state);
     } else if (asr_hw->adding_sta) {
         sta->ps.active = ind->ps_state ? true : false;
@@ -479,7 +482,7 @@ static inline int asr_rx_scanu_start_cfm(struct asr_hw *asr_hw, struct asr_cmd *
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
     // mrole check vif index.
-	if (asr_hw->scan_vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+	if (asr_hw->scan_vif_index < asr_hw->vif_max_num) {
 		asr_vif = asr_hw->vif_table[asr_hw->scan_vif_index];
 	}
 
@@ -538,6 +541,7 @@ static inline int asr_rx_scanu_result_ind(struct asr_hw *asr_hw, struct asr_cmd 
 	u8 ssid_len = 0;
 	u8 channel_ds = 0;
 	int index = 0;
+	u8 rsn_version = 0;
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
@@ -574,6 +578,13 @@ static inline int asr_rx_scanu_result_ind(struct asr_hw *asr_hw, struct asr_cmd 
 		channel_ds = *(elmt_addr + MAC_INFOELT_INFO_OFT);
 	}
 
+    //parse rsne
+	elmt_addr = mac_ie_find((mgmt->u.beacon.variable), ind->length - MAC_BEACON_VARIABLE_PART_OFT, 48);
+	if (elmt_addr != 0) {
+		rsn_version = *(elmt_addr + MAC_INFOELT_INFO_OFT);
+	}
+
+
 	if (chan != NULL)
 		bss = cfg80211_inform_bss_frame(asr_hw->wiphy, chan, (struct ieee80211_mgmt *)
 						ind->payload, ind->length, ind->rssi * 100, GFP_ATOMIC);
@@ -586,11 +597,11 @@ static inline int asr_rx_scanu_result_ind(struct asr_hw *asr_hw, struct asr_cmd 
 #endif
 
 		dev_info(asr_hw->dev,
-			 "%s:%04X,%d,len=%d,chan=%d,rssi=%d,bssid=%02X:%02X:%02X:%02X:%02X:%02X,ssid(%d)=%s\n",
+			 "%s:%04X,%d,len=%d,chan=%d,rssi=%d,bssid=%02X:%02X:%02X:%02X:%02X:%02X,ssid(%d)=%s,rsn_version=%d\n",
 			 __func__, mgmt->frame_control, ind->center_freq,ind->length,
 			 channel_ds, ind->rssi, bss->bssid[0], bss->bssid[1],
 			 bss->bssid[2], bss->bssid[3], bss->bssid[4], bss->bssid[5]
-			 , ssid_len, ssid);
+			 , ssid_len, ssid,rsn_version);
 	} else {
 
 		dev_info(asr_hw->dev,
@@ -666,8 +677,8 @@ static inline int asr_rx_sm_connect_ind(struct asr_hw *asr_hw, struct asr_cmd *c
 
 	clear_bit(ASR_DEV_STA_CONNECTING, &asr_vif->dev_flags);
 
-	dev_info(asr_hw->dev, "%s:state code is %x,vif idx is %x ind->roamed is %x,ind->ap_idx=%d\n",
-		 __func__, ind->status_code, ind->vif_idx, ind->roamed, ind->ap_idx);
+	dev_info(asr_hw->dev, "%s:state code is %x,vif idx is %x ind->roamed is %x,ind->ap_idx=%d,aid=%u\n",
+		 __func__, ind->status_code, ind->vif_idx, ind->roamed, ind->ap_idx,ind->aid);
 
 	/* Retrieve IE addresses and lengths */
 	req_ie = (const u8 *)ind->assoc_ie_buf;
@@ -792,9 +803,11 @@ static int asr_local_rx_deauth(struct asr_hw *asr_hw, struct asr_vif *asr_vif, s
 
 	memcpy(deauth_frame.sa, sta->mac_addr, ETH_ALEN);
 
-	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION) {
+	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION ||
+            ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_P2P_CLIENT) {
 		memcpy(deauth_frame.bssid, deauth_frame.sa, ETH_ALEN);
-	} else if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_AP) {
+	} else if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_AP ||
+                   ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_P2P_GO) {
 		memcpy(deauth_frame.bssid, asr_vif->ndev->dev_addr, ETH_ALEN);
 	} else {
 		//todo
@@ -808,12 +821,13 @@ static int asr_local_rx_deauth(struct asr_hw *asr_hw, struct asr_vif *asr_vif, s
 	dev_info(asr_hw->dev, "%s: sta=%d mac=%pM deauth reason=%d \n",
 		__func__, sta->sta_idx, &sta->mac_addr,deauth_frame.u.deauth.reason_code);
 #else
-	dev_info(asr_hw->dev, "%s: sta=%d mac=%pM %s deauth reason=%d \n",
+	dev_info(asr_hw->dev, "%s: sta=%d mac=%pM %s deauth reason=%d ,vif_type=%d\n",
 		__func__, sta->sta_idx, &sta->mac_addr,asr_vif->auth_type == NL80211_AUTHTYPE_SAE ? "SAE" : "",
-		deauth_frame.u.deauth.reason_code);
+		deauth_frame.u.deauth.reason_code, ASR_VIF_TYPE(asr_vif));
 #endif
 
-	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_AP) {
+	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_AP ||
+            ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_P2P_GO) {
 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
 		cfg80211_rx_mgmt(&asr_vif->wdev, 0, -110, (u8 *)&deauth_frame, sizeof(struct ieee80211_mgmt), 0);
 		#elif LINUX_VERSION_CODE > KERNEL_VERSION(3, 10, 0)
@@ -824,7 +838,8 @@ static int asr_local_rx_deauth(struct asr_hw *asr_hw, struct asr_vif *asr_vif, s
 		cfg80211_rx_mgmt(asr_vif->wdev.netdev, 0, (u8 *)&deauth_frame, sizeof(struct ieee80211_mgmt), GFP_ATOMIC);
 		#endif
 
-	} else if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION) {
+	} else if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION ||
+                   ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_P2P_CLIENT) {
 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)
 		wdev = asr_vif->ndev->ieee80211_ptr;
 		mutex_lock(&wdev->mtx);
@@ -859,13 +874,12 @@ int asr_rx_sm_disconnect_ind(struct asr_hw *asr_hw, struct asr_cmd *cmd, struct 
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
-	clear_bit(ASR_DEV_STA_DISCONNECTING, &asr_vif->dev_flags);
-	clear_bit(ASR_DEV_STA_CONNECTING, &asr_vif->dev_flags);
-	clear_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
-
 	if (asr_vif == NULL) {
 		return 0;
 	}
+	clear_bit(ASR_DEV_STA_DISCONNECTING, &asr_vif->dev_flags);
+	clear_bit(ASR_DEV_STA_CONNECTING, &asr_vif->dev_flags);
+	clear_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
 
 	dev = asr_vif->ndev;
 	if (dev == NULL) {
@@ -1145,25 +1159,26 @@ static bool asr_msg_valid(struct ipc_e2a_msg *msg)
 /**
  *
  */
-#ifdef CONFIG_TWT
 bool is_log_ignore_msg(struct ipc_e2a_msg *msg)
 {
-	if (((MSG_T(msg->id) == TASK_MM) && ((MSG_I(msg->id) == MM_TWT_TRAFFIC_IND)
-                                         ||  (MSG_I(msg->id) == MM_P2P_VIF_PS_CHANGE_IND)
-                                         ||  (MSG_I(msg->id) == MM_CHANNEL_PRE_SWITCH_IND)
-                                         ||  (MSG_I(msg->id) == MM_CHANNEL_SWITCH_IND)
-										 ||  (MSG_I(msg->id) == MM_CHANNEL_SURVEY_IND)
-                                         ||  (MSG_I(msg->id) == MM_P2P_NOA_UPD_IND)
-                                         ||  (MSG_I(msg->id) == MM_PS_CHANGE_IND)
-                                         ||  (MSG_I(msg->id) == MM_REMAIN_ON_CHANNEL_EXP_IND)
-                                         ||  (MSG_I(msg->id) == MM_REMAIN_ON_CHANNEL_CFM)
-                                         ||  (MSG_I(msg->id) == MM_TRAFFIC_REQ_IND)))
+	if (((MSG_T(msg->id) == TASK_MM) && ((MSG_I(msg->id) == MM_PS_CHANGE_IND)
+                ||  (MSG_I(msg->id) == MM_P2P_VIF_PS_CHANGE_IND)
+                ||  (MSG_I(msg->id) == MM_CHANNEL_PRE_SWITCH_IND)
+                ||  (MSG_I(msg->id) == MM_CHANNEL_SWITCH_IND)
+                ||  (MSG_I(msg->id) == MM_CHANNEL_SURVEY_IND)
+                ||  (MSG_I(msg->id) == MM_P2P_NOA_UPD_IND)
+                #ifdef CONFIG_TWT
+                ||  (MSG_I(msg->id) == MM_TWT_TRAFFIC_IND)
+                #endif
+                ||  (MSG_I(msg->id) == MM_REMAIN_ON_CHANNEL_EXP_IND)
+                ||  (MSG_I(msg->id) == MM_REMAIN_ON_CHANNEL_CFM)
+                ||  (MSG_I(msg->id) == MM_TRAFFIC_REQ_IND)))
 	     || ((MSG_T(msg->id) == TASK_ME) && (MSG_I(msg->id) == MSG_I(ME_TRAFFIC_IND_CFM)))) {
 	    return true;
 	} else
 	    return false;
 }
-#endif
+
 
 void asr_rx_handle_msg(struct asr_hw *asr_hw, struct ipc_e2a_msg *msg)
 {
@@ -1176,9 +1191,8 @@ void asr_rx_handle_msg(struct asr_hw *asr_hw, struct ipc_e2a_msg *msg)
 		dev_err(asr_hw->dev, "%s: unvalid cmd T:%d I:%d\n", __func__, MSG_T(msg->id), MSG_I(msg->id));
 		return;
 	}
-#ifdef CONFIG_TWT
+
 	if (!is_log_ignore_msg(msg))
-#endif
 	{
 		dev_info(asr_hw->dev, "%s %-24s T:%d - I:%d %d->%d l:%d\n", __func__,
 			 ASR_ID2STR(msg->id), MSG_T(msg->id), MSG_I(msg->id), msg->dummy_src_id, msg->dummy_dest_id,

@@ -29,5 +29,21 @@ void spi_enc_tweak_select(long sel)
 	if (dev)
 		misc_ioctl(dev, AIC_SPIENC_IOCTL_TWEAK_SELECT, (void *)sel);
 }
+
+void spi_enc_set_bypass(long status)
+{
+	struct udevice *dev = NULL;
+
+	uclass_first_device_err(UCLASS_MISC, &dev);
+	do {
+		if (device_is_compatible(dev, "artinchip,aic-spienc-v1.0"))
+			break;
+		else
+			dev = NULL;
+		uclass_next_device_err(&dev);
+	} while (dev);
+	if (dev)
+		misc_ioctl(dev, AIC_SPIENC_IOCTL_BYPASS, (void *)status);
+}
 #endif
 

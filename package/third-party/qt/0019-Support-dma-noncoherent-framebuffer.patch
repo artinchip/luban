@@ -1,0 +1,144 @@
+From 5efd2129f53e3b802ae0461e39f2beb40d106813 Mon Sep 17 00:00:00 2001
+From: "huahui.mai" <huahui.mai@artinchip.com>
+Date: Tue, 4 Jun 2024 13:23:57 +0800
+Subject: [PATCH] Support dma noncoherent framebuffer
+
+---
+ src/gui/embedded/qscreenlinuxfb_qws.cpp |  6 +++
+ src/gui/painting/painting.pri           |  2 +
+ src/gui/painting/qdrawhelper_p.h        | 52 ++++++++++++++++++++++++-
+ 3 files changed, 59 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/embedded/qscreenlinuxfb_qws.cpp b/src/gui/embedded/qscreenlinuxfb_qws.cpp
+index a86687d8..c211e8ed 100644
+--- a/src/gui/embedded/qscreenlinuxfb_qws.cpp
++++ b/src/gui/embedded/qscreenlinuxfb_qws.cpp
+@@ -61,6 +61,8 @@
+ #include <limits.h>
+ #include <signal.h>
+
++#include <video/artinchip_fb.h>
++
+ #include "qwindowsystem_qws.h"
+
+ #if !defined(Q_OS_DARWIN) && !defined(Q_OS_FREEBSD)
+@@ -445,6 +447,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
+
+     mapsize = finfo.smem_len;
+
++    bool dma_coherent = false;
++    if (ioctl(d_ptr->fd, AICFB_UPDATE_DMA_COHERENT_STATUS, &dma_coherent) < 0)
++        qWarning("Error: failed to switch framebuffer dma coherent status");
++
+     data = (unsigned char *)-1;
+     if (d_ptr->fd != -1)
+         data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
+diff --git a/src/gui/painting/painting.pri b/src/gui/painting/painting.pri
+index d4f904b2..5ec80594 100644
+--- a/src/gui/painting/painting.pri
++++ b/src/gui/painting/painting.pri
+@@ -105,6 +105,8 @@ SOURCES += \
+                 painting/qpaintengine_blitter_p.h       \
+                 painting/qblittable_p.h                 \
+
++LIBS += -laic_mem
++
+ win32 {
+         HEADERS += painting/qprintengine_win_p.h
+
+diff --git a/src/gui/painting/qdrawhelper_p.h b/src/gui/painting/qdrawhelper_p.h
+index 1f4b0310..b23a527d 100644
+--- a/src/gui/painting/qdrawhelper_p.h
++++ b/src/gui/painting/qdrawhelper_p.h
+@@ -65,6 +65,14 @@
+ #include <private/qsimd_p.h>
+ #include <private/qmath_p.h>
+
++#include <sys/ioctl.h>
++#include <fcntl.h>
++
++#include <video/artinchip_fb.h>
++#include <linux/dma-buf.h>
++
++#include <aic_memcpy.h>
++
+ #ifdef Q_WS_QWS
+ #include "QtGui/qscreen_qws.h"
+ #endif
+@@ -1878,11 +1886,26 @@ inline void qt_memfill(T *dest, T value, int count)
+     }
+ }
+
++static int g_fb = -1;
++static int g_fb_dmabuf_fd = -1;
++
+ template <class T>
+ inline void qt_rectfill(T *dest, T value,
+                         int x, int y, int width, int height, int stride)
+ {
+     char *d = reinterpret_cast<char*>(dest + x) + y * stride;
++    char *start = d;
++    struct dma_buf_info fds;
++    struct dma_buf_range sync;
++
++    if (g_fb < 0)
++        g_fb = open("/dev/fb0", O_RDWR);
++
++    if (g_fb_dmabuf_fd < 0) {
++        ioctl(g_fb, AICFB_TO_DMABUF_FD, &fds);
++        g_fb_dmabuf_fd = fds.fd;
++    }
++
+     if (uint(stride) == (width * sizeof(T))) {
+         qt_memfill(reinterpret_cast<T*>(d), value, width * height);
+     } else {
+@@ -1892,6 +1915,13 @@ inline void qt_rectfill(T *dest, T value,
+             d += stride;
+         }
+     }
++
++    if (g_fb_dmabuf_fd > 0) {
++        sync.start = (unsigned long)start;
++        sync.size = height * stride;
++        sync.flags = DMA_BUF_SYNC_WB_RANGE;
++        ioctl(g_fb_dmabuf_fd, DMA_BUF_IOCTL_SYNC_RANGE, &sync);
++    }
+ }
+
+ template <class DST, class SRC>
+@@ -2002,11 +2032,31 @@ inline void qt_rectcopy(T *dest, const T *src,
+ {
+     char *d = (char*)(dest + x) + y * dstStride;
+     const char *s = (char*)(src);
++    struct dma_buf_info fds;
++    struct dma_buf_range sync;
++    char *start = d;
++
++    if (g_fb < 0)
++        g_fb = open("/dev/fb0", O_RDWR);
++
++    if (g_fb_dmabuf_fd < 0 && g_fb > 0) {
++        ioctl(g_fb, AICFB_TO_DMABUF_FD, &fds);
++        g_fb_dmabuf_fd = fds.fd;
++    }
++
+     for (int i = 0; i < height; ++i) {
+-        ::memcpy(d, s, width * sizeof(T));
++        // ::memcpy(d, s, width * sizeof(T));
++        aic_memcpy(d, s, width * sizeof(T));
+         d += dstStride;
+         s += srcStride;
+     }
++
++    if (g_fb_dmabuf_fd > 0) {
++        sync.start = (unsigned long)start;
++        sync.size = height * dstStride;
++        sync.flags = DMA_BUF_SYNC_WB_RANGE;
++        ioctl(g_fb_dmabuf_fd, DMA_BUF_IOCTL_SYNC_RANGE, &sync);
++    }
+ }
+
+ template <class DST, class SRC>
+--
+2.29.0
+

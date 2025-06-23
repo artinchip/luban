@@ -8,7 +8,7 @@
 #
 # $1: library name pattern (can include glob wildcards)
 #
-ifeq ($(BR2_riscv64_gcxthead),y)
+
 copy_toolchain_lib_root = \
 	LIBPATTERN="$(strip $1)"; \
 	LIBPATHS=`find $(STAGING_DIR)/ -name "$${LIBPATTERN}" 2>/dev/null` ; \
@@ -32,28 +32,6 @@ copy_toolchain_lib_root = \
 			fi; \
 		done; \
 	done
-else
-copy_toolchain_lib_root = \
-	LIBPATTERN="$(strip $1)"; \
-	LIBPATHS=`find $(STAGING_DIR)/ -name "$${LIBPATTERN}" 2>/dev/null` ; \
-	for LIBPATH in $${LIBPATHS} ; do \
-		while true ; do \
-			LIBNAME=`basename $${LIBPATH}`; \
-			DESTDIR=`echo $${LIBPATH} | sed "s,^$(STAGING_DIR)/,," | xargs dirname` ; \
-			mkdir -p $(TARGET_DIR)/$${DESTDIR}; \
-			rm -fr $(TARGET_DIR)/$${DESTDIR}/$${LIBNAME}; \
-			if test -h $${LIBPATH} ; then \
-				cp -d $${LIBPATH} $(TARGET_DIR)/$${DESTDIR}/$${LIBNAME}; \
-				LIBPATH="`readlink -f $${LIBPATH}`"; \
-			elif test -f $${LIBPATH}; then \
-				$(INSTALL) -D -m0755 $${LIBPATH} $(TARGET_DIR)/$${DESTDIR}/$${LIBNAME}; \
-				break ; \
-			else \
-				exit -1; \
-			fi; \
-		done; \
-	done
-endif
 
 #
 # Copy the full external toolchain sysroot directory to the staging

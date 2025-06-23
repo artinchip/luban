@@ -1,0 +1,395 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="表 1 . 术语定义 术语 定义 注释说明 SD Secure Digital Flash 存储卡的一种标准，即常见的 SD 卡 SDCard Secure Digital Memory Card 安全数码卡，同“SD 卡” MMC Multi Media Card 多媒体卡 eMMC Embedded Multi Media Card 内嵌（在板卡上）式多媒体卡 SDIO Secure ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/chapter-title/chapter-memory-sdk.html"/><meta name="DC.relation" content="../../../topics/chapter-title/chapter-memory-sdk.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-config.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-config.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-debug_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-test-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-design-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/sdmc/sdmc-faq.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>SDMC 使用指南</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e4071"/><meta name="wh-source-relpath" content="topics/sdk/sdmc/sdmc-user-guide.dita"/><meta name="wh-out-relpath" content="topics/sdk/sdmc/sdmc-user-guide.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-memory"><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html">SDMC 使用指南</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/chapter-title/chapter-memory-sdk.html" title="存储" aria-label="上一主题: 存储" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/sdmc/sdmc-config.html" title="SDMC 配置" aria-label="下一主题: SDMC 配置" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true" class="active"><div data-tocid="id-d4445e4071" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4071-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-user-guide.html" id="id-d4445e4071-link">SDMC 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="sdmc_configuration-d4445e4085" class="topicref" data-id="sdmc_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-config.html" id="sdmc_configuration-d4445e4085-link">SDMC 配置</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_debug_guide-d4445e4099" class="topicref" data-id="sdmc_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-debug_guide.html" id="sdmc_debug_guide-d4445e4099-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="sdmc_test_guide-d4445e4113" class="topicref" data-id="sdmc_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-test-guide.html" id="sdmc_test_guide-d4445e4113-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="sdmc_design_intro-d4445e4127" class="topicref" data-id="sdmc_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action sdmc_design_intro-d4445e4127-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-design-guide.html" id="sdmc_design_intro-d4445e4127-link">设计说明</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e4225" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/sdmc/sdmc-faq.html" id="id-d4445e4225-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nand_user_guide-d4445e4239" class="topicref" data-id="spi_nand_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nand_user_guide-d4445e4239-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinand/spi-nand-user-guide.html" id="spi_nand_user_guide-d4445e4239-link">SPI NAND 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_nor_user_guide-d4445e4297" class="topicref" data-id="spi_nor_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_nor_user_guide-d4445e4297-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spinor/spinor_user_guide.html" id="spi_nor_user_guide-d4445e4297-link">SPI NOR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_n3v_ttw_bzb-d4445e4354" class="topicref" data-id="concept_n3v_ttw_bzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_n3v_ttw_bzb-d4445e4354-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/file-system-user-guide.html" id="concept_n3v_ttw_bzb-d4445e4354-link">文件系统使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/sdmc/sdmc-user-guide.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">SDMC 使用指南</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="table-container"><table class="- topic/table table frame-all" id="id__table_n2m_pxh_bdc" data-ofbid="id__table_n2m_pxh_bdc" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">术语定义</span></caption><colgroup><col style="width:18.281535648994517%"/><col style="width:36.0146252285192%"/><col style="width:45.703839122486286%"/></colgroup><thead class="- topic/thead thead">
+                    <tr class="- topic/row">
+                        <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_n2m_pxh_bdc__entry__1">术语</th>
+                        <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_n2m_pxh_bdc__entry__2">定义</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-1" id="id__table_n2m_pxh_bdc__entry__3">注释说明</th>
+                    </tr>
+                </thead><tbody class="- topic/tbody tbody">
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">SD</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Secure Digital</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">Flash 存储卡的一种标准，即常见的 SD 卡</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">SDCard</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Secure Digital Memory Card</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">安全数码卡，同“SD 卡”</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">MMC</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Multi Media Card</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">多媒体卡</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">eMMC</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Embedded Multi Media Card</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">内嵌（在板卡上）式多媒体卡</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">SDIO</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Secure Digital Input and Output</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">安全数字输入输出接口</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">SDMC</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">SDCard &amp; SDIO &amp; eMMC Host Contollor</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">SD 卡/eMMC 主控制器</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">CMD</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Command</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">SD/eMMC 协议的命令</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__1">DMA</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__2">Direct Memory Access</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_n2m_pxh_bdc__entry__3">直接存储器访问</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_n2m_pxh_bdc__entry__1">SPI</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_n2m_pxh_bdc__entry__2">Serial Peripheral Interface</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="id__table_n2m_pxh_bdc__entry__3">串行外设接口</td>
+                    </tr>
+                </tbody></table></div>
+        <p class="- topic/p p" data-ofbid="d121354e176__20250123155210">其中：</p>
+        <ul class="- topic/ul ul simple" id="id__ul_o2m_pxh_bdc" data-ofbid="id__ul_o2m_pxh_bdc">
+            <li class="- topic/li li" data-ofbid="d121354e181__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e183__20250123155210">MMC 是最早的记忆卡标准，1997 年由西门子和 SanDisk 推出，现在市场上已经很少见了</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e187__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e189__20250123155210">SDCard 是 1998 年由松下、东芝和 SanDisk 合作发布</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e193__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e195__20250123155210">SDCard 一开始就兼容 MMC 协议，和 MMC 在时序设计上保持一致，读写控制命令也一样</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e199__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e201__20250123155210">SDIO 是在 SD 标准的基础上，定义了非存储卡的外设接口，可连接 WiFi、BT、摄像头等</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e205__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e207__20250123155210">SD 卡后续还有 SDHC（High Capacity，大容量，最大 32 GB）和 SDXC（eXtended Capacity，最大 2 TB），本文将
+                    SD、SDHC、SDXC 统称为 SD</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e212__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e214__20250123155210">eMMC 是 MMC 框架中的一种，经过多年演化后，从 2018 年起只留下 eMMC 了</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d121354e218__20250123155210">
+                <p class="- topic/p p" data-ofbid="d121354e220__20250123155210">eMMC 可以看作一个集合，其中包含：NAND Flash、Flash 控制器、MMC 标准接口封装</p>
+            </li>
+        </ul>
+        
+        <section class="- topic/section section" id="id__section_swv_kwh_ddc" data-ofbid="id__section_swv_kwh_ddc"><h2 class="- topic/title title sectiontitle">SDMC V1.0 功能说明</h2>
+            
+            <p class="- topic/p p" data-ofbid="d121354e232__20250123155210">SDMC V1.0 可用于访问三种标准协议：SDCard、eMMC 设备、SDIO。 以 D21x 为例，SoC 硬件提供了三套 SDMC，功能的初始定义如下：</p>
+            <div class="table-container"><table class="- topic/table table frame-all" id="id__table_p2m_pxh_bdc" data-ofbid="id__table_p2m_pxh_bdc" data-cols="2"><caption></caption><colgroup><col style="width:41.49377593360995%"/><col style="width:58.50622406639003%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_p2m_pxh_bdc__entry__1">SDMC</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="id__table_p2m_pxh_bdc__entry__2">支持功能</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_p2m_pxh_bdc__entry__1">SDMC0</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_p2m_pxh_bdc__entry__2">SDCard、 eMMC</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_p2m_pxh_bdc__entry__1">SDMC1</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_p2m_pxh_bdc__entry__2">SDCard</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_p2m_pxh_bdc__entry__1">SDMC2</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="id__table_p2m_pxh_bdc__entry__2">SDIO</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+        <section class="- topic/section section" id="id__sd-sdio" data-ofbid="id__sd-sdio"><h2 class="- topic/title title sectiontitle">SD/SDIO 的传输模式</h2>
+            
+            <figure class="- topic/fig fig fignone" id="id__id4" data-ofbid="id__id4">
+                
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_q2m_pxh_bdc" src="../../../images/sdmc/sd_mode.png" width="288" alt="sd_mode"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">SD/SDIO 的三种传输模式</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d121354e311__20250123155210">SD/SDIO 的传输模式有三种：</p>
+            <ol class="- topic/ol ol arabic simple" id="id__ol_r2m_pxh_bdc" data-ofbid="id__ol_r2m_pxh_bdc">
+                <li class="- topic/li li" data-ofbid="d121354e316__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e318__20250123155210">SPI 模式：为了兼容性考虑，此模式属于 required，对硬件要求低，不支持 CRC 校验。时钟最高 25 MHz，读写速度通常低于 3
+                        MB/s。广泛用于 MP3 等对读卡速度要求不高的场景。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e322__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e324__20250123155210">1bit 模式：时钟最高 25 MHz，最高速率 12.5 MB/s</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e328__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e330__20250123155210">4bit 模式：读写时钟最高可达 50 MHz，最高速率 25 MB/s，是 <strong class="+ topic/ph hi-d/b ph b">SD 的主要模式</strong></p>
+                </li>
+            </ol>
+            <p class="- topic/p p" data-ofbid="d121354e337__20250123155210">其中“1bit 模式”和“4bit 模式”又可以统称为“SD 模式”。</p>
+            <p class="- topic/p p" data-ofbid="d121354e341__20250123155210">下表是三种传输模式对应的接口信号线定义：</p>
+            <figure class="- topic/fig fig fignone" id="id__id5" data-ofbid="id__id5">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_s2m_pxh_bdc" src="../../../images/sdmc/sd_mode_io.png" alt="sd_mode_io"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 2</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">SD/SDIO 三种传输模式的接口定义</span></figcaption></figure>
+        </section>
+        <section class="- topic/section section" id="id__mmc" data-ofbid="id__mmc"><h2 class="- topic/title title sectiontitle">MMC 的工作模式</h2>
+            
+            <figure class="- topic/fig fig fignone" id="id__id6" data-ofbid="id__id6">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_t2m_pxh_bdc" src="../../../images/sdmc/mmc_mode.png" alt="mmc_mode"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 3</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">MMC 的工作模式</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d121354e374__20250123155210">MMC 标准经过了 5 个大版本的演化，已经发生了很大的变化。大体上可以分为两种工作模式：</p>
+            <ol class="- topic/ol ol arabic simple" id="id__ol_u2m_pxh_bdc" data-ofbid="id__ol_u2m_pxh_bdc">
+                <li class="- topic/li li" data-ofbid="d121354e379__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e381__20250123155210">SPI 模式：可选模式，属于 MMC 协议的一个子集，最大速率 20 Mbps。主要用于小容量、低速率场景，可降低成本，也有很好的兼容性</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e385__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e387__20250123155210">MMC 模式：默认模式，具有 MMC 的全部特性，支持 1/4/8bit 总线模式</p>
+                </li>
+            </ol>
+            <p class="- topic/p p" data-ofbid="d121354e392__20250123155210">MMC 模式从传输速率上看又可以分为以下几种：</p>
+            <figure class="- topic/fig fig fignone" id="id__id7" data-ofbid="id__id7">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_v2m_pxh_bdc" src="../../../images/sdmc/mmc_mode_data.png" alt="mmc_mode_data"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 4</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">MMC 工作模式及相应速率</span></figcaption></figure>
+            <div class="- topic/note note tip note_tip" id="id__note_bmy_rxh_ddc" data-ofbid="id__note_bmy_rxh_ddc"><span class="note__title">提示：</span> <div class="note__body">
+                <ol class="- topic/ol ol arabic simple" id="id__ol_w2m_pxh_bdc" data-ofbid="id__ol_w2m_pxh_bdc">
+                    <li class="- topic/li li" data-ofbid="d121354e412__20250123155210">
+                        <p class="- topic/p p" data-ofbid="d121354e414__20250123155210">HS400 是在 HS200 的基础上增加 DDR 模式（信号双边采样），将理论速率提升一倍。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d121354e418__20250123155210">
+                        <p class="- topic/p p" data-ofbid="d121354e420__20250123155210">MMC 上电或者复位后，默认处于 1bit 模式，只使用信号线 DAT[0]传输数据，后续通过命令将其配置为 4/8bit 模式。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d121354e424__20250123155210">
+                        <p class="- topic/p p" data-ofbid="d121354e426__20250123155210">eMMC 芯片不支持 SPI 模式。</p>
+                    </li>
+                </ol>
+            </div></div>
+        </section>
+        <section class="- topic/section section" id="id__sdmc" data-ofbid="id__sdmc"><h2 class="- topic/title title sectiontitle">SDMC 的功能特性</h2>
+            
+            <p class="- topic/p p" data-ofbid="d121354e438__20250123155210">SDMC 支持的最大接口频率为 200 MHz，支持 1/4/8 线数据总线模式，满足 eMMC 标准协议和 SDCard/SDIO 接口协议。</p>
+            <figure class="- topic/fig fig fignone" id="id__id8" data-ofbid="id__id8">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_x2m_pxh_bdc" src="../../../images/sdmc/hw_structure2.png" alt="sdmc_hw_structure"/></div><br/>
+                <div class="- topic/div div legend">
+                    <p class="- topic/p p" data-ofbid="d121354e454__20250123155210">SDMC 支持的特性有：</p>
+                </div>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 5</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">SDMC 硬件原理示意图</span></figcaption></figure>
+            <ul class="- topic/ul ul simple" id="id__ul_y2m_pxh_bdc" data-ofbid="id__ul_y2m_pxh_bdc">
+                <li class="- topic/li li" data-ofbid="d121354e461__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e463__20250123155210">支持 eMMC5.0，SD3.01 和 SDIO3.0，向下兼容</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e467__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e469__20250123155210">支持 eMMC SDR/DDR 模式，接口时钟频率最大 200 MHz</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e473__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e475__20250123155210">支持 3.3V 工作电压</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e479__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e481__20250123155210">支持 DDR 4 线和 8 线模式</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e485__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e487__20250123155210">使用内部 DMA 模式，支持单通道、双缓存和描述符链表传输</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e492__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e494__20250123155210">支持 FIFO 深度为 128，FIFO 位宽为 32 bit</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d121354e498__20250123155210">
+                    <p class="- topic/p p" data-ofbid="d121354e500__20250123155210">支持 CRC 生成和错误检测</p>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        <div class=" wh_child_links d-print-none "><nav aria-label="Child Links" role="navigation" class="- topic/related-links related-links"><ul class="ullinks"><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/sdmc/sdmc-config.html">SDMC 配置</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/sdmc/sdmc-debug_guide.html">调试指南</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/sdmc/sdmc-test-guide.html">测试指南</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/sdmc/sdmc-design-guide.html">设计说明</a></strong></li><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/sdmc/sdmc-faq.html">常见问题</a></strong></li></ul></nav></div>
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_swv_kwh_ddc" data-tocid="id__section_swv_kwh_ddc">SDMC V1.0 功能说明</a></div></li><li class="section-item"><div class="section-title"><a href="#id__sd-sdio" data-tocid="id__sd-sdio">SD/SDIO 的传输模式</a></div></li><li class="section-item"><div class="section-title"><a href="#id__mmc" data-tocid="id__mmc">MMC 的工作模式</a></div></li><li class="section-item"><div class="section-title"><a href="#id__sdmc" data-tocid="id__sdmc">SDMC 的功能特性</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

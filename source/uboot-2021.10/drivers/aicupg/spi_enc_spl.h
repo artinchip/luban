@@ -9,4 +9,5 @@
 #include <asm/io.h>
 #include <artinchip/aic_spienc.h>
 void spi_enc_tweak_select(long sel);
+void spi_enc_set_bypass(long status);
 #endif /* __AICUPG_SPL_SPIENC_H__ */

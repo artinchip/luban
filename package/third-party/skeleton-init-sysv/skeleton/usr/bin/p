@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ $# -eq 1 ]; then
+	ADDR=$1
+	CNT=16
+elif [ $# -eq 2 ]; then
+	ADDR=$1
+	CNT=$2
+elif [ $# -ne 2 ]; then
+	echo Please input as follow:
+	echo "  $0 PhyAddress Len"
+	exit 1
+fi
+
+which reg-dump > /dev/null
+if [ $? -ne 0 ]; then
+	pr_err "The command 'reg-dump' does not exist!"
+	exit 100
+fi
+
+reg-dump -a $ADDR -c $CNT

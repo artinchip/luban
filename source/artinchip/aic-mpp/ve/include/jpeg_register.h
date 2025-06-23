@@ -1,10 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: author: <qi.xu@artinchip.com>
-*  Desc: jpeg register define
-*
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: author: <qi.xu@artinchip.com>
+ *  Desc: jpeg register define
+ */
 
 #ifndef JPEG_REGISTER_H
 #define JPEG_REGISTER_H

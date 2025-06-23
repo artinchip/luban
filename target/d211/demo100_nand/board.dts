@@ -97,9 +97,24 @@
 		tsen = &tsen;
 		pwm = &pwm;
 		epwm = &epwm;
+		cap = &cap;
 		sdmc0 = &sdmc0;
 		sdmc1 = &sdmc1;
 		sdmc2 = &sdmc2;
+		dma = &dma;
+		crypto = &crypto;
+		sid = &sid;
+		mtop = &mtop;
+		codec = &codec;
+		wri = &wri;
+		aicudc = &aicudc;
+		usbh0 = &usbh0;
+		usbh1 = &usbh1;
+		ohci0 = &ohci0;
+		ohci1 = &ohci1;
+		i2s0 = &i2s0;
+		i2s1 = &i2s1;
+		ge = &ge;
 	};
 
 	chosen {
@@ -334,7 +349,7 @@
 	pinctrl-0 = <&uart3_pins_c>;
 	linux,rs485-enabled-at-boot-time;
 	aic,rs485-compact-io-mode;
-	status = "okay";
+	status = "disabled";
 };
 
 &uart4 {
@@ -607,7 +622,10 @@
 	};
 	uart0_pins_a: uart0-0 {
 		u-boot,dm-pre-reloc;
-		pins {
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
 			u-boot,dm-pre-reloc;
 		};
 	};
@@ -776,7 +794,7 @@
 	pinctrl-0 = <&gpai7_pins>;
 
 	gpai0 {
-		aic,sample-period-ms = <10>;
+		aic,sample-period-ms = <18>;
 		aic,high-level-thd = <1830>;
 		aic,low-level-thd = <1800>;
 		status = "disabled";
@@ -953,6 +971,25 @@
 		aic,action0 = "none", "none", "none", "high", "none", "low";
 		aic,action1 = "none", "high", "none", "none", "none", "low";
 		aic,default-level = <0>;
+		status = "disabled";
+	};
+};
+
+&cap {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cap0_pins_a>,
+			<&cap1_pins_a>,
+			<&cap2_pins_a>;
+	cap0 {
+		status = "disabled";
+	};
+
+	cap1 {
+		status = "disabled";
+	};
+
+	cap2 {
 		status = "disabled";
 	};
 };

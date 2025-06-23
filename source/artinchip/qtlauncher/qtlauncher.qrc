@@ -5,6 +5,7 @@
         <file>resources/navbar/back.png</file>
         <file>resources/navbar/home.png</file>
         <file>resources/navbar/menu.png</file>
+        <file>resources/navbar/menuhide.png</file>
         <file>resources/statusbar/bg.png</file>
         <file>resources/statusbar/wifi.png</file>
         <file>resources/statusbar/wifi_on.png</file>
@@ -52,5 +53,17 @@
         <file>resources/tiles/kinetic.png</file>
         <file>resources/ge/ge-clock.png</file>
         <file>resources/ge/ge-second.png</file>
+        <file>resources/animation/ic6.png</file>
+        <file>resources/animation/ic7.png</file>
+        <file>resources/animation/ic8.png</file>
+        <file>resources/animation/ic9.png</file>
+        <file>resources/animation/ica.png</file>
+        <file>resources/video/pause_norma_1.png</file>
+        <file>resources/video/play_normal.png</file>
+        <file>resources/keyboard/backspace.png</file>
+        <file>resources/keyboard/caplock.png</file>
+        <file>resources/keyboard/enter.png</file>
+        <file>resources/keyboard/pack_up.png</file>
+        <file>resources/keyboard/space.png</file>
     </qresource>
 </RCC>

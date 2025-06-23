@@ -191,9 +191,6 @@ static int panel_bind(struct device *dev, struct device *master, void *data)
 	if (panel_parse_dts(p, dev) < 0)
 		return -1;
 
-	if (!of_property_read_string(np, "dsi,mode", &str))
-		dsi.mode = panel_dsi_str2mode(str);
-
 	hx8394->vdden = devm_gpiod_get(dev, "vdden", GPIOD_ASIS);
 	if (IS_ERR(hx8394->vdden)) {
 		dev_err(dev, "failed to get power gpio\n");

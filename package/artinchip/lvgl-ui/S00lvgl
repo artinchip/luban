@@ -6,22 +6,22 @@
 
 DAEMON="/usr/local/bin/test_lvgl"
 PIDFILE=/var/run/test_lvgl.pid
-TSCALIB=/etc/pointercal
 
 start() {
 	printf "Starting test_lvgl: "
 
 	export TSLIB_FBDEVICE=/dev/fb0
-	export POINTERCAL_CALIBFILE=$TSCALIB
+	export POINTERCAL_CALIBFILE=/usr/etc/ts-calib.conf
 	export TSLIB_CONSOLEDEVICE=none
 	export TSLIB_TSDEVICE=/dev/input/event0
 	export TSLIB_PLUGINDIR=/usr/lib/ts
-
-	if [ ! -f $TSCALIB ]; then
+	export TSLIB_CALIBFILE=/etc/pointercal
+	if [ -f /usr/bin/ts_calibrate ] && [ ! -s $TSLIB_CALIBFILE ]; then
 		/usr/bin/ts_calibrate
 	fi
 	sync
 	PID=`$DAEMON > /dev/null 2>&1 & echo $!`
+	# PID=`$DAEMON > /dev/console 2>&1 & echo $!`
 	if [ -z $PID ]; then
 		printf "Fail \n"
 	else

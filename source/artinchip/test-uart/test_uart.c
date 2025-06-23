@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Copyright (C) 2021 ArtInChip Technology Co., Ltd.
  * Author: Keliang Liu <keliang.liu@artinchip.com>

@@ -21,6 +21,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define UART_BUSY_TIMEOUT       1000000
 #define UART_LCRVAL UART_LCR_8N1		/* 8 data, 1 stop, no parity */
 #define UART_MCRVAL (UART_MCR_DTR | \
 		     UART_MCR_RTS)		/* RTS/DTR */
@@ -379,9 +380,12 @@ DEBUG_UART_FUNCS
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
-
-	if (!(serial_in(&com_port->lsr) & UART_LSR_THRE))
-		return -EAGAIN;
+	int timecount = 0;
+	while (!(serial_in(&com_port->lsr) & UART_LSR_THRE)) {
+		timecount++;
+		if (timecount >= UART_BUSY_TIMEOUT)
+			return -1;
+	}
 	serial_out(ch, &com_port->thr);
 
 	/*

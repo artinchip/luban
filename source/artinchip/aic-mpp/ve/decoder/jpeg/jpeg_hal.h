@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: author: <qi.xu@artinchip.com>
-*  Desc: jpeg hal
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: author: <qi.xu@artinchip.com>
+ *  Desc: jpeg hal
+ */
 
 #ifndef JPEG_HAL_H
 #define JPEG_HAL_H

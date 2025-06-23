@@ -2,7 +2,7 @@
 /*
  * Artinchip EHCI driver
  *
- * Copyright (C) 2020 ARTINCHIP – All Rights Reserved
+ * Copyright (C) 2020-2025 ARTINCHIP – All Rights Reserved
  *
  * Author: Matteo <duanmt@artinchip.com>
  *
@@ -16,6 +16,7 @@
 #include <linux/io.h>
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/of_address.h>
 #include <linux/phy/phy.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
@@ -31,7 +32,19 @@
 
 #define USB_MAX_CLKS_RSTS 2
 
+#define SYSCFG_USB_RES_CAL_EN_SHIFT		8
+#define SYSCFG_USB_RES_CAL_EN_MASK		BIT(8)
+#define SYSCFG_USB_RES_CAL_VAL_SHIFT		0
+#define SYSCFG_USB_RES_CAL_VAL_MASK		GENMASK(7, 0)
+#define SYSCFG_USB_RES_CAL_VAL_DEF		0x40
+
+struct aic_usb_res_cfg {
+	void __iomem *addr;
+	u32 resis;
+};
+
 struct aic_ehci_platform_priv {
+	struct aic_usb_res_cfg usb_res_cfg;
 	struct clk *clks[USB_MAX_CLKS_RSTS];
 	struct clk *clk48;
 	struct reset_control *rst[USB_MAX_CLKS_RSTS];
@@ -58,6 +71,55 @@ extern void syscfg_usb_phy0_sw_host(int sw);
 #define PHY_TYPE_ULPI 0
 #define PHY_TYPE_UTMI 1
 
+static void aic_ehci_set_usb_res(void __iomem *ctl_reg, u32 resis)
+{
+	u32 val;
+
+	if (ctl_reg == NULL)
+		return;
+
+	resis &= SYSCFG_USB_RES_CAL_VAL_MASK;
+
+	val = readl(ctl_reg);
+	val &= ~SYSCFG_USB_RES_CAL_VAL_MASK;
+	val |= resis << SYSCFG_USB_RES_CAL_VAL_SHIFT;
+	val |= 1 << SYSCFG_USB_RES_CAL_EN_SHIFT;
+
+	writel(val, ctl_reg);
+}
+
+static int aic_ehci_get_res_cfg(struct device_node *np, struct aic_usb_res_cfg *cfg,
+				const char *property)
+{
+	int len, index, offset, res;
+	const __be32 *prop;
+	struct device_node *child_np;
+
+	prop = of_get_property(np, property, &len);
+	if (!prop || len < 4 * sizeof(__be32))
+		return -ENODEV;
+
+	child_np = of_find_node_by_phandle(be32_to_cpup(prop++));
+	if (!child_np)
+		return -ENODEV;
+
+	index = be32_to_cpup(prop++);
+	offset = be32_to_cpup(prop++);
+	res = be32_to_cpup(prop);
+
+	cfg->addr = of_iomap(child_np, index);
+	if (!cfg->addr)
+		return -ENOMEM;
+	cfg->addr += offset;
+	cfg->resis = res;
+
+	pr_debug("property : %s \n", property);
+	pr_debug("child_np : %s \n", child_np->name);
+	pr_debug("offset : %#x  res : %#x \n", offset, res);
+
+	return 0;
+}
+
 static void aic_ehci_set_phy_type(struct usb_hcd *hcd, int phy_type)
 {
 	u32 val = 0;
@@ -78,8 +140,11 @@ static int aic_ehci_platform_reset(struct usb_hcd *hcd)
 {
 	struct platform_device *pdev = to_platform_device(hcd->self.controller);
 	struct usb_ehci_pdata *pdata = dev_get_platdata(&pdev->dev);
+	struct aic_ehci_platform_priv *priv = hcd_to_ehci_priv(hcd);
 	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
 	u32 threshold;
+
+	aic_ehci_set_usb_res(priv->usb_res_cfg.addr, priv->usb_res_cfg.resis);
 
 	/* Set EHCI packet buffer IN/OUT threshold (in DWORDs) */
 #ifdef CONFIG_USB_EHCI_HCD_AIC
@@ -247,6 +312,7 @@ static int aic_ehci_platform_probe(struct platform_device *dev)
 		goto err_put_hcd;
 	}
 #endif
+	aic_ehci_get_res_cfg(dev->dev.of_node, &priv->usb_res_cfg, "aic,usbh-ext-resistance");
 
 	for (i = 0; i < USB_MAX_CLKS_RSTS; i++) {
 		priv->clks[i] = of_clk_get(dev->dev.of_node, i);
@@ -269,10 +335,7 @@ static int aic_ehci_platform_probe(struct platform_device *dev)
 	}
 
 	for (i = 0; i < USB_MAX_CLKS_RSTS; i++) {
-		if (i == 1)
-			priv->rst[i] = devm_reset_control_get_shared_by_index(&dev->dev, i);
-		else
-			priv->rst[i] = devm_reset_control_get_by_index(&dev->dev, i);
+		priv->rst[i] = devm_reset_control_get_shared_by_index(&dev->dev, i);
 		if (IS_ERR(priv->rst[i])) {
 			err = PTR_ERR(priv->rst[i]);
 			if (err == -EPROBE_DEFER)

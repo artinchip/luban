@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * GPAI driver of Artinchip SoC
+ * GPAI driver of ArtInChip SoC
  *
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2024 ArtInChip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
@@ -22,6 +22,7 @@
 #define AIC_GPAI_NAME		"aic-gpai"
 #define AIC_GPAI_MAX_CH		8
 #define AIC_GPAI_TIMEOUT	msecs_to_jiffies(1000)
+#define GPAI_FIFO_MAX_DEPTH	32
 
 enum aic_gpai_mode {
 	AIC_GPAI_MODE_SINGLE = 0,
@@ -103,6 +104,8 @@ struct aic_gpai_ch {
 	bool available;
 	enum aic_gpai_mode mode;
 	u16 latest_data;
+	u16 fifo_data[GPAI_FIFO_MAX_DEPTH];
+	u8 fifo_valid_cnt;
 	u16 fifo_thd;
 	u32 smp_period;
 
@@ -141,7 +144,7 @@ static const int aic_gpai_adc_raw_available[] = {
 	GPAI_ADC_DATA_MIN, GPAI_ADC_DATA_STEP, GPAI_INVALID_DATA,
 };
 
-extern u16 adcim_auto_calibration(u16 adc_val, struct device *dev);
+extern u16 adcim_auto_calibration(u16 *adc_val, struct device *dev);
 
 // TODO: Add the transform algorithm, offered by SD later
 static s32 gpai_data2vol(u16 data)
@@ -312,17 +315,20 @@ static int aic_gpai_read_dat(struct aic_gpai_dev *gpai, u32 ch)
 	u32 cnt = (readl(regs + GPAI_CHnFCR(ch)) & GPAI_CHnFCR_DAT_CNT_MASK)
 			>> GPAI_CHnFCR_DAT_CNT_SHIFT;
 
+	chan->latest_data = 0;
 	if (unlikely(cnt == 0 || cnt > GPAI_CHnFCR_DAT_CNT_MAX(ch))) {
 		dev_err(dev, "ch%d invalid data count %d\n", ch, cnt);
 		return -1;
 	}
 
-	/* Just record the last data as to now */
 	for (i = 0; i < cnt; i++) {
-		chan->latest_data = readl(regs + GPAI_CHnDATA(ch));
-		adcim_auto_calibration(chan->latest_data, dev);
-		// dev_dbg(dev, "ch%d data%d %d\n", ch, i, chan->latest_data);
+		chan->fifo_data[i] = readl(regs + GPAI_CHnDATA(ch));
+		adcim_auto_calibration(&chan->fifo_data[i], dev);
+		chan->latest_data += chan->fifo_data[i];
 	}
+	chan->fifo_valid_cnt = cnt;
+	chan->latest_data /= cnt;
+
 	dev_dbg(dev, "There are %d data ready in ch%d, last %d\n", cnt,
 		ch, chan->latest_data);
 

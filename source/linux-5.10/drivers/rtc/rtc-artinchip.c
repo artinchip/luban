@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2021, Artinchip Technology Co., Ltd
+ * Copyright (c) 2021-2025, ArtInChip Technology Co., Ltd
  * Author: Dehuang Wu <dehuang.wu@artinchip.com>
  *         Matteo <duanmt@artinchip.com>
  */
@@ -60,7 +60,33 @@
 
 #define RTC_CAL1_FAST_DIR		BIT(7)
 
+#define RTC_ANA0_RC1M_ISEL		BIT(7)
+#define RTC_ANA0_RC1M_EN		BIT(6)
+#define RTC_ANA0_LDO18_BYPASS		BIT(4)
+#define RTC_ANA0_LDO18_VOL_MASK		GENMASK(3, 1)
+#define RTC_ANA0_LDO18_VOL_SHIFT	(1)
+#define RTC_ANA0_LDO18_EN		BIT(0)
+
+#define RTC_ANA0_LDO18_VOL_120		7
+
+#define RTC_ANA1_PD_CUR_SEL_MASK	GENMASK(6, 5)
+#define RTC_ANA1_PD_CUR_SEL_SHIFT	(5)
+#define RTC_ANA1_PD_CUR_EN		BIT(4)
+#define RTC_ANA1_LDO11_VOL_MASK		GENMASK(3, 1)
+#define RTC_ANA1_LDO11_VOL_SHIFT	(1)
+#define RTC_ANA1_LDO11_LPEN		BIT(0)
+
+#define RTC_ANA1_PD_CUR_SEL_025		0
+#define RTC_ANA1_PD_CUR_SEL_050		1
+#define RTC_ANA1_PD_CUR_SEL_075		2
+#define RTC_ANA1_PD_CUR_SEL_100		3
+
+#define RTC_ANA1_LDO11_VOL_090		4
+#define RTC_ANA1_LDO11_VOL_080		6
+
 #define RTC_ANA2_XTAL32K_DRV_MASK	GENMASK(3, 0)
+
+#define RTC_ANA3_XTAL32K_EN		BIT(0)
 
 #define RTC_32K_DET_EN			BIT(0)
 
@@ -90,9 +116,6 @@
 			| (readb((reg) + 0x8) << 16) \
 			| (readb((reg) + 0xC) << 24))
 
-#define RTC_REBOOT_REASON_MASK		GENMASK(7, 4)
-#define RTC_REBOOT_REASON_SHIFT		4
-
 struct aic_rtc_dev {
 	void __iomem *base;
 	struct rtc_device *rtc_dev;
@@ -111,60 +134,6 @@ struct aic_rtc_dev {
 };
 
 static void __iomem *g_rtc_base;
-static enum aic_reboot_reason g_prev_reason = REBOOT_REASON_INVALID;
-static DEFINE_SPINLOCK(user_lock);
-
-static char *reason[] = {"Cold Reboot", "CMD Reboot", "CMD Shutdown",
-			 "Suspend", "Upgrade", "Fastboot", "", "",
-			 "SW Lockup", "Hw Lockup", "Panic", "Ramdump",
-			 "", "", "", ""};
-
-void aic_set_software_reboot_reason(enum aic_reboot_reason r)
-{
-	u32 cur = 0;
-
-	if (!g_rtc_base)
-		return;
-
-	spin_lock(&user_lock);
-	cur = readb(g_rtc_base + RTC_REG_SYSBAK);
-
-	if (cur >> RTC_REBOOT_REASON_SHIFT) {
-		spin_unlock(&user_lock);
-		return;
-	}
-
-	cur |= (r << RTC_REBOOT_REASON_SHIFT) & RTC_REBOOT_REASON_MASK;
-	RTC_WRITEB(cur, RTC_REG_SYSBAK, g_rtc_base);
-	spin_unlock(&user_lock);
-
-	if (likely(r <= RTC_REBOOT_REASON_MASK >> RTC_REBOOT_REASON_SHIFT))
-		pr_info("Set reboot reason: [%d] %s\n", r, reason[r]);
-}
-EXPORT_SYMBOL(aic_set_software_reboot_reason);
-
-enum aic_reboot_reason aic_get_software_reboot_reason(void)
-{
-	u32 cur = 0;
-
-	if (!g_rtc_base)
-		return REBOOT_REASON_INVALID;
-
-	if (g_prev_reason == REBOOT_REASON_INVALID) {
-		spin_lock(&user_lock);
-		cur = readb(g_rtc_base + RTC_REG_SYSBAK);
-		g_prev_reason = cur >> RTC_REBOOT_REASON_SHIFT;
-		cur &= ~RTC_REBOOT_REASON_MASK;
-
-		RTC_WRITEB(cur, RTC_REG_SYSBAK, g_rtc_base);
-		spin_unlock(&user_lock);
-	}
-
-	pr_info("The software reboot reason: [%d] %s\n", g_prev_reason,
-		reason[g_prev_reason]);
-	return g_prev_reason;
-}
-EXPORT_SYMBOL(aic_get_software_reboot_reason);
 
 static ssize_t status_show(struct device *dev,
 			   struct device_attribute *devattr, char *buf)
@@ -192,8 +161,16 @@ static DEVICE_ATTR_RO(status);
 
 static void aic_rtc_low_power(void __iomem *base)
 {
-	RTC_WRITEB(0x4f, RTC_REG_ANALOG0, base);
-	RTC_WRITEB(0x4d, RTC_REG_ANALOG1, base);
+	u8 val = 0;
+
+	val |= RTC_ANA0_RC1M_EN | RTC_ANA0_LDO18_EN;
+	val |= RTC_ANA0_LDO18_VOL_120 << RTC_ANA0_LDO18_VOL_SHIFT;
+	RTC_WRITEB(val, RTC_REG_ANALOG0, base);
+
+	val = RTC_ANA1_PD_CUR_SEL_075 << RTC_ANA1_PD_CUR_SEL_SHIFT;
+	val |= RTC_ANA1_LDO11_VOL_090 << RTC_ANA1_LDO11_VOL_SHIFT;
+	val |= RTC_ANA1_LDO11_LPEN;
+	RTC_WRITEB(val, RTC_REG_ANALOG1, base);
 }
 
 static void aic_rtc_set_32k_drv(void __iomem *base, u8 drv)
@@ -241,31 +218,9 @@ static ssize_t driver_capability_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(driver_capability);
 
-static ssize_t aicupg_store(struct device *dev,
-			    struct device_attribute *devattr,
-			    const char *buf, size_t count)
-{
-	if (strlen(buf) != 2 || strncmp(buf, "1", 1))
-		dev_info(dev, "Invalid argument: %s\n", buf);
-	else
-		aic_set_software_reboot_reason(REBOOT_REASON_UPGRADE);
-	return count;
-}
-static DEVICE_ATTR_WO(aicupg);
-
-static ssize_t reboot_reason_show(struct device *dev,
-				  struct device_attribute *devattr,
-				  char *buf)
-{
-	return sprintf(buf, "%d\n", aic_get_software_reboot_reason());
-}
-static DEVICE_ATTR_RO(reboot_reason);
-
 static struct attribute *aic_rtc_attr[] = {
 	&dev_attr_status.attr,
 	&dev_attr_driver_capability.attr,
-	&dev_attr_reboot_reason.attr,
-	&dev_attr_aicupg.attr,
 	NULL
 };
 
@@ -362,44 +317,6 @@ static int aic_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 
 	/* enable alarm irq */
 	aic_rtc_alarm_irq_enable(dev, 1);
-
-	return 0;
-}
-
-static int aic_rtc_nvmem_write(void *priv, unsigned int offset, void *val,
-			       size_t bytes)
-{
-	int i;
-	u32 *pval = (u32 *)val;
-	struct aic_rtc_dev *chip = (struct aic_rtc_dev *)priv;
-
-	pr_debug("%s() write %ld byte, offset %d\n", __func__, bytes, offset);
-	spin_lock(&user_lock);
-	for (i = 0; i < (bytes + 3) / 4; i++, pval++) {
-		RTC_WRITEB(*pval, RTC_REG_SYSBAK + offset + i * 4, chip->base);
-		pr_debug("%s() SYS_BAK reg %#x: %#x\n", __func__,
-			 RTC_REG_SYSBAK + offset + i * 4, *pval);
-	}
-	spin_unlock(&user_lock);
-
-	return 0;
-}
-
-static int aic_rtc_nvmem_read(void *priv, unsigned int offset,
-			      void *val, size_t bytes)
-{
-	int i;
-	u32 *pval = (u32 *)val;
-	struct aic_rtc_dev *chip = (struct aic_rtc_dev *)priv;
-
-	pr_debug("%s() read %ld byte, offset %d\n", __func__, bytes, offset);
-	spin_lock(&user_lock);
-	for (i = 0; i < (bytes + 3) / 4; i++, pval++) {
-		*pval = readb(chip->base + RTC_REG_SYSBAK + offset + i * 4);
-		pr_debug("%s() SYS_BAK reg %#x: %#x\n", __func__,
-			 RTC_REG_SYSBAK + offset + i * 4, *pval);
-	}
-	spin_unlock(&user_lock);
 
 	return 0;
 }
@@ -529,15 +446,6 @@ static int aic_rtc_probe(struct platform_device *pdev)
 	struct aic_rtc_dev *chip;
 	struct resource *res;
 	int ret;
-	struct nvmem_config nvmem_cfg = {
-		.name = "rtc_nvram",
-		.word_size = 4,
-		.stride = 4,
-		.size = 64,
-		.type = NVMEM_TYPE_BATTERY_BACKED,
-		.reg_read = aic_rtc_nvmem_read,
-		.reg_write = aic_rtc_nvmem_write,
-	};
 
 	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
@@ -549,7 +457,6 @@ static int aic_rtc_probe(struct platform_device *pdev)
 		return PTR_ERR(chip->base);
 
 	g_rtc_base = chip->base;
-	aic_get_software_reboot_reason();
 
 	chip->rtc_dev = devm_rtc_allocate_device(dev);
 	if (IS_ERR(chip->rtc_dev))
@@ -593,9 +500,6 @@ static int aic_rtc_probe(struct platform_device *pdev)
 	ret = rtc_register_device(chip->rtc_dev);
 	if (ret)
 		return ret;
-
-	nvmem_cfg.priv = chip;
-	rtc_nvmem_register(chip->rtc_dev, &nvmem_cfg);
 
 	dev_info(dev, "Artinchip RTC loaded\n");
 	return 0;

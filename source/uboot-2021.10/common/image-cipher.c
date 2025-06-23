@@ -25,7 +25,11 @@ struct cipher_algo cipher_algos[] = {
 		.calculate_type = EVP_aes_128_cbc,
 #endif
 		.encrypt = image_aes_encrypt,
+#ifdef CONFIG_ARTINCHIP_CE
+		.decrypt = aic_aes_cbc_decrypt,
+#else
 		.decrypt = image_aes_decrypt,
+#endif
 		.add_cipher_data = image_aes_add_cipher_data
 	},
 	{
@@ -36,7 +40,11 @@ struct cipher_algo cipher_algos[] = {
 		.calculate_type = EVP_aes_192_cbc,
 #endif
 		.encrypt = image_aes_encrypt,
+#ifdef CONFIG_ARTINCHIP_CE
+		.decrypt = aic_aes_cbc_decrypt,
+#else
 		.decrypt = image_aes_decrypt,
+#endif
 		.add_cipher_data = image_aes_add_cipher_data
 	},
 	{
@@ -47,7 +55,11 @@ struct cipher_algo cipher_algos[] = {
 		.calculate_type = EVP_aes_256_cbc,
 #endif
 		.encrypt = image_aes_encrypt,
+#ifdef CONFIG_ARTINCHIP_CE
+		.decrypt = aic_aes_cbc_decrypt,
+#else
 		.decrypt = image_aes_decrypt,
+#endif
 		.add_cipher_data = image_aes_add_cipher_data
 	}
 };

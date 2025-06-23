@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <dm/device.h>
 #include <dm/device_compat.h>
+#include <asm/cache.h>
+#include <cpu_func.h>
 #include <clk.h>
 #include <reset.h>
 #include <linux/iopoll.h>
@@ -88,6 +90,7 @@ static int aic_ve_gunzip_init(struct udevice *dev, void *dst, int dstlen,
 {
 	struct aic_ve_priv *priv;
 	struct aic_ve_data *ve_data;
+	unsigned long end_addr;
 	u32 offset;
 	u8 *lz77_buf;
 
@@ -124,7 +127,9 @@ static int aic_ve_gunzip_init(struct udevice *dev, void *dst, int dstlen,
 	ve_data->dstlen = dstlen;
 	ve_data->lenp = lenp;
 
-	printf("dst:0x%p,src:0x%p,lz77_buf:0x%p\n", dst, src, lz77_buf);
+	end_addr = ALIGN((uintptr_t)src + *lenp, ARCH_DMA_MINALIGN);
+	flush_dcache_range((uintptr_t)src, end_addr);
+	pr_debug("dst:0x%p,src:0x%p,lz77_buf:0x%p\n", dst, src, lz77_buf);
 	return 0;
 out:
 	if (ve_data)
@@ -193,6 +198,7 @@ static void aic_ve_config_inflate_reg(struct aic_ve_priv *priv)
 static int aic_ve_gunzip(struct udevice *dev)
 {
 	struct aic_ve_priv *priv;
+	unsigned long end_addr;
 	u32 status, val;
 	int ret;
 
@@ -232,6 +238,8 @@ static int aic_ve_gunzip(struct udevice *dev)
 		return -1;
 	}
 
+	end_addr = ALIGN(priv->ve_data->dst_addr + val, ARCH_DMA_MINALIGN);
+	invalidate_dcache_range(priv->ve_data->dst_addr, end_addr);
 	*(priv->ve_data->lenp) = val;
 	if (priv->ve_data->lz77_buf)
 		free(priv->ve_data->lz77_buf);

@@ -116,7 +116,7 @@ err:
 
 static int write_userid(struct mtd_info *mtd, size_t offset, u8 *buf, u32 len)
 {
-	size_t end = offset + CONFIG_ENV_SIZE;
+	size_t end = offset + CONFIG_USERID_SIZE;
 	size_t wrlen, remain;
 	u8 *ptr;
 

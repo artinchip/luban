@@ -291,7 +291,7 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
 	struct nand_device *nand = spinand_to_nand(spinand);
 	struct mtd_info *mtd = nanddev_to_mtd(nand);
 	struct spi_mem_dirmap_desc *wdesc;
-	unsigned int nbytes, column = 0;
+	unsigned int nbytes = 0, column = 0;
 	void *buf = spinand->databuf;
 	ssize_t ret;
 
@@ -1197,19 +1197,19 @@ static int spinand_probe(struct spi_mem *mem)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_NAND_BBT_MANAGE
-	aic_nand_bbt_init(spinand);
-#endif
-
 #ifdef CONFIG_CRYPTO_DEV_ARTINCHIP_SPIENC
 	ret = spinand_enc_init(spinand);
 	if (ret)
 		return ret;
 #endif
+
+#ifdef CONFIG_NAND_BBT_MANAGE
+	aic_nand_bbt_init(spinand);
+#endif
+
 	ret = mtd_device_register(mtd, NULL, 0);
 	if (ret)
 		goto err_spinand_cleanup;
-
 	return 0;
 
 err_spinand_cleanup:

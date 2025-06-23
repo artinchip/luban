@@ -27,7 +27,6 @@ static int aic_gpio_get_function(struct udevice *dev, unsigned int off);
 
 static int aic_gpio_get(struct udevice *dev, unsigned int off)
 {
-#if !defined(CONFIG_SPL_BUILD)
 	u32 value;
 	int dir;
 	void __iomem *reg;
@@ -50,9 +49,6 @@ static int aic_gpio_get(struct udevice *dev, unsigned int off)
 	value = readl(reg);
 
 	return !!(value & (1 << off));
-#else
-	return 0;
-#endif
 }
 
 static int aic_gpio_set(struct udevice *dev,
@@ -80,7 +76,6 @@ static int aic_gpio_set(struct udevice *dev,
 static int aic_gpio_get_function(struct udevice *dev, unsigned int off)
 {
 	u32 ret = 0;
-#if !defined(CONFIG_SPL_BUILD)
 	u32 value;
 	void __iomem *reg;
 	struct aic_gpio_priv *priv = dev_get_priv(dev);
@@ -116,13 +111,11 @@ static int aic_gpio_get_function(struct udevice *dev, unsigned int off)
 		break;
 	}
 
-#endif
 	return ret;
 }
 
 static int aic_gpio_direction_input(struct udevice *dev, unsigned int off)
 {
-#if !defined(CONFIG_SPL_BUILD)
 	u32 value;
 	void __iomem *reg;
 	struct aic_gpio_priv *priv = dev_get_priv(dev);
@@ -140,7 +133,6 @@ static int aic_gpio_direction_input(struct udevice *dev, unsigned int off)
 	value |= (PIN_FUNCTION_GPIO << PIN_FUNCTION_SHIFT) |
 		 (GEN_IOE_IE << GEN_IOE_SHIFT);
 	writel(value, reg);
-#endif
 	return 0;
 }
 
@@ -192,7 +184,6 @@ static int aic_gpio_request(struct udevice *dev, unsigned int off,
 
 static int aic_gpio_free(struct udevice *dev, unsigned int off)
 {
-#if !defined(CONFIG_SPL_BUILD)
 	u32 value;
 	void __iomem *reg;
 	struct aic_gpio_priv *priv = dev_get_priv(dev);
@@ -207,7 +198,6 @@ static int aic_gpio_free(struct udevice *dev, unsigned int off)
 	value = readl(reg);
 	value &= ~PIN_FUNCTION_MASK;
 	writel(value, reg);
-#endif
 	return 0;
 }
 

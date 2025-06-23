@@ -32,13 +32,23 @@
 #   $2: the name of the step
 #   $3: the name of the package
 
-# Compatible for C908: Support new glibc and 32bit/64bit mode
-ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),)
-PREBUILT_CUSTOM_DIR = $(GNU_TARGET_NAME)
-else ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),"")
-PREBUILT_CUSTOM_DIR = $(GNU_TARGET_NAME)
+# Support the V extension
+ifeq ($(BR2_RISCV_ISA_RVV),y)
+ARCH_ISA=$(ARCH)v
+GNU_TARGET_WITH_ISA=$(subst $(ARCH),$(ARCH)v,$(GNU_TARGET_NAME))
 else
-PREBUILT_CUSTOM_DIR = $(ARCH)-$(TARGET_OS)-glibc$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER))-$(call qstrip,$(BR2_GCC_TARGET_ABI))
+ARCH_ISA=$(ARCH)
+GNU_TARGET_WITH_ISA=$(GNU_TARGET_NAME)
+endif
+
+# Support the different version of Glibc
+ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),)
+PREBUILT_CUSTOM_DIR = $(GNU_TARGET_WITH_ISA)
+else ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER),"")
+PREBUILT_CUSTOM_DIR = $(GNU_TARGET_WITH_ISA)
+else
+# TODO: Maybe delete $(BR2_GCC_TARGET_ABI) later
+PREBUILT_CUSTOM_DIR = $(ARCH_ISA)-$(TARGET_OS)-glibc$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_LIBC_VER))-$(call qstrip,$(BR2_GCC_TARGET_ABI))
 endif
 
 # Start step

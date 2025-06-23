@@ -69,6 +69,15 @@ config EPWM_ARTINCHIP
 	  To compile this driver as a module, choose M here: the module
 	  will be called aic-epwm.
 
+config CAP_ARTINCHIP
+	tristate "ArtInChip CAP support"
+	depends on ARCH_ARTINCHIP
+	help
+	  CAP controller driver for ArtInChip SoC.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called aic-cap.
+
 config PWM_ATMEL
 	tristate "Atmel PWM support"
 	depends on OF

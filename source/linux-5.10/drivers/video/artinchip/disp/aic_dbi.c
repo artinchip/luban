@@ -19,7 +19,7 @@
 
 #include "hw/dbi_reg.h"
 #include "hw/reg_util.h"
-#include "aic_com.h"
+#include "aic_fb.h"
 
 /**
  * DOC: overview

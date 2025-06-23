@@ -24,60 +24,77 @@ struct asr_mod_params asr_module_params = {
 	/* common parameters */
 	COMMON_PARAM(ht_on, true)
 #ifdef CONFIG_ASR595X
-	    COMMON_PARAM(mcs_map, IEEE80211_VHT_MCS_SUPPORT_0_9)
-            #ifdef BASS_SUPPORT
-	    COMMON_PARAM(ldpc_on, false)
-            #else
-	    COMMON_PARAM(ldpc_on, true)
-            #endif
+	COMMON_PARAM(mcs_map, IEEE80211_VHT_MCS_SUPPORT_0_9)
+#ifdef BASS_SUPPORT
+	COMMON_PARAM(ldpc_on, false)
 #else
-	    COMMON_PARAM(mcs_map, IEEE80211_VHT_MCS_SUPPORT_0_7)
-	    COMMON_PARAM(ldpc_on, false)
+	COMMON_PARAM(ldpc_on, true)
 #endif
-	    COMMON_PARAM(phy_cfg, 0)
-	    COMMON_PARAM(uapsd_timeout, 300)
-	    COMMON_PARAM(ap_uapsd_on, true)
-	    COMMON_PARAM(sgi, true)
-	    COMMON_PARAM(sgi80, false)
-            #ifdef BASS_SUPPORT
-	    COMMON_PARAM(use_2040, false)
-            #else
-	    COMMON_PARAM(use_2040, true)
-            #endif
-	    COMMON_PARAM(use_80, false)
-	    COMMON_PARAM(custregd, false)
-#ifdef CONFIG_ASR5531
-	    COMMON_PARAM(nss, 2)
 #else
-	    COMMON_PARAM(nss, 1)
+	COMMON_PARAM(mcs_map, IEEE80211_VHT_MCS_SUPPORT_0_7)
+	COMMON_PARAM(ldpc_on, false)
 #endif
-	    COMMON_PARAM(roc_dur_max, 500)
-	    COMMON_PARAM(listen_itv, 0)
-	    COMMON_PARAM(listen_bcmc, true)
-	    COMMON_PARAM(lp_clk_ppm, 20)
-	    COMMON_PARAM(ps_on, false)
-	    COMMON_PARAM(tx_lft, ASR_TX_LIFETIME_MS)
-	    COMMON_PARAM(amsdu_maxnb, NX_TX_PAYLOAD_MAX)
-	    // By default, only enable UAPSD for Voice queue (see IEEE80211_DEFAULT_UAPSD_QUEUE comment)
-	    COMMON_PARAM(uapsd_queues, IEEE80211_WMM_IE_STA_QOSINFO_AC_VO)
+	COMMON_PARAM(phy_cfg, 0)
+	COMMON_PARAM(uapsd_timeout, 300)
+	COMMON_PARAM(ap_uapsd_on, true)
+	COMMON_PARAM(sgi, true)
+	COMMON_PARAM(sgi80, false)
+#ifdef BASS_SUPPORT
+	COMMON_PARAM(use_2040, false)
+#else
+	COMMON_PARAM(use_2040, true)
+#endif
+	COMMON_PARAM(use_80, false)
+	COMMON_PARAM(custregd, false)
 #ifdef CONFIG_ASR5531
-	    /* 2X2 only parameter */
-	    COMMON_PARAM(ant_div, false)
+	COMMON_PARAM(nss, 2)
+#else
+	COMMON_PARAM(nss, 1)
+#endif
+	COMMON_PARAM(roc_dur_max, 500)
+	COMMON_PARAM(listen_itv, 0)
+	COMMON_PARAM(listen_bcmc, true)
+	COMMON_PARAM(lp_clk_ppm, 20)
+	COMMON_PARAM(ps_on, false)
+	COMMON_PARAM(tx_lft, ASR_TX_LIFETIME_MS)
+	COMMON_PARAM(amsdu_maxnb, NX_TX_PAYLOAD_MAX)
+    // By default, only enable UAPSD for Voice queue (see IEEE80211_DEFAULT_UAPSD_QUEUE comment)
+	COMMON_PARAM(uapsd_queues, IEEE80211_WMM_IE_STA_QOSINFO_AC_VO)
+#ifdef CONFIG_ASR5531
+    /* 2X2 only parameter */
+	COMMON_PARAM(ant_div, false)
+#endif
+#ifdef CONFIG_ASR_NAPI
+	COMMON_PARAM(napi_on, true)
+#ifdef CONFIG_ASR_GRO
+	COMMON_PARAM(gro_on, true)
+#endif
 #endif
 #ifdef CONFIG_ASR595X
-	    COMMON_PARAM(he_on, true)
-	    COMMON_PARAM(he_mcs_map, IEEE80211_HE_MCS_SUPPORT_0_9)
-	    COMMON_PARAM(he_ul_on, false)
-	    COMMON_PARAM(stbc_on, false)
-	    COMMON_PARAM(bfmee, false)
-	    COMMON_PARAM(twt_request, true)
+	COMMON_PARAM(he_on, true)
+	COMMON_PARAM(he_mcs_map, IEEE80211_HE_MCS_SUPPORT_0_9)
+	COMMON_PARAM(he_ul_on, false)
+	COMMON_PARAM(stbc_on, false)
+	COMMON_PARAM(bfmee, false)
+	COMMON_PARAM(twt_request, true)
 #endif
-#ifdef ASR_REDUCE_TCP_ACK
-	    /* default every 6 tcp ack then send just one ack to fw */
-	    COMMON_PARAM(tcp_ack_num, 6)
+    /* default every 6 tcp ack then send just one ack to fw */
+	COMMON_PARAM(tcp_ack_num, 6)
+	/* default ate at cmd is "get_ate_ver" */
+	COMMON_PARAM(ate_at_cmd, "get_ate_ver\n")
+
+#ifdef CONFIG_ASR_PM
+	COMMON_PARAM(pm_cmd, "")
+#ifdef CONFIG_GPIO_WAKEUP_MOD
+	COMMON_PARAM(pm_out_gpio, 17)
+#endif /* CONFIG_GPIO_WAKEUP_MOD */
+#ifdef CONFIG_GPIO_WAKEUP_HOST
+	COMMON_PARAM(pm_in_gpio, 18)
+#endif /* CONFIG_GPIO_WAKEUP_HOST */
+#endif /* CONFIG_ASR_PM */
+#ifdef CONFIG_ASR_USB_PM
+	COMMON_PARAM(usb_pm_cmd, "")
 #endif
-		/* default ate at cmd is "get_ate_ver" */
-		COMMON_PARAM(ate_at_cmd, "get_ate_ver\n")
 };
 
 module_param_named(ht_on, asr_module_params.ht_on, bool, S_IRUGO);
@@ -145,6 +162,14 @@ MODULE_PARM_DESC(listen_bcmc, "Wait for BC/MC traffic following DTIM beacon");
 module_param_named(lp_clk_ppm, asr_module_params.lp_clk_ppm, int, S_IRUGO);
 MODULE_PARM_DESC(lp_clk_ppm, "Low Power Clock accuracy of the local device");
 
+#ifdef CONFIG_ASR_NAPI
+module_param_named(napi_on, asr_module_params.napi_on, bool, S_IRUGO);
+MODULE_PARM_DESC(napi_on, "Enable linux napi recv(Default: 1)");
+#ifdef CONFIG_ASR_GRO
+module_param_named(gro_on, asr_module_params.gro_on, bool, S_IRUGO);
+MODULE_PARM_DESC(gro_on, "Enable linux napi GRO(generic recv offload)(Default: 1)");
+#endif
+#endif
 #ifdef CONFIG_ASR595X
 module_param_named(he_on, asr_module_params.he_on, bool, S_IRUGO);
 MODULE_PARM_DESC(he_on, "Enable HE (Default: 1)");
@@ -164,14 +189,30 @@ MODULE_PARM_DESC(bfmee, "Enable Beamformee Capability (Default: 1-Enabled)");
 module_param_named(twt_request, asr_module_params.twt_request, bool, S_IRUGO);
 MODULE_PARM_DESC(twt_request, "Enable TWT request sta (Default: 0)");
 #endif
-#ifdef ASR_REDUCE_TCP_ACK
 /* default every 6 tcp ack then send just one ack to fw , 0 means disable reduce tcp ack*/
 module_param_named(tcp_ack_num, asr_module_params.tcp_ack_num, int, 0644);
 MODULE_PARM_DESC(tcp_ack_num, "1 <= phycfg <= 10 : tcp ack cnt (Default: 6)");
-#endif
 /* defaut ate at cmd len 50 Bytes  */
 module_param_string(ate_at_cmd, asr_module_params.ate_at_cmd, ATE_AT_CMD_LEN, 0644);
 MODULE_PARM_DESC(ate_at_cmd, "send ate cmd from drv (Default: get_ate_ver )");
+
+#ifdef CONFIG_ASR_PM
+module_param_string(pm_cmd, asr_module_params.pm_cmd, 20, 0664);
+MODULE_PARM_DESC(pm_cmd, "Send PM command");
+#ifdef CONFIG_GPIO_WAKEUP_MOD
+module_param_named(pm_out_gpio, asr_module_params.pm_out_gpio, int, 0660);
+MODULE_PARM_DESC(pm_out_gpio, "Pin code of PM output GPIO (Default:17)");
+#endif /* CONFIG_GPIO_WAKEUP_MOD */
+#ifdef CONFIG_GPIO_WAKEUP_HOST
+module_param_named(pm_in_gpio, asr_module_params.pm_in_gpio, int, 0660);
+MODULE_PARM_DESC(pm_in_gpio, "Pin code of PM input GPIO (Default:18)");
+#endif /* CONFIG_GPIO_WAKEUP_HOST */
+#endif /* CONFIG_ASR_PM */
+
+#ifdef CONFIG_ASR_USB_PM
+module_param_string(usb_pm_cmd, asr_module_params.usb_pm_cmd, 20, 0664);
+MODULE_PARM_DESC(usb_pm_cmd, "Send USB PM command to driver");
+#endif /* CONFIG_ASR_USB_PM */
 
 
 /* Regulatory rules */

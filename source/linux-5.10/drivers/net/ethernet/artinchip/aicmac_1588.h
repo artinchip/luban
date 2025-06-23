@@ -14,21 +14,24 @@
 
 #define AICMAC_PTP_REF_NAME    "ptp_ref"
 
+#define AICMAC_PTP_REG_BASE		0x100
+
 /* IEEE 1588 PTP register offsets */
 /* Timestamp Control Reg */
-#define	PTP_TCR				0x00
+#define	PTP_TMSTMP_CTL				0x00
 /* Sub-Second Increment Reg */
-#define	PTP_SSIR			0x04
-/* System Time – Seconds Regr */
-#define	PTP_STSR			0x08
-/* System Time – Nanoseconds Reg */
-#define	PTP_STNSR			0x0c
-/* System Time – Seconds Update Reg */
-#define	PTP_STSUR			0x10
-/* System Time – Nanoseconds Update Reg */
-#define	PTP_STNSUR			0x14
+#define	PTP_SUB_SEC_INCR			0x04
 /* Timestamp Addend Reg */
-#define	PTP_TAR				0x18
+#define	PTP_TMSMP_ADDEND			0x08
+/* System Time – Seconds Reg */
+#define	PTP_SYS_TIME_SEC			0x0C
+/* System Time – Nanoseconds Reg */
+#define	PTP_SYS_TIME_NANO_SEC		0x10
+/* System Time – Seconds Update Reg */
+#define	PTP_UPDT_TIME_SEC			0x14
+/* System Time – Nanoseconds Update Reg */
+#define	PTP_UPDT_TIME_NANO_SEC		0x18
+
 
 #define	PTP_STNSUR_ADDSUB_SHIFT		31
 /* 10e9-1 ns */

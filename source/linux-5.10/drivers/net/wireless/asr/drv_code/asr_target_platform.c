@@ -332,7 +332,7 @@ static int asr_get_platfrom_info_dts(struct device *dev)
 		if (g_asr_para.oob_intr_pin < 0) {
 			g_asr_para.oob_intr_pin = of_get_named_gpio(dev->of_node, "asr_fw,oob-gpios", 0);
 		}
-	
+
 		if (!gpio_is_valid(g_asr_para.oob_intr_pin)) {
 			dev_err(dev, "%s:of_get_named_gpio oob_intr_pin %d faild\n", __func__, g_asr_para.oob_intr_pin);
 			return -1;

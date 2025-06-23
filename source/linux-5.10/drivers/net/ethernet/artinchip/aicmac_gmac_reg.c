@@ -166,13 +166,13 @@ int aicmac_mac_reg_rx_ipc_enable(struct aicmac_mac_data *mac)
 	void __iomem *ioaddr = mac->pcsr;
 	u32 value = readl(ioaddr + GMAC_BASIC_CONFIG);
 
-	value &= ~GMAC_BASIC_CONFIG_IPC;
+	value |= GMAC_BASIC_CONFIG_IPC;
 
 	writel(value, ioaddr + GMAC_BASIC_CONFIG);
 
 	value = readl(ioaddr + GMAC_BASIC_CONFIG);
 
-	return !!(value & GMAC_BASIC_CONFIG);
+	return !!(value & GMAC_BASIC_CONFIG_IPC);
 }
 
 void aicmac_mac_reg_set_umac_addr(struct aicmac_mac_data *mac,
@@ -277,7 +277,7 @@ void aicmac_mac_reg_set_filter(struct aicmac_mac_data *mac,
 
 #ifdef FRAME_FILTER_DEBUG
 	/* Enable Receive all mode (to debug filtering_fail errors) */
-	value |= GMAC_FRAME_FILTER_RA;
+	value |= GMAC_FRAME_FILTER_RA | GMAC_FRAME_FILTER_PR;
 #endif
 	writel(value, ioaddr + GMAC_FRAME_FILTER);
 }

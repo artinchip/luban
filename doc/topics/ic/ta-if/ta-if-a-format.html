@@ -1,0 +1,310 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="CDF CDF 组成结构如下： CDF，Command Data Field，只在发送过程涉及，由以下组成： Start bit：1'b0，固定值。 Sink code：3’b010，固定值。 Frame Code：2-bit，CDF 对应 2’b00。 Encoder Address：3-bit，编码器的地址。 Comand Code：5-bit，命令代码。 CRC code：3-bit，CRC ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-12-18"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="a_format_0"/><meta name="DC.language" content="zh-CN"/><title>A-Format 域</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/ic/ta-if/ta-if-a-format.dita"/><meta name="wh-out-relpath" content="topics/ic/ta-if/ta-if-a-format.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="a_format_0" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="wh_topic_body">
+                        
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/ic/ta-if/ta-if-a-format.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">A-Format 域</h1>
+    
+    <div class="date inPage">18 Dec 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="a_format_0__section_d4d_stw_ryb" data-ofbid="a_format_0__section_d4d_stw_ryb"><h2 class="- topic/title title sectiontitle">CDF</h2><p class="- topic/p p" data-ofbid="d69020e34__20250123155204">CDF 组成结构如下：</p><div class="- topic/p p" data-ofbid="d69020e36__20250123155204">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="a_format_0__image_f4d_stw_ryb" src="../../../images/ta_if/ta_if_cdf.png" width="576"/></div><br/>
+            </div><p class="- topic/p p" data-ofbid="d69020e40__20250123155204">CDF，Command Data Field，只在发送过程涉及，由以下组成：</p><ul class="- topic/ul ul" id="a_format_0__ul_g4d_stw_ryb" data-ofbid="a_format_0__ul_g4d_stw_ryb">
+                <li class="- topic/li li" data-ofbid="d69020e44__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e46__20250123155204">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e50__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e52__20250123155204">Sink code：3’b010，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e56__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e58__20250123155204">Frame Code：2-bit，CDF 对应 2’b00。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e62__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e64__20250123155204">Encoder Address：3-bit，编码器的地址。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e68__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e70__20250123155204">Comand Code：5-bit，命令代码。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e75__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e77__20250123155204">CRC code：3-bit，CRC 校验码，生成多项式为 X^3+X+1，计算范围除了 Start Bit、Stop Bit 和 Sink Code
+                        以外的所有 bit，这里需要硬件自动计算生成。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e81__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e83__20250123155204">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul></section>
+        <section class="- topic/section section" id="a_format_0__section_h4d_stw_ryb" data-ofbid="a_format_0__section_h4d_stw_ryb"><h2 class="- topic/title title sectiontitle">MDF</h2><p class="- topic/p p" data-ofbid="d69020e91__20250123155204">MDF 组成结构如下：</p><div class="- topic/p p" data-ofbid="d69020e93__20250123155204">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="a_format_0__image_j4d_stw_ryb" src="../../../images/ta_if/mdf.png" width="576"/></div><br/>
+            </div><p class="- topic/p p" data-ofbid="d69020e97__20250123155204">MDF0/ 1/ 2，Memory Data Field 0/ 1/ 2，只在发送过程涉及，由以下组成：</p><ul class="- topic/ul ul" id="a_format_0__ul_k4d_stw_ryb" data-ofbid="a_format_0__ul_k4d_stw_ryb">
+                <li class="- topic/li li" data-ofbid="d69020e101__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e103__20250123155204">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e107__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e109__20250123155204">Sink code：3’b010，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e113__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e115__20250123155204">Frame Code：2-bit，MDF0 对应 2’b01，MDF1 对应 2’b10，MDF2 对应 2’b11。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e119__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e121__20250123155204">Data bit：8-bit，数据位。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e125__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e127__20250123155204">CRC code：3-bit，CRC 校验码，生成多项式为 X^3+X+1，计算范围除了 Start Bit、Stop Bit 和 Sink Code
+                        以外的所有 bit，这里需要硬件自动生成。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e132__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e134__20250123155204">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul></section>
+        <section class="- topic/section section" id="a_format_0__section_l4d_stw_ryb" data-ofbid="a_format_0__section_l4d_stw_ryb"><h2 class="- topic/title title sectiontitle">IF</h2><p class="- topic/p p" data-ofbid="d69020e142__20250123155204">IF 只在接收过程涉及，其格式与 CDF 命令有关。</p><p class="- topic/p p" data-ofbid="d69020e144__20250123155204">当 CDF 为 CDF0~CDF20，适用以下的格式：</p><div class="- topic/p p" data-ofbid="d69020e146__20250123155204">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="a_format_0__image_m4d_stw_ryb" src="../../../images/ta_if/ta_if_a_format_field_if1.png" width="576"/></div><br/>
+            </div><ul class="- topic/ul ul" id="a_format_0__ul_n4d_stw_ryb" data-ofbid="a_format_0__ul_n4d_stw_ryb">
+                <li class="- topic/li li" data-ofbid="d69020e152__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e154__20250123155204">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e158__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e160__20250123155204">Sink code：3’b100，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e164__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e166__20250123155204">Encoder Address：3-bit，接收的编码器地址应该与发送的编码器地址一致，不一致则产生错误状态。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e170__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e172__20250123155204">Command Code：5-bit，接收的 Command Code 应该与发送的 一致，不一致则产生错误状态。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e176__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e178__20250123155204">Encoder Status：4-bit。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e183__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e185__20250123155204">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul><p class="- topic/p p" data-ofbid="d69020e189__20250123155204">当 CDF 为 CDF21/ 22，适用以下的格式：</p><div class="- topic/p p" data-ofbid="d69020e191__20250123155204">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="a_format_0__image_o4d_stw_ryb" src="../../../images/ta_if/ta_if_a_format_field_if2.png" width="576"/></div><br/>
+            </div><ul class="- topic/ul ul" id="a_format_0__ul_p4d_stw_ryb" data-ofbid="a_format_0__ul_p4d_stw_ryb">
+                <li class="- topic/li li" data-ofbid="d69020e197__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e199__20250123155204">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e203__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e205__20250123155204">Sink code：3’b100，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e209__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e211__20250123155204">EAX：3-bit。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e215__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e217__20250123155204">ES：1-bit，状态位，ES = ES0 + ES1 + ES2 + ES3。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e221__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e223__20250123155204">Data bit：9-bit，数据位。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e228__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e230__20250123155204">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul></section>
+        <section class="- topic/section section" id="a_format_0__section_q4d_stw_ryb" data-ofbid="a_format_0__section_q4d_stw_ryb"><h2 class="- topic/title title sectiontitle">DF0/ 1/ 2</h2><p class="- topic/p p" data-ofbid="d69020e238__20250123155204">DF0/ 1/ 2 组成结构如下：</p><div class="- topic/p p" data-ofbid="d69020e240__20250123155204"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="a_format_0__image_s4d_stw_ryb" src="../../../images/ta_if/ta_if_a_format_field_df.png" width="672"/></div><br/></div><p class="- topic/p p" data-ofbid="d69020e242__20250123155204">DF0/ 1/ 2，Data Field 0/ 1/ 2，只在接收过程涉及，DF 的数量与 CDF 有关，由以下组成：</p><ul class="- topic/ul ul" id="a_format_0__ul_t4d_stw_ryb" data-ofbid="a_format_0__ul_t4d_stw_ryb">
+                <li class="- topic/li li" data-ofbid="d69020e246__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e248__20250123155204">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e252__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e254__20250123155204">Data bit：16-bit，数据位。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d69020e258__20250123155204">
+                    <p class="- topic/p p" data-ofbid="d69020e260__20250123155204">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul></section>
+        <section class="- topic/section section" id="a_format_0__section_u4d_stw_ryb" data-ofbid="a_format_0__section_u4d_stw_ryb"><h2 class="- topic/title title sectiontitle">RX_CRC_ERR</h2>
+            
+            <p class="- topic/p p" data-ofbid="d69020e270__20250123155204">对于接收到的编码器的数据，包含了 8 bits CRC 码，CRC 码的生成多项式为
+                    X^<sup class="+ topic/ph hi-d/sup ph sup">8</sup>+X<sup class="+ topic/ph hi-d/sup ph sup">4</sup>+X<sup class="+ topic/ph hi-d/sup ph sup">3</sup>+X<sup class="+ topic/ph hi-d/sup ph sup">2</sup>+1，计算的范围为所有接收的
+                Field，除去起始位和截止位的数据。 以下是 3 field 的 CRC 计算示例：</p>
+            <div class="table-container"><table class="- topic/table table frame-all" id="a_format_0__id29" data-ofbid="a_format_0__id29" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">CRC 计算举例</span></caption><colgroup><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="a_format_0__id29__entry__1">IF</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="a_format_0__id29__entry__2">DF0</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-0" id="a_format_0__id29__entry__3">DF1</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="a_format_0__id29__entry__1">00111110 00000011</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="a_format_0__id29__entry__2">00000000 11101111</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="a_format_0__id29__entry__3">11011111 00110101</td>
+                        </tr>
+                    </tbody></table></div>
+            <p class="- topic/p p" data-ofbid="d69020e330__20250123155204">对于 RX 数据域的 CRC，支持对该 CRC 码的验证，如果 CRC
+                码不正确，则在
+                RX_ASTS 寄存器中相应的 BIT 位指示校验不正确。</p>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#a_format_0__section_d4d_stw_ryb" data-tocid="a_format_0__section_d4d_stw_ryb">CDF</a></div></li><li class="section-item"><div class="section-title"><a href="#a_format_0__section_h4d_stw_ryb" data-tocid="a_format_0__section_h4d_stw_ryb">MDF</a></div></li><li class="section-item"><div class="section-title"><a href="#a_format_0__section_l4d_stw_ryb" data-tocid="a_format_0__section_l4d_stw_ryb">IF</a></div></li><li class="section-item"><div class="section-title"><a href="#a_format_0__section_q4d_stw_ryb" data-tocid="a_format_0__section_q4d_stw_ryb">DF0/ 1/ 2</a></div></li><li class="section-item"><div class="section-title"><a href="#a_format_0__section_u4d_stw_ryb" data-tocid="a_format_0__section_u4d_stw_ryb">RX_CRC_ERR</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

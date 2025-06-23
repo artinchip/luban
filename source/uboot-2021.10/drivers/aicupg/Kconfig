@@ -26,4 +26,18 @@ config AICUPG_SINGLE_TRANS_BURN_CRC32_VERIFY
 config AICUPG_FORCE_USBUPG_SUPPORT
 	bool "Force USB upgrading check during boot"
 	default n
+
+config AICUPG_LOG_BUFFER_SUPPORT
+	bool "Support to get log buffer from device"
+	default y
+endif
+if AICUPG_LOG_BUFFER_SUPPORT
+config AICUPG_LOG_BUFFER_ADDR
+	hex "Log buffer start address"
+	default 0x100000 if TARGET_D211
+	default 0x0 if !TARGET_D211
+config AICUPG_LOG_BUFFER_SIZE
+	hex "Log buffer size"
+	default 0x3000 if TARGET_D211
+	default 0x0 if !TARGET_D211
 endif

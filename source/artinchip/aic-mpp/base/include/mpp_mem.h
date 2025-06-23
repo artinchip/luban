@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: virtual memory allocator
-*/
+ * Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: virtual memory allocator
+ */
 
 #ifndef MPP_MEM_H
 #define MPP_MEM_H

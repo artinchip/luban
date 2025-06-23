@@ -114,33 +114,7 @@ if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
 endif() # CMAKE_INSTALL_FULL_LIBDIR
 
 ############################### ge_test #######################################
-add_definitions(-DDATADIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}/ge_data")
-
-file(GLOB APP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ge_*.c)
-foreach(sourcefile ${APP_SOURCES})
-	file(RELATIVE_PATH filename ${CMAKE_CURRENT_SOURCE_DIR} ${sourcefile})
-	string( REPLACE ".c" "" file ${filename} )
-	list (APPEND bin ${file})
-	add_executable(${file} ${filename})
-	target_link_libraries(${file} mpp_ge)
-	if(${file} STREQUAL "ge_rotate")
-		target_link_libraries(${file} m)
-	endif()
-	set_target_properties(${file} PROPERTIES INSTALL_RPATH "/usr/local/lib")
-endforeach(sourcefile ${APP_SOURCES})
-
-if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-	foreach(binfile ${bin})
-		install(TARGETS ${binfile}
-			RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
-	endforeach(binfile ${bin})
-endif() # CMAKE_INSTALL_FULL_LIBDIR
-
-if(DEFINED CMAKE_INSTALL_FULL_DATAROOTDIR)
-	install(DIRECTORY ge_data/
-		DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/ge_data)
-endif() # CMAKE_INSTALL_FULL_DATAROOTDIR
-
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ge_test)
 ############################### vegede_test #######################################
 add_executable(vegede_test ve_ge_de_test.c)
 
@@ -164,27 +138,7 @@ if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
 endif() # CMAKE_INSTALL_FULL_LIBDIR
 
 ############################### jpeg_decode_test #######################################
-add_executable(jpeg_decode_test_1606 jpeg_decode_test_1606.c)
-
-target_link_libraries(jpeg_decode_test_1606 mpp_decoder)
-
-set_target_properties(jpeg_decode_test_1606 PROPERTIES INSTALL_RPATH "/usr/local/lib")
-
-if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-    install(TARGETS jpeg_decode_test_1606 RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
-endif() # CMAKE_INSTALL_FULL_LIBDIR
-
 ############################### jpeg_encode #######################################
-add_executable(jpeg_encode_test_1606 jpeg_encode_test_1606.c)
-
-target_link_libraries(jpeg_encode_test_1606 mpp_encoder)
-
-set_target_properties(jpeg_encode_test_1606 PROPERTIES INSTALL_RPATH "/usr/local/lib")
-
-if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
-    install(TARGETS jpeg_encode_test_1606 RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
-endif() # CMAKE_INSTALL_FULL_LIBDIR
-
 ############################### mpp_video #######################################
 add_executable(mpp_video_test mpp_video.c mpp_video_test.c bit_stream_parser.c)
 
@@ -195,3 +149,12 @@ set_target_properties(mpp_video_test PROPERTIES INSTALL_RPATH "/usr/local/lib")
 if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
     install(TARGETS mpp_video_test RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 endif() # CMAKE_INSTALL_FULL_LIBDIR
+
+############################### CCM_GAMMA #######################################
+if (LINUX_VERSION_6)
+    add_executable(ccm_gamma ccm_gamma_test.c)
+    if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
+        install(TARGETS ccm_gamma RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
+    endif()
+endif()
+

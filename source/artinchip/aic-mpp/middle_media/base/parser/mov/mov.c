@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: mov
-*/
+ * Copyright (C) 2020-2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: mov
+ */
 #define LOG_TAG "mov"
 
 #include <stdlib.h>
@@ -14,7 +16,7 @@
 #include "mpp_mem.h"
 #include "mpp_log.h"
 
-#define TIME_BASE 1000000LL
+
 
 /* those functions parse an atom */
 /* links atom IDs to parse functions */
@@ -25,69 +27,10 @@ struct mov_parse_table {
 
 static int mov_read_default(struct aic_mov_parser *c, struct mov_atom atom);
 
-static int stream_skip(struct aic_stream* s, int len)
-{
-	return aic_stream_seek(s, len, SEEK_CUR);
-}
-
-static unsigned int r8(struct aic_stream* s)
-{
-	unsigned char val;
-	aic_stream_read(s, &val, 1);
-	return val;
-}
-
-static unsigned int rb16(struct aic_stream* s)
-{
-	unsigned int val;
-	val = r8(s) << 8;
-	val |= r8(s);
-	return val;
-}
-
-static unsigned int rb24(struct aic_stream* s)
-{
-	unsigned int val;
-	val = rb16(s) << 16;
-	val |= r8(s);
-	return val;
-}
-
-static unsigned int rb32(struct aic_stream* s)
-{
-	unsigned int val;
-	val = rb16(s) << 16;
-	val |= rb16(s);
-	return val;
-}
-
-static uint64_t rb64(struct aic_stream* s)
-{
-	uint64_t val;
-	val = (uint64_t)rb32(s) << 32;
-	val |= (uint64_t)rb32(s);
-	return val;
-}
-
-static unsigned int rl16(struct aic_stream* s)
-{
-	unsigned int val;
-	val = r8(s);
-	val |= r8(s) << 8;
-	return val;
-}
-
-static unsigned int rl32(struct aic_stream* s)
-{
-	unsigned int val;
-	val = rl16(s);
-	val |= rl16(s) << 16;
-	return val;
-}
 
 static int64_t get_time(int64_t pts, int64_t st_time_scale)
 {
-	return pts * TIME_BASE / st_time_scale;
+	return pts * MPP_TIME_BASE / st_time_scale;
 }
 
 static int mov_read_moov(struct aic_mov_parser *c, struct mov_atom atom)
@@ -96,7 +39,7 @@ static int mov_read_moov(struct aic_mov_parser *c, struct mov_atom atom)
 
 	if (c->find_moov) {
 		loge("find duplicated moov atom. skipped it");
-		stream_skip(c->stream, atom.size);
+		aic_stream_skip(c->stream, atom.size);
 		return 0;
 	}
 
@@ -109,44 +52,44 @@ static int mov_read_moov(struct aic_mov_parser *c, struct mov_atom atom)
 static int mov_read_mvhd(struct aic_mov_parser *c, struct mov_atom atom)
 {
 	int i;
-	int version = r8(c->stream);
-	rb24(c->stream);
+	int version = aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
 
 	if (version == 1) {
-		rb64(c->stream); // create time
-		rb64(c->stream); // modify time
+		aic_stream_rb64(c->stream); // create time
+		aic_stream_rb64(c->stream); // modify time
 	} else {
-		rb32(c->stream); // create time
-		rb32(c->stream); // modify time
+		aic_stream_rb32(c->stream); // create time
+		aic_stream_rb32(c->stream); // modify time
 	}
 
-	c->time_scale = rb32(c->stream);
+	c->time_scale = aic_stream_rb32(c->stream);
 	if (c->time_scale <= 0) {
 		loge("Invalid mvhd time scale %d, default to 1", c->time_scale);
 		c->time_scale = 1;
 	}
 
-	c->duration = (version == 1) ? rb64(c->stream) : rb32(c->stream);
+	c->duration = (version == 1) ? aic_stream_rb64(c->stream) : aic_stream_rb32(c->stream);
 
-	rb32(c->stream); // preferred scale
-	rb16(c->stream); /* preferred volume */
+	aic_stream_rb32(c->stream); // preferred scale
+	aic_stream_rb16(c->stream); /* preferred volume */
 
-	stream_skip(c->stream, 10); /* reserved */
+	aic_stream_skip(c->stream, 10); /* reserved */
 
 	/* movie display matrix, store it in main context and use it later on */
 	for (i=0; i<3; i++) {
-		c->movie_display_matrix[i][0] = rb32(c->stream); // 16.16 fixed point
-		c->movie_display_matrix[i][1] = rb32(c->stream); // 16.16 fixed point
-		c->movie_display_matrix[i][2] = rb32(c->stream); //  2.30 fixed point
+		c->movie_display_matrix[i][0] = aic_stream_rb32(c->stream); // 16.16 fixed point
+		c->movie_display_matrix[i][1] = aic_stream_rb32(c->stream); // 16.16 fixed point
+		c->movie_display_matrix[i][2] = aic_stream_rb32(c->stream); //  2.30 fixed point
 	}
 
-	rb32(c->stream); /* preview time */
-	rb32(c->stream); /* preview duration */
-	rb32(c->stream); /* poster time */
-	rb32(c->stream); /* selection time */
-	rb32(c->stream); /* selection duration */
-	rb32(c->stream); /* current time */
-	rb32(c->stream); /* next track ID */
+	aic_stream_rb32(c->stream); /* preview time */
+	aic_stream_rb32(c->stream); /* preview duration */
+	aic_stream_rb32(c->stream); /* poster time */
+	aic_stream_rb32(c->stream); /* selection time */
+	aic_stream_rb32(c->stream); /* selection duration */
+	aic_stream_rb32(c->stream); /* current time */
+	aic_stream_rb32(c->stream); /* next track ID */
 
 	return 0;
 }
@@ -398,10 +341,10 @@ static void mov_build_index(struct aic_mov_parser *c, struct mov_stream_ctx *st)
 
 static int mov_codec_id(struct mov_stream_ctx *st, uint32_t format)
 {
-	int id = codec_get_id(mov_audio_tags, format);
+	int id = aic_codec_get_id(mov_audio_tags, format);
 
 	if (st->type == MPP_MEDIA_TYPE_VIDEO)
-		id = codec_get_id(mov_video_tags, format);
+		id = aic_codec_get_id(mov_video_tags, format);
 
 	return id;
 }
@@ -438,42 +381,44 @@ static int mov_read_tkhd(struct aic_mov_parser *c, struct mov_atom atom)
 		return 0;
 
 	st = c->streams[c->nb_streams - 1];
-	version = r8(c->stream);
-	rb24(c->stream);
+	version = aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
 
 	if (version == 1) {
-		rb64(c->stream);
-		rb64(c->stream);
+		aic_stream_rb64(c->stream);
+		aic_stream_rb64(c->stream);
 	} else {
-		rb32(c->stream);
-		rb32(c->stream);
+		aic_stream_rb32(c->stream);
+		aic_stream_rb32(c->stream);
 	}
 
-	st->id = rb32(c->stream);
-	rb32(c->stream); /* reserved */
+	st->id = aic_stream_rb32(c->stream);
+	aic_stream_rb32(c->stream); /* reserved */
 
 	/* highlevel (considering edits) duration in movie timebase */
-	(version == 1) ? rb64(c->stream) : rb32(c->stream);
-	rb32(c->stream); /* reserved */
-	rb32(c->stream); /* reserved */
+	(version == 1) ? aic_stream_rb64(c->stream) : aic_stream_rb32(c->stream);
+	aic_stream_rb32(c->stream); /* reserved */
+	aic_stream_rb32(c->stream); /* reserved */
 
-	rb16(c->stream); /* layer */
-	rb16(c->stream); /* alternate group */
-	rb16(c->stream); /* volume */
-	rb16(c->stream); /* reserved */
+	aic_stream_rb16(c->stream); /* layer */
+	aic_stream_rb16(c->stream); /* alternate group */
+	aic_stream_rb16(c->stream); /* volume */
+	aic_stream_rb16(c->stream); /* reserved */
 
 	// read in the display matrix (outlined in ISO 14496-12, Section 6.2.2)
 	// they're kept in fixed point format through all calculations
 	// save u,v,z to store the whole matrix in the AV_PKT_DATA_DISPLAYMATRIX
 	// side data, but the scale factor is not needed to calculate aspect ratio
+
 	for (i = 0; i < 3; i++) {
-		rb32(c->stream);   // 16.16 fixed point
-		rb32(c->stream);   // 16.16 fixed point
-		rb32(c->stream);   //  2.30 fixed point
+		aic_stream_rb32(c->stream);   // 16.16 fixed point
+		aic_stream_rb32(c->stream);   // 16.16 fixed point
+		aic_stream_rb32(c->stream);   //  2.30 fixed point
 	}
 
-	width = rb32(c->stream);    // 16.16 fixed point track width
-	height = rb32(c->stream);   // 16.16 fixed point track height
+
+	width = aic_stream_rb32(c->stream);    // 16.16 fixed point track width
+	height = aic_stream_rb32(c->stream);   // 16.16 fixed point track height
 	st->width = width >> 16;
 	st->height = height >> 16;
 
@@ -486,11 +431,11 @@ static int mov_read_hdlr(struct aic_mov_parser *c, struct mov_atom atom)
 	int64_t title_size;
 	struct mov_stream_ctx *st;
 
-	r8(c->stream);
-	rb24(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
 
-	rl32(c->stream);
-	type = rl32(c->stream);
+	aic_stream_rl32(c->stream);
+	type = aic_stream_rl32(c->stream);
 
 	st = c->streams[c->nb_streams-1];
 
@@ -499,9 +444,9 @@ static int mov_read_hdlr(struct aic_mov_parser *c, struct mov_atom atom)
 	else if (type == MKTAG('s','o','u','n'))
 		st->type = MPP_MEDIA_TYPE_AUDIO;
 
-	rb32(c->stream); /* component  manufacture */
-	rb32(c->stream); /* component flags */
-	rb32(c->stream); /* component flags mask */
+	aic_stream_rb32(c->stream); /* component  manufacture */
+	aic_stream_rb32(c->stream); /* component flags */
+	aic_stream_rb32(c->stream); /* component flags mask */
 
 	title_size = atom.size - 24;
 	if (title_size > 0) {
@@ -515,26 +460,27 @@ static int mov_read_stsd_video(struct aic_mov_parser *c, struct mov_stream_ctx *
 {
 	uint32_t tmp, bit_depth;
 
-	rb16(c->stream); /* version */
-	rb16(c->stream); /* revision level */
-	rl32(c->stream);
-	rb32(c->stream); /* temporal quality */
-	rb32(c->stream); /* spatial quality */
+	aic_stream_rb16(c->stream); /* version */
+	aic_stream_rb16(c->stream); /* revision level */
+	aic_stream_rl32(c->stream);
+	aic_stream_rb32(c->stream); /* temporal quality */
+	aic_stream_rb32(c->stream); /* spatial quality */
 
-	st->width = rb16(c->stream);
-	st->height = rb16(c->stream);
+	st->width = aic_stream_rb16(c->stream);
+	st->height = aic_stream_rb16(c->stream);
 
-	rb32(c->stream); /* horiz resolution */
-	rb32(c->stream); /* vert resolution */
-	rb32(c->stream); /* data size, always 0 */
-	rb16(c->stream); /* frames per samples */
+	aic_stream_rb32(c->stream); /* horiz resolution */
+	aic_stream_rb32(c->stream); /* vert resolution */
+	aic_stream_rb32(c->stream); /* data size, always 0 */
+	aic_stream_rb16(c->stream); /* frames per samples */
 
-	stream_skip(c->stream, 32); /* compress name*/
+	aic_stream_skip(c->stream, 32); /* compress name*/
 
-	tmp = rb16(c->stream); /* bit depth */
+	tmp = aic_stream_rb16(c->stream); /* bit depth */
 	bit_depth = tmp & 0x1f;
+	//grayscale = tmp & 0x20;
 
-	rb16(c->stream);
+	aic_stream_rb16(c->stream);
 	if ((bit_depth == 1 || bit_depth == 2 || bit_depth == 4 || bit_depth == 8)) {
 		logw("video is pallet");
 	}
@@ -544,42 +490,42 @@ static int mov_read_stsd_video(struct aic_mov_parser *c, struct mov_stream_ctx *
 
 static int mov_read_stsd_audio(struct aic_mov_parser *c, struct mov_stream_ctx *st)
 {
-	uint16_t version = rb16(c->stream);
+	uint16_t version = aic_stream_rb16(c->stream);
 
-	rb16(c->stream); /* revision level */
-	rl32(c->stream); /* vendor */
+	aic_stream_rb16(c->stream); /* revision level */
+	aic_stream_rl32(c->stream); /* vendor */
 
-	st->channels = rb16(c->stream);
-	st->bits_per_sample = rb16(c->stream);
+	st->channels = aic_stream_rb16(c->stream);
+	st->bits_per_sample = aic_stream_rb16(c->stream);
 
-	rb16(c->stream); /* compress id */
-	rb16(c->stream); /* packet size = 0 */
+	aic_stream_rb16(c->stream); /* compress id */
+	aic_stream_rb16(c->stream); /* packet size = 0 */
 
-	st->sample_rate = (rb32(c->stream) >> 16);
+	st->sample_rate = (aic_stream_rb32(c->stream) >> 16);
 
 	if (!c->isom) {
 		if (version == 1) {
-			rb32(c->stream); /* bytes per packet */
-			st->samples_per_frame = rb32(c->stream); /* sample per frame */
-			st->bytes_per_frame = rb32(c->stream); /* bytes per frame */
-			rb32(c->stream); /* bytes per sample */
+			aic_stream_rb32(c->stream); /* bytes per packet */
+			st->samples_per_frame = aic_stream_rb32(c->stream); /* sample per frame */
+			st->bytes_per_frame = aic_stream_rb32(c->stream); /* bytes per frame */
+			aic_stream_rb32(c->stream); /* bytes per sample */
 		} else if (version == 2) {
-			rb32(c->stream); /* sizeof struct only */
+			aic_stream_rb32(c->stream); /* sizeof struct only */
 
 			union int_float64{
                             long long i;
                             double f;
                         };
                         union int_float64 v;
-			v.i = rb64(c->stream);
+			v.i = aic_stream_rb64(c->stream);
 			st->sample_rate = v.f;
-			st->channels = rb32(c->stream);
-			rb32(c->stream);
-			st->bits_per_sample = rb32(c->stream);
+			st->channels = aic_stream_rb32(c->stream);
+			aic_stream_rb32(c->stream);
+			st->bits_per_sample = aic_stream_rb32(c->stream);
 
-			rb32(c->stream); /* lpcm format specific flag */
-			st->bytes_per_frame   = rb32(c->stream);
-			st->samples_per_frame = rb32(c->stream);
+			aic_stream_rb32(c->stream); /* lpcm format specific flag */
+			st->bytes_per_frame   = aic_stream_rb32(c->stream);
+			st->samples_per_frame = aic_stream_rb32(c->stream);
 		}
 	}
 
@@ -604,13 +550,13 @@ static int mov_read_stsd_entries(struct aic_mov_parser *c, int entries)
 		struct mov_atom a = {0x64737473, 0};
 		int ret;
 		int64_t start_pos = aic_stream_tell(c->stream);
-		int64_t size = rb32(c->stream);
-		uint32_t format = rl32(c->stream);
+		int64_t size = aic_stream_rb32(c->stream);
+		uint32_t format = aic_stream_rl32(c->stream);
 
 		if (size >= 16) {
-			rb32(c->stream);
-			rb16(c->stream);
-			rb16(c->stream);
+			aic_stream_rb32(c->stream);
+			aic_stream_rb16(c->stream);
+			aic_stream_rb16(c->stream);
 		} else if (size <= 7) {
 			loge("invalid size %"PRId64" in stsd", size);
 			return -1;
@@ -631,7 +577,7 @@ static int mov_read_stsd_entries(struct aic_mov_parser *c, int entries)
 			if ((ret = mov_read_default(c, a)) < 0)
 				return ret;
 		} else if (a.size > 0) {
-			stream_skip(c->stream, a.size);
+			aic_stream_skip(c->stream, a.size);
 		}
 
 		st->stsd_count ++;
@@ -649,9 +595,9 @@ static int mov_read_stsd(struct aic_mov_parser *c, struct mov_atom atom)
 		return 0;
 
 	st = c->streams[c->nb_streams-1];
-	st->stsd_version = r8(c->stream);
-	rb24(c->stream);
-	entries = rb32(c->stream);
+	st->stsd_version = aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	entries = aic_stream_rb32(c->stream);
 
 	/* Each entry contains a size (4 bytes) and format (4 bytes). */
 	if (entries <= 0 || entries > atom.size / 8 || entries > 1024) {
@@ -682,9 +628,9 @@ static int mov_read_stts(struct aic_mov_parser *c, struct mov_atom atom)
 	if (c->nb_streams < 1)
 		return 0;
 
-	r8(c->stream);   /* version */
-	rb24(c->stream); /* flags */
-	entries = rb32(c->stream);
+	aic_stream_r8(c->stream);   /* version */
+	aic_stream_rb24(c->stream); /* flags */
+	entries = aic_stream_rb32(c->stream);
 
 	if (st->stts_data) {
 		logw("duplicated stts data");
@@ -699,8 +645,8 @@ static int mov_read_stts(struct aic_mov_parser *c, struct mov_atom atom)
 		int sample_duration;
 		unsigned int sample_count;
 
-		sample_count = rb32(c->stream);
-		sample_duration = rb32(c->stream);
+		sample_count = aic_stream_rb32(c->stream);
+		sample_duration = aic_stream_rb32(c->stream);
 
 		st->stts_data[i].count = sample_count;
 		st->stts_data[i].duration = sample_duration;
@@ -724,9 +670,9 @@ static int mov_read_stsc(struct aic_mov_parser *c, struct mov_atom atom)
 
 	struct mov_stream_ctx *st = c->streams[c->nb_streams-1];
 
-	r8(c->stream);
-	rb24(c->stream);
-	entries = rb32(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	entries = aic_stream_rb32(c->stream);
 
 	if (entries*12+4 > atom.size) {
 		loge("stsc size error");
@@ -748,9 +694,9 @@ static int mov_read_stsc(struct aic_mov_parser *c, struct mov_atom atom)
 		return -1;
 
 	for (i=0; i<entries; i++) {
-		st->stsc_data[i].first = rb32(c->stream);
-		st->stsc_data[i].count = rb32(c->stream);
-		st->stsc_data[i].id = rb32(c->stream);
+		st->stsc_data[i].first = aic_stream_rb32(c->stream);
+		st->stsc_data[i].count = aic_stream_rb32(c->stream);
+		st->stsc_data[i].id = aic_stream_rb32(c->stream);
 	}
 
 	// check stsc data valid
@@ -797,21 +743,22 @@ static int mov_read_stsz(struct aic_mov_parser *c, struct mov_atom atom)
 
 	struct mov_stream_ctx *st = c->streams[c->nb_streams-1];
 
-	r8(c->stream);
-	rb24(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
 
 	if (atom.type == MKTAG('s','t','s','z')) {
-		sample_size = rb32(c->stream);
+		sample_size = aic_stream_rb32(c->stream);
 		if (!st->sample_size) /* do not overwrite value computed in stsd */
 			st->sample_size = sample_size;
 		st->stsz_sample_size = sample_size;
+		//field_size = 32;
 	} else {
 		sample_size = 0;
-		rb24(c->stream);
-		r8(c->stream);  //field_size
+		aic_stream_rb24(c->stream);
+		aic_stream_r8(c->stream);  //field_size
 	}
 
-	entries = rb32(c->stream);
+	entries = aic_stream_rb32(c->stream);
 	if (!entries)
 		return 0;
 
@@ -832,7 +779,7 @@ static int mov_read_stsz(struct aic_mov_parser *c, struct mov_atom atom)
 		return -1;
 
 	for (i=0; i<entries; i++) {
-		st->sample_sizes[i] = rb32(c->stream);
+		st->sample_sizes[i] = aic_stream_rb32(c->stream);
 		if (st->sample_sizes[i] < 0) {
 			loge("invalid sample size: %d", st->sample_sizes[i]);
 			return -1;
@@ -852,9 +799,9 @@ static int mov_read_stco(struct aic_mov_parser *c, struct mov_atom atom)
 
 	struct mov_stream_ctx *st = c->streams[c->nb_streams-1];
 
-	r8(c->stream);
-	rb24(c->stream);
-	entries = rb32(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	entries = aic_stream_rb32(c->stream);
 
 	if (!entries) {
 		logw("stco entries is 0");
@@ -873,11 +820,11 @@ static int mov_read_stco(struct aic_mov_parser *c, struct mov_atom atom)
 
 	if (atom.type == MKTAG('s','t','c','o')) {
 		for (i=0; i<entries; i++) {
-			st->chunk_offsets[i] = rb32(c->stream);
+			st->chunk_offsets[i] = aic_stream_rb32(c->stream);
 		}
 	} else if (atom.type == MKTAG('c','o','6','4')) {
 		for (i=0; i<entries; i++) {
-			st->chunk_offsets[i] = rb64(c->stream);
+			st->chunk_offsets[i] = aic_stream_rb64(c->stream);
 		}
 	} else {
 		return -1;
@@ -906,9 +853,9 @@ static int mov_read_ctts(struct aic_mov_parser *c, struct mov_atom atom)
 
 	struct mov_stream_ctx *st = c->streams[c->nb_streams-1];
 
-	r8(c->stream);
-	rb24(c->stream);
-	entries = rb32(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	entries = aic_stream_rb32(c->stream);
 
 	if (!entries) {
 		logw("ctts entries is 0");
@@ -927,8 +874,8 @@ static int mov_read_ctts(struct aic_mov_parser *c, struct mov_atom atom)
 		return -1;
 
 	for (i=0; i<entries; i++) {
-		int count = rb32(c->stream);
-		int duration = rb32(c->stream);
+		int count = aic_stream_rb32(c->stream);
+		int duration = aic_stream_rb32(c->stream);
 
 		total_count += count;
 
@@ -979,9 +926,9 @@ static int mov_read_stss(struct aic_mov_parser *c, struct mov_atom atom)
 
 	struct mov_stream_ctx *st = c->streams[c->nb_streams-1];
 
-	r8(c->stream);
-	rb24(c->stream);
-	entries = rb32(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	entries = aic_stream_rb32(c->stream);
 
 	if (!entries) {
 		logw("stts entries is 0");
@@ -998,10 +945,8 @@ static int mov_read_stss(struct aic_mov_parser *c, struct mov_atom atom)
 	st->keyframes = mpp_alloc(entries*sizeof(*st->keyframes));
 
 	logd("keyframe_count:%d\n",st->keyframe_count);
-
 	for (i=0; i<entries; i++) {
-		st->keyframes[i] = rb32(c->stream);
-		logd("st->keyframes[%d]:%d\n",i,st->keyframes[i]);
+		st->keyframes[i] = aic_stream_rb32(c->stream);
 	}
 
 	return 0;
@@ -1020,25 +965,25 @@ static int mov_read_mdhd(struct aic_mov_parser *c, struct mov_atom atom)
 		return -1;
 	}
 
-	version = r8(c->stream);
-	rb24(c->stream);
+	version = aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
 	if (version > 1) {
-		rb64(c->stream);
-		rb64(c->stream);
+		aic_stream_rb64(c->stream);
+		aic_stream_rb64(c->stream);
 	} else {
-		rb32(c->stream);
-		rb32(c->stream);
+		aic_stream_rb32(c->stream);
+		aic_stream_rb32(c->stream);
 	}
 
-	st->time_scale = rb32(c->stream);
+	st->time_scale = aic_stream_rb32(c->stream);
 	if (st->time_scale <= 0) {
 		st->time_scale = c->time_scale;
 	}
 
-	st->duration = (version == 1) ? rb64(c->stream) : rb32(c->stream);
+	st->duration = (version == 1) ? aic_stream_rb64(c->stream) : aic_stream_rb32(c->stream);
 
-	rb16(c->stream);
-	rb16(c->stream);
+	aic_stream_rb16(c->stream);
+	aic_stream_rb16(c->stream);
 
 	return 0;
 }
@@ -1075,7 +1020,7 @@ static int mov_read_ftyp(struct aic_mov_parser *c, struct mov_atom atom)
 	if (strcmp((char*)type, "qt  "))
 		c->isom = 1;
 
-	rb32(c->stream); // minor version
+	aic_stream_rb32(c->stream); // minor version
 
 	return 0;
 }
@@ -1091,11 +1036,11 @@ static int mov_read_mdat(struct aic_mov_parser *c, struct mov_atom atom)
 static int mp4_read_desc(struct aic_stream *s, int *tag)
 {
 	int len = 0;
-	*tag = r8(s);
+	*tag = aic_stream_r8(s);
 
 	int count = 4;
 	while (count--) {
-		int c = r8(s);
+		int c = aic_stream_r8(s);
 		len = (len << 7) | (c & 0x7f);
 		if (!(c & 0x80))
 			break;
@@ -1111,13 +1056,13 @@ static int mp4_read_dec_config_descr(struct aic_mov_parser *c, struct mov_stream
 	enum CodecID codec_id;
 	int len, tag;
 
-	int object_type_id = r8(c->stream);
-	r8(c->stream);
-	rb24(c->stream);
-	rb32(c->stream);
-	rb32(c->stream); // avg bitrate
+	int object_type_id = aic_stream_r8(c->stream);
+	aic_stream_r8(c->stream);
+	aic_stream_rb24(c->stream);
+	aic_stream_rb32(c->stream);
+	aic_stream_rb32(c->stream); // avg bitrate
 
-	codec_id = codec_get_id(mp4_obj_type, object_type_id);
+	codec_id = aic_codec_get_id(mp4_obj_type, object_type_id);
 	if (codec_id)
 		st->id = codec_id;
 
@@ -1147,13 +1092,13 @@ static int mov_read_esds(struct aic_mov_parser *c, struct mov_atom atom)
 	if (c->nb_streams < 1)
 		return 0;
 	st = c->streams[c->nb_streams-1];
-	rb32(c->stream);
+	aic_stream_rb32(c->stream);
 
 	mp4_read_desc(c->stream, &tag);
 	if (tag == MP4ESDescrTag) {
-		rb24(c->stream);
+		aic_stream_rb24(c->stream);
 	} else {
-		rb16(c->stream);
+		aic_stream_rb16(c->stream);
 	}
 
 	mp4_read_desc(c->stream, &tag);
@@ -1218,13 +1163,13 @@ static int mov_read_default(struct aic_mov_parser *c, struct mov_atom atom)
 		a.size = atom.size;
 		a.type = 0;
 		if (atom.size >= 8) {
-			a.size = rb32(c->stream);
-			a.type = rl32(c->stream);
+			a.size = aic_stream_rb32(c->stream);
+			a.type = aic_stream_rl32(c->stream);
 
 			total_size += 8;
 			if (a.size == 1 && total_size + 8 <= atom.size) {
 				// 64 bit extended size
-				a.size = rb64(c->stream) - 8;
+				a.size = aic_stream_rb64(c->stream) - 8;
 				total_size += 8;
 			}
 		}
@@ -1254,7 +1199,7 @@ static int mov_read_default(struct aic_mov_parser *c, struct mov_atom atom)
 		}
 
 		if (!parse) {
-			stream_skip(c->stream, a.size);
+			aic_stream_skip(c->stream, a.size);
 		} else {
 			int64_t start_pos = aic_stream_tell(c->stream);
 			int64_t left;
@@ -1272,7 +1217,7 @@ static int mov_read_default(struct aic_mov_parser *c, struct mov_atom atom)
 			left = a.size - aic_stream_tell(c->stream) + start_pos;
 			if (left > 0) {
 				/* skip garbage at atom end */
-				stream_skip(c->stream, left);
+				aic_stream_skip(c->stream, left);
 			} else if (left < 0) {
 				loge("overread end of atom %x", a.type);
 				aic_stream_seek(c->stream, left, SEEK_CUR);
@@ -1283,7 +1228,7 @@ static int mov_read_default(struct aic_mov_parser *c, struct mov_atom atom)
 	}
 
 	if (total_size < atom.size && atom.size < 0x7ffff)
-		stream_skip(c->stream, atom.size - total_size);
+		aic_stream_skip(c->stream, atom.size - total_size);
 
 	c->atom_depth --;
 	return 0;

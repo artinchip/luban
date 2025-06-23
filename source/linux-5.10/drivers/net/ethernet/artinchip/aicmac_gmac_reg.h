@@ -148,4 +148,5 @@ void aicmac_mac_reg_flow_ctrl(struct aicmac_mac_data *mac,
 int aicmac_mac_reg_flex_pps_config(void __iomem *ioaddr, int index,
 				   struct aicmac_pps_cfg *cfg, bool enable,
 				   u32 sub_second_inc, u32 systime_flags);
+void aicmac_mac_set_mac_loopback(void __iomem *ioaddr, bool enable);
 #endif

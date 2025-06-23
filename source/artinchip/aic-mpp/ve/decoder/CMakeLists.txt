@@ -19,12 +19,13 @@ add_library(mpp_decoder SHARED
     ${DECODER_MJPEG}
     ${DECODER_PNG}
     ${DECODER_AVC}
+    aicp/aicp_wrapper.c
     mpp_decoder.c
     frame_manager.c
     packet_manager.c
 )
 
-target_link_libraries(mpp_decoder mpp_base mpp_ve)
+target_link_libraries(mpp_decoder mpp_base mpp_ve dl)
 
 target_include_directories(mpp_decoder PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/jpeg"

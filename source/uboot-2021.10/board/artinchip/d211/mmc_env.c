@@ -44,6 +44,7 @@ static inline int aic_mmc_offset_try_partition(const char *str, int copy,
 	struct blk_desc *desc;
 	int len, i, ret;
 	char dev_str[4];
+	char str_r[8];
 
 	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
 	ret = blk_get_device_by_str("mmc", dev_str, &desc);
@@ -55,7 +56,7 @@ static inline int aic_mmc_offset_try_partition(const char *str, int copy,
 		if (ret < 0)
 			return ret;
 
-		if (!strncmp((const char *)info.name, str, sizeof(str)))
+		if (!strncmp((const char *)info.name, str, strlen(str)))
 			break;
 	}
 
@@ -64,6 +65,21 @@ static inline int aic_mmc_offset_try_partition(const char *str, int copy,
 
 	/* use the top of the partion for the environment */
 	*val = (info.start + copy * len) * info.blksz;
+
+	/* try to found env_r partition, get env_r offset addr */
+	if (copy) {
+		snprintf(str_r, sizeof(str_r), "%s%s", str, "_r");
+		for (i = 1; ; i++) {
+			ret = part_get_info(desc, i, &info);
+			if (ret < 0) {
+				return 0;
+			}
+
+			if (!strncmp((const char *)info.name, str_r, strlen(str_r)))
+				break;
+		}
+		*val = info.start * info.blksz;
+	}
 
 	return 0;
 }

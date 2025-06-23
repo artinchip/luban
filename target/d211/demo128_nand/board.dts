@@ -100,6 +100,20 @@
 		sdmc1 = &sdmc1;
 		sdmc2 = &sdmc2;
 		psadc = &psadc;
+		dma = &dma;
+		crypto = &crypto;
+		sid = &sid;
+		mtop = &mtop;
+		codec = &codec;
+		wri = &wri;
+		aicudc = &aicudc;
+		usbh0 = &usbh0;
+		usbh1 = &usbh1;
+		ohci0 = &ohci0;
+		ohci1 = &ohci1;
+		i2s0 = &i2s0;
+		i2s1 = &i2s1;
+		ge = &ge;
 	};
 
 	cpus {
@@ -201,6 +215,7 @@
 		u-boot,dm-pre-reloc;
 
 		enable-gpios = <&gpio_c 7 GPIO_ACTIVE_HIGH>;
+		sleep-gpios = <&gpio_a 3 GPIO_ACTIVE_HIGH>;
 		port {
 			panel_lvds_in: endpoint {
 				remote-endpoint = <&lvds0_out>;
@@ -243,7 +258,7 @@
 
 		power {
 			wakeup-source;
-			gpios = <&gpio_d 7 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio_f 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			label = "GPIO Power";
 			linux,code = <KEY_POWER>;
 		};
@@ -254,7 +269,6 @@
 		io-channels = <&gpai 6>;
 		io-channel-names = "buttons";
 		poll-interval = <200>;
-		keyup-threshold-microvolt = <3000000>;
 
 		up-key {
 			label = "up_key";
@@ -618,7 +632,10 @@
 	};
 	uart0_pins_a: uart0-0 {
 		u-boot,dm-pre-reloc;
-		pins {
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
 			u-boot,dm-pre-reloc;
 		};
 	};
@@ -665,7 +682,7 @@
 
 &codec {
 	pinctrl-names = "default";
-	pinctrl-0 = <&spk_pins_d>, <&dmic_pins_b>;
+	pinctrl-0 = <&spk_pins_d>, <&dmic_pins_a>;
 	pa-gpios = <&gpio_a 7 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };
@@ -785,7 +802,7 @@
 	pinctrl-0 = <&gpai7_pins>;
 
 	gpai0 {
-		aic,sample-period-ms = <10>;
+		aic,sample-period-ms = <18>;
 		aic,high-level-thd = <1830>;
 		aic,low-level-thd = <1800>;
 		status = "disabled";

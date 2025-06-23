@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2022-2023 ArtinChip Technology Co., Ltd.
+ * Copyright (C) 2022-2024 ArtinChip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -19,6 +22,7 @@ struct ge_ops;
 struct mpp_ge {
 	int dev_fd;
 	enum ge_mode mode;
+	unsigned int version_id;
 	void *priv;
 	struct ge_ops *ops;
 	pthread_mutex_t lock;

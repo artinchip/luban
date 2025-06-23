@@ -1,0 +1,99 @@
+@page {
+  margin:0.5in;
+  @footnote {
+    content: leader('.');
+    color:silver;
+  }
+}
+
+
+/*footnotes-style-parentheses*/
+@media print {
+  *[class~="topic/fn"]::footnote-call,
+  *[class~="topic/fn"]::footnote-marker {
+    content: "(" counter(footnote) ")";
+  }
+}
+*[class~="topic/fn"]::footnote-call,
+*[class~="topic/fn"]::footnote-marker,
+*[class~="topic/fn-call"] {
+  font-size: 83%;
+}
+*[class~="topic/fn-call"] > sup::before,
+*[class~="topic/fn"] sup::before {
+  content: "(";
+}
+*[class~="topic/fn-call"] > sup::after,
+*[class~="topic/fn"] sup::after {
+  content: ")";
+}
+/*footnotes-links-accent-colors*/
+*[class~="topic/fn"]::footnote-call,
+*[class~="topic/fn"]::footnote-marker,
+*[class~="topic/fn-call"] {
+  color: #1ea7ef;
+}
+*[class~="topic/fn-call"] > sup,
+*[class~="topic/fn"] sup {
+  color: #1ea7ef;
+}
+
+
+
+/* Customize footnote calls, inside the table. */
+*[outputclass ~= 'table-fn-call'] {
+  color: black;
+  text-decoration: none;
+  font-size: smaller;
+  vertical-align: super;
+  line-height: none;
+}
+
+/* Hide the "on page .." text that follows xrefs. */
+*[outputclass ~= 'table-fn-call']:after {
+  display: none;
+}
+
+/* Customize the list containing all the table footnotes. */
+*[outputclass ~= 'table-fn-container'] {
+  border-top: 1pt solid black;
+  counter-reset: table-footnote;
+}
+
+/* Customize footnotes display, below the table. */
+*[outputclass ~= 'table-fn'] {
+  font-size: 8pt;
+  counter-increment: table-footnote;
+}
+*[outputclass ~= 'table-fn']::marker {
+  font-size: 8pt;
+  content: "(" counter(table-footnote) ")";
+}
+
+/* Customize xrefs pointing to footnotes with IDs. */
+*[class ~= "topic/table"] *[class ~= "topic/xref"][type = 'fn'] {
+  color: unset;
+  text-decoration: none;
+}
+*[class ~= "topic/table"] *[class ~= "topic/xref"][type = 'fn']:after {
+  content: none;
+}
+*[class ~= "topic/table"] *[class ~= "topic/xref"][type = 'fn'] *[class ~= "hi-d/sup"]:before {
+  content: "(";
+}
+*[class ~= "topic/table"] *[class ~= "topic/xref"][type = 'fn'] *[class ~= "hi-d/sup"]:after {
+  content: ")";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

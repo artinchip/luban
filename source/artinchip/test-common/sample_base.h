@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2025 ArtInChip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 #ifndef _SAMPLES_BASE_H_
@@ -52,6 +52,8 @@ extern "C" {
 
 #endif
 
+#define US_PER_SEC      1000000
+
 /* Base data type */
 
 typedef int		s32;
@@ -60,7 +62,6 @@ typedef char		s8;
 typedef unsigned int	u32;
 typedef unsigned short	u16;
 typedef unsigned char	u8;
-typedef signed int	socket;
 
 /* Struct */
 
@@ -77,6 +78,28 @@ static inline long long int str2int(char *_str)
 		return atoi(_str);
 	else
 		return strtoll(_str, NULL, 16);
+}
+
+static double timeval_diff(struct timeval *start, struct timeval *end)
+{
+	double diff;
+
+	if (end->tv_usec < start->tv_usec) {
+		diff = (double)(US_PER_SEC + end->tv_usec - start->tv_usec) / US_PER_SEC;
+		diff += end->tv_sec - 1 - start->tv_sec;
+	} else {
+		diff = (double)(end->tv_usec - start->tv_usec) / US_PER_SEC;
+		diff += end->tv_sec - start->tv_sec;
+	}
+	return diff;
+}
+
+static void show_fps(char *mod, struct timeval *start, struct timeval *end, int cnt)
+{
+	double diff = timeval_diff(start, end);
+
+	printf("%s frame rate: %.1f, frame %d / %.1f seconds\n",
+		   mod, (double)cnt / diff, cnt, diff);
 }
 
 #ifdef __cplusplus

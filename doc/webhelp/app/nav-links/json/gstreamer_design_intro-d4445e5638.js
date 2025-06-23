@@ -1,0 +1,1 @@
+oxy_webhelp_navlinks = {"gstreamer_design_intro-d4445e5638":{"topics":[{"title":"模块架构","href":"topics\/sdk\/gstreamer\/gstreamer-architecture.html","attributes":{"data-id":"gstreamer_architecture"},"menu":{"hasChildren":false},"tocID":"gstreamer_architecture-d4445e5652","topics":[]}]}};

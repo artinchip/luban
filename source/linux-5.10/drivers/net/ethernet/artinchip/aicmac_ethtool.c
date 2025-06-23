@@ -240,6 +240,22 @@ aicmac_ethtool_set_link_ksettings(struct net_device *dev,
 					     cmd);
 }
 
+extern int aicmac_selftest_get_count(struct aicmac_priv *priv);
+static int aicmac_get_sset_count(struct net_device *netdev, int sset)
+{
+	struct aicmac_priv *priv = netdev_priv(netdev);
+
+	switch (sset) {
+	case ETH_SS_TEST:
+		return aicmac_selftest_get_count(priv);
+	case ETH_SS_STATS:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+extern void aicmac_selftest_run(struct net_device *dev,
+			 struct ethtool_test *etest, u64 *buf);
 static const struct ethtool_ops aicmac_ethtool_ops = {
 	.supported_coalesce_params =
 		ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_MAX_FRAMES,
@@ -264,6 +280,8 @@ static const struct ethtool_ops aicmac_ethtool_ops = {
 	.set_channels = aicmac_set_channels,
 	.get_link_ksettings = aicmac_ethtool_get_link_ksettings,
 	.set_link_ksettings = aicmac_ethtool_set_link_ksettings,
+	.get_sset_count	= aicmac_get_sset_count,
+	.self_test = aicmac_selftest_run,
 };
 
 void aicmac_set_ethtool_ops(struct net_device *netdev)

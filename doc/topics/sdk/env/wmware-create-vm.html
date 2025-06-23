@@ -1,0 +1,227 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="description" content="自定义安装 在新建虚拟机的向导页选择 自定义安装 ，并完成 VMWare 和平台关联的定制设置。 手动安装操作系统 在操作系统安装界面选择 稍后安装操作系统 。 VMWare 在自动安装操作系统时会顺带安装自带的 VMware tools， 但该 tools 以 iso 方式存在，需要虚拟光驱方式挂载出来才能安装。该挂载任务只能在系统启动后手动执行，所以自动安装往往会卡在 VMWare tools ..."/><meta name="DC.relation" content="../../../topics/sdk/env/vmware.html"/><meta name="DC.relation" content="../../../topics/sdk/env/vmware.html"/><meta name="DC.relation" content="../../../topics/sdk/env/vmware-install-ubuntu.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="wmware-create-vm"/><meta name="DC.language" content="zh-CN"/>        
+      <title>创建虚拟机</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="wmware-create-vm-d4445e1177"/><meta name="wh-source-relpath" content="topics/sdk/env/wmware-create-vm.dita"/><meta name="wh-out-relpath" content="topics/sdk/env/wmware-create-vm.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="wmware-create-vm" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/env/vmware.html">VMWare 安装</a><div class="wh-tooltip"><p class="shortdesc">如需在虚拟机上进行 <span class="ph">Luban</span> 的开发工作，可以参考本节的安装说明。</p></div></div></div></li><li class="active"><div class="topicref" data-id="wmware-create-vm"><div class="title"><a href="../../../topics/sdk/env/wmware-create-vm.html">创建虚拟机</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/env/vmware.html" title="VMWare 安装" aria-label="上一主题: VMWare 安装" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/env/vmware-install-ubuntu.html" title="安装 Ubuntu" aria-label="下一主题: 安装 Ubuntu" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1113" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1113-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sourcecode.html" id="id-d4445e1113-link">准备代码</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1143" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/ubuntu2004.html" id="id-d4445e1143-link">Ubuntu</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1157" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1157-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/vmware.html" id="id-d4445e1157-link">VMWare 安装</a><div class="wh-tooltip"><p class="shortdesc">如需在虚拟机上进行 <span class="ph">Luban</span> 的开发工作，可以参考本节的安装说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="wmware-create-vm-d4445e1177" class="topicref" data-id="wmware-create-vm" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/wmware-create-vm.html" id="wmware-create-vm-d4445e1177-link">创建虚拟机</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem"><div data-tocid="vmware-install-ubuntu-d4445e1193" class="topicref" data-id="vmware-install-ubuntu" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/vmware-install-ubuntu.html" id="vmware-install-ubuntu-d4445e1193-link">安装 Ubuntu</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem"><div data-tocid="vmware-config-vm-d4445e1209" class="topicref" data-id="vmware-config-vm" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/vmware-config-vm.html" id="vmware-config-vm-d4445e1209-link">配置虚拟机</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li></ul></li><li role="treeitem"><div data-tocid="compile-d4445e1225" class="topicref" data-id="compile" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/compile.html" id="compile-d4445e1225-link">固件编译</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/env/wmware-create-vm.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">创建虚拟机</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;"></div>
+    <div class="- topic/body concept/conbody body conbody"><p class="- topic/shortdesc shortdesc"></p>
+        <section class="- topic/section section" id="wmware-create-vm__id3" data-ofbid="wmware-create-vm__id3"><h2 class="- topic/title title sectiontitle">自定义安装</h2>
+                <p class="- topic/p p" data-ofbid="d204787e36__20250123155223">在新建虚拟机的向导页选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">自定义安装</span>，并完成  VMWare
+                和平台关联的定制设置。</p>
+            <figure class="- topic/fig fig fignone" id="wmware-create-vm__fig_g1t_cx4_fdc" data-ofbid="wmware-create-vm__fig_g1t_cx4_fdc">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="wmware-create-vm__image_khq_wmp_wcc" src="../../../images/env/vmware_install_self-defined.jpg" alt="vmware-11"/></div><br/>
+            </figure>
+        </section>
+        <section class="- topic/section section" id="wmware-create-vm__id4" data-ofbid="wmware-create-vm__id4"><h2 class="- topic/title title sectiontitle">手动安装操作系统</h2>
+            <p class="- topic/p p" data-ofbid="d204787e56__20250123155223">在操作系统安装界面选择<span class="+ topic/ph ui-d/uicontrol ph uicontrol">稍后安装操作系统</span>。</p><p class="- topic/p p" data-ofbid="d204787e61__20250123155223">VMWare 在自动安装操作系统时会顺带安装自带的 VMware tools， 但该 tools 以 <span class="+ topic/ph sw-d/filepath ph filepath">iso</span>
+                方式存在，需要虚拟光驱方式挂载出来才能安装。该挂载任务只能在系统启动后手动执行，所以自动安装往往会卡在 VMWare tools 的安装处而导致无法安装成功。</p><figure class="- topic/fig fig fignone" id="wmware-create-vm__fig_h1t_cx4_fdc" data-ofbid="wmware-create-vm__fig_h1t_cx4_fdc">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="wmware-create-vm__image_lhq_wmp_wcc" src="../../../images/env/vmware_install_manual.jpg" alt="vmware-21"/></div><br/>
+            </figure>
+        </section>
+        <section class="- topic/section section" id="wmware-create-vm__id5" data-ofbid="wmware-create-vm__id5"><h2 class="- topic/title title sectiontitle">虚拟机文件存储</h2>
+            <div class="- topic/p p" data-ofbid="d204787e80__20250123155223">创建一个新目录存储虚拟机文件。<ul class="- topic/ul ul" id="wmware-create-vm__ul_ncf_2cj_pdc" data-ofbid="wmware-create-vm__ul_ncf_2cj_pdc">
+                    <li class="- topic/li li" data-ofbid="d204787e84__20250123155223">
+                        <p class="- topic/p p" data-ofbid="d204787e86__20250123155223">虚拟机文件将被拆分为众多 2G 大小的文件存储，使用单独目录便于管理。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d204787e90__20250123155223">
+                        <p class="- topic/p p" data-ofbid="d204787e92__20250123155223">虚拟机文件将占用超过 20G 的磁盘空间，且在安装新软件后所占空间也将继续增大，确保预留足够存储空间。</p>
+                    </li>
+                </ul></div><figure class="- topic/fig fig fignone" id="wmware-create-vm__fig_i1t_cx4_fdc" data-ofbid="wmware-create-vm__fig_i1t_cx4_fdc">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="wmware-create-vm__image_mhq_wmp_wcc" src="../../../images/env/vmware_create_name_dire.jpg" alt="vmware-31"/></div><br/>
+            </figure>
+        </section>
+        <section class="- topic/section section" id="wmware-create-vm__id6" data-ofbid="wmware-create-vm__id6"><h2 class="- topic/title title sectiontitle">资源设置</h2>
+            <p class="- topic/p p" data-ofbid="d204787e110__20250123155223">在软件的安装过程种，需要设置可能会影响虚拟机使用体验的参数，建议的参数及其配置如下图所示：</p><figure class="- topic/fig fig fignone" id="wmware-create-vm__fig_j1t_cx4_fdc" data-ofbid="wmware-create-vm__fig_j1t_cx4_fdc">
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="wmware-create-vm__image_nhq_wmp_wcc" src="../../../images/env/vmware_config_hardware.jpg" alt="vmware-41"/></div><br/>
+            </figure>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#wmware-create-vm__id3" data-tocid="wmware-create-vm__id3">自定义安装</a></div></li><li class="section-item"><div class="section-title"><a href="#wmware-create-vm__id4" data-tocid="wmware-create-vm__id4">手动安装操作系统</a></div></li><li class="section-item"><div class="section-title"><a href="#wmware-create-vm__id5" data-tocid="wmware-create-vm__id5">虚拟机文件存储</a></div></li><li class="section-item"><div class="section-title"><a href="#wmware-create-vm__id6" data-tocid="wmware-create-vm__id6">资源设置</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: qi.xu@artinchip.com
-*  Desc: mpp_decoder interface
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: qi.xu@artinchip.com
+ *  Desc: mpp_decoder interface
+ */
 
 #ifndef _MPP_DECODER_H_
 #define _MPP_DECODER_H_

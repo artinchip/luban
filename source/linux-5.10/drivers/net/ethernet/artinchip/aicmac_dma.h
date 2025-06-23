@@ -20,10 +20,10 @@
 
 #define DMA_MIN_TX_SIZE		64
 #define DMA_MAX_TX_SIZE		1024
-#define DMA_DEFAULT_TX_SIZE	512
+#define DMA_DEFAULT_TX_SIZE	256
 #define DMA_MIN_RX_SIZE		64
 #define DMA_MAX_RX_SIZE		1024
-#define DMA_DEFAULT_RX_SIZE	512
+#define DMA_DEFAULT_RX_SIZE	256
 #define DMA_TX_SIZE		DMA_DEFAULT_TX_SIZE
 #define DMA_RX_SIZE		DMA_DEFAULT_RX_SIZE
 #define AICMAC_TX_THRESH	(DMA_TX_SIZE / 4)
@@ -59,9 +59,6 @@ struct aicmac_dma_data {
 	unsigned int tx_coe;
 	unsigned int rx_coe;
 	unsigned int dma_buf_sz;
-
-	int force_sf_dma_mode;
-	int force_thresh_dma_mode;
 
 	unsigned int tx_fifo_size;
 	unsigned int rx_fifo_size;

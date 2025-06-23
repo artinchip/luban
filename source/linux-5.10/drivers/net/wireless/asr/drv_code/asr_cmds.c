@@ -156,7 +156,8 @@ static int cmd_mgr_queue(struct asr_cmd_mgr *cmd_mgr, struct asr_cmd *cmd)
 		dev_err(asr_hw->dev, "[%s %d] ipc_host_msg_push ret=%d\n", __func__, __LINE__, ret);
 		//dump_stack();
 #ifdef CONFIG_ASR_SDIO
-		cmd_queue_crash_handle(asr_hw, __func__, __LINE__, ASR_RESTART_REASON_TXMSG_FAIL);
+		if (ret != -ECANCELED)
+			cmd_queue_crash_handle(asr_hw, __func__, __LINE__, ASR_RESTART_REASON_TXMSG_FAIL);
 #endif
 
 		return -EBUSY;
@@ -227,6 +228,17 @@ static int cmd_mgr_queue(struct asr_cmd_mgr *cmd_mgr, struct asr_cmd *cmd)
 	}
 	//dev_err(asr_hw->dev, "[%s %d] \n",__func__,__LINE__);
 	return 0;
+}
+static int cmd_mgr_queue_sync(struct asr_cmd_mgr *cmd_mgr, struct asr_cmd *cmd)
+{
+	struct asr_hw *asr_hw = container_of(cmd_mgr, struct asr_hw, cmd_mgr);
+	int ret;
+
+	mutex_lock(&asr_hw->tx_msg_mutex);
+	ret = cmd_mgr_queue(cmd_mgr, cmd);
+	mutex_unlock(&asr_hw->tx_msg_mutex);
+
+	return ret;
 }
 
 static int cmd_mgr_run_callback(struct asr_hw *asr_hw, struct asr_cmd *cmd, struct ipc_e2a_msg *msg, msg_cb_fct cb)
@@ -325,7 +337,7 @@ void asr_cmd_mgr_init(struct asr_cmd_mgr *cmd_mgr)
 	INIT_LIST_HEAD(&cmd_mgr->cmds);
 	spin_lock_init(&cmd_mgr->lock);
 	cmd_mgr->max_queue_sz = ASR_CMD_MAX_QUEUED;
-	cmd_mgr->queue = &cmd_mgr_queue;	//asr_send_msg
+	cmd_mgr->queue = &cmd_mgr_queue_sync;	//asr_send_msg
 	cmd_mgr->print = &cmd_mgr_print;
 	cmd_mgr->drain = &cmd_mgr_drain;
 	cmd_mgr->msgind = &cmd_mgr_msgind;

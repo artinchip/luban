@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg decode context define
-*
-*/
+ * Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg decode context define
+ *
+ */
 
 #ifndef MJPEG_DECODER_H
 #define MJPEG_DECODER_H
@@ -75,7 +77,8 @@ struct mjpeg_dec_ctx {
 
 	int nb_mcu_width;			// mcu aligned width
 	int nb_mcu_height; 			// mcu aligned height
-	int width, height;
+	int width, height;			// width and height of original picture
+	int scale_width, scale_height;		// width and height if scale down
 	int nb_components;
 	int component_id[MAX_COMPONENTS];
 	int h_count[MAX_COMPONENTS]; 		// horizontal count for each component
@@ -90,14 +93,6 @@ struct mjpeg_dec_ctx {
 	int restart_count;
 
 	int have_dht; 				// use the default huffman table, if there is no DHT marker
-
-	// post-process
-	int ver_scale;
-	int hor_scale;
-	int scale_en;				// scale enable
-	int rotate; 				// clockwise rotate angle
-	int mirror; 				// 0-disable; 1-horizontal; 2-vertical
-	int rotmir_en;				// rotate and mirror enable
 
 	int rm_h_stride[MAX_COMPONENTS];	// hor stride after post-process
 	int rm_v_stride[MAX_COMPONENTS];	// ver stride after post-process

@@ -63,9 +63,9 @@ enum dvp_subdev_pads {
 #define DVP_IN_HOR_SIZE(ch)		(DVP_CH_BASE(ch) + 0x10)
 #define DVP_IN_VER_SIZE(ch)		(DVP_CH_BASE(ch) + 0x14)
 #define DVP_OUT_HOR_SIZE(ch)		(DVP_CH_BASE(ch) + 0x20)
-#define DVP_OUT_HOR_SAMP(ch)		(DVP_CH_BASE(ch) + 0x24) // ?
+#define DVP_OUT_FIFO_LEVEL(ch)		(DVP_CH_BASE(ch) + 0x24)
 #define DVP_OUT_VER_SIZE(ch)		(DVP_CH_BASE(ch) + 0x28)
-#define DVP_OUT_VER_SAMP(ch)		(DVP_CH_BASE(ch) + 0x2C) // ?
+#define DVP_OUT_QOS_CFG(ch)		(DVP_CH_BASE(ch) + 0x2C)
 #define DVP_OUT_FRA_NUM(ch)		(DVP_CH_BASE(ch) + 0x30)
 #define DVP_OUT_CUR_FRA(ch)		(DVP_CH_BASE(ch) + 0x34)
 #define DVP_OUT_CTL(ch)			(DVP_CH_BASE(ch) + 0x38)
@@ -92,20 +92,34 @@ enum dvp_subdev_pads {
 #define DVP_CTL_EN			BIT(0)
 
 #define DVP_IRQ_EN_UPDATE_DONE		BIT(7)
+#define DVP_IRQ_EN_HNUM			BIT(2)
 #define DVP_IRQ_EN_FRAME_DONE		BIT(1)
 
 #define DVP_IRQ_STA_UPDATE_DONE		BIT(7)
 #define DVP_IRQ_STA_XY_CODE_ERR		BIT(6)
 #define DVP_IRQ_STA_BUF_FULL		BIT(3)
+#define DVP_IRQ_STA_HNUM		BIT(2)
 #define DVP_IRQ_STA_FRAME_DONE		BIT(1)
 
-#define DVP_IN_CFG_FILED_POL_NORMAL		BIT(3)
-#define DVP_IN_CFG_VSYNC_POL_ACTIVE_HIGH	BIT(2)
-#define DVP_IN_CFG_HREF_POL_ACTIVE_HIGH		BIT(1)
-#define DVP_IN_CFG_PCLK_POL_RISING_EDGE		BIT(0)
+#define DVP_IRQ_CFG_HNUM_MASK		GENMASK(30, 16)
+#define DVP_IRQ_CFG_HNUM_SHIFT		16
 
-#define DVP_OUT_HOR_NUM(w)		(((w) * 2 - 1) << 16)
-#define DVP_OUT_VER_NUM(h)		(((h) - 1) << 16)
+#define DVP_IN_CFG_FILED_POL_ACTIVE_LOW		BIT(3)
+#define DVP_IN_CFG_VSYNC_POL_FALLING		BIT(2)
+#define DVP_IN_CFG_HREF_POL_ACTIVE_HIGH		BIT(1)
+#define DVP_IN_CFG_PCLK_POL_FALLING		BIT(0)
+
+/* The field definition of IN_HOR_SIZE */
+#define DVP_IN_HOR_SIZE_IN_HOR_MASK		GENMASK(30, 16)
+#define DVP_IN_HOR_SIZE_IN_HOR_SHIFT		(16)
+#define DVP_IN_HOR_SIZE_XY_CODE_ERR_MASK	GENMASK(15, 8)
+#define DVP_IN_HOR_SIZE_XY_CODE_ERR_SHIFT	(8)
+#define DVP_IN_HOR_SIZE_XY_CODE_MASK		GENMASK(7, 0)
+#define DVP_IN_HOR_SIZE_XY_CODE_SHIFT		(0)
+#define DVP_IN_HOR_SIZE_XY_CODE_F		BIT(6)
+
+#define DVP_OUT_HOR_NUM(w, s)		(((w + s) * 2 - 1) << 16 | s)
+#define DVP_OUT_VER_NUM(h, s)		(((h + s) - 1) << 16 | s)
 
 #define DVP_OUT_ADDR_BUF(ch, plane)	(plane ? DVP_OUT_ADDR_BUF1(ch) \
 						: DVP_OUT_ADDR_BUF0(ch))
@@ -127,6 +141,7 @@ struct aic_dvp_config {
 	enum dvp_input		input;
 	enum dvp_input_yuv_seq	input_seq;
 	enum v4l2_field		field;
+	int			field_active;
 
 	/* Output format */
 	enum dvp_output	output;
@@ -201,7 +216,12 @@ int aic_dvp_clr_int(struct aic_dvp *dvp);
 void aic_dvp_enable_int(struct aic_dvp *dvp, int enable);
 void aic_dvp_set_pol(struct aic_dvp *dvp);
 void aic_dvp_set_cfg(struct aic_dvp *dvp);
-void aic_dvp_update_buf_addr(struct aic_dvp *dvp, struct aic_dvp_buf *buf);
+void aic_dvp_update_buf_addr(struct aic_dvp *dvp, struct aic_dvp_buf *buf,
+			     u32 offset);
 void aic_dvp_update_ctl(struct aic_dvp *dvp);
+u32 aic_dvp_get_current_xy(struct aic_dvp *dvp);
+u32 aic_dvp_is_top_field(void);
+u32 aic_dvp_is_bottom_field(void);
+void aic_dvp_field_tag_clr(void);
 
 #endif /* _AIC_DVP_H_ */

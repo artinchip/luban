@@ -123,7 +123,7 @@ int panel_register_callback(struct aic_panel *panel,
 int panel_parse_dts(struct udevice *dev)
 {
 	struct panel_priv *priv = dev_get_priv(dev);
-	int ret;
+	int ret, switch_status;
 
 	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
 		ret = uclass_find_device_by_phandle(UCLASS_REGULATOR, dev,
@@ -164,10 +164,19 @@ int panel_parse_dts(struct udevice *dev)
 			debug("Can't get tearing effect signal pulse width\n");
 			return ret;
 		}
-
 	}
 
-	if (!ofnode_decode_display_timing(dev_ofnode(dev), 0, &priv->timing))
+	ret = gpio_request_by_name(dev, "switch-gpios", 0, &priv->gpiod_switch,
+				GPIOD_IS_IN);
+	if (ret)
+		debug("Failed to request switch gpio\n\r");
+
+	switch_status = dm_gpio_get_value(&priv->gpiod_switch);
+
+	if (switch_status < 0)
+		switch_status = 0;
+
+	if (!ofnode_decode_display_timing(dev_ofnode(dev), switch_status, &priv->timing))
 		priv->use_dt_timing = true;
 	else
 		priv->use_dt_timing = false;

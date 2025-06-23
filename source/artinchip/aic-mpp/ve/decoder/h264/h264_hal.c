@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: h264 register config
-*
-*/
+ * Copyright (C) 2020-2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: h264 register config
+ *
+ */
 #include <stdlib.h>
 #include <string.h>
 
@@ -439,8 +441,8 @@ static void config_refrence_frame_info(struct h264_dec_ctx *s)
 	int cur_frame_idx = s->frame_info.cur_pic_ptr->buf_idx;
 
 	memset(frame_info, 0, 32*sizeof(struct frame_info));
-	//* 1. find the corresponding top/bottom field,
-	//*    then save the info to frame_info
+	// 1. find the corresponding top/bottom field,
+	//    then save the info to frame_info
 	logd("list_count: %d, num_ref: %d", s->sh.list_count, s->sh.num_ref_idx[0]);
 	for(list=0; list<s->sh.list_count; list++) {
 		for(i=0; i<s->sh.num_ref_idx[list]; i++) {
@@ -452,7 +454,7 @@ static void config_refrence_frame_info(struct h264_dec_ctx *s)
 				frame_info[buf_idx].buf_idx = buf_idx;
 
 				if(pic->refrence == PICT_FRAME) {
-					//* current picture is used for refrence
+					// current picture is used for refrence
 					frame_info[buf_idx].field_poc[0] = pic->field_poc[0];
 					frame_info[buf_idx].field_poc[1] = pic->field_poc[1];
 					frame_info[buf_idx].frame_stucture = 1;
@@ -492,7 +494,7 @@ static void config_refrence_frame_info(struct h264_dec_ctx *s)
 	}
 
 	logd("valid_frame_num: %d", valid_frame_num);
-	//* config reference frame info register
+	// config reference frame info register
 	for(i=0; i<valid_frame_num; i++) {
 		j = valid_frame[i];
 		// top poc ( select 0 )
@@ -561,10 +563,10 @@ static void config_framebuffer_info(struct h264_dec_ctx *s)
 	if(s->fp_reg)
 		fprintf(s->fp_reg, "// config framebuffer info\n");
 
-	//* config currrent frame info
+	// config currrent frame info
 	config_frame_info(s, s->frame_info.cur_pic_ptr);
 
-	//* config reference frame info
+	// config reference frame info
 	config_refrence_frame_info(s);
 }
 
@@ -596,7 +598,7 @@ static void config_picture_info(struct h264_dec_ctx *s)
 		+ s->decoder.output_x;
 	if ((s->pix_format == MPP_FMT_NV12) || (s->pix_format == MPP_FMT_NV21)) {
 		phy_addr_offset[1] = s->decoder.output_y * cur_pic->frame->mpp_frame.buf.stride[1] /2
-			+ s->decoder.output_x ;
+			+ s->decoder.output_x;
 	} else {
 		phy_addr_offset[1] = s->decoder.output_y * cur_pic->frame->mpp_frame.buf.stride[1] /2
 			+ s->decoder.output_x / 2;
@@ -814,5 +816,6 @@ error:
 	cur_pic->frame->mpp_frame.flags |= FRAME_FLAG_ERROR;
 	ve_put_client();
 	s->avc_start = 1;
+	s->error = H264_DECODER_ERROR_HARD;
 	return ret;
 }

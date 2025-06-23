@@ -172,6 +172,7 @@ struct aic_i2c_dev {
 	struct reset_control *rst;
 	int irq;
 	enum aic_i2c_speed i2c_speed;
+	u32 target_rate;
 	u16 scl_hcnt;
 	u16 scl_lcnt;
 	u32 abort_source;

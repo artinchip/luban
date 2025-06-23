@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_FSCRYPT
+	bool "fscrypt"
+	depends on BR2_PACKAGE_HOST_GO_TARGET_ARCH_SUPPORTS
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+
+if BR2_PACKAGE_FSCRYPT
+
+config BR2_PACKAGE_FSCRYPT_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif
+
+comment "needs a toolchain"
+	depends on BR2_PACKAGE_HOST_GO_TARGET_ARCH_SUPPORTS
+	depends on !BR2_TOOLCHAIN_HAS_THREADS

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2021 ArtInChip Technology Co., Ltd
+ * Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
  */
 #ifndef __AICUPG_H__
 #define __AICUPG_H__
@@ -21,6 +21,8 @@
 #define UPG_PROTO_CMD_FREE_MEM_BUF		0x09
 #define UPG_PROTO_CMD_SET_UPG_CFG		0x0A
 #define UPG_PROTO_CMD_SET_UPG_END		0x0B
+#define UPG_PROTO_CMD_GET_LOG_SIZE		0x0C
+#define UPG_PROTO_CMD_GET_LOG_DATA		0x0D
 #define UPG_PROTO_CMD_SET_FWC_META		0x10
 #define UPG_PROTO_CMD_GET_BLOCK_SIZE		0x11
 #define UPG_PROTO_CMD_SEND_FWC_DATA		0x12
@@ -87,19 +89,30 @@ enum upg_mode {
 	UPG_MODE_BURN_USER_ID,
 	UPG_MODE_DUMP_PARTITION,
 	UPG_MODE_BURN_IMG_FORCE,
+	/*
+	 * UPG_MODE_BURN_FROZEN:
+	 * Set by Host Tool for case:
+	 *   Host Tool already burn image/userid successfuly, and don't want burn
+	 *   the same image again before next reboot, Host Tool will set this
+	 *   flag to upg_cfg.mode.
+	 *
+	 *   Host Tool will check this flag from device, if the flag in device is
+	 *   UPG_MODE_BURN_FROZEN, it will skip the device.
+	 */
 	UPG_MODE_BURN_FROZEN,
 	UPG_MODE_INVALID,
 };
 
 struct upg_cfg {
-	u8 mode;
+	u8 mode; /* The value is "enum upg_mode" */
 	u8 reserved[31];
 };
 
 #define INIT_MODE(mode) (1 << (mode))
 
 struct upg_init {
-	u8 mode;
+	/* Store the "enum upg_mode" value by bit index */
+	u8 mode_bits;
 };
 
 s32 aicupg_initialize(struct upg_init *param);
@@ -107,6 +120,8 @@ s32 aicupg_set_upg_cfg(struct upg_cfg *cfg);
 s32 aicupg_get_upg_mode(void);
 s32 aicupg_data_packet_write(u8 *data, s32 len);
 s32 aicupg_data_packet_read(u8 *data, s32 len);
+void aicupg_show_upg_cfg_mode(int mode);
+void aicupg_show_init_cfg_mode(int mode_bits);
 
 /*SD card upgrade function*/
 s32 aicupg_sd_write(struct image_header_upgrade *header, struct mmc *mmc,
@@ -116,4 +131,7 @@ s32 aicupg_mmc_create_gpt_part(u32 mmc_id, bool is_sdupg);
 /*fat upgrade function*/
 s32 aicupg_fat_write(char *image_name, char *protection,
 				struct image_header_upgrade *header);
+typedef void (*progress_cb)(u32 percent);
+void aicupg_fat_set_process_cb(progress_cb cb);
+
 #endif /* __AICUPG_H__ */

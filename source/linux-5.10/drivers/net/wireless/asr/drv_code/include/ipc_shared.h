@@ -53,53 +53,72 @@
  * RX Data buffers size (in bytes) need adjust
  */
 #ifdef CONFIG_ASR_SDIO
-#define IPC_RXBUF_SIZE      13568	//1696*8
+#define ASR_ALIGN_BLKSZ(x) (((x)+SDIO_BLOCK_SIZE-1)&(~(SDIO_BLOCK_SIZE-1)))
 #else
-#define IPC_RXBUF_SIZE      1696	//1696*1
+#define ASR_ALIGN_BLKSZ(x)  (x)
+#endif
+
+#define SDIO_MAX_AGGR_PORT_NUM     8
+#ifdef CONFIG_ASR_SDIO
+#define IPC_RXBUF_SIZE      ASR_ALIGN_BLKSZ(1696)*(SDIO_MAX_AGGR_PORT_NUM)    //13568	//1696*8
+#else
+#define IPC_RXBUF_SIZE      (1696)	//1696*1
 #endif
 
 #define IPC_MSG_RXBUF_CNT       8
-#define IPC_MSG_RXBUF_SIZE      1696
+#define IPC_MSG_RXBUF_SIZE      ASR_ALIGN_BLKSZ(1696)
 
-#define IPC_HIF_TXBUF_SIZE  13568	//1696*8
+#define IPC_LOG_RXBUF_CNT       1
+#define IPC_LOG_RXBUF_SIZE      ASR_ALIGN_BLKSZ(1696)
+
 /*
- * Number of Host buffers available for Data Rx handling
+ * RX AMSDU buffers size (in bytes) and cnt need adjust
  */
+#define IPC_RXBUF_SIZE_SPLIT             (WLAN_AMSDU_RX_LEN)
+
 #ifdef CONFIG_ASR_SDIO
 #define IPC_RXBUF_CNT_SPLIT       2 // 8    // refine , only used for temp save part of mpdu when rx amsdu or ringbuf , others directly to ip stack.
 #else
 #define IPC_RXBUF_CNT_SPLIT       2
 #endif
 
+
 /*
- * RX Data buffers size (in bytes) need adjust
+ * RX deaggr buffers size (in bytes) and cnt need adjust
  */
-#define IPC_RXBUF_SIZE_SPLIT      (WLAN_AMSDU_RX_LEN)
-
 #ifdef SDIO_DEAGGR
-#define IPC_RXBUF_CNT_SDIO_DEAGG       (50)    // 336   // (50-8)*8
-#define IPC_RXBUF_SIZE_SDIO_DEAGG      (1696)
-#endif
+#ifdef CONFIG_ASR595X
+// wifi6 rx ringbuf used.
+#define IPC_RXBUF_CNT_SDIO_DEAGG_AMSDU   (15)
+#define IPC_RXBUF_SIZE_SDIO_DEAGG_AMSDU  (WLAN_AMSDU_RX_LEN)
 
-#define AGGR_TX_NUM 24
+#ifdef SDIO_DEAGGR_AMSDU
+#define IPC_RXBUF_CNT_SDIO_DEAGG         (30)    // 336   // (50-8)*8
+#define IPC_RXBUF_SIZE_SDIO_DEAGG        (1696)
+#else
+#define IPC_RXBUF_CNT_SDIO_DEAGG         (30)    // 336   // (50-8)*8
+#define IPC_RXBUF_SIZE_SDIO_DEAGG        IPC_RXBUF_SIZE_SDIO_DEAGG_AMSDU
+#endif
+#else
+#define IPC_RXBUF_CNT_SDIO_DEAGG         (50)    // 336   // (50-8)*8
+#define IPC_RXBUF_SIZE_SDIO_DEAGG        ASR_ALIGN_BLKSZ(1696)
+#endif
+#endif  // SDIO_DEAGGR
 
 /*
  * Number of Host buffers available for Data Tx handling
  */
-#define IPC_TXBUF_CNT_AGG      10
+// new tx list macro
+#define IPC_HIF_TXBUF_SIZE   ASR_ALIGN_BLKSZ(1696)*(SDIO_MAX_AGGR_PORT_NUM)
 
-/*
- * RX Data buffers size (in bytes) need adjust
- */
-#define IPC_TXBUF_SIZE_AGG     (IPC_RXBUF_SIZE_SPLIT*AGGR_TX_NUM)	// 1696*24
-
+// tx agg buf macro
 #define TX_AGG_BUF_UNIT_CNT  (180)	//240
 #ifdef CONFIG_ASR595X
 #define TX_AGG_BUF_UNIT_SIZE (1632)  //  44 + (2+60) + 1500 + 4
 #else
-#define TX_AGG_BUF_UNIT_SIZE (1696)
+#define TX_AGG_BUF_UNIT_SIZE ASR_ALIGN_BLKSZ(1696)
 #endif
-#define TX_AGG_BUF_SIZE (TX_AGG_BUF_UNIT_CNT*TX_AGG_BUF_UNIT_SIZE)
+#define TX_AGG_BUF_SIZE     (TX_AGG_BUF_UNIT_CNT*TX_AGG_BUF_UNIT_SIZE)
 
 /*
  * Length used in MSGs structures

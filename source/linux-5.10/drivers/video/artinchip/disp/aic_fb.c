@@ -9,7 +9,6 @@
 #include <linux/sched.h>
 #include <linux/errno.h>
 #include <linux/string.h>
-#include <linux/fb.h>
 #include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/dma-mapping.h>
@@ -21,11 +20,10 @@
 #include <linux/of_address.h>
 #include <linux/memblock.h>
 #include <linux/component.h>
-#include <linux/dma-buf.h>
 #include <linux/pm_runtime.h>
 
 #include "video/artinchip_fb.h"
-#include "aic_com.h"
+#include "aic_fb.h"
 #include "hw/de_hw.h"
 
 #define AICFB_NAME "aicfb"
@@ -76,46 +74,27 @@ struct aicfb_data {
 	bool fb_valid[MAX_FB_NUM];
 };
 
-struct aicfb_info {
-	char name[8];
-	int blank;
-
-	int fb_rotate;
-	int disp_buf_num;
-
-	int fb_size;
-	void *fb_start;
-	dma_addr_t fb_start_dma;
-
-	struct mpp_size screen_size;
-	u32 pseudo_palette[16];
-
-	struct device *de_dev;
-	struct device *di_dev;
-	struct device *panel_dev;
-	struct de_funcs *de;
-	struct di_funcs *di;
-	struct aic_panel *panel;
-
-	struct mutex mutex;
-
-	struct aicfb_disp_prop *disp_prop;
-	bool set_hsbc;
-};
-
-struct aicfb_ioctl_cmd {
-	u32 cmd;
-	s32 (*f)(struct aicfb_info *fbi, unsigned long arg);
-	char desc[32];
-};
-
 struct aicfb_format aicfb_format_lists[] = {
 	{"a8r8g8b8", 32, {16, 8}, {8, 8}, {0, 8}, {24, 8}, MPP_FMT_ARGB_8888},
 	{"a8b8g8r8", 32, {0, 8}, {8, 8}, {16, 8}, {24, 8}, MPP_FMT_ABGR_8888},
+	{"r8g8b8a8", 32, {24, 8}, {16, 8}, {8, 8}, {0, 8}, MPP_FMT_RGBA_8888},
+	{"b8g8r8a8", 32, {8, 8}, {16, 8}, {24, 8}, {0, 8}, MPP_FMT_BGRA_8888},
 	{"x8r8g8b8", 32, {16, 8}, {8, 8}, {0, 8}, {0, 0}, MPP_FMT_XRGB_8888},
+	{"x8b8g8r8", 32, {0, 8}, {8, 8}, {16, 8}, {0, 0}, MPP_FMT_XBGR_8888},
+	{"r8g8b8x8", 32, {24, 8}, {16, 8}, {8, 8}, {0, 0}, MPP_FMT_RGBX_8888},
+	{"b8g8r8x8", 32, {8, 8}, {16, 8}, {24, 8}, {0, 0}, MPP_FMT_BGRX_8888},
 	{"r8g8b8", 24, {16, 8}, {8, 8}, {0, 8}, {0, 0}, MPP_FMT_RGB_888},
+	{"b8g8r8", 24, {0, 8}, {8, 8}, {16, 8}, {0, 0}, MPP_FMT_BGR_888},
 	{"r5g6b5", 16, {11, 5}, {5, 6}, {0, 5}, {0, 0}, MPP_FMT_RGB_565},
+	{"b5g6r5", 16, {0, 5}, {5, 6}, {11, 5}, {0, 0}, MPP_FMT_BGR_565},
 	{"a1r5g5b5", 16, {10, 5}, {5, 5}, {0, 5}, {15, 1}, MPP_FMT_ARGB_1555},
+	{"a1b5g5r5", 16, {0, 5}, {5, 5}, {10, 5}, {15, 1}, MPP_FMT_ABGR_1555},
+	{"r5g5b5a1", 16, {11, 5}, {6, 5}, {1, 5}, {0, 1}, MPP_FMT_RGBA_5551},
+	{"b5g5r5a1", 16, {1, 5}, {6, 5}, {11, 5}, {0, 1}, MPP_FMT_BGRA_5551},
+	{"a4r4g4b4", 16, {8, 4}, {4, 4}, {0, 4}, {12, 4}, MPP_FMT_ARGB_4444},
+	{"a4b4g4r4", 16, {0, 4}, {4, 4}, {8, 4}, {12, 4}, MPP_FMT_ABGR_4444},
+	{"r4g4b4a4", 16, {12, 4}, {8, 4}, {4, 4}, {0, 4}, MPP_FMT_RGBA_4444},
+	{"b4g4r4a4", 16, {8, 4}, {8, 4}, {12, 4}, {0, 4}, MPP_FMT_BGRA_4444},
 };
 
 phys_addr_t uboot_logo_base;
@@ -354,406 +333,6 @@ static int aic_fb_pan_display(struct fb_var_screeninfo *var,
 	return 0;
 }
 
-static s32 aicfb_ioctl_wait_for_vsync(struct aicfb_info *fbi, unsigned long arg)
-{
-	return fbi->de->wait_for_vsync();
-}
-
-static s32 aicfb_ioctl_get_layer_num(struct aicfb_info *fbi, unsigned long arg)
-{
-	struct aicfb_layer_num num;
-
-	fbi->de->get_layer_num(&num);
-	if (copy_to_user((void __user *)arg, &num,
-			sizeof(struct aicfb_layer_num)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_get_layer_cap(struct aicfb_info *fbi, unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_layer_capability cap;
-
-	if (copy_from_user(&cap,
-		(void __user *)arg, sizeof(struct aicfb_layer_capability)))
-		return -EFAULT;
-
-	ret = fbi->de->get_layer_cap(&cap);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg, &cap,
-			sizeof(struct aicfb_layer_capability)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_get_layer_cfg(struct aicfb_info *fbi, unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_layer_data layer;
-
-	if (copy_from_user(&layer,
-		(void __user *)arg, sizeof(struct aicfb_layer_data)))
-		return -EFAULT;
-
-	ret = fbi->de->get_layer_config(&layer);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg,
-			&layer, sizeof(struct aicfb_layer_data)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_update_layer_cfg(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	struct aicfb_layer_data layer;
-
-	if (copy_from_user(&layer,
-		(void __user *)arg, sizeof(struct aicfb_layer_data)))
-		return -EFAULT;
-
-	return fbi->de->update_layer_config(&layer);
-}
-
-static s32 aicfb_ioctl_set_display_prop(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	s32 ret = 0;
-
-	mutex_lock(&fbi->mutex);
-	if (copy_from_user(fbi->disp_prop,
-			   (void __user *)arg,
-			   sizeof(struct aicfb_disp_prop))) {
-		mutex_unlock(&fbi->mutex);
-		return -EFAULT;
-	}
-
-	ret = fbi->de->set_display_prop(fbi->disp_prop);
-	mutex_unlock(&fbi->mutex);
-
-	return ret;
-}
-
-static s32 aicfb_ioctl_get_display_prop(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_disp_prop prop;
-
-	ret = fbi->de->get_display_prop(&prop);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg,
-			&prop, sizeof(struct aicfb_disp_prop)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_update_layer_cfg_list(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	u32 num;
-	s32 ret = 0;
-	struct aicfb_config_lists *plist = NULL;
-
-	if (copy_from_user(&num, (void __user *)arg, sizeof(u32)))
-		return -EFAULT;
-	if (num == 0)
-		return -EFAULT;
-
-	plist = vmalloc(sizeof(u32) + sizeof(struct aicfb_layer_data) * num);
-	if (!plist)
-		return -ENOMEM;
-
-	if (copy_from_user(plist, (void __user *)arg,
-		sizeof(u32) + sizeof(struct aicfb_layer_data) * num)) {
-		vfree(plist);
-		return -EFAULT;
-	}
-
-	ret = fbi->de->update_layer_config_list(plist);
-
-	vfree(plist);
-	return ret;
-}
-
-static s32 aicfb_ioctl_get_alpha_cfg(struct aicfb_info *fbi, unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_alpha_config alpha = {0};
-
-	if (copy_from_user(&alpha,
-		(void __user *)arg, sizeof(struct aicfb_alpha_config)))
-		return -EFAULT;
-
-	ret = fbi->de->get_alpha_config(&alpha);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg,
-			&alpha, sizeof(struct aicfb_alpha_config)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_update_alpha_cfg(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	struct aicfb_alpha_config alpha = {0};
-
-	if (copy_from_user(&alpha,
-		(void __user *)arg, sizeof(struct aicfb_alpha_config)))
-		return -EFAULT;
-
-	return fbi->de->update_alpha_config(&alpha);
-}
-
-static s32 aicfb_ioctl_get_ck_cfg(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_ck_config ck;
-
-	if (copy_from_user(&ck,
-		(void __user *)arg, sizeof(struct aicfb_ck_config)))
-		return -EFAULT;
-
-	ret = fbi->de->get_ck_config(&ck);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg,
-			&ck, sizeof(struct aicfb_ck_config)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_update_ck_cfg(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	struct aicfb_ck_config cfg;
-
-	if (copy_from_user(&cfg,
-		(void __user *)arg, sizeof(struct aicfb_ck_config)))
-		return -EFAULT;
-
-	return fbi->de->update_ck_config(&cfg);
-}
-
-static s32 aicfb_ioctl_get_screen_size(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	struct mpp_size s;
-
-	memcpy(&s, &fbi->screen_size, sizeof(struct mpp_size));
-	if (copy_to_user((void __user *)arg, &s, sizeof(struct mpp_size)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_get_fb_layer_cfg(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	s32 ret = 0;
-	struct aicfb_layer_data layer = {0};
-
-	layer.layer_id = 1;
-	ret = fbi->de->get_layer_config(&layer);
-	if (ret)
-		return ret;
-	if (copy_to_user((void __user *)arg,
-			&layer, sizeof(struct aicfb_layer_data)))
-		return -EFAULT;
-
-	return 0;
-}
-
-#ifdef CONFIG_DMA_SHARED_BUFFER
-static s32 aicfb_ioctl_add_dmabuf(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	int ret = 0;
-	struct dma_buf_info fds;
-
-	if (copy_from_user(&fds,
-		(void __user *)arg, sizeof(struct dma_buf_info)))
-		return -EFAULT;
-
-	ret = fbi->de->add_dmabuf(&fds);
-	if (ret)
-		return ret;
-
-	if (copy_to_user((void __user *)arg,
-			&fds, sizeof(struct dma_buf_info)))
-		return -EFAULT;
-
-	return 0;
-}
-
-static s32 aicfb_ioctl_remove_dmabuf(struct aicfb_info *fbi,
-	unsigned long arg)
-{
-	struct dma_buf_info fds;
-
-	if (copy_from_user(&fds,
-		(void __user *)arg, sizeof(struct dma_buf_info)))
-		return -EFAULT;
-
-	return fbi->de->remove_dmabuf(&fds);
-}
-
-dma_addr_t fb_dma_addr;
-unsigned int fb_dma_len;
-
-static int aicfb_dma_buf_attach(struct dma_buf *dmabuf,
-			   struct dma_buf_attachment *attachment)
-{
-	return 0;
-}
-
-static void aicfb_dma_buf_detach(struct dma_buf *dmabuf,
-			    struct dma_buf_attachment *attachment)
-{
-}
-
-static
-struct sg_table *aicfb_map_dma_buf(struct dma_buf_attachment *attachment,
-				      enum dma_data_direction direction)
-{
-	struct sg_table *table;
-
-	table = kmalloc(sizeof(*table), GFP_KERNEL);
-
-	sg_alloc_table(table, 1, GFP_KERNEL);
-	sg_dma_len(table->sgl) = fb_dma_len;
-	sg_dma_address(table->sgl) = fb_dma_addr;
-
-	return table;
-}
-
-static void aicfb_unmap_dma_buf(struct dma_buf_attachment *attachment,
-				   struct sg_table *table,
-				   enum dma_data_direction direction)
-{
-	sg_free_table(table);
-	kfree(table);
-}
-
-static int aicfb_dma_buf_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)
-{
-	return 0;
-}
-
-static void aicfb_dma_buf_release(struct dma_buf *dmabuf)
-{
-	kfree(dmabuf);
-}
-
-static int aicfb_dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
-					     enum dma_data_direction direction)
-{
-	return 0;
-}
-
-static int aicfb_dma_buf_end_cpu_access(struct dma_buf *dmabuf,
-					   enum dma_data_direction direction)
-{
-	return 0;
-}
-
-static const struct dma_buf_ops aicfb_dmabuf_ops = {
-	.map_dma_buf = aicfb_map_dma_buf,
-	.unmap_dma_buf = aicfb_unmap_dma_buf,
-	.mmap = aicfb_dma_buf_mmap,
-	.release = aicfb_dma_buf_release,
-	.attach = aicfb_dma_buf_attach,
-	.detach = aicfb_dma_buf_detach,
-	.begin_cpu_access = aicfb_dma_buf_begin_cpu_access,
-	.end_cpu_access = aicfb_dma_buf_end_cpu_access,
-};
-
-static s32 aicfb_ioctl_to_dmabuf_fd(struct aicfb_info *fbi, unsigned long arg)
-{
-	int fd;
-	struct dma_buf_info fds;
-	struct dma_buf *dmabuf;
-	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
-
-	exp_info.ops = &aicfb_dmabuf_ops;
-	exp_info.flags = O_CLOEXEC;
-	exp_info.size = fb_dma_len;
-	exp_info.priv = &fb_dma_addr;
-
-	dmabuf = dma_buf_export(&exp_info);
-	if (IS_ERR(dmabuf))
-		return -EFAULT;
-
-	fd = dma_buf_fd(dmabuf, O_CLOEXEC);
-	if (fd < 0) {
-		dma_buf_put(dmabuf);
-		return fd;
-	}
-	fds.fd = fd;
-
-	if (copy_to_user((void __user *)arg,
-			&fds, sizeof(struct dma_buf_info)))
-		return -EFAULT;
-
-	return 0;
-}
-#endif
-
-struct aicfb_ioctl_cmd aicfb_ioctl_cmds[] = {
-{AICFB_WAIT_FOR_VSYNC, aicfb_ioctl_wait_for_vsync, "Wait for vsync"},
-{AICFB_GET_LAYER_NUM, aicfb_ioctl_get_layer_num, "Get layer num"},
-{AICFB_GET_LAYER_CAPABILITY, aicfb_ioctl_get_layer_cap, "Get layer capability"},
-{AICFB_GET_LAYER_CONFIG, aicfb_ioctl_get_layer_cfg, "Get layer cfg"},
-{AICFB_UPDATE_LAYER_CONFIG, aicfb_ioctl_update_layer_cfg, "Update layer cfg"},
-{AICFB_UPDATE_LAYER_CONFIG_LISTS, aicfb_ioctl_update_layer_cfg_list,
-	"Update layer cfg list"},
-{AICFB_GET_ALPHA_CONFIG, aicfb_ioctl_get_alpha_cfg, "Get alpha cfg"},
-{AICFB_UPDATE_ALPHA_CONFIG, aicfb_ioctl_update_alpha_cfg, "Update alpha cfg"},
-{AICFB_GET_CK_CONFIG, aicfb_ioctl_get_ck_cfg, "Get Color Key cfg"},
-{AICFB_UPDATE_CK_CONFIG, aicfb_ioctl_update_ck_cfg, "Update Color Key cfg"},
-{AICFB_GET_SCREEN_SIZE, aicfb_ioctl_get_screen_size, "Get screen size"},
-{AICFB_GET_FB_LAYER_CONFIG, aicfb_ioctl_get_fb_layer_cfg, "Get FB layer cfg"},
-{AICFB_SET_DISP_PROP, aicfb_ioctl_set_display_prop, "Set display prop"},
-{AICFB_GET_DISP_PROP, aicfb_ioctl_get_display_prop, "Get display prop"},
-#ifdef CONFIG_DMA_SHARED_BUFFER
-{AICFB_ADD_DMABUF, aicfb_ioctl_add_dmabuf, "Add dma-buf by given fd"},
-{AICFB_RM_DMABUF, aicfb_ioctl_remove_dmabuf, "Remove dma-buf by given fd"},
-{AICFB_TO_DMABUF_FD, aicfb_ioctl_to_dmabuf_fd, "Exports a dma-buf fd"},
-#endif
-{0xFFFF, NULL, ""}
-};
-
-int aic_fb_ioctl(struct fb_info *info, unsigned int cmd,
-			unsigned long arg)
-{
-	struct aicfb_ioctl_cmd *ioctl = aicfb_ioctl_cmds;
-	struct aicfb_info *fbi = (struct aicfb_info *)info->par;
-
-	do {
-		if ((ioctl->cmd == cmd) && ioctl->f) {
-			pr_debug("%s() - ioctl %#x(%s)\n",
-				__func__, cmd, ioctl->desc);
-			return ioctl->f(fbi, arg);
-		}
-
-		ioctl++;
-	} while (ioctl->cmd != 0xFFFF);
-	pr_err("%s() - Invalid ioctl cmd %#x\n", __func__, cmd);
-	return -EINVAL;
-}
-
 int aic_fb_check_var(struct fb_var_screeninfo *var,
 			    struct fb_info *info)
 {
@@ -769,9 +348,42 @@ int aic_fb_check_var(struct fb_var_screeninfo *var,
 int aic_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 {
 	struct aicfb_info *fbi = (struct aicfb_info *)info->par;
+	unsigned long mmio_pgoff;
+	unsigned long start;
+	u32 len;
 
-	return dma_mmap_coherent(info->dev, vma, fbi->fb_start,
-				 fbi->fb_start_dma, fbi->fb_size);
+	if (fbi->dma_coherent)
+		return dma_mmap_attrs(info->dev->parent, vma, fbi->fb_start,
+					 fbi->fb_start_dma, fbi->fb_size,
+					 DMA_ATTR_WRITE_COMBINE);
+
+	/*
+	 * Ugh. This can be either the frame buffer mapping, or
+	 * if pgoff points past it, the mmio mapping.
+	 */
+	start = info->fix.smem_start;
+	len = info->fix.smem_len;
+	mmio_pgoff = PAGE_ALIGN((start & ~PAGE_MASK) + len) >> PAGE_SHIFT;
+	if (vma->vm_pgoff >= mmio_pgoff) {
+		if (info->var.accel_flags) {
+			mutex_unlock(&info->mm_lock);
+			return -EINVAL;
+		}
+
+		vma->vm_pgoff -= mmio_pgoff;
+		start = info->fix.mmio_start;
+		len = info->fix.mmio_len;
+	}
+	mutex_unlock(&info->mm_lock);
+
+	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+	/*
+	 * The framebuffer needs to be accessed decrypted, be sure
+	 * SME protection is removed
+	 */
+	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
+
+	return vm_iomap_memory(vma, start, len);
 }
 
 struct fb_ops aicfb_ops = {
@@ -1479,14 +1091,14 @@ static int aicfb_bind(struct device *dev)
 
 	/* request fb0 framebuffer */
 	fb_size = aicfb_calc_fb_size(fbi, dt);
-	fbi->fb_start = dma_alloc_coherent(dev, PAGE_ALIGN(fb_size),
-				&fbi->fb_start_dma,  GFP_KERNEL);
+	fbi->fb_start = dma_alloc_attrs(dev, PAGE_ALIGN(fb_size),
+				&fbi->fb_start_dma, GFP_KERNEL,
+				DMA_ATTR_WRITE_COMBINE);
 	if (fbi->fb_start == NULL) {
 		ret = -ENOMEM;
 		goto err_dma_alloc;
 	}
-	fb_dma_addr = fbi->fb_start_dma;
-	fb_dma_len = fbi->fb_size;
+	fbi->dma_coherent = true;
 
 	dev_info(dev, "%d allocated for %s, %#llx/%#llx\n",
 		fb_size, fbi->name, (u64)fbi->fb_start, fbi->fb_start_dma);
@@ -1630,7 +1242,6 @@ static int aicfb_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef CONFIG_PM
 static int aicfb_pm_suspend(struct device *dev)
 {
 	struct aicfb_data *fbd = dev_get_drvdata(dev);
@@ -1678,6 +1289,7 @@ static int aicfb_pm_resume(struct device *dev)
 	return 0;
 }
 
+#ifdef CONFIG_PM
 static UNIVERSAL_DEV_PM_OPS(aicfb_pm_ops, aicfb_pm_suspend,
 		aicfb_pm_resume, NULL);
 #endif

@@ -213,7 +213,7 @@ void asr_rx_ate_handle(struct asr_hw *asr_hw, struct ipc_e2a_msg *msg)
 	spin_unlock_bh(&g_ate_info.lock);
 }
 
-static int ate_direct_tx_rx(struct asr_hw *asr_hw, char *cmd_buff, unsigned char *data, u32 wait_ms)
+static int ate_direct_tx_rx(struct asr_hw *asr_hw, char *cmd_buff,unsigned char *data, u32 wait_ms)
 {
 	int ret = -1;
 	int len = 0;
@@ -221,7 +221,7 @@ static int ate_direct_tx_rx(struct asr_hw *asr_hw, char *cmd_buff, unsigned char
 
 	//dev_info(asr_hw->dev, "%s: str=%s,cmd=%s\n", __func__, data, cmd_buff);
 
-	ret = asr_send_ate_data(asr_hw, cmd_buff, strlen(cmd_buff) - 1);
+	ret = asr_send_ate_data(asr_hw, cmd_buff, strlen(cmd_buff) + 1);
 	if (ret < 0) {
 		dev_err(asr_hw->dev, "%s: fail\n", __func__);
 		return ret;
@@ -246,8 +246,7 @@ static int ate_direct_tx_rx(struct asr_hw *asr_hw, char *cmd_buff, unsigned char
 			len = strlen(skb->data);
 			memcpy((char *)data,"rsp:",4);
 			memcpy((char *)(data+4), skb->data, len);
-
-			memset(skb->data, 0, ASR_ATE_BUFF_SIZE);
+			memset(skb->data, 0, ATE_AT_CMD_LEN);
 			// Add the sk buffer structure in the table of rx buffer
 			skb_queue_tail(&g_ate_info.rx_msg_empty_list, skb);
 		}
@@ -264,12 +263,11 @@ static int ate_direct_tx_rx(struct asr_hw *asr_hw, char *cmd_buff, unsigned char
 
 int ate_data_direct_tx_rx(struct asr_hw *asr_hw, unsigned char *data)
 {
-	char cmd_buff[100];
+	char cmd_buff[ATE_AT_CMD_LEN]={0};
 	char *pdata = data, *presult = NULL;
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
-	memset(cmd_buff, 0, sizeof(cmd_buff));
 
 	while (*pdata) {
 		presult = strchr(pdata, ',');
@@ -284,9 +282,9 @@ int ate_data_direct_tx_rx(struct asr_hw *asr_hw, unsigned char *data)
 	}
 
 	strlcpy(cmd_buff, data, sizeof(cmd_buff));
+	memset(asr_hw->mod_params->ate_at_cmd,0,ATE_AT_CMD_LEN);
 
-
-	return ate_direct_tx_rx(asr_hw, cmd_buff, data, msecs_to_jiffies(ASR_ATE_MSG_TIMEOUT));
+	return ate_direct_tx_rx(asr_hw, cmd_buff,data, msecs_to_jiffies(ASR_ATE_MSG_TIMEOUT));
 }
 
 #ifdef ASR_WIFI_CONFIG_SUPPORT

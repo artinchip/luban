@@ -23,6 +23,8 @@ menu "Third-party packages"
 	source package/third-party/binutils/Config.in
 	source package/third-party/sqlite/Config.in
 	source package/third-party/libatomic_ops/Config.in
+	source package/third-party/libpthread-stubs/Config.in
+	source package/third-party/libdaemon/Config.in
 	comment "************************ Multimedia **************************"
 	source package/third-party/alsa-lib/Config.in
 	source package/third-party/alsa-utils/Config.in
@@ -39,6 +41,7 @@ menu "Third-party packages"
 	source package/third-party/qt5/Config.in
 	source package/third-party/gstreamer1/Config.in
 	source package/third-party/fbdump/Config.in
+	source package/third-party/libdrm/Config.in
 	source package/third-party/libmad/Config.in
 	source package/third-party/sbc/Config.in
 	source package/third-party/ffmpeg/Config.in
@@ -48,19 +51,26 @@ menu "Third-party packages"
 	source package/third-party/lame/Config.in
 	source package/third-party/mpg123/Config.in
 	source package/third-party/libpjsip/Config.in
+	source package/third-party/v4l-utils/Config.in
 	comment "************************ Network *****************************"
+	source package/third-party/libmodbus/Config.in
 	source package/third-party/can-utils/Config.in
 	source package/third-party/ethtool/Config.in
 	source package/third-party/iproute2/Config.in
 	source package/third-party/iperf3/Config.in
 	source package/third-party/libmnl/Config.in
 	source package/third-party/libnl/Config.in
+	source package/third-party/libtirpc/Config.in
 	source package/third-party/netperf/Config.in
 	source package/third-party/wpa_supplicant/Config.in
 	source package/third-party/wireless_tools/Config.in
 	source package/third-party/pppd/Config.in
 	source package/third-party/libpcap/Config.in
 	source package/third-party/hostapd/Config.in
+	source package/third-party/aic8800_fw/Config.in
+	source package/third-party/asr5505s_fw/Config.in
+	source package/third-party/tcpdump/Config.in
+	source package/third-party/avahi/Config.in
 	comment "************************ Security ****************************"
 	source package/third-party/libselinux/Config.in
 	source package/third-party/libsepol/Config.in
@@ -68,6 +78,8 @@ menu "Third-party packages"
 	source package/third-party/libkcapi/Config.in
 	source package/third-party/openssl/Config.in
 	source package/third-party/cryptsetup/Config.in
+	source package/third-party/linux-pam/Config.in
+	source package/third-party/fscrypt/Config.in
 	comment "************************ Memory ******************************"
 	source package/third-party/e2fsprogs/Config.in
 	source package/third-party/iozone/Config.in
@@ -129,5 +141,8 @@ menu "Third-party packages"
 	source package/third-party/perl/Config.in
 	source package/third-party/openssh/Config.in
 	source package/third-party/cJSON/Config.in
+	source package/third-party/live555/Config.in
+	source package/third-party/rtl8733bs_bt_fw/Config.in
+	source package/third-party/rtl8733bu_bt_fw/Config.in
 
 endmenu

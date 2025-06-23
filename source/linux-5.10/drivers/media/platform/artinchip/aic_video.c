@@ -234,9 +234,9 @@ static int aic_dvp_open(struct file *file)
 	if (ret)
 		goto err_pipeline_pm_put;
 
-	reset_control_deassert(dvp->rst);
 	clk_set_rate(dvp->clk, dvp->clk_rate);
 	clk_prepare_enable(dvp->clk);
+	reset_control_deassert(dvp->rst);
 	aic_dvp_enable(dvp, 1);
 
 	mutex_unlock(&dvp->lock);
@@ -260,8 +260,8 @@ static int aic_dvp_release(struct file *file)
 	mutex_lock(&dvp->lock);
 
 	aic_dvp_enable(dvp, 0);
-	clk_disable_unprepare(dvp->clk);
 	reset_control_assert(dvp->rst);
+	clk_disable_unprepare(dvp->clk);
 
 	_vb2_fop_release(file, NULL);
 	v4l2_pipeline_pm_put(&dvp->vdev.entity);

@@ -11,6 +11,7 @@ INITSCRIPTS_GEN_PREBUILT_TARBALL = NO
 INITSCRIPTS += package/third-party/initscripts/init.d/rcK
 INITSCRIPTS += package/third-party/initscripts/init.d/rcS
 INITSCRIPTS += package/third-party/initscripts/init.d/S00_show_boot_time
+INITSCRIPTS += package/third-party/initscripts/init.d/S99burn-in
 
 ifeq ($(BR2_PACKAGE_ALSA_UTILS),y)
 INITSCRIPTS += package/third-party/initscripts/init.d/S70audiocfg

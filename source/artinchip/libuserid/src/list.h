@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: artinchip
+ */
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 

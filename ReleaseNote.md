@@ -1,3 +1,123 @@
+# V1.2.9 #
+
+## 新增 ##
+- USB：支持DTS中配置阻抗匹配参数
+- QtLauncher：集成WiFi manager、QtKeyboard（支持中文）
+- 新增p、m两个shell命令，和Luban-Lite保持同样的用法
+- 打包镜像：支持SM2、SM4算法的签名
+- AiPQ工具：支持通过UART调试MIPI DSI屏幕
+- Qt：增加Framebuffer旋转功能
+- Target GDB：升级版本号为V14.2
+- RTP：增加X、Y坐标的镜像接口
+- 打包：支持解包、重新打包的场景需求
+- test-wdt：增加持续喂狗的功能
+- 新增WiFi支持：aic8800、asr5505s、rtl8733bu、rtl8733bs支持BT功能
+- 新增第三方包：libmodbus、tcpdump、avahi、libdaemon、v4l-utils
+- 新增示例：test-coredump、p2p_auto
+
+## 优化 ##
+- 启动：精简启动过程中的log
+- SPI：优化系统高负载时的DMA处理流程
+- I2C：优化不同速率的超时机制
+- 烧写：优化NOR的烧写速度
+- PBP：增强SID的写保护机制；退出PBP前关闭UART
+- Audio：优化动态音量调节的效果
+- UART：配置参数期间进入loopback模式
+- 打包：自动计算分区大小以限制Jffs2镜像的size
+- SPI：优化互斥锁的使用流程
+- RTC：解耦SYS_BAK功能，将其移到WRI模块，RTC可随时关闭
+
+## 修改 ##
+- LVGL：调整启动脚本中的RTP校准处理
+- Disp：修正关闭CONFIG_PM时的编译依赖
+- GE：完善YUV格式的兼容性检查
+- MPP：修正PNG解码中的刷Cache处理
+- USB：修正OHCI休眠的处理流程
+- SPI：修正全双工的CPU模式处理流程
+- ADB：启动脚本中支持停止adbd服务
+- 烧写：完善sparse格式区分的异常情况处理
+- toolchain：增加'-mno-dup-loop-header'优化选项
+- SD卡：完善SD卡自动挂载的处理逻辑
+- WiFi：更新ASR5505固件，适配了ASR5532u
+- MPP：
+  - 修正wav文件播放时的seek处理
+  - 修正某些场景下的播放启动失败问题
+- env：修正eMMC方案中分区名称冲突的问题
+- PM：默认打开休眠功能，可降低系统功耗
+- Audio：修正全局数组的边界处理
+- 启动：默认挂载mnt目录为tmpfs，解决NOR方案中rootfs只读时的写需求
+
+
+
+# V1.2.7 #
+
+## 新增##
+- LVGL：新增支持V9.0版本，并适配了AicUIBuilder
+- 调屏：支持和 AiPQ V1.1.1 工具配合使用
+- SPI NAND：支持双Device ID的外设
+- SPI ENC：支持NAND介质的烧写和启动
+- Secuity：支持固件加密
+- PBP：支持关闭PBP启动时的log
+- aicupg：支持通过USB/UART获取设备侧的运行log；支持用命令进入U-Boot 升级模式
+- PM：支持休眠时进入DDR自刷新
+- DVP：支持外接AHD的视频采集方案；test-dvp支持旋转再显示
+- 新增驱动：EPWM、CAP、TP2825
+- 新增SPI NAND：F35SQB004G、GD5F1GM7xUExxG、ZB35Q04A
+- 新增第三方包：fscrypt、host-go、libcurl
+- 新增示例：test-spi
+- 新增工具支持：内核的size分析、CPU perf分析、烤机测试
+- MPP：支持AVI、MKV文件格式,支持RTSP流媒体协议
+- Qt：支持H264视频播放
+- 烧写：SD卡烧写界面增加进度条显示
+- GMAC：增加自测功能、增加Tx数据统计信息
+- OneStep：新增list_module命令，可查看当前已经打开的模块清单
+- 新增器件支持：
+- WiFi：AIC8800
+- NAND：GD5F1GM7UEYIG
+- 新增第三方包：libtirpc（Busybox的NFS依赖）
+
+##优化##
+- LVGL：支持旋转、透明色的硬件加速；当没有FB设备时正常退出；整体性能优化
+- Audio：优化关闭功放时的噪声处理；减少处理延迟
+- DE：LVDS的双link可以单独配置参数
+- GMAC：优化数据传输通路，性能有大幅提升
+- OTA：优化兼容性和稳定性；支持eMMC介质
+- DDR：优化DDR参数提升稳定性和兼容性；优化内存拷贝性能
+- SPI：优化DMA传输的结束状态判断
+- I2C：优化传输信号的延迟配置
+- MPP：优化H264解码器的容错处理
+- USB：优化mismatch的处理流程
+- Tsensor：优化温度的校准精度
+- DE：优化Scaler的算法系数
+- i优化.ko动态加载的速度
+- MPP：优化VE解码时的容错处理
+- SD卡：优化自动挂载的处理逻辑
+- NOR方案：优化demo88 NOR的内存配置
+- U-Boot：优化串口putc的异常处理逻辑
+- OneStep：在Luban和Luban-Lite SDK环境来回切换时，先清理之前的OneStep命令
+
+##修改##
+- RTC：修改LDO11为0.9V（稳定性更好）
+- Qt：默认打开keyboard/mouse/qtjpeg/qtpng/qtfreetype，同步更新prebuilt包
+- 工具链：升级版本到V2.10.1，解决个别.ko加载时的链接报错问题
+- SPIENC：修正坏块的处理逻辑
+- test-dvp：修改默认格式为NV16
+- source/artinchip中的代码统一使用Apache-2.0协议
+- OTA：多个方案的recovery分区大小需调大，解决烧写失败问题
+- OneStep：修正list_module功能的运行环境，使用SDK自带的Python3环境
+- LVGL：修正部分情况下的stride参数配置
+- demo88 NOR：修改rootfs分区格式为squashfs，解决烧写后不能启动的问题
+- MPP：完善MKV解析的配置项
+- Qt launcher：删除prebuilt包，每次编译采用源码编译
+- UART：Rx的IO增加上拉属性
+- SPL：修正userid开启后出现的一次画面闪烁问题
+- GMAC：修正组播时的地址过滤；修正IEEE1588的参数配置
+- TSensor：修正高低温告警的阈值计算
+- toolchain：删除过时的工具链包：
+- riscv64-linux-x86_64-20210512.tar.gz
+- riscv64-linux-glibc-x86_64-V2.10.0.tar.gz
+- test_adc：改从sysfs节点获取slope、offset参数
+
 # V1.2.3 #
 
 ##新增##
@@ -33,50 +153,6 @@
 - test_fb增加"-b"参数显示渐变色块，方便验证硬件环境
 - test_gpio增加output的配置功能
 
-
-# V1.2.2 #
-
-## 新增 ##
-- Display：支持在线调屏
-- MPP：支持mp4封装格式
-- U-Boot：支持MIPI驱动；支持xz压缩格式；支持DDR Size自适应处理
-- FS：用户态支持jffs2、squashfs
-- 提供独立编译 linux/uboot/dtb 的示例脚本
-- 新增器件支持：
-
-  - NAND：BYTe BY5F1GQ5UAYIG
-  - NOR：gd25q256
-  - panel：sw070wv20
-- 新增第三方包：sqlite、cJSON、freetype、libkcapi-1.4、pulseaudio、libsamplerate、预编译4个常用的Benchmark、
-- 新增方案：demo88 NOR
-- OneStep新增命令：del_board
-
-## 优化 ##
-- USB：支持OTG的动态切换
-- PBP：支持Boot pin功能
-
-## 修改 ##
-- SPL：提升size限制为128KB
-- AWTK：修正若干Bug，并进行多处优化
-- LVGL：重构目录结构，支持freetype字体
-- Falcon：修正SD卡启动时的处理流程
-- 编译：NAND方案默认不再生成4K block版本的镜像；打包原始DTS文件
-- SPINAND分区 Image 大小默认从image_cfg.json 中获取，
-- 测试示例规范命名格式为：test_*
-
-
-# V1.2.1 #
-
-## 新增 ##
-- 新增AWTK的支持
-- 新增几款mipi屏的支持
-- 新增test-blkdev
-- 新增 .gitignore
-## 优化 ##
-- SPL容量策略 
-- GStreamer 播放格式添加
-## 修改 ##
-- OneStep 工具移植到tools目录
 
 # V1.2.0 #
 

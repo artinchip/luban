@@ -7,7 +7,6 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
-#include <net/page_pool.h>
 
 #include "aicmac.h"
 #include "aicmac_dma.h"
@@ -32,11 +31,8 @@ struct aicmac_dma_data *aicmac_dma_init_data(struct platform_device *pdev,
 	dma_data->fixed_burst = true;
 	dma_data->mixed_burst = false;
 
-	dma_data->tx_coe = AICMAC_RX_COE_TYPE1;
-	dma_data->rx_coe = AICMAC_RX_COE_TYPE1;
-
-	dma_data->force_sf_dma_mode = true;
-	dma_data->force_thresh_dma_mode = false;
+	dma_data->tx_coe = AICMAC_RX_COE_TYPE2;
+	dma_data->rx_coe = AICMAC_RX_COE_TYPE2;
 
 	dma_data->tx_fifo_size = 2048;
 	dma_data->rx_fifo_size = 2048;
@@ -51,12 +47,8 @@ int aicmac_dma_init(void *priv_ptr)
 	int ret = 0;
 
 	/* TXCOE doesn't work in thresh DMA mode */
-	if (dma_data->force_thresh_dma_mode) {
-		dma_data->tx_coe = 0;
-	} else {
-		dma_data->tx_coe = priv->plat->hw_cap.tx_coe;
-		dma_data->rx_coe = priv->plat->hw_cap.rx_coe;
-	}
+	dma_data->tx_coe = priv->plat->hw_cap.tx_coe;
+	dma_data->rx_coe = priv->plat->hw_cap.rx_coe;
 
 	if (priv->plat->hw_cap.addr64) {
 		ret = dma_set_mask_and_coherent(priv->device,
@@ -93,15 +85,10 @@ static void aicmac_dma_free_rx_buffer(struct aicmac_priv *priv, u32 queue,
 				      int i)
 {
 	struct aicmac_rx_queue *rx_q = &priv->plat->rx_queue[queue];
-	struct aicmac_rx_buffer *buf = &rx_q->buf_pool[i];
 
-	if (buf->page)
-		page_pool_put_full_page(rx_q->page_pool, buf->page, false);
-	buf->page = NULL;
-
-	if (buf->sec_page)
-		page_pool_put_full_page(rx_q->page_pool, buf->sec_page, false);
-	buf->sec_page = NULL;
+	kfree_skb(rx_q->rx_skbuff[i]);
+	dma_unmap_single(priv->device, rx_q->rx_skbuff_dma[i],
+			 priv->plat->dma_data->dma_buf_sz, DMA_FROM_DEVICE);
 }
 
 static void aicmac_dma_free_rx_skbufs(struct aicmac_priv *priv, u32 queue)
@@ -129,9 +116,8 @@ static void aicmac_dma_free_rx_desc_resources(struct aicmac_priv *priv)
 			DMA_RX_SIZE * sizeof(struct dma_extended_desc),
 			rx_q->dma_erx, rx_q->dma_rx_phy);
 
-		kfree(rx_q->buf_pool);
-		if (rx_q->page_pool)
-			page_pool_destroy(rx_q->page_pool);
+		kfree(rx_q->rx_skbuff_dma);
+		kfree(rx_q->rx_skbuff);
 	}
 }
 
@@ -206,48 +192,49 @@ static int aicmac_dma_alloc_dma_rx_desc_resources(struct aicmac_priv *priv)
 	u32 rx_count = priv->plat->rx_queues_to_use;
 	int ret = -ENOMEM;
 	u32 queue;
+	struct aicmac_rx_queue *rx_q;
 
 	/* RX queues buffers and DMA */
 	for (queue = 0; queue < rx_count; queue++) {
-		struct aicmac_rx_queue *rx_q = &priv->plat->rx_queue[queue];
-		struct page_pool_params pp_params = { 0 };
-		unsigned int num_pages;
+		rx_q = &priv->plat->rx_queue[queue];
 
-		rx_q->queue_index = queue;
-		rx_q->priv_data = priv;
-
-		pp_params.flags = PP_FLAG_DMA_MAP;
-		pp_params.pool_size = DMA_RX_SIZE;
-		num_pages = DIV_ROUND_UP(priv->plat->dma_data->dma_buf_sz,
-					 PAGE_SIZE);
-		pp_params.order = ilog2(num_pages);
-		pp_params.nid = dev_to_node(priv->device);
-		pp_params.dev = priv->device;
-		pp_params.dma_dir = DMA_FROM_DEVICE;
-
-		rx_q->page_pool = page_pool_create(&pp_params);
-		if (IS_ERR(rx_q->page_pool)) {
-			ret = PTR_ERR(rx_q->page_pool);
-			rx_q->page_pool = NULL;
-			goto err_dma;
-		}
-
-		rx_q->buf_pool = kcalloc(DMA_RX_SIZE, sizeof(*rx_q->buf_pool),
-					 GFP_KERNEL);
-		if (!rx_q->buf_pool)
-			goto err_dma;
-
+		/* allocate memory for RX descriptors */
 		rx_q->dma_erx = dma_alloc_coherent(priv->device,
 			DMA_RX_SIZE * sizeof(struct dma_extended_desc),
 			&rx_q->dma_rx_phy, GFP_KERNEL);
 		if (!rx_q->dma_erx)
-			goto err_dma;
+			goto dma_error;
+
+		/* allocate memory for RX skbuff array */
+		rx_q->rx_skbuff_dma = kmalloc_array(DMA_RX_SIZE,
+						sizeof(dma_addr_t), GFP_KERNEL);
+		if (!rx_q->rx_skbuff_dma) {
+			ret = -ENOMEM;
+			goto err_rx_skbuff_dma;
+		}
+
+		rx_q->rx_skbuff = kmalloc_array(DMA_RX_SIZE,
+					   sizeof(struct sk_buff *), GFP_KERNEL);
+		if (!rx_q->rx_skbuff) {
+			goto err_rx_skbuff;
+			ret = -ENOMEM;
+		}
 	}
 
 	return 0;
 
-err_dma:
+err_rx_skbuff:
+	kfree(rx_q->rx_skbuff_dma);
+
+err_rx_skbuff_dma:
+	dma_free_coherent(priv->device,
+			  DMA_RX_SIZE * sizeof(struct dma_extended_desc),
+			  rx_q->dma_erx, rx_q->dma_rx_phy);
+
+dma_error:
+	// todo: Is it incorrect to release resources repeatedly?
 	aicmac_dma_free_rx_desc_resources(priv);
+
 	return ret;
 }
 
@@ -348,16 +335,24 @@ static int aicmac_dma_init_rx_buffers(struct aicmac_priv *priv,
 				      u32 queue)
 {
 	struct aicmac_rx_queue *rx_q = &priv->plat->rx_queue[queue];
-	struct aicmac_rx_buffer *buf = &rx_q->buf_pool[i];
+	struct sk_buff *skb;
+	unsigned int dma_buf_sz = priv->plat->dma_data->dma_buf_sz;
 
-	buf->page = page_pool_dev_alloc_pages(rx_q->page_pool);
-	if (!buf->page)
+	skb = __netdev_alloc_skb_ip_align(priv->dev, dma_buf_sz, GFP_KERNEL);
+	if (!skb)
 		return -ENOMEM;
 
-	buf->sec_page = NULL;
+	rx_q->rx_skbuff[i] = skb;
+	rx_q->rx_skbuff_dma[i] = dma_map_single(priv->device, skb->data,
+						dma_buf_sz, DMA_FROM_DEVICE);
 
-	buf->addr = page_pool_get_dma_addr(buf->page);
-	aicmac_dma_desc_set_addr(p, buf->addr);
+	if (dma_mapping_error(priv->device, rx_q->rx_skbuff_dma[i])) {
+		netdev_err(priv->dev, "%s: DMA mapping error\n", __func__);
+		dev_kfree_skb_any(skb);
+		return -EINVAL;
+	}
+
+	aicmac_dma_desc_set_addr(p, rx_q->rx_skbuff_dma[i]);
 	if (priv->plat->dma_data->dma_buf_sz == BUF_SIZE_16KiB) {
 		if (priv->mode == AICMAC_CHAIN_MODE)
 			aicmac_dma_chain_init_desc3(p);
@@ -398,6 +393,8 @@ static int aicmac_dma_init_rx_desc_rings(struct net_device *dev, gfp_t flags)
 
 		rx_q->cur_rx = 0;
 		rx_q->dirty_rx = (unsigned int)(i - DMA_RX_SIZE);
+
+		rx_q->priv_data = priv;
 
 		/* Setup the chained descriptor addresses */
 		if (priv->mode == AICMAC_CHAIN_MODE) {
@@ -512,9 +509,6 @@ int aicmac_dma_init_engine(void *priv_ptr)
 
 		aicmac_dma_reg_init_rx_chain(priv->resource->ioaddr,
 					     rx_q->dma_rx_phy);
-
-		rx_q->rx_tail_addr = rx_q->dma_rx_phy +
-				     (DMA_RX_SIZE * sizeof(struct dma_desc));
 	}
 
 	/* DMA TX Channel Configuration */
@@ -552,16 +546,11 @@ void aicmac_dma_operation_mode(void *priv_ptr)
 	rxfifosz /= rx_channels_count;
 	txfifosz /= tx_channels_count;
 
-	if (dma_data->force_thresh_dma_mode) {
-		txmode = TC_DEFAULT;
-		rxmode = TC_DEFAULT;
-	} else if (dma_data->force_sf_dma_mode || dma_data->tx_coe) {
-		txmode = SF_DMA_MODE;
-		rxmode = SF_DMA_MODE;
-	} else {
-		txmode = TC_DEFAULT;
-		rxmode = SF_DMA_MODE;
-	}
+	/* it will Transmit Underflow easily in TX_SF mode */
+	txmode = SF_DMA_MODE;
+
+	/* but higher bus utilization rate in RX threshold mode */
+	rxmode = TC_DEFAULT;
 
 	/* configure all channels */
 	for (chan = 0; chan < rx_channels_count; chan++) {

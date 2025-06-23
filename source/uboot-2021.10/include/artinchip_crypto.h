@@ -135,6 +135,7 @@
 #define CE_KEY_SRC_PSK3       (7)
 
 #define AES_BLOCK_SIZE   16
+#define AES_MIN_KEY_LEN  16
 #define AES_MAX_KEY_LEN  32
 #define CE_WORK_BUF_LEN  1024
 

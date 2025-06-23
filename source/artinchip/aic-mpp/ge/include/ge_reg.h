@@ -1,6 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (C) 2020-2021 ArtinChip Technology Co., Ltd.
+ * Copyright (C) 2023-2024 ArtinChip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -20,6 +22,8 @@ extern "C" {
 #include <linux/types.h>
 #endif /* __KERNEL__ */
 
+#define GE_CTRL_HW_CMDQ_LENGTH_ERR_IQR_EN     BIT(8)
+#define GE_CTRL_HW_TIMEOUT_IRQ_EN             BIT(3)
 #define GE_CTRL_HW_ERR_IRQ_EN                 BIT(1)
 #define GE_CTRL_FINISH_IRQ_EN                 BIT(0)
 
@@ -257,4 +261,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-

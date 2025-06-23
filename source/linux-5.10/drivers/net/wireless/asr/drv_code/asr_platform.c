@@ -29,6 +29,7 @@
 #include "asr_usb.h"
 #endif
 #include "ipc_host.h"
+#include "asr_pm.h"
 
 #ifdef ASR_WIFI_CONFIG_SUPPORT
 struct asr_wifi_config g_wifi_config;
@@ -196,7 +197,7 @@ int asr_plat_lmac_load(struct asr_plat *asr_plat)
 		return 0;
 	}
 
-#ifdef CONFIG_ASR595X
+#if defined(CONFIG_ASR595X) && !defined(BASS_SUPPORT)
 	ret = asr_plat_fw_upload(asr_plat, ASR_BOOTLD_FW);
 	if (ret < 0) {
 		dev_err(&(asr_plat->func->dev), "%s: download %s fail.\n", __func__, ASR_BOOTLD_FW);
@@ -233,6 +234,8 @@ int asr_platform_on(struct asr_hw *asr_hw)
 
 	if (asr_plat->enabled)
 		return 0;
+
+	asr_plat->asr_hw = asr_hw;
 
 	sdio_set_drvdata(asr_plat->func, asr_hw);
 
@@ -277,6 +280,14 @@ int asr_platform_on(struct asr_hw *asr_hw)
 	ret = asr_init_wifi_oob_intr_gpio(asr_plat, asr_hw);
 	if (ret < 0)
 		return ret;
+#endif
+
+#ifdef CONFIG_ASR_PM
+	ret = asr_pm_init(asr_hw);
+	if (ret)
+		return ret;
+#else
+	asr_sdio_set_state(asr_plat, SDIO_STATE_ACTIVE);
 #endif
 
 	asr_plat->enabled = true;
@@ -358,6 +369,25 @@ static void asr_parsing_config_cmd(struct asr_hw *asr_hw, char *cmd_name, char *
 		}
 		//dev_info(asr_hw->dev, "%s: CCA(%d,%d,%d,%d,%d,%d)\n", __func__,
 		//	cca->cca_valid, cca->cca_threshold, cca->cca_prise_thr, cca->cca_pfall_thr, cca->cca_srise_thr, cca->cca_sfall_thr);
+	}
+
+	//EDCA
+	if (!strcmp(cmd_name, WIFI_CONFIG_EDCA_BK)) {
+		g_wifi_config.edca_bk = simple_strtol(value_p, NULL, 16);
+		//dev_info(asr_hw->dev, "%s: EDCA_BK=0x%08X\n", __func__, g_wifi_config.edca_bk);
+
+	} else if (!strcmp(cmd_name, WIFI_CONFIG_EDCA_BE)) {
+		g_wifi_config.edca_be = simple_strtol(value_p, NULL, 16);
+		//dev_info(asr_hw->dev, "%s: EDCA_BE=0x%08X\n", __func__, g_wifi_config.edca_be);
+
+	} else if (!strcmp(cmd_name, WIFI_CONFIG_EDCA_VI)) {
+		g_wifi_config.edca_vi = simple_strtol(value_p, NULL, 16);
+		//dev_info(asr_hw->dev, "%s: EDCA_VI=0x%08X\n", __func__, g_wifi_config.edca_vi);
+
+	} else if (!strcmp(cmd_name, WIFI_CONFIG_EDCA_VO)) {
+		g_wifi_config.edca_vo = simple_strtol(value_p, NULL, 16);
+		//dev_info(asr_hw->dev, "%s: EDCA_VO=0x%08X\n", __func__, g_wifi_config.edca_vo);
+
 	}
 }
 
@@ -656,12 +686,12 @@ void asr_platform_off(struct asr_hw *asr_hw)
 	} else {
 		dev_info(g_asr_para.dev, "ASR: release sdio irq success.\n");
 	}
-
-	if (asr_plat->irq)
-		free_irq(asr_plat->irq, asr_hw);
 #endif
 
 #ifdef CONFIG_POWER_SAVE
+	if (asr_plat->irq)
+		free_irq(asr_plat->irq, asr_hw);
+
 	gpio_free(asr_hw->wakeup_gpio);
 #endif
 
@@ -687,6 +717,9 @@ void asr_platform_off(struct asr_hw *asr_hw)
 	sdio_set_drvdata(asr_plat->func, NULL);
 #endif
 
+#ifdef CONFIG_ASR_PM
+	asr_pm_deinit(asr_hw);
+#endif
 }
 
 static int asr_platform_probe(struct platform_device *pdev)

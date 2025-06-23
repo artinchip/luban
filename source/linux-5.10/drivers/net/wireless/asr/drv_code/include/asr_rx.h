@@ -18,12 +18,20 @@ enum rx_status_bits {
 	RX_STAT_ALLOC = 1 << 1,
 	/// The buffer has to be deleted
 	RX_STAT_DELETE = 1 << 2,
+    /************************************* defrag used start*********************************/	
 	/// The length of the buffer has to be updated
 	RX_STAT_LEN_UPDATE = 1 << 3,
 	/// The length in the Ethernet header has to be updated
 	RX_STAT_ETH_LEN_UPDATE = 1 << 4,
 	/// Simple copy
 	RX_STAT_COPY = 1 << 5,
+	/************************************* defrag used end*********************************/
+    /// Spurious frame (inform upper layer and discard)
+    RX_STAT_SPURIOUS = 1 << 6,
+    /// Frame for monitor interface
+    RX_STAT_MONITOR = 1 << 7,
+    /// unsupported frame
+    RX_STAT_UF = 1 << 8,
 };
 
 /*
@@ -38,6 +46,10 @@ enum rx_status_bits {
 #define ASR_RX_HD_DECR_WEPSUCCESS      5	// Security type WEP
 #define ASR_RX_HD_DECR_TKIPSUCCESS     6	// Security type TKIP
 #define ASR_RX_HD_DECR_CCMPSUCCESS     7	// Security type CCMP
+
+#ifdef CONFIG_ASR_NAPI
+#define ASR_NAPI_WEIGHT (32)
+#endif
 // @}
 #ifdef CONFIG_ASR595X
 struct rx_leg_vect {
@@ -320,7 +332,11 @@ struct host_rx_desc {
 extern const u8 legrates_lut[];
 
 u8 asr_rxdataind(void *pthis, void *hostid);
-#ifdef CFG_SNIFFER_SUPPORT
+#ifdef CONFIG_ASR_NAPI
+int asr_recv_napi_poll(struct napi_struct *napi, int budget);
+enum hrtimer_restart rx_napi_hrtimer_handler(struct hrtimer *timer);
+#endif
+#if 0//def CFG_SNIFFER_SUPPORT
 uint8_t asr_rxdataind_sniffer(void *pthis, void *hostid);
 #endif
 

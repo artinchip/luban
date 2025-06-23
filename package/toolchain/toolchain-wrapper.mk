@@ -21,6 +21,10 @@ TOOLCHAIN_WRAPPER_OPTS = \
 	$(call qstrip,$(BR2_SSP_OPTION)) \
 	$(call qstrip,$(BR2_TARGET_OPTIMIZATION))
 
+ifeq ($(findstring riscv,$(BR2_ARCH)),riscv)
+TOOLCHAIN_WRAPPER_OPTS += -mno-dup-loop-header
+endif
+
 ifeq ($(BR2_REPRODUCIBLE),y)
 TOOLCHAIN_WRAPPER_OPTS += -Wl,--build-id=none
 ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_8),y)

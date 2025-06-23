@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Resistive Touch Panel driver of Artinchip SoC
+ * Resistive Touch Panel driver of ArtInChip SoC
  *
- * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
+ * Copyright (C) 2020-2025 ArtInChip Technology Co., Ltd.
  * Authors:  Matteo <duanmt@artinchip.com>
  */
 
@@ -200,6 +200,8 @@ struct aic_rtp_dev {
 	u32 pclk_rate;
 
 	bool two_points;
+	bool x_flip;
+	bool y_flip;
 	bool pressure_det;
 	bool ignore_fifo_data;
 	enum aic_rtp_mode mode;
@@ -498,6 +500,15 @@ static u32 rtp_press_calc(struct aic_rtp_dev *rtp)
 #endif
 }
 
+static void aic_rtp_xy_flip(struct aic_rtp_dev *rtp, u16 *x_data, u16 *y_data)
+{
+	if (rtp->y_flip)
+		*y_data = AIC_RTP_MAX_VAL - *y_data;
+
+	if (rtp->x_flip)
+		*x_data = AIC_RTP_MAX_VAL - *x_data;
+}
+
 static void rtp_report_abs(struct aic_rtp_dev *rtp)
 {
 	struct aic_rtp_dat *dat = &rtp->latest;
@@ -513,7 +524,7 @@ static void rtp_report_abs(struct aic_rtp_dev *rtp)
 			return;
 		input_report_abs(rtp->idev, ABS_PRESSURE, pressure);
 	}
-
+	aic_rtp_xy_flip(rtp, &dat->x_minus, &dat->y_minus);
 	input_report_abs(rtp->idev, ABS_X, dat->x_minus);
 	input_report_abs(rtp->idev, ABS_Y, dat->y_minus);
 	input_report_key(rtp->idev, BTN_TOUCH, 1);
@@ -749,7 +760,6 @@ static void rtp_report_abs_auto4(struct aic_rtp_dev *rtp, u16 *ori, u32 cnt)
 		latest->z_b = ori[i + 5];
 		latest->z_c = ori[i + 6];
 		latest->z_d = ori[i + 7];
-
 		dev_dbg(&rtp->pdev->dev, "X %u-%u, Y %u-%u, ZA %u-%u, ZB %u-%u",
 			latest->x_minus, latest->x_plus,
 			latest->y_minus, latest->y_plus,
@@ -1029,6 +1039,15 @@ static int aic_rtp_parse_dt(struct device *dev)
 		rtp->fuzz = val;
 
 	rtp->two_points = of_property_read_bool(np, "aic,two-points");
+
+	rtp->y_flip = of_property_read_bool(np, "aic,rtp-y-flip");
+	if (rtp->y_flip)
+		dev_info(dev, "RTP Y-COORDINATE flip mode\n");
+
+	rtp->x_flip = of_property_read_bool(np, "aic,rtp-x-flip");
+	if (rtp->x_flip)
+		dev_info(dev, "RTP X-COORDINATE flip mode\n");
+
 	rtp->x_plate = rtp_rtp_parse_plate(dev, "aic,x-plate",
 					   AIC_RTP_DEFAULT_X_PLATE);
 	rtp->y_plate = rtp_rtp_parse_plate(dev, "aic,y-plate",

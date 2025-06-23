@@ -1,0 +1,7 @@
+/* 
+* Add watermark to maps released in html
+*/
+
+body {
+  background-image:url("resources/watermark.png");
+}

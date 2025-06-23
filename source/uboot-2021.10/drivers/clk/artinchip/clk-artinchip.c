@@ -17,11 +17,54 @@
 #include <div64.h>
 #include "clk-aic.h"
 
+/* ALL chips:
+ * Other vco of clock not change
+ * The vco of pll_fra2 range from (768M~1560M) to (360M~1584M)
+ *
+ * Different clock verison need to be distinguished
+ */
+static const struct pll_vco vco_arr[] = {
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V1_0
+	{360000000, 1584000000,  8},
+#endif
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+	{360000000, 1584000000, 17},
+#endif
+	{768000000, 1560000000, 0},
+};
+
+static void clk_vco_select(struct aic_pll *pll,
+			   unsigned long *min, unsigned long *max)
+{
+	const struct pll_vco *vco;
+
+	for (int i = 0; i < ARRAY_SIZE(vco_arr); i++) {
+		vco = &vco_arr[i];
+		if (pll->id == vco->id) {
+			*min = vco->vco_min;
+			*max = vco->vco_max;
+			return;
+		}
+	}
+	*min = vco_arr[ARRAY_SIZE(vco_arr) - 1].vco_min;
+	*max = vco_arr[ARRAY_SIZE(vco_arr) - 1].vco_max;
+}
+
 static enum aic_clk_type aic_get_clk_info(struct aic_clk_tree *tree, u32 id,
 					  u32 *index)
 {
 	int i;
 
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+	if (id >= tree->cross_zone_base) {
+		for (i = 0; i < tree->cross_zone_cnt; i++) {
+			if (id == tree->clk_cz[i].id) {
+				*index = i;
+				return AIC_CLK_CROSS_ZONE;
+			}
+		}
+	}
+#endif
 	if (id >= tree->clkout_base) {
 		for (i = 0; i < tree->clkout_cnt; i++) {
 			if (id == tree->clkout[i].id) {
@@ -29,16 +72,14 @@ static enum aic_clk_type aic_get_clk_info(struct aic_clk_tree *tree, u32 id,
 				return AIC_CLK_OUTPUT;
 			}
 		}
-	} else
-	if (id >= tree->disp_base) {
+	} else if (id >= tree->disp_base) {
 		for (i = 0; i < tree->disp_cnt; i++) {
 			if (id == tree->disp[i].id) {
 				*index = i;
 				return AIC_CLK_DISP;
 			}
 		}
-	} else
-	if (id >= tree->periph_base) {
+	} else if (id >= tree->periph_base) {
 		for (i = 0; i < tree->periph_cnt; i++) {
 			if (id == tree->periph[i].id) {
 				*index = i;
@@ -160,7 +201,7 @@ static void clk_pll_bypass(struct aic_pll *pll, void *base_addr, bool bypass)
 static ulong pll_clk_round_rate(struct clk *clk, ulong rate, int index)
 {
 	u32 factor_n, factor_m, factor_p;
-	ulong rrate, vco_rate;
+	ulong rrate, vco_rate, pll_vco_min, pll_vco_max;
 	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
 	struct aic_clk_tree *tree = priv->tree;
 	struct aic_pll *pll = &tree->plls[index];
@@ -174,9 +215,13 @@ static ulong pll_clk_round_rate(struct clk *clk, ulong rate, int index)
 			return rate;
 	}
 
-	/* The frequency constraint of PLL_VCO is between 768M and 1560M */
-	if (rate < PLL_VCO_MIN)
-		factor_m = DIV_ROUND_UP(PLL_VCO_MIN, rate) - 1;
+	clk_vco_select(pll, &pll_vco_min, &pll_vco_max);
+
+	/* The frequency constraint of PLL_VCO is between 768M and 1560M
+	 * But the PLL_VCO of pll_fra2 is between 360M and 1584M
+	 */
+	if (rate < pll_vco_min)
+		factor_m = DIV_ROUND_UP(pll_vco_min, rate) - 1;
 	else
 		factor_m = 0;
 
@@ -184,8 +229,8 @@ static ulong pll_clk_round_rate(struct clk *clk, ulong rate, int index)
 		factor_m = 3;
 
 	vco_rate = (factor_m + 1) * rate;
-	if (vco_rate > PLL_VCO_MAX)
-		vco_rate = PLL_VCO_MAX;
+	if (vco_rate > pll_vco_max)
+		vco_rate = pll_vco_max;
 
 	factor_p = (rate % 24000000) ? 1 : 0;
 	if (!factor_p)
@@ -206,7 +251,7 @@ static ulong pll_clk_set_rate(struct clk *clk, ulong rate, int index)
 	u32 reg_val, factor_p, factor_n, factor_m;
 	u64 val, fra_in = 0;
 	u8 fra_en, factor_m_en;
-	ulong vco_rate;
+	ulong vco_rate, pll_vco_min, pll_vco_max;
 #ifdef CONFIG_CLK_ARTINCHIP_PLL_SDM
 	u32 ppm_max, sdm_amp, sdm_step;
 #endif
@@ -221,14 +266,16 @@ static ulong pll_clk_set_rate(struct clk *clk, ulong rate, int index)
 		return 0;
 	}
 
+	clk_vco_select(pll, &pll_vco_min, &pll_vco_max);
+
 	/* Switch the output of PLL to 24MHz */
 	clk_pll_bypass(pll, priv->base, true);
 	/* Calculate PLL parameters.
-	 * The frequency constraint of PLL_VCO
-	 * is between 768M and 1560M
+	 * The frequency constraint of PLL_VCO is between 768M and 1560M
+	 * But the PLL_VCO of pll_fra2 is between 360M and 1584M
 	 */
-	if (rate < PLL_VCO_MIN)
-		factor_m = DIV_ROUND_UP(PLL_VCO_MIN, rate) - 1;
+	if (rate < pll_vco_min)
+		factor_m = DIV_ROUND_UP(pll_vco_min, rate) - 1;
 	else
 		factor_m = 0;
 
@@ -241,8 +288,8 @@ static ulong pll_clk_set_rate(struct clk *clk, ulong rate, int index)
 
 
 	vco_rate = (factor_m + 1) * rate;
-	if (vco_rate > PLL_VCO_MAX)
-		vco_rate = PLL_VCO_MAX;
+	if (vco_rate > pll_vco_max)
+		vco_rate = pll_vco_max;
 
 	factor_p = (vco_rate % 24000000) ? 1 : 0;
 	factor_n = vco_rate * (factor_p + 1) / 24000000  - 1;
@@ -738,8 +785,43 @@ static int output_clk_set_parent(struct clk *clk,
 
 	return -EPERM;
 }
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+static int corsszone_clk_enable(struct clk *clk, int index)
+{
+	u32 value;
+	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
+	struct aic_clk_tree *tree = priv->tree;
+	struct aic_clk_crosszone *cz_clk = &tree->clk_cz[index];
 
+	value = readl(priv->cz_base + cz_clk->reg);
+	if (cz_clk->bus_gate >= 0)
+		value |= 1 << cz_clk->bus_gate;
+	if (cz_clk->mod_gate >= 0)
+		value |= 1 << cz_clk->mod_gate;
+	writel(value, priv->cz_base + cz_clk->reg);
 
+	value = readl(priv->cz_base + cz_clk->reg);
+
+	return 0;
+}
+
+static int corsszone_clk_disable(struct clk *clk, int index)
+{
+	u32 value;
+	struct aic_clk_priv *priv = dev_get_priv(clk->dev);
+	struct aic_clk_tree *tree = priv->tree;
+	struct aic_clk_crosszone *cz_clk = &tree->clk_cz[index];
+
+	value = readl(priv->cz_base + cz_clk->reg);
+	if (cz_clk->bus_gate >= 0)
+		value &= ~(1 << cz_clk->bus_gate);
+	if (cz_clk->mod_gate >= 0)
+		value &= ~(1 << cz_clk->mod_gate);
+	writel(value, priv->cz_base + cz_clk->reg);
+
+	return 0;
+}
+#endif
 static struct aic_clk_ops aic_clk_type_ops[] = {
 	/* ops handle for fixed rate clocks */
 	{
@@ -786,6 +868,13 @@ static struct aic_clk_ops aic_clk_type_ops[] = {
 		.set_rate = output_clk_set_rate,
 		.set_parent = output_clk_set_parent,
 	},
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+	/* ops handle for corsszone clocks */
+	{
+		.enable = corsszone_clk_enable,
+		.disable = corsszone_clk_disable
+	}
+#endif
 };
 
 static ulong artinchip_clk_get_rate(struct clk *clk)

@@ -32,4 +32,5 @@ obj-$(CONFIG_RESET_SCMI) += reset-scmi.o
 obj-$(CONFIG_RESET_ZYNQMP) += reset-zynqmp.o
 obj-$(CONFIG_RESET_ARTINCHIP) += reset-artinchip-common.o
 obj-$(CONFIG_RESET_ARTINCHIP_V1_0) += reset-artinchip.o
-obj-$(CONFIG_RESET_ARTINCHIP_V1_3) += reset-artinchip-v13.o
+obj-$(CONFIG_RESET_ARTINCHIP_V2_0) += reset-artinchip-v20.o
+obj-$(CONFIG_RESET_ARTINCHIP_V3_0) += reset-artinchip-v30.o

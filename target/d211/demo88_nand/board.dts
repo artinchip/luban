@@ -100,6 +100,20 @@
 		sdmc0 = &sdmc0;
 		sdmc1 = &sdmc1;
 		sdmc2 = &sdmc2;
+		dma = &dma;
+		crypto = &crypto;
+		sid = &sid;
+		mtop = &mtop;
+		codec = &codec;
+		wri = &wri;
+		aicudc = &aicudc;
+		usbh0 = &usbh0;
+		usbh1 = &usbh1;
+		ohci0 = &ohci0;
+		ohci1 = &ohci1;
+		i2s0 = &i2s0;
+		i2s1 = &i2s1;
+		ge = &ge;
 	};
 
 	chosen {
@@ -169,16 +183,19 @@
 
 	panel_rgb {
 		compatible = "artinchip,aic-general-rgb-panel";
-		status = "okay";
 		u-boot,dm-pre-reloc;
 
 		sleep-gpios = <&gpio_e 15 GPIO_ACTIVE_HIGH>;
+#if 0
+		switch-gpios = <&gpio_f 14 GPIO_ACTIVE_HIGH>;
+#endif
 		rgb-mode = <PRGB>;
 		interface-format = <PRGB_16BIT_LD>;
 		clock-phase = <DEGREE_0>;
 		data-order = <RGB>;
 		disp-dither = <DITHER_RGB565>;
 		backlight = <&backlight>;
+		status = "okay";
 
 		port {
 			u-boot,dm-pre-reloc;
@@ -195,6 +212,20 @@
 				clock-frequency = <52000000>;
 				hactive = <1024>;
 				vactive = <600>;
+				hback-porch = <140>;
+				hfront-porch = <160>;
+				hsync-len = <20>;
+				vback-porch = <12>;
+				vfront-porch = <20>;
+				vsync-len = <3>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+				u-boot,dm-pre-reloc;
+			};
+			timing1: 800x480 {
+				clock-frequency = <52000000>;
+				hactive = <800>;
+				vactive = <480>;
 				hback-porch = <160>;
 				hfront-porch = <160>;
 				hsync-len = <20>;
@@ -234,7 +265,7 @@
 
         power {
             wakeup-source;
-            gpios = <&gpio_d 7 GPIO_ACTIVE_LOW>;
+            gpios = <&gpio_d 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
             label = "GPIO Power";
             linux,code = <KEY_POWER>;
         };
@@ -370,6 +401,26 @@
 	pinctrl-0 = <&i2c3_pins_a>;
 	status = "okay";
 
+	gm7150: camera@5C {
+		status = "disabled";
+		compatible = "guoteng,gm7150";
+		reg = <0x5C>;
+		powerdown-gpios = <&gpio_e 15 GPIO_ACTIVE_LOW>;
+
+		port {
+			camera_out: endpoint {
+				remote-endpoint = <&dvp0_in>;
+				/* V4L2_FWNODE_BUS_TYPE_BT656*/
+				bus-type = <6>;
+				bus-width = <8>;
+				data-shift = <2>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				pclk-sample = <0>;
+			};
+		};
+	};
+
 	gt9xx@5d {
 		status = "okay";
 		compatible = "goodix,gt9xx";
@@ -385,6 +436,27 @@
 		touchscreen-max-p = <512>;
 
 		goodix,int-sync = <1>;
+	};
+
+};
+
+&dvp0 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&dvp_pins>;
+
+	port@0 {
+		reg = <0>;
+		dvp0_in: endpoint {
+			remote-endpoint = <&camera_out>;
+			bus-type = <6>; /* V4L2_FWNODE_BUS_TYPE_BT656 */
+			bus-width = <8>;
+			hsync-active = <0>;
+			vsync-active = <0>;
+			pclk-sample = <0>;
+			aic,field-active = <0>;
+			aic,interlaced;
+		};
 	};
 };
 
@@ -585,7 +657,10 @@
 	};
 	uart0_pins_a: uart0-0 {
 		u-boot,dm-pre-reloc;
-		pins {
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
 			u-boot,dm-pre-reloc;
 		};
 	};
@@ -751,7 +826,7 @@
 	pinctrl-0 = <&gpai7_pins>;
 
 	gpai0 {
-		aic,sample-period-ms = <10>;
+		aic,sample-period-ms = <18>;
 		aic,high-level-thd = <1830>;
 		aic,low-level-thd = <1800>;
 		status = "disabled";

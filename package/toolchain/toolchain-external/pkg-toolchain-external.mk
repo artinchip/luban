@@ -468,6 +468,14 @@ create_lib_symlinks = \
 		mkdir -p `dirname "$${DESTDIR}/usr/$${ARCH_LIB_DIR}"` ; \
 		ln -snf $${relpath}lib "$${DESTDIR}/$${ARCH_LIB_DIR}" ; \
 		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ; \
+	fi ; \
+	ARCH_LIB_DIR_NO_X="$${ARCH_LIB_DIR/v_xthead/}" ; \
+	ARCH_LIB_DIR_NO_X="$${ARCH_LIB_DIR_NO_X/xthead/}" ; \
+	if [ ! -e "$${DESTDIR}/$${ARCH_LIB_DIR_NO_X}" -a ! -e "$${DESTDIR}/usr/$${ARCH_LIB_DIR_NO_X}" ]; then \
+		mkdir -p `dirname "$${DESTDIR}/$${ARCH_LIB_DIR_NO_X}"` ; \
+		mkdir -p `dirname "$${DESTDIR}/usr/$${ARCH_LIB_DIR_NO_X}"` ; \
+		ln -snf $${relpath}lib "$${DESTDIR}/$${ARCH_LIB_DIR_NO_X}" ; \
+		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ARCH_LIB_DIR_NO_X}" ; \
 	fi
 
 define TOOLCHAIN_EXTERNAL_CREATE_STAGING_LIB_SYMLINK

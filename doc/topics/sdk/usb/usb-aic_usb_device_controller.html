@@ -1,0 +1,413 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="ArtInChip UDC 在硬件层面实现了以下功能： Data Mode UDC 实现的一项主要工作是数据搬移： UDC 发送时，数据先从内存 Memory 搬移到 UDC 的内部 FIFO 当中，然后由 UDC 发送到 USB 物理线路上。 UDC 接收时，数据先从 USB 物理线路接收到 UDC 的内部 FIFO 当中，然后再从 FIFO 拷贝到 内存 Memory 当中。 对于 FIFO ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-device-controller_layer.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-device-controller_layer.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-aic_udc_driver.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="usb_aic_usb_device_controller"/><meta name="DC.language" content="zh-CN"/><title>AIC USB Device Controller</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="usb_aic_usb_device_controller-d4445e7790"/><meta name="wh-source-relpath" content="topics/sdk/usb/usb-aic_usb_device_controller.dita"/><meta name="wh-out-relpath" content="topics/sdk/usb/usb-aic_usb_device_controller.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="usb_aic_usb_device_controller" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="usb_user_guide"><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html">USB 使用指南</a></div></div></li><li><div class="topicref" data-id="usb_device_subsystem_code_structure"><div class="title"><a href="../../../topics/sdk/usb/usb-device_subsystem_code_structure.html">USB Device 子系统代码架构</a></div></div></li><li><div class="topicref" data-id="usb_device_controller_layer"><div class="title"><a href="../../../topics/sdk/usb/usb-device-controller_layer.html">USB Device Controller Layer</a></div></div></li><li class="active"><div class="topicref" data-id="usb_aic_usb_device_controller"><div class="title"><a href="../../../topics/sdk/usb/usb-aic_usb_device_controller.html">AIC USB Device Controller</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-device-controller_layer.html" title="USB Device Controller Layer" aria-label="上一主题: USB Device Controller Layer" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-aic_udc_driver.html" title="AIC UDC Driver" aria-label="下一主题: AIC UDC Driver" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="usb_configuration-d4445e7313" class="topicref" data-id="usb_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_configuration-d4445e7313-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_config.html" id="usb_configuration-d4445e7313-link">USB 配置</a></div></div></li><li role="treeitem"><div data-tocid="usb_debug_guide-d4445e7369" class="topicref" data-id="usb_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-debug_guide.html" id="usb_debug_guide-d4445e7369-link">调试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_test_guide-d4445e7383" class="topicref" data-id="usb_test_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_test_guide-d4445e7383-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-test_guide.html" id="usb_test_guide-d4445e7383-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_design_intro-d4445e7468" class="topicref" data-id="usb_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_design_intro-d4445e7468-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-design_intro.html" id="usb_design_intro-d4445e7468-link">设计说明</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_host_subsystem_code_structure-d4445e7594" class="topicref" data-id="usb_host_subsystem_code_structure" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_host_subsystem_code_structure-d4445e7594-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-host_subsystem_code_structure.html" id="usb_host_subsystem_code_structure-d4445e7594-link">USB Host 子系统代码架构</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_device_subsystem_code_structure-d4445e7762" class="topicref" data-id="usb_device_subsystem_code_structure" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_device_subsystem_code_structure-d4445e7762-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device_subsystem_code_structure.html" id="usb_device_subsystem_code_structure-d4445e7762-link">USB Device 子系统代码架构</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="usb_device_controller_layer-d4445e7776" class="topicref" data-id="usb_device_controller_layer" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_device_controller_layer-d4445e7776-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-controller_layer.html" id="usb_device_controller_layer-d4445e7776-link">USB Device Controller Layer</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="usb_aic_usb_device_controller-d4445e7790" class="topicref" data-id="usb_aic_usb_device_controller" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-aic_usb_device_controller.html" id="usb_aic_usb_device_controller-d4445e7790-link">AIC USB Device Controller</a></div></div></li><li role="treeitem"><div data-tocid="usb_aic_udc_driver-d4445e7804" class="topicref" data-id="usb_aic_udc_driver" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-aic_udc_driver.html" id="usb_aic_udc_driver-d4445e7804-link">AIC UDC Driver</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_device_device_layer-d4445e7818" class="topicref" data-id="usb_device_device_layer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_device_device_layer-d4445e7818-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-device_layer.html" id="usb_device_device_layer-d4445e7818-link">USB Device Layer</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_device_interface_layer-d4445e7888" class="topicref" data-id="usb_device_interface_layer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_device_interface_layer-d4445e7888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device-interface_layer.html" id="usb_device_interface_layer-d4445e7888-link">USB Interface Layer</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="usb_common_issues-d4445e7930" class="topicref" data-id="usb_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_faq.html" id="usb_common_issues-d4445e7930-link">常见问题</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/usb/usb-aic_usb_device_controller.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">AIC USB Device Controller</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 12 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d159116e33__20250123155216">ArtInChip UDC 在硬件层面实现了以下功能：</p>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_epf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_epf_2qz_21c"><h2 class="- topic/title title sectiontitle">Data Mode</h2>
+            
+            <p class="- topic/p p" data-ofbid="d159116e41__20250123155216">UDC 实现的一项主要工作是数据搬移：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_fpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_fpf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e46__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e48__20250123155216">UDC 发送时，数据先从内存 Memory 搬移到 UDC 的内部 FIFO 当中，然后由 UDC 发送到 USB 物理线路上。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e52__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e54__20250123155216">UDC 接收时，数据先从 USB 物理线路接收到 UDC 的内部 FIFO 当中，然后再从 FIFO 拷贝到 内存 Memory 当中。</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d159116e59__20250123155216">对于 <code class="+ topic/ph pr-d/codeph ph codeph">FIFO</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">Memory</code> 之间的数据搬移工作，当前 UDC 支持两种方式：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_gpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_gpf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e70__20250123155216"><p class="- topic/p p" data-ofbid="d159116e71__20250123155216">DMA Mode。</p><div class="- topic/p p" data-ofbid="d159116e73__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_hpf_2qz_21c" src="../../../images/usb/usb_udc_mode_dma.png" alt="image1"/></div><br/></div><p class="- topic/p p" data-ofbid="d159116e79__20250123155216">由 UDC 内部的 DMA 模块来承担数据搬移工作，只要使用寄存器配置好 FIFO 的分配，以及在寄存器中配置好 DMA
+                        的其实地址，DMA 会完成数据的搬移。</p></li>
+                <li class="- topic/li li" data-ofbid="d159116e82__20250123155216"><p class="- topic/p p" data-ofbid="d159116e83__20250123155216">Slave Mode。</p><div class="- topic/p p" data-ofbid="d159116e85__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_jpf_2qz_21c" src="../../../images/usb/usb_udc_mode_slave.png" alt="image2"/></div><br/></div><p class="- topic/p p" data-ofbid="d159116e91__20250123155216">也可以不使用 DMA 而直接使用 CPU 来搬移，这种方式非常消耗 CPU 的带宽，CPU
+                        被简单重复的数据拷贝拖住不能做其他的事情。这种方式一般用于 Debug 模式。</p></li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_kpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_kpf_2qz_21c"><h2 class="- topic/title title sectiontitle">Endpoint FIFO Mode</h2>
+            
+            <p class="- topic/p p" data-ofbid="d159116e101__20250123155216">不同的 UDC 中 Endpoint 对 FIFO 的使用有多种模式，当前 UDC 选用的是 <code class="+ topic/ph pr-d/codeph ph codeph">Shared Transmit FIFO</code>
+                模式。在 <code class="+ topic/ph pr-d/codeph ph codeph">Shared Transmit FIFO</code> 模式中， <code class="+ topic/ph pr-d/codeph ph codeph">Endpoint</code> 对
+                    <code class="+ topic/ph pr-d/codeph ph codeph">FIFO</code> 使用模式如下：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_lpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_lpf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e118__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e120__20250123155216">所有的 <code class="+ topic/ph pr-d/codeph ph codeph">non-periodic IN endpoints</code> 共享一个 <code class="+ topic/ph pr-d/codeph ph codeph">transmit
+                            FIFO</code> 。 <code class="+ topic/ph pr-d/codeph ph codeph">non-periodic endpoints</code> 包括
+                            <code class="+ topic/ph pr-d/codeph ph codeph">isochronous transfers</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">interrupt
+                            transfers</code>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e139__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e141__20250123155216">每一个 <code class="+ topic/ph pr-d/codeph ph codeph">periodic IN endpoint</code> 独立拥有一个 <code class="+ topic/ph pr-d/codeph ph codeph">transmit
+                            FIFO</code> 。 <code class="+ topic/ph pr-d/codeph ph codeph">periodic endpoints</code> 包括 <code class="+ topic/ph pr-d/codeph ph codeph">bulk
+                            transfers</code> 和 <code class="+ topic/ph pr-d/codeph ph codeph">control transfers</code>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e160__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e162__20250123155216">所有的 <code class="+ topic/ph pr-d/codeph ph codeph">OUT endpoints</code> 共享一个 <code class="+ topic/ph pr-d/codeph ph codeph">receive FIFO</code>。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_mpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_mpf_2qz_21c"><h2 class="- topic/title title sectiontitle">Endpoint Resource</h2>
+            
+            <p class="- topic/p p" data-ofbid="d159116e179__20250123155216">USB 协议定义一个 Device 最多可以实现 16 个 IN endpoint + 16 个 OUT endpoint。当前 UDC 实现了 5 个 IN
+                endpoint + 5 个 OUT endpoint，除了 endpoint 0 IN/OUT 被系统默认使用，剩下的可以被驱动动态分配使用。</p>
+            <p class="- topic/p p" data-ofbid="d159116e182__20250123155216">如上一节所描述，UDC 是 <code class="+ topic/ph pr-d/codeph ph codeph">Shared Transmit FIFO</code> 模式， <code class="+ topic/ph pr-d/codeph ph codeph">periodic IN
+                    endpoint</code> 需要拥有一个独立的 <code class="+ topic/ph pr-d/codeph ph codeph">transmit FIFO</code>。当前 UDC 拥有两个这样的
+                    <code class="+ topic/ph pr-d/codeph ph codeph">transmit FIFO</code> 资源，供驱动动态分配。</p>
+            <p class="- topic/p p" data-ofbid="d159116e197__20250123155216">如果驱动创建一个 <code class="+ topic/ph pr-d/codeph ph codeph">periodic IN endpoint</code> 它分配到了第一个 <code class="+ topic/ph pr-d/codeph ph codeph">endpoint</code>
+                资源，但是没有分配到 <code class="+ topic/ph pr-d/codeph ph codeph">transmit FIFO</code> 资源，也会创建失败。</p>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_npf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_npf_2qz_21c"><h2 class="- topic/title title sectiontitle">Calculating FIFO Size</h2>
+            
+            <div class="- topic/p p" data-ofbid="d159116e215__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_opf_2qz_21c" src="../../../images/usb/usb_udc_fifo_size.png" alt="image3"/></div><br/></div>
+            <p class="- topic/p p" data-ofbid="d159116e222__20250123155216">由上几节的描述可以看到，UDC 有多个模块需要使用内部 FIFO。包括：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_ppf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_ppf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e227__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e229__20250123155216">OUT endpoints RxFIFO</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e233__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e235__20250123155216">IN non-periodic endpoints TxFIFO</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e239__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e241__20250123155216">IN periodic endpoints TxFIFO</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e245__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e247__20250123155216">DMA</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d159116e252__20250123155216">UDC 内部 FIFO 总大小是固定的，那么怎么样来分配 FIFO 空间给这些模块呢？ UDC 提供了以下计算公式：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_qpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_qpf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e258__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e260__20250123155216">Receive FIFO RAM allocation</p>
+                    <blockquote class="- topic/lq lq" id="usb_aic_usb_device_controller__lq_rpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__lq_rpf_2qz_21c">RAM for SETUP Packets: 4 * n + 6 locations in
+                        Scatter/Gather DMA mode and 5 * n+6 locations in Slave and Buffer DMA mode
+                        must be reserved in the RxFIFO to receive up to n SETUP packets on control
+                        endpoints, where n is the number of control endpoints the device core
+                        supports. The core does not use these locations, which are Reserved for
+                        SETUP packets, to write any other data.// Setup 包的保留 RAM 空间(DMA 模式)： <em class="+ topic/ph hi-d/i ph i">5*n
+                            + 6</em> locations，<em class="+ topic/ph hi-d/i ph i">n</em> 为 <em class="+ topic/ph hi-d/i ph i">control endpoints</em> 的个数。该部分只为 SETUP
+                        包保留，不会写入其他数据。One location for Global OUT NAK// Global OUT NAK: <em class="+ topic/ph hi-d/i ph i">1</em>
+                        locationStatus information is written to the FIFO along with each received
+                        packet. Therefore, a minimum space of (Largest Packet Size / 4) + 1 must be
+                        allotted to receive packets. If a high-bandwidth endpoint is enabled, or
+                        multiple isochronous endpoints are enabled, then at least two (Largest
+                        Packet Size / 4) + 1 spaces must be allotted to receive back-to-back
+                        packets. Typically, two (Largest Packet Size / 4) + 1 spaces are recommended
+                        so that when the previous packet is being transferred to AHB, the USB can
+                        receive the subsequent packet. If AHB latency is high, you must allocate
+                        enough space to receive multiple packets. This is critical to prevent
+                        dropping of any isochronous packets.// 包接收空间： 最少 <em class="+ topic/ph hi-d/i ph i">(Largest Packet Size /
+                            4) + 1</em> spaces，如果空间充裕使用 two <em class="+ topic/ph hi-d/i ph i">(Largest Packet Size / 4) + 1</em>
+                        spacesAlong with each endpoint’s last packet, transfer complete status
+                        information is also pushed to the FIFO. Typically, one location for each OUT
+                        endpoint is recommended.// 对于每个 OUT endpoint ，最后一个包需要一个位置存放 <em class="+ topic/ph hi-d/i ph i">transfer
+                            complete status information</em>An additional endpoint for each EPDisable
+                        is also required.// 对于每个 OUT endpoint ，还需要一个位置存放 <em class="+ topic/ph hi-d/i ph i">EPDisable</em>计算公式：Device
+                        RxFIFO = <em class="+ topic/ph hi-d/i ph i">(5 * number of control endpoints + 8)</em> + <em class="+ topic/ph hi-d/i ph i">((largest USB
+                            packet used / 4) + 1 for status information)</em> + <em class="+ topic/ph hi-d/i ph i">(2 * number of OUT
+                            endpoints)</em> + <em class="+ topic/ph hi-d/i ph i">1 for Global NAK</em></blockquote>
+                </li>
+            </ul>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_spf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_spf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e307__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e309__20250123155216">Transmit FIFO RAM allocation</p>
+                    <blockquote class="- topic/lq lq" id="usb_aic_usb_device_controller__lq_tpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__lq_tpf_2qz_21c">The RAM size for the Periodic Transmit FIFO must equal
+                        the maximum amount of data that can be transmitted in a single microframe.
+                        The core does not use any data RAM allocated over this requirement, and when
+                        data RAM allocated is less than this requirement, the core can
+                        malfunction.// <em class="+ topic/ph hi-d/i ph i">Periodic Transmit FIFO</em>
+                        RAM 大小必须等于在单个微帧中可以传输的最大数据量。核心不使用任何分配给这个需求的数据 RAM，当分配的数据 RAM 小于这个需求时，核心可能会发生故障。The
+                        minimum amount of RAM required for the Non-periodic Transmit FIFO is the
+                        largest maximum packet size among all supported non-periodic IN endpoints.//
+                            <em class="+ topic/ph hi-d/i ph i">Non-periodic Transmit FIFO</em> 最小 RAM 数量是所有支持的非周期 IN 端点中最大的包大小。More space
+                        allocated in the Transmit Non-periodic FIFO results in better performance on
+                        the USB and can hide AHB latencies. Typically, two Largest Packet Sizes’
+                        worth of space is recommended, so that when the current packet is under
+                        transfer to the USB, the AHB can get the next packet. If the AHB latency is
+                        large, then you must allocate enough space to buffer multiple packets.//
+                            <em class="+ topic/ph hi-d/i ph i">Transmit Non-periodic FIFO</em>
+                        中分配更多的空间，可以在 USB 上获得更好的性能，并可以隐藏 AHB 延迟。通常，建议使用两个最大包大小的空间，以便当当前包正在传输到 USB 时，AHB 可以获得下一个包。如果 AHB 延迟较大，则必须分配足够的空间来缓冲多个包。It
+                        is assumed that i number of periodic FIFOs is implemented in Device mode.//
+                            <em class="+ topic/ph hi-d/i ph i">i</em> 是 <em class="+ topic/ph hi-d/i ph i">periodic FIFOs</em> 的个数。计算公式：Non-Periodic TxFIFO =
+                            <em class="+ topic/ph hi-d/i ph i">largest non-periodic USB packet used / 4</em>Periodic
+                        Endpoint-Specific TxFIFOs= <em class="+ topic/ph hi-d/i ph i">largest periodic USB packet used for an
+                            endpoint / 4</em></blockquote>
+                </li>
+            </ul>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_upf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_upf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e340__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e342__20250123155216">Internal Register Storage Space Allocation</p>
+                    <blockquote class="- topic/lq lq" id="usb_aic_usb_device_controller__lq_vpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__lq_vpf_2qz_21c">When operating in Internal DMA mode, the core stores the
+                        Endpoint DMA address register (DI/OEPDMA) in the SPRAM. One location must be
+                        allocated for each endpoint.//
+                        当在内部 DMA 模式下运行时，核心将端点 DMA 地址寄存器(DI/OEPDMA)存储在 SPRAM 中。必须为每个端点分配一个位置。For example,
+                        if an endpoint is bidirectional, then two locations must be allocated. If an
+                        endpoint is IN or OUT, then only one location must be allocated.//
+                        例如，如果一个端点是双向的，那么必须分配两个位置。如果端点是 IN 或 OUT，则必须只分配一个位置。</blockquote>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d159116e350__20250123155216"><strong class="+ topic/ph hi-d/b ph b">Example</strong></p>
+            <p class="- topic/p p" data-ofbid="d159116e354__20250123155216">The MPS is 1,024 bytes for a <code class="+ topic/ph pr-d/codeph ph codeph">periodic USB packet</code> and 512 bytes for a
+                    <code class="+ topic/ph pr-d/codeph ph codeph">non-periodic USB packet</code>. There are three <code class="+ topic/ph pr-d/codeph ph codeph">OUT
+                    endpoints</code>, three <code class="+ topic/ph pr-d/codeph ph codeph">IN endpoints</code>, one <code class="+ topic/ph pr-d/codeph ph codeph">control
+                    endpoint</code>.</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_aic_usb_device_controller__pre_wpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__pre_wpf_2qz_21c"><code>DeviceRxFIFO=(<span class="hl-number">5</span>*<span class="hl-number">1</span>+<span class="hl-number">8</span>)+((<span class="hl-number">1</span>,<span class="hl-number">024</span>/<span class="hl-number">4</span>)+<span class="hl-number">1</span>)+(<span class="hl-number">2</span>*<span class="hl-number">4</span>)+<span class="hl-number">1</span>=<span class="hl-number">279</span>Non-PeriodicTxFIFO=(<span class="hl-number">512</span>/<span class="hl-number">4</span>)=<span class="hl-number">128</span>DevicePeriodicTxFIFO:EP1=(<span class="hl-number">1</span>,<span class="hl-number">024</span>/<span class="hl-number">4</span>)=<span class="hl-number">256E</span>P2=(<span class="hl-number">1</span>,<span class="hl-number">024</span>/<span class="hl-number">4</span>)=<span class="hl-number">256E</span>P3=(<span class="hl-number">1</span>,<span class="hl-number">024</span>/<span class="hl-number">4</span>)=<span class="hl-number">256</span></code></pre>
+            <p class="- topic/p p" data-ofbid="d159116e376__20250123155216"><strong class="+ topic/ph hi-d/b ph b">当前 UDC</strong></p>
+            <div class="- topic/p p" data-ofbid="d159116e380__20250123155216">The MPS is 1,024 bytes for a <code class="+ topic/ph pr-d/codeph ph codeph">periodic USB packet</code> and 1024 bytes for
+                a <code class="+ topic/ph pr-d/codeph ph codeph">non-periodic USB packet</code>. There are 4 <code class="+ topic/ph pr-d/codeph ph codeph">OUT
+                    endpoints</code>, 4 <code class="+ topic/ph pr-d/codeph ph codeph">IN endpoints</code>, 1 <code class="+ topic/ph pr-d/codeph ph codeph">control
+                    endpoint</code>.<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_aic_usb_device_controller__codeblock_hl1_kqz_21c" data-ofbid="usb_aic_usb_device_controller__codeblock_hl1_kqz_21c"><code>Device RxFIFO = (<span class="hl-number">5</span> * <span class="hl-number">1</span> + <span class="hl-number">8</span>) + ((<span class="hl-number">1</span>,<span class="hl-number">024</span> / <span class="hl-number">4</span>) +<span class="hl-number">1</span>) + (<span class="hl-number">2</span> * <span class="hl-number">5</span>) + <span class="hl-number">1</span> = <span class="hl-number">281</span> = <span class="hl-number">0x119</span>
+Non-Periodic TxFIFO = (<span class="hl-number">1024</span> / <span class="hl-number">4</span>) = <span class="hl-number">256</span> = <span class="hl-number">0x100</span>
+Device Periodic TxFIFO:
+ EP <span class="hl-number">1</span> = (<span class="hl-number">1</span>,<span class="hl-number">024</span> / <span class="hl-number">4</span>) = <span class="hl-number">256</span> = <span class="hl-number">0x100</span>
+ EP <span class="hl-number">2</span> = remain space = <span class="hl-number">0x3F6</span> - <span class="hl-number">0x119</span> - <span class="hl-number">0x100</span> - <span class="hl-number">0x100</span> = <span class="hl-number">0xDD</span>
+Internal Register Storage Space = <span class="hl-number">5</span> * <span class="hl-number">2</span> = <span class="hl-number">10</span> = <span class="hl-number">0xA</span></code></pre></div>
+            <div class="- topic/p p" data-ofbid="d159116e401__20250123155216">或者：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_aic_usb_device_controller__codeblock_j52_kqz_21c" data-ofbid="usb_aic_usb_device_controller__codeblock_j52_kqz_21c"><code>Device RxFIFO = (<span class="hl-number">5</span> * <span class="hl-number">1</span> + <span class="hl-number">8</span>) + ((<span class="hl-number">1</span>,<span class="hl-number">024</span> / <span class="hl-number">4</span>) +<span class="hl-number">1</span>) + (<span class="hl-number">2</span> * <span class="hl-number">5</span>) + <span class="hl-number">1</span> = <span class="hl-number">281</span> = <span class="hl-number">0x119</span>
+Non-Periodic TxFIFO = (<span class="hl-number">1024</span> / <span class="hl-number">4</span>) = <span class="hl-number">256</span> = <span class="hl-number">0x200</span>
+Device Periodic TxFIFO:
+ EP <span class="hl-number">1</span> = (<span class="hl-number">0x3F6</span> - <span class="hl-number">0x119</span> - <span class="hl-number">0x200</span>) / <span class="hl-number">2</span> = <span class="hl-number">0x6E</span>
+ EP <span class="hl-number">2</span> = (<span class="hl-number">0x3F6</span> - <span class="hl-number">0x119</span> - <span class="hl-number">0x200</span>) / <span class="hl-number">2</span> = <span class="hl-number">0x6E</span>
+Internal Register Storage Space = <span class="hl-number">5</span> * <span class="hl-number">2</span> = <span class="hl-number">10</span> = <span class="hl-number">0xA</span></code></pre></div>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_zpf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_zpf_2qz_21c"><h2 class="- topic/title title sectiontitle">FIFO Mapping</h2>
+            
+            <div class="- topic/p p" data-ofbid="d159116e413__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_aqf_2qz_21c" src="../../../images/usb/usb_udc_fifo_mapping.png" alt="image4"/></div><br/></div>
+            <p class="- topic/p p" data-ofbid="d159116e420__20250123155216">由上几节可知对一个端点 Endpoint 来说，它对应的 FIFO 是动态分配的。在 DMA 模式下，一旦初始化时配置完成就不用再去管 Endpoint FIFO
+                的地址。但是对 Slave 模式来说，在数据收发过程中需要 CPU 访问对应 FIFO 空间。</p>
+            <p class="- topic/p p" data-ofbid="d159116e423__20250123155216">为了方便 CPU 对 Endpoint FIFO 的访问，UDC 把 Endpoint FIFO 映射到了固定地址。其中读操作会映射到 OUT Endpoint
+                FIFO，写操作会映射到 IN Endpoint FIFO。</p>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_bqf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_bqf_2qz_21c"><h2 class="- topic/title title sectiontitle">Interrupt Cascade</h2>
+            
+            <div class="- topic/p p" data-ofbid="d159116e432__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_cqf_2qz_21c" src="../../../images/usb/usb_udc_interrupt.png" alt="image5"/></div><br/></div>
+            <p class="- topic/p p" data-ofbid="d159116e439__20250123155216">由于 UDC 的中断状态较多，所以分成 3 级级联：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_dqf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_dqf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e444__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e446__20250123155216">layer1: <code class="+ topic/ph pr-d/codeph ph codeph">GINTSTS</code> &amp; <code class="+ topic/ph pr-d/codeph ph codeph">GINTMSK</code> 。全局中断，每一 bit
+                        表示一个全局中断状态。其中： <code class="+ topic/ph pr-d/codeph ph codeph">OEPInt</code> 表示有 <code class="+ topic/ph pr-d/codeph ph codeph">Out Endpoint</code>
+                        中断发生 ， <code class="+ topic/ph pr-d/codeph ph codeph">IEPInt</code> 表示有 <code class="+ topic/ph pr-d/codeph ph codeph">In Endpoint</code> 中断发生。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e469__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e471__20250123155216">layer2: <code class="+ topic/ph pr-d/codeph ph codeph">DAINT</code> &amp; <code class="+ topic/ph pr-d/codeph ph codeph">DAINTMSK</code> 。Endpoint
+                        中断，每一 bit 表示一个 Endpoint 发生了中断。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e481__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e483__20250123155216">layer3: <code class="+ topic/ph pr-d/codeph ph codeph">DOEPINTn</code> &amp; <code class="+ topic/ph pr-d/codeph ph codeph">DOEPMSK</code> ，
+                            <code class="+ topic/ph pr-d/codeph ph codeph">DIEPINTn</code> &amp; <code class="+ topic/ph pr-d/codeph ph codeph">DIEPMSK</code> 。Endpoint
+                        中断细节，每一个 Endpoint 拥有一组这样的寄存器。 寄存器中的每一 bit 代表某个 Endpoint 的某种中断状态。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="usb_aic_usb_device_controller__section_eqf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__section_eqf_2qz_21c"><h2 class="- topic/title title sectiontitle">Data Transfer</h2>
+            
+            <div class="- topic/p p" data-ofbid="d159116e506__20250123155216"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="usb_aic_usb_device_controller__image_fqf_2qz_21c" src="../../../images/usb/usb_udc_trandfer.png" alt="image6"/></div><br/></div>
+            <p class="- topic/p p" data-ofbid="d159116e513__20250123155216">UDC 内部的数据收发流程如上图所示。主要的工作就是根据 USB 接收到的读写指令，把数据在 FIFO 和 Memory 之间进行搬移。具体分为几种情况：</p>
+            <ul class="- topic/ul ul" id="usb_aic_usb_device_controller__ul_gqf_2qz_21c" data-ofbid="usb_aic_usb_device_controller__ul_gqf_2qz_21c">
+                <li class="- topic/li li" data-ofbid="d159116e518__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e520__20250123155216">OUT Endpoint。所有 OUT Endpoint 的线路数据会接收到一个统一的 <code class="+ topic/ph pr-d/codeph ph codeph">Rx FIFO</code>
+                        当中，然后根据接收数据的具体 Endpoint 配置的 Memory 地址和长度，DMA 把数据从 FIFO 搬移到对应 Memory
+                        当中，最后产生中断。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e527__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e529__20250123155216">IN Non-period Endpoint。所有 IN Non-period Endpoint 共享一个统一的 <code class="+ topic/ph pr-d/codeph ph codeph">Tx
+                            Non-period FIFO</code> ，根据 Endpoint 配置的 Memory 地址和长度，DMA 把数据从 Memory
+                        搬移到统一的 FIFO 当中，发送到线路上后产生中断。IN Non-period Endpoint 需要配置 <code class="+ topic/ph pr-d/codeph ph codeph">Next
+                            Endpoint</code> 指针，这样 DMA 处理完一个 Endpoint 的数据后才知道下一个需要处理的 Endpoint。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d159116e539__20250123155216">
+                    <p class="- topic/p p" data-ofbid="d159116e541__20250123155216">IN Period Endpoint。每一个 IN Period Endpoint 拥有自己独立的 FIFO，根据 Endpoint 配置的 Memory
+                        地址和长度，DMA 把数据从 Memory 搬移到对应的 FIFO 当中，发送到线路上后产生中断。</p>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_epf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_epf_2qz_21c">Data Mode</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_kpf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_kpf_2qz_21c">Endpoint FIFO Mode</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_mpf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_mpf_2qz_21c">Endpoint Resource</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_npf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_npf_2qz_21c">Calculating FIFO Size</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_zpf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_zpf_2qz_21c">FIFO Mapping</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_bqf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_bqf_2qz_21c">Interrupt Cascade</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_aic_usb_device_controller__section_eqf_2qz_21c" data-tocid="usb_aic_usb_device_controller__section_eqf_2qz_21c">Data Transfer</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

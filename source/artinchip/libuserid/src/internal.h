@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: artinchip
+ */
 #ifndef USERID_INTERNAL_H
 #define USERID_INTERNAL_H
 

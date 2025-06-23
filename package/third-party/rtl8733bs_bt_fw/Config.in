@@ -1,0 +1,5 @@
+menuconfig BR2_PACKAGE_RTL8733BS_BT_FW
+	bool "RTL8733BS BT firmware"
+	default n
+
+

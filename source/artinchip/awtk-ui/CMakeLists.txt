@@ -48,8 +48,7 @@ add_definitions(-DWITH_BITMAP_BGRA)
 add_definitions(-DWITH_G2D)
 add_definitions(-DWITH_DEC_IMAGE)
 add_definitions(-DWITH_AIC_G2D)
-#add_definitions(-DTK_DEBUG)
-#add_definitions(-DAPP_RES_ROOT = /sdcard/)
+add_definitions(-DTK_NDEBUG)
 
 if (INPUT_ENGINE STREQUAL "pinyin")
     add_definitions(-DWITH_IME_PINYIN)
@@ -367,6 +366,7 @@ endif() # CMAKE_INSTALL_FULL_BINDIR
 include(GNUInstallDirs)
 
 add_definitions(-DAWTK_DIR="L:${CMAKE_INSTALL_FULL_DATAROOTDIR}")
+add_definitions(-DAPP_RES_ROOT="/usr/local/share/awtk_data/res")
 
 # Do not modify the installation path, you can modify the installation content
 if(DEFINED CMAKE_INSTALL_FULL_DATAROOTDIR)

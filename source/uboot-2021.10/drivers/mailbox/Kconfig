@@ -10,6 +10,25 @@ config DM_MAILBOX
 	  the basis of a variety of inter-process/inter-CPU communication
 	  protocols.
 
+config AIC_MBOX
+	tristate "ArtInChip Mailbox"
+	depends on ARCH_ARTINCHIP
+	help
+	  Mailbox implementation for ArtInChip SoC
+
+config AIC_MBOX_DBG_MODE
+	tristate "ArtInChip Mailbox Debug"
+	depends on ARCH_ARTINCHIP
+	help
+	  Enable debug mode for ArtInChip SoC Mailbox
+
+config AIC_MBOX_TIMOUT_MECHANISM
+	tristate "ArtInChip Mailbox Timeout Mechanism"
+	depends on ARCH_ARTINCHIP
+	default n
+	help
+	  Adds timeout mechanism for ArtInChip SoC Mailbox
+
 config SANDBOX_MBOX
 	bool "Enable the sandbox mailbox test driver"
 	depends on DM_MAILBOX && SANDBOX

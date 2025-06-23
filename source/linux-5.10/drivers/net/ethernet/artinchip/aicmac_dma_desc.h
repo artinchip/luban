@@ -238,14 +238,13 @@ static inline void enh_desc_end_tx_desc_on_ring(struct dma_desc *p, int end)
 
 static inline void enh_set_tx_desc_len_on_ring(struct dma_desc *p, int len)
 {
-	if (unlikely(len > BUF_SIZE_4KiB)) {
+	if (likely(len <= BUF_SIZE_4KiB))
+		p->des1 |= cpu_to_le32((len & ETDES1_BUFFER1_SIZE_MASK));
+	else
 		p->des1 |= cpu_to_le32((((len - BUF_SIZE_4KiB)
 					<< ETDES1_BUFFER2_SIZE_SHIFT)
 			    & ETDES1_BUFFER2_SIZE_MASK) | (BUF_SIZE_4KiB
 			    & ETDES1_BUFFER1_SIZE_MASK));
-	} else {
-		p->des1 |= cpu_to_le32((len & ETDES1_BUFFER1_SIZE_MASK));
-	}
 }
 
 /* Normal descriptors */

@@ -24,21 +24,39 @@ config BR2_RISCV_ISA_RVV
 config BR2_RISCV_ISA_RVXTHEAD
 	bool
 
-# choice
-# 	prompt "Target Architecture Variant"
-# 	default BR2_riscv_g
-config BR2_riscv_g
-	bool # "General purpose (G)"
+choice
+	prompt "Target Architecture"
+	default BR2_riscv64_gcxthead
+
+config BR2_riscv32_gcxthead
+	bool "RV32GC + X"
 	select BR2_RISCV_ISA_RVI
 	select BR2_RISCV_ISA_RVM
 	select BR2_RISCV_ISA_RVA
 	select BR2_RISCV_ISA_RVF
 	select BR2_RISCV_ISA_RVD
+	select BR2_RISCV_ISA_RVC
+	select BR2_RISCV_ISA_RVXTHEAD
+	select BR2_RISCV_32
 	help
-	  General purpose (G) is equivalent to IMAFD.
+	  Integer Riscv32 + General (IMAFD) + Compressed (C) + T-Head Xtension (X).
+
+config BR2_riscv32_gcvxthead
+	bool "RV32GC + V + X"
+	select BR2_RISCV_ISA_RVI
+	select BR2_RISCV_ISA_RVM
+	select BR2_RISCV_ISA_RVA
+	select BR2_RISCV_ISA_RVF
+	select BR2_RISCV_ISA_RVD
+	select BR2_RISCV_ISA_RVC
+	select BR2_RISCV_ISA_RVV
+	select BR2_RISCV_ISA_RVXTHEAD
+	select BR2_RISCV_32
+	help
+	  Integer Riscv32 + General (IMAFD) + Compressed (C) + T-Head Xtension (X).
 
 config BR2_riscv64_gcxthead
-	bool "Riscv64 + General (G) + Compressed (C) + T-HEAD Xtension (X)"
+	bool "RV64GC + X"
 	select BR2_RISCV_ISA_RVI
 	select BR2_RISCV_ISA_RVM
 	select BR2_RISCV_ISA_RVA
@@ -51,7 +69,7 @@ config BR2_riscv64_gcxthead
 	  Integer Riscv64 + General (IMAFD) + Compressed (C) + T-Head Xtension (X).
 
 config BR2_riscv64_gcvxthead
-	bool "Riscv64 + General (G) + Compressed (C) + Vector (V) + T-HEAD Xtension (X)"
+	bool "RV64GC + V + X"
 	select BR2_RISCV_ISA_RVI
 	select BR2_RISCV_ISA_RVM
 	select BR2_RISCV_ISA_RVA
@@ -64,11 +82,7 @@ config BR2_riscv64_gcvxthead
 	help
 	  Integer Riscv64 + General (IMAFD) + Compressed (C) + Vector (V) + T-Head Xtension (X).
 
-config BR2_riscv_custom
-	bool # "Custom architecture"
-	select BR2_RISCV_ISA_RVI
-	select BR2_RISCV_ISA_CUSTOM_RVA
-# endchoice
+endchoice
 
 # choice
 # 	prompt "Target Architecture Size"
@@ -85,39 +99,39 @@ config BR2_RISCV_64
 
 # endchoice
 
-# choice
-# 	prompt "Target ABI"
-#	default BR2_RISCV_ABI_ILP32D if !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
-#	default BR2_RISCV_ABI_ILP32F if !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
-#	default BR2_RISCV_ABI_ILP32  if !BR2_ARCH_IS_64
-#	default BR2_RISCV_ABI_LP64D  if BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
-#	default BR2_RISCV_ABI_LP64F  if BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
-#	default BR2_RISCV_ABI_LP64   if BR2_ARCH_IS_64
+choice
+	prompt "Target ABI"
+	default BR2_RISCV_ABI_ILP32D if !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
+# 	default BR2_RISCV_ABI_ILP32F if !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
+# 	default BR2_RISCV_ABI_ILP32  if !BR2_ARCH_IS_64
+	default BR2_RISCV_ABI_LP64D  if BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
+# 	default BR2_RISCV_ABI_LP64F  if BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
+# 	default BR2_RISCV_ABI_LP64   if BR2_ARCH_IS_64
 
-config BR2_RISCV_ABI_ILP32
-	bool # "ilp32"
-	depends on !BR2_ARCH_IS_64
+# config BR2_RISCV_ABI_ILP32
+# 	bool # "ilp32"
+# 	depends on !BR2_ARCH_IS_64
 
-config BR2_RISCV_ABI_ILP32F
-	bool # "ilp32f"
-	depends on !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
+# config BR2_RISCV_ABI_ILP32F
+# 	bool # "ilp32f"
+# 	depends on !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
 
 config BR2_RISCV_ABI_ILP32D
-	bool # "ilp32d"
+	bool "ilp32d"
 	depends on !BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
 
-config BR2_RISCV_ABI_LP64
-	bool # "lp64"
-	depends on BR2_ARCH_IS_64
+# config BR2_RISCV_ABI_LP64
+# 	bool # "lp64"
+# 	depends on BR2_ARCH_IS_64
 
-config BR2_RISCV_ABI_LP64F
-	bool # "lp64f"
-	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
+# config BR2_RISCV_ABI_LP64F
+# 	bool # "lp64f"
+# 	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVF
 
 config BR2_RISCV_ABI_LP64D
-	bool # "lp64d"
+	bool "lp64d"
 	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
-# endchoice
+endchoice
 
 config BR2_ARCH
 	default "riscv32" if !BR2_ARCH_IS_64

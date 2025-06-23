@@ -21,17 +21,11 @@
 #define SPL_INVALID_BLOCK_IDX     0xFFFFFFFF
 #define SPL_INVALID_PAGE_ADDR     0xFFFFFFFF
 
-#define ROUNDUP(x, y)	(((x) + ((y) - 1)) & ~((y) - 1))
-
-#define PAGE_SIZE_1KB 1
-#define PAGE_SIZE_2KB 2
-#define PAGE_SIZE_4KB 4
-
 struct nand_page_table_head {
 	char magic[4]; /* AICP: AIC Page table */
 	u32 entry_cnt;
-	u8  page_size; /* 0: No page size info; 1: 1KB; 2: 2KB; 4: 4KB */
-	u8  pad[11]; /* Padding it to fit size 20 bytes */
+	u16  page_size;
+	u8  pad[10]; /* Padding it to fit size 20 bytes */
 };
 
 /*

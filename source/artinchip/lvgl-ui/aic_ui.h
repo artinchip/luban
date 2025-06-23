@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2022-2023 ArtinChip Technology Co., Ltd.
+ * Copyright (C) 2022-2024 ArtInChip Technology Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Authors:  Ning Fang <ning.fang@artinchip.com>
  */
 
@@ -12,9 +15,11 @@ extern "C" {
 
 #include <stdint.h>
 
+#define LVGL_PATH_ORI "/usr/local/share/lvgl_data/"
 #define CONN(x, y) x#y
 #define LVGL_PATH(y) CONN(LVGL_DIR, y)
-
+#define LVGL_FONT_PATH(y) CONN(LVGL_PATH_ORI"font/", y)
+#define LVGL_IMAGE_PATH(y) CONN(LVGL_DIR"image/", y)
 #define FILE_LIST_PATH  "/usr/local/share/lvgl_data/"
 #define LVGL_FILE_LIST_PATH(y) CONN(FILE_LIST_PATH, y)
 

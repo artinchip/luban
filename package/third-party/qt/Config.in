@@ -7,6 +7,7 @@ menuconfig BR2_PACKAGE_QT
 	depends on BR2_USE_MMU # fork
 	depends on BR2_INSTALL_LIBSTDCPP
 	depends on BR2_TOOLCHAIN_HAS_THREADS
+	select BR2_PACKAGE_AIC_MEM
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
@@ -213,7 +214,7 @@ endif # BR2_PACKAGE_QT_EMBEDDED
 
 choice
 	prompt "freetype2 support"
-	default BR2_PACKAGE_QT_NOFREETYPE
+	default BR2_PACKAGE_QT_QTFREETYPE
 	help
 	  Select freetype2 support.
 
@@ -252,7 +253,7 @@ config BR2_PACKAGE_QT_LIBMNG
 
 choice
 	prompt "JPEG support"
-	default BR2_PACKAGE_QT_SYSTEMJPEG
+	default BR2_PACKAGE_QT_QTJPEG
 	help
 	  Select libjpeg support.
 
@@ -275,7 +276,7 @@ endchoice
 
 choice
 	prompt "PNG support"
-	default BR2_PACKAGE_QT_SYSTEMPNG
+	default BR2_PACKAGE_QT_QTPNG
 	help
 	  Select which library to use if PNG support should be enabled.
 

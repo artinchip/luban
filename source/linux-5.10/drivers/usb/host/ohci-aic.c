@@ -2,7 +2,7 @@
 /*
  * Artinchip OHCI driver
  *
- * Copyright (C) 2020 ARTINCHIP - All Rights Reserved
+ * Copyright (C) 2020-2025 ARTINCHIP - All Rights Reserved
  *
  *
  */
@@ -24,12 +24,13 @@
 
 #include "ohci.h"
 
-#define USB_MAX_CLKS 3
+#define USB_MAX_CLKS_RSTS 2
 
 struct aic_ohci_platform_priv {
-	struct clk *clks[USB_MAX_CLKS];
+	struct clk *clks[USB_MAX_CLKS_RSTS];
 	struct clk *clk48;
 	struct reset_control *rst;
+	struct reset_control *hw_rst[USB_MAX_CLKS_RSTS];
 	struct reset_control *pwr;
 	struct phy *phy;
 };
@@ -45,7 +46,7 @@ static int aic_ohci_platform_power_on(struct platform_device *dev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(dev);
 	struct aic_ohci_platform_priv *priv = hcd_to_ohci_priv(hcd);
-	int clk, ret;
+	int i, clk, ret;
 
 	ret = reset_control_deassert(priv->pwr);
 	if (ret)
@@ -54,6 +55,12 @@ static int aic_ohci_platform_power_on(struct platform_device *dev)
 	ret = reset_control_deassert(priv->rst);
 	if (ret)
 		goto err_assert_power;
+
+	for (i = 0; i < USB_MAX_CLKS_RSTS && priv->hw_rst[i]; i++) {
+		ret = reset_control_deassert(priv->hw_rst[i]);
+		if (ret)
+			goto err_assert_power;
+	}
 
 	/* some SoCs don't have a dedicated 48Mhz clock, but those that do
 	 * need the rate to be explicitly set
@@ -64,7 +71,7 @@ static int aic_ohci_platform_power_on(struct platform_device *dev)
 			goto err_assert_reset;
 	}
 
-	for (clk = 0; clk < USB_MAX_CLKS && priv->clks[clk]; clk++) {
+	for (clk = 0; clk < USB_MAX_CLKS_RSTS && priv->clks[clk]; clk++) {
 		ret = clk_prepare_enable(priv->clks[clk]);
 		if (ret)
 			goto err_disable_clks;
@@ -98,17 +105,20 @@ static void aic_ohci_platform_power_off(struct platform_device *dev)
 	struct usb_hcd *hcd = platform_get_drvdata(dev);
 	struct aic_ohci_platform_priv *priv = hcd_to_ohci_priv(hcd);
 
-	int clk;
+	int i, clk;
 
 	reset_control_assert(priv->pwr);
 
 	reset_control_assert(priv->rst);
 
+	for (i = 0; i < USB_MAX_CLKS_RSTS && priv->hw_rst[i]; i++)
+		reset_control_assert(priv->hw_rst[i]);
+
 	phy_power_off(priv->phy);
 
 	phy_exit(priv->phy);
 
-	for (clk = USB_MAX_CLKS - 1; clk >= 0; clk--)
+	for (clk = USB_MAX_CLKS_RSTS - 1; clk >= 0; clk--)
 		if (priv->clks[clk])
 			clk_disable_unprepare(priv->clks[clk]);
 }
@@ -134,9 +144,7 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 	struct aic_ohci_platform_priv *priv;
 	struct ohci_hcd *ohci;
 	int err, irq;
-#ifndef CONFIG_USB_OHCI_HCD_AIC
-	int clk = 0;
-#endif
+	int i, clk = 0;
 
 	if (usb_disabled())
 		return -ENODEV;
@@ -188,8 +196,8 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 		err = PTR_ERR(priv->phy);
 		goto err_put_hcd;
 	}
-
-	for (clk = 0; clk < USB_MAX_CLKS; clk++) {
+#endif
+	for (clk = 0; clk < USB_MAX_CLKS_RSTS; clk++) {
 		priv->clks[clk] = of_clk_get(dev->dev.of_node, clk);
 		if (IS_ERR(priv->clks[clk])) {
 			err = PTR_ERR(priv->clks[clk]);
@@ -209,6 +217,7 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 		priv->clk48 = NULL;
 	}
 
+#ifndef CONFIG_USB_OHCI_HCD_AIC
 	priv->pwr =
 		devm_reset_control_get_optional_shared(&dev->dev, "power");
 	if (IS_ERR(priv->pwr)) {
@@ -223,6 +232,16 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 		goto err_put_clks;
 	}
 #endif
+
+	for (i = 0; i < USB_MAX_CLKS_RSTS; i++) {
+		priv->hw_rst[i] = devm_reset_control_get_shared_by_index(&dev->dev, i);
+		if (IS_ERR(priv->hw_rst[i])) {
+			err = PTR_ERR(priv->hw_rst[i]);
+			if (err == -EPROBE_DEFER)
+				goto err_put_clks;
+			priv->hw_rst[i] = NULL;
+		}
+	}
 
 	if (pdata->power_on) {
 		err = pdata->power_on(dev);
@@ -275,10 +294,11 @@ static int aic_ohci_platform_probe(struct platform_device *dev)
 err_power:
 	if (pdata->power_off)
 		pdata->power_off(dev);
-#ifndef CONFIG_USB_OHCI_HCD_AIC
+
 err_put_clks:
 	while (--clk >= 0)
 		clk_put(priv->clks[clk]);
+#ifndef CONFIG_USB_OHCI_HCD_AIC
 err_put_hcd:
 #endif
 	if (pdata == &ohci_platform_defaults)
@@ -308,7 +328,7 @@ static int aic_ohci_platform_remove(struct platform_device *dev)
 	if (pdata->power_off)
 		pdata->power_off(dev);
 
-	for (clk = 0; clk < USB_MAX_CLKS && priv->clks[clk]; clk++)
+	for (clk = 0; clk < USB_MAX_CLKS_RSTS && priv->clks[clk]; clk++)
 		clk_put(priv->clks[clk]);
 
 	usb_put_hcd(hcd);

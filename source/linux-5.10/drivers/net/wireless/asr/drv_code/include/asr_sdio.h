@@ -131,13 +131,16 @@
 
 #define MAX_POLL_TRIES    100
 #define SDIO_BLOCK_SIZE_DLD  512
-#ifdef CONFIG_ASR595X
-#define SDIO_BLOCK_SIZE     32	//4     //32    //SDIO max transfer in one cmd53:4*512=2KB
 
+#ifdef CONFIG_ASR595X
+#define SDIO_BLOCK_SIZE     32	//4 SDIO max transfer in one cmd53:4*512=2KB
 #define SDIO_BLOCK_SIZE_TX  32	//tx remain 32byte align
 #else
-#define SDIO_BLOCK_SIZE   32	//SDIO max transfer in one cmd53:32*512=16KB
+#ifndef SDIO_BLOCK_SIZE
+#define SDIO_BLOCK_SIZE     32	//SDIO max transfer in one cmd53:32*512=16KB
 #endif
+#endif
+
 #define SDIO_DOWNLOAD_BLOCKS 270
 
 #define SDIO_RX_AGG_TRI_CNT 	6
@@ -186,6 +189,8 @@ struct sdio_fw_sec_fw_header {
 int asr_sdio_register_drv(void);
 void asr_sdio_unregister_drv(void);
 int asr_sdio_send_data(struct asr_hw *asr_hw, u8 type, u8 * src, u16 len, unsigned int io_addr, u16 bitmap_record);
+int asr_sdio_rw_extended_sg(struct sdio_func *func, int write,
+	unsigned addr, int incr_addr, struct sk_buff_head *skb_list, unsigned size);
 
 #ifdef CONFIG_ASR5825
 int asr_sdio_download_1st_firmware(struct sdio_func *func, const struct firmware *fw_img);
@@ -210,4 +215,16 @@ int asr_sdio_send_section_firmware(struct sdio_func *func, struct sdio_host_sec_
 int asr_sdio_send_section_firmware(struct sdio_func *func, struct sdio_host_sec_fw_header
 				   *p_sec_fw_hdr, u8 * fw_buf, u8 * fw);
 #endif
+
+static inline void asr_sdio_set_state(struct asr_plat *plat, enum asr_sdio_state state) {
+	if (plat->state == state)
+		return;
+
+	plat->state = state;
+}
+
+static inline int asr_sdio_get_state(struct asr_plat *plat) {
+	return plat->state;
+}
+
 #endif /* _ASR_SDIO_H_ */

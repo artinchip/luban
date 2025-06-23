@@ -233,6 +233,9 @@ endef
 
 ifeq ($(BR2_TARGET_INSTALL_ETC_CONFIG),y)
 define UBOOT_INSTALL_DOT_CONFIG_TO_TARGET
+	$(Q)if [ -f $(TARGET_CHIP_DIR)/common/module.csv ]; then \
+		$(INSTALL) -m 0644 -D $(TARGET_CHIP_DIR)/common/module.csv $(TARGET_DIR)/etc/config/.module.csv; \
+	fi
 	$(Q)$(INSTALL) -m 0644 -D $(@D)/.config $(TARGET_DIR)/etc/config/uboot.config
 endef
 endif

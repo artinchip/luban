@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: frame buffer manager
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: frame buffer manager
+ */
 
 #ifndef FRAME_MANAGER_H
 #define FRAME_MANAGER_H
@@ -64,6 +66,11 @@ int fm_render_put_frame(struct frame_manager* fm, struct mpp_frame *frame);
   internal ref count will minus 1 (not used by decode)
 */
 int fm_decoder_put_frame(struct frame_manager* fm, struct frame *frame);
+
+/*
+  decoder reclaim all used frame to frame_manager.the frame will not used by decoder any more.
+*/
+int fm_decoder_reclaim_all_used_frame(struct frame_manager* fm);
 
 /*
   get a empty frame for decoder.

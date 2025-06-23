@@ -1,0 +1,16 @@
+menuconfig BR2_PACKAGE_MPFR
+	bool "mpfr"
+	select BR2_PACKAGE_GMP
+	help
+	  C library for multiple-precision floating-point computations
+	  with exact rounding.
+
+	  http://www.mpfr.org/
+
+if BR2_PACKAGE_MPFR
+
+config BR2_PACKAGE_MPFR_USE_PREBUILT
+	bool "use prebuilt binary instead of building from source"
+	default y
+
+endif

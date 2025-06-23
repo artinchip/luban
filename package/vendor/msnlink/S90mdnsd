@@ -28,7 +28,7 @@ start() {
 	mkdir strings/0x409
 	mkdir configs/c.1/strings/0x409
 
-	echo "aic1602_demo128_nand" > strings/0x409/serialnumber
+	echo "d211_demo128_nand" > strings/0x409/serialnumber
 	echo "AIC Inc." > strings/0x409/manufacturer
 	echo "FunctionFS gadget (adb)" > strings/0x409/product
 

@@ -15,6 +15,7 @@
 #include <linux/clk.h>
 #include <linux/reset.h>
 #include <linux/of_device.h>
+#include <linux/of_address.h>
 #include <linux/pm.h>
 
 #define AIC_EPWM_NAME		"aic-epwm"
@@ -734,10 +735,6 @@ static int aic_epwm_probe(struct platform_device *pdev)
 	if (IS_ERR(epwm->regs))
 		return PTR_ERR(epwm->regs);
 
-	epwm->glb_regs = devm_platform_ioremap_resource(pdev, 1);
-	if (IS_ERR(epwm->glb_regs))
-		return PTR_ERR(epwm->glb_regs);
-
 	clk = devm_clk_get(&pdev->dev, "sysclk");
 	if (IS_ERR(clk)) {
 		dev_err(&pdev->dev, "Failed to get sysclk clock\n");
@@ -778,7 +775,7 @@ static int aic_epwm_probe(struct platform_device *pdev)
 			       0, AIC_EPWM_NAME, epwm);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to request IRQ %d\n", irq);
-		goto free_irq;
+		goto out_disable_rst;
 	}
 	epwm->irq = irq;
 
@@ -787,7 +784,7 @@ static int aic_epwm_probe(struct platform_device *pdev)
 	epwm->attrs.attrs = aic_epwm_attr;
 	ret = sysfs_create_group(&pdev->dev.kobj, &epwm->attrs);
 	if (ret)
-		goto free_irq;
+		goto out_disable_rst;
 
 	epwm->chip.dev = &pdev->dev;
 	epwm->chip.ops = &aic_epwm_ops;
@@ -798,26 +795,33 @@ static int aic_epwm_probe(struct platform_device *pdev)
 	ret = pwmchip_add(&epwm->chip);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
-		goto free_irq;
+		goto out_disable_rst;
 	}
+
+	epwm->glb_regs = of_iomap(pdev->dev.of_node, 1);
+	if (IS_ERR(epwm->glb_regs))
+		goto out_pwmchip_remove;
 
 	epwm_reg_enable(epwm->glb_regs, GLB_EPWM_EN, GLB_EPWM_EN_B, 1);
 	ret = aic_epwm_parse_dt(&pdev->dev);
 	if (ret)
-		goto free_irq;
+		goto out_pwmchip_remove;
+
+	//unmap to be used by other PWMCS Submodules
+	iounmap(epwm->glb_regs);
 
 	ret = clk_set_rate(epwm->clk, epwm->clk_rate);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to set clk_rate %ld\n",
 			epwm->clk_rate);
-		goto free_irq;
+		goto out_pwmchip_remove;
 	}
 
 	dev_info(&pdev->dev, "ArtInChip EPWM Loaded.\n");
 	return 0;
 
-free_irq:
-	free_irq(epwm->irq, epwm);
+out_pwmchip_remove:
+	pwmchip_remove(&epwm->chip);
 out_disable_rst:
 	reset_control_assert(epwm->rst);
 out_disable_clk:
@@ -831,7 +835,6 @@ static int aic_epwm_remove(struct platform_device *pdev)
 
 	pwmchip_remove(&epwm->chip);
 
-	free_irq(epwm->irq, epwm);
 	reset_control_assert(epwm->rst);
 	clk_unprepare(epwm->clk);
 

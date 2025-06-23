@@ -1,0 +1,460 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="ArtInChip 平台上，U-Boot 与 Kernel 共用一份 DTS 配置，目前 DTB 的编译放在 U-Boot 阶段进行。项目相关的 DTS 文件存放路径： target/ IC /common/*.dtsi target/ IC / Board /board.dts target/ IC / Board /board-u-boot.dtsi target/ IC / Board ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-module.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/save-env-variable-on-memory-medium.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/spl-program-stage.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="dts"/><meta name="DC.language" content="zh-CN"/><title>DTS</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="dts-d4445e2271"/><meta name="wh-source-relpath" content="topics/sdk/boot/uboot-dts.dita"/><meta name="wh-out-relpath" content="topics/sdk/boot/uboot-dts.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="dts" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="uBoot"><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li class="active"><div class="topicref" data-id="dts"><div class="title"><a href="../../../topics/sdk/boot/uboot-dts.html">DTS</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/boot/save-env-variable-on-memory-medium.html" title="存储介质上的保存" aria-label="上一主题: 存储介质上的保存" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/boot/spl-program-stage.html" title="SPL 阶段" aria-label="下一主题: SPL 阶段" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="_65-d4445e2187" class="topicref" data-id="_65" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-hardware-env.html" id="_65-d4445e2187-link">硬件运行环境</a></div></div></li><li role="treeitem"><div data-tocid="_1601-d4445e2201" class="topicref" data-id="_1601" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-parameter.html" id="_1601-d4445e2201-link">启动参数</a></div></div></li><li role="treeitem"><div data-tocid="_1601_0-d4445e2215" class="topicref" data-id="_1601_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/boot-memory.html" id="_1601_0-d4445e2215-link">内存相关</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_lbx_3n3_pzb-d4445e2229" class="topicref" data-id="concept_lbx_3n3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_lbx_3n3_pzb-d4445e2229-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/environment-variables.html" id="concept_lbx_3n3_pzb-d4445e2229-link">环境变量</a></div></div></li><li role="treeitem" class="active"><div data-tocid="dts-d4445e2271" class="topicref" data-id="dts" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-dts.html" id="dts-d4445e2271-link">DTS</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spl-d4445e2285" class="topicref" data-id="spl" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spl-d4445e2285-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spl-program-stage.html" id="spl-d4445e2285-link">SPL 阶段</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot_0-d4445e2411" class="topicref" data-id="uBoot_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot_0-d4445e2411-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-stage.html" id="uBoot_0-d4445e2411-link">U-Boot 阶段</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_q5s_jn3_pzb-d4445e2495" class="topicref" data-id="concept_q5s_jn3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_q5s_jn3_pzb-d4445e2495-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-driver-support.html" id="concept_q5s_jn3_pzb-d4445e2495-link">驱动支持</a></div></div></li><li role="treeitem"><div data-tocid="concept_l2d_xk3_pzb-d4445e2607" class="topicref" data-id="concept_l2d_xk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-partition-config.html" id="concept_l2d_xk3_pzb-d4445e2607-link">配置启动分区</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_afz_xk3_pzb-d4445e2621" class="topicref" data-id="concept_afz_xk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_afz_xk3_pzb-d4445e2621-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-core.html" id="concept_afz_xk3_pzb-d4445e2621-link">启动内核</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_uzy_yk3_pzb-d4445e2692" class="topicref" data-id="concept_uzy_yk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_uzy_yk3_pzb-d4445e2692-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/bundle-images.html" id="concept_uzy_yk3_pzb-d4445e2692-link">打包镜像</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_yfv_1l3_pzb-d4445e2832" class="topicref" data-id="concept_yfv_1l3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_yfv_1l3_pzb-d4445e2832-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-chapter-image-burn.html" id="concept_yfv_1l3_pzb-d4445e2832-link">镜像烧录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="userid-d4445e2888" class="topicref" data-id="userid" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action userid-d4445e2888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/userid-burn.html" id="userid-d4445e2888-link">UserID 烧录</a></div></div></li><li role="treeitem"><div data-tocid="concept_azt_bl3_pzb-d4445e2944" class="topicref" data-id="concept_azt_bl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/logo-display.html" id="concept_azt_bl3_pzb-d4445e2944-link">图像显示</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="_1601_1-d4445e2958" class="topicref" data-id="_1601_1" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _1601_1-d4445e2958-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/debug-configuration.html" id="_1601_1-d4445e2958-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="opensbi-d4445e3000" class="topicref" data-id="opensbi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/opensbi.html" id="opensbi-d4445e3000-link">OpenSBI</a></div></div></li><li role="treeitem"><div data-tocid="pbp-d4445e3014" class="topicref" data-id="pbp" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/pre-boot-program.html" id="pbp-d4445e3014-link">Pre-Boot Program (PBP)</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/boot/uboot-dts.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">DTS</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 8 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d142692e33__20250123155213">ArtInChip 平台上，U-Boot 与 Kernel 共用一份 DTS 配置，目前 DTB 的编译放在 U-Boot 阶段进行。项目相关的 DTS 文件存放路径：</p>
+        <ul class="- topic/ul ul" id="dts__ul_f4g_g1h_bzb" data-ofbid="dts__ul_f4g_g1h_bzb">
+            <li class="- topic/li li" data-ofbid="d142692e38__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">IC</var>/common/*.dtsi</span></li>
+            <li class="- topic/li li" data-ofbid="d142692e45__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">IC</var>/<var class="+ topic/keyword sw-d/varname keyword varname">Board</var>/board.dts</span></li>
+            <li class="- topic/li li" data-ofbid="d142692e55__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">IC</var>/<var class="+ topic/keyword sw-d/varname keyword varname">Board</var>/board-u-boot.dtsi</span></li>
+            <li class="- topic/li li" data-ofbid="d142692e65__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">IC</var>/<var class="+ topic/keyword sw-d/varname keyword varname">Board</var>/board.dts</span></li>
+        </ul>
+        <p class="- topic/p p" data-ofbid="d142692e76__20250123155213">DTS 编译时，相关的源文件会被链接到 <span class="+ topic/ph sw-d/filepath ph filepath">arch/riscv/dts/</span> 进行编译。</p>
+        <p class="- topic/p p" data-ofbid="d142692e82__20250123155213">U-Boot 的 DTS 配置可参考 U-Boot 官方文档：<span class="+ topic/ph sw-d/filepath ph filepath">doc/README.fdt-control</span></p>
+        <section class="- topic/section section" id="dts__section_h4g_g1h_bzb" data-ofbid="dts__section_h4g_g1h_bzb"><h2 class="- topic/title title sectiontitle">两个 DTB</h2>
+            
+            <p class="- topic/p p" data-ofbid="d142692e92__20250123155213">U-Boot 编译期间，DTS 被编译产生两个 dtb 文件：</p>
+            <ul class="- topic/ul ul" id="dts__ul_i4g_g1h_bzb" data-ofbid="dts__ul_i4g_g1h_bzb">
+                <li class="- topic/li li" data-ofbid="d142692e97__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e99__20250123155213">u-boot-spl.dtb</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d142692e103__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e105__20250123155213">u-boot.dtb</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d142692e110__20250123155213">这两个 DTB 分别保存在三个不同位置，给 SPL, U-Boot, Kernel 三个阶段使用。</p>
+            <p class="- topic/p p" data-ofbid="d142692e113__20250123155213"><strong class="+ topic/ph hi-d/b ph b">SPL DTB 的保存</strong></p>
+            <p class="- topic/p p" data-ofbid="d142692e118__20250123155213">在编译阶段 u-boot-spl.dtb 会被合并到 u-boot-spl.bin 的尾部，并生成
+                    <span class="+ topic/ph sw-d/filepath ph filepath">u-boot-spl-dtb.bin</span>。 SPL 程序通过链接脚本中的变量
+                <span class="+ topic/keyword pr-d/parmname keyword parmname">__bss_end</span> 访问 DTB 数据。具体请参考 <span class="+ topic/ph sw-d/filepath ph filepath">lib/fdtdec.c</span>
+                。</p>
+            <p class="- topic/p p" data-ofbid="d142692e130__20250123155213">开发者可以通过重新定义 <span class="+ topic/keyword pr-d/apiname keyword apiname">board_fdt_blob_setup()</span> 的方式，修改加载 dtb 的方式和规则。</p>
+            <p class="- topic/p p" data-ofbid="d142692e136__20250123155213"><strong class="+ topic/ph hi-d/b ph b">U-Boot DTB 的保存</strong></p>
+            <p class="- topic/p p" data-ofbid="d142692e140__20250123155213">在编译阶段 u-boot.dtb 会被合并到 u-boot.bin 的尾部，并生成 <span class="+ topic/ph sw-d/filepath ph filepath">u-boot-dtb.bin</span>。 U-Boot 程序通过链接脚本中的变量
+                <span class="+ topic/keyword pr-d/parmname keyword parmname">_end</span> 访问 DTB 数据。具体请参考 <span class="+ topic/ph sw-d/filepath ph filepath">lib/fdtdec.c</span> 。</p>
+            <p class="- topic/p p" data-ofbid="d142692e152__20250123155213">开发者可以通过重新定义 <span class="+ topic/keyword pr-d/apiname keyword apiname">board_fdt_blob_setup()</span> 的方式，修改加载 dtb 的方式和规则。</p>
+            <p class="- topic/p p" data-ofbid="d142692e158__20250123155213"><strong class="+ topic/ph hi-d/b ph b">Kernel DTB 的保存</strong></p>
+            <p class="- topic/p p" data-ofbid="d142692e163__20250123155213">Kernel 所用的 DTB 通常保存在单独分区，或者与 Kernel 一起保存在 FIT Image 包中， U-Boot 通过读取分区或者解析 FIT Image
+                格式来加载 Kernel DTB 数据。</p>
+            <p class="- topic/p p" data-ofbid="d142692e166__20250123155213">注解</p>
+            <p class="- topic/p p" data-ofbid="d142692e169__20250123155213">通常情况下 U-Boot 使用的 DTB 与 Kernel 所使用的 DTB 是相同的，做启动优化的时候， 这部分可以做一些优化，使得 DTB
+                数据只需从存储介质读取一次，从而加快启动速度。</p>
+        </section>
+        <section class="- topic/section section" id="dts__section_j4g_g1h_bzb" data-ofbid="dts__section_j4g_g1h_bzb"><h2 class="- topic/title title sectiontitle">SPL DTS 的配置</h2>
+            
+            <p class="- topic/p p" data-ofbid="d142692e179__20250123155213">由于 SPL 仅使用 U-Boot DTS 中很少部分的设备配置，为了减少内存占用，SPL DTB 在编译时会使用 fdtgrep 工具对 U-Boot DTS
+                进行过滤，以产生一个更小的 DTB。 过滤后的 DTB 仅包含：</p>
+            <ul class="- topic/ul ul" id="dts__ul_k4g_g1h_bzb" data-ofbid="dts__ul_k4g_g1h_bzb">
+                <li class="- topic/li li" data-ofbid="d142692e184__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e186__20250123155213">the mandatory nodes (/alias, /chosen, /config)</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d142692e190__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e192__20250123155213">the nodes with one pre-relocation property: ‘u-boot,dm-pre-reloc’ or
+                        ‘u-boot,dm-spl’</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d142692e197__20250123155213">在 ArtInChip 平台上，对于需要在 SPL 中使用的设备，需要配置属性 <span class="+ topic/keyword pr-d/parmname keyword parmname">u-boot,dm-pre-reloc</span> ，
+                        具体配置文件在：<span class="+ topic/ph sw-d/filepath ph filepath">target/<var class="+ topic/keyword sw-d/varname keyword varname">IC</var>/<var class="+ topic/keyword sw-d/varname keyword varname">Board</var>/board-u-boot.dtsi</span></p>
+            <div class="- topic/p p" data-ofbid="d142692e211__20250123155213">参考示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_dvs_pjg_m1c" data-ofbid="dts__codeblock_dvs_pjg_m1c"><code>&amp;ccu {
+    u-boot,dm-pre-reloc;
+};
+
+&amp;rst {
+    u-boot,dm-pre-reloc;
+};
+
+&amp;osc24m {
+    u-boot,dm-pre-reloc;
+};
+
+&amp;rc1m {
+    u-boot,dm-pre-reloc;
+};</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d142692e217__20250123155213">更多描述可参考文档：<span class="+ topic/ph sw-d/filepath ph filepath">doc/README.SPL</span></p>
+        </section>
+        <section class="- topic/section section" id="dts__section_o4g_g1h_bzb" data-ofbid="dts__section_o4g_g1h_bzb"><h2 class="- topic/title title sectiontitle">PLATDATA</h2>
+            
+            <p class="- topic/p p" data-ofbid="d142692e228__20250123155213">SPL 使用 DTS 对平台上的设备进行配置，通常 SPL 支持 DTB 解析并不会占用太多的内存空间， 大约需要 3KB。但是对于一些 SPL
+                可用内存空间十分之有限的平台，节省 DTB 解析库 所占用的空间是十分之有吸引力的。</p>
+            <div class="- topic/p p" data-ofbid="d142692e231__20250123155213">为此，U-Boot 提供另外一种设备配置方式，即通过 C 代码手动定义 Platform data， 其包含对设备的配置，然后通过 U_BOOT_DEIVCE()
+                声明设备。 如 <span class="+ topic/ph sw-d/filepath ph filepath">drivers/demo/demo-pdata.c</span>
+                中的示例：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_qtb_sjg_m1c" data-ofbid="dts__codeblock_qtb_sjg_m1c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> dm_demo_pdata red_square = {
+    .colour = <span class="hl-string">"red"</span>,
+    .sides = <span class="hl-number">4.</span>
+};
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> dm_demo_pdata green_triangle = {
+    .colour = <span class="hl-string">"green"</span>,
+    .sides = <span class="hl-number">3.</span>
+};
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> dm_demo_pdata yellow_hexagon = {
+    .colour = <span class="hl-string">"yellow"</span>,
+    .sides = <span class="hl-number">6.</span>
+};
+U_BOOT_DEVICE(demo1) = {
+    .name = <span class="hl-string">"demo_simple_drv"</span>,
+    .platdata = &amp;red_square,
+};
+U_BOOT_DEVICE(demo2) = {
+    .name = <span class="hl-string">"demo_shape_drv"</span>,
+    .platdata = &amp;green_triangle,
+};
+U_BOOT_DEVICE(demo3) = {
+    .name = <span class="hl-string">"demo_simple_drv"</span>,
+    .platdata = &amp;yellow_hexagon,
+};</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d142692e239__20250123155213">这种方式可以节省空间，但需要在 DTS 之外新增一种配置方式，对于配置管理带来新的麻烦。 U-Boot 还提供另外一种功能，可以在编译时将 DTS 转为 C 语言的
+                Platform Data 数据结构， 然后在驱动源码中可以直接引用对应的配置。</p>
+            <p class="- topic/p p" data-ofbid="d142692e242__20250123155213">其工作原理如下：</p>
+            <ul class="- topic/ul ul" id="dts__ul_q4g_g1h_bzb" data-ofbid="dts__ul_q4g_g1h_bzb">
+                <li class="- topic/li li" data-ofbid="d142692e248__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e250__20250123155213">SPL 编译时，首先通过 fdtgrep 生成 SPL 使用的 DTS</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d142692e254__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e256__20250123155213">然后使用 dtoc.py 工具，将 DTS 配置转为 C 语言数据结构，在编译目录下生成：</p>
+                    <ul class="- topic/ul ul" id="dts__ul_r4g_g1h_bzb" data-ofbid="dts__ul_r4g_g1h_bzb">
+                        <li class="- topic/li li" data-ofbid="d142692e261__20250123155213">
+                            <p class="- topic/p p" data-ofbid="d142692e263__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">include/generated/dt-structs-gen.h</span></p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d142692e268__20250123155213">
+                            <p class="- topic/p p" data-ofbid="d142692e270__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">spl/dts/dt-platdata.c</span></p>
+                        </li>
+                    </ul>
+                </li>
+                <li class="- topic/li li" data-ofbid="d142692e277__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e279__20250123155213">驱动中通过包含 <span class="+ topic/ph sw-d/filepath ph filepath">dt-structs.h</span> 来引用生成的数据结构</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d142692e286__20250123155213">
+                    <p class="- topic/p p" data-ofbid="d142692e288__20250123155213">数据结构的名字根据 DTS 中的命名，按照一定规则生成，驱动引用时需要注意</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d142692e293__20250123155213">使用该功能需要使能 CONFIG_SPL_OF_PLATDATA。</p>
+            <div class="- topic/p p" data-ofbid="d142692e296__20250123155213">示例可参考：<span class="+ topic/ph sw-d/filepath ph filepath">drivers/serial/serial_artinchip.c</span><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_dhq_vjg_m1c" data-ofbid="dts__codeblock_dhq_vjg_m1c"><code>#include &lt;dt-structs.h&gt;
+
+<strong class="hl-keyword">struct</strong> aic_serial_plat {
+    <strong class="hl-keyword">struct</strong> dtd_artinchip_aic_uart dtplat;  <em class="hl-comment">// 数据类型编译时根据 DTS 配置生成</em>
+    <strong class="hl-keyword">struct</strong> ns16550_platdata plat;
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> aic_serial_probe(<strong class="hl-keyword">struct</strong> udevice *dev)
+{
+    <strong class="hl-keyword">struct</strong> aic_serial_plat *plat = dev_get_platdata(dev);
+
+    plat-&gt;plat.base = plat-&gt;dtplat.reg[<span class="hl-number">0</span>]; <em class="hl-comment">// 直接使用数据结构中的配置</em>
+    plat-&gt;plat.reg_shift = plat-&gt;dtplat.reg_shift;
+    plat-&gt;plat.clock = plat-&gt;dtplat.clock_frequency;
+    plat-&gt;plat.fcr = UART_FCR_DEFVAL;
+    dev-&gt;platdata = &amp;plat-&gt;plat;
+
+    <strong class="hl-keyword">return</strong> ns16550_serial_probe(dev);
+}
+
+U_BOOT_DRIVER(aic_serial) = {
+    .name                     = <span class="hl-string">"artinchip_aic_uart"</span>, <em class="hl-comment">// 注意此处的名字规则</em>
+    .id                       = UCLASS_SERIAL,
+    .priv_auto_alloc_size     = <strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> NS16550),
+    .platdata_auto_alloc_size = <strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> aic_serial_plat),
+    .probe                    = aic_serial_probe,
+    .ops                      = &amp;ns16550_serial_ops,
+    .flags                    = DM_FLAG_PRE_RELOC,
+};</code></pre></div>
+            <div class="- topic/p p" data-ofbid="d142692e303__20250123155213"><span class="+ topic/ph sw-d/filepath ph filepath">spl/dts/dt-platdata.c</span>
+                中生成的配置信息为：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_p4p_z5l_q1c" data-ofbid="dts__codeblock_p4p_z5l_q1c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> dtd_artinchip_aic_uart dtv_serial_at_<span class="hl-number">19210000</span> = {
+    .clock_frequency        = <span class="hl-number">0x16e3600</span>,
+    .clocks                 = {
+                              {&amp;dtv_clock_at_<span class="hl-number">18020000</span>, {<span class="hl-number">53</span>}},},
+    .dma_names              = {<span class="hl-string">"rx"</span>, <span class="hl-string">"tx"</span>},
+    .dmas                   = {<span class="hl-number">0x8</span>, <span class="hl-number">0x10</span>, <span class="hl-number">0x8</span>, <span class="hl-number">0x10</span>},
+    .reg                    = {<span class="hl-number">0x19210000</span>, <span class="hl-number">0x400</span>},
+    .reg_io_width           = <span class="hl-number">0x4</span>,
+    .reg_shift              = <span class="hl-number">0x2</span>,
+    .resets                 = {<span class="hl-number">0x3</span>, <span class="hl-number">0x20</span>},
+};
+U_BOOT_DEVICE(serial_at_<span class="hl-number">19210000</span>) = {
+    .name           = <span class="hl-string">"artinchip_aic_uart"</span>, <em class="hl-comment">// 扫描时，通过名字进行绑定</em>
+    .platdata       = &amp;dtv_serial_at_<span class="hl-number">19210000</span>,
+    .platdata_size  = <strong class="hl-keyword">sizeof</strong>(dtv_serial_at_<span class="hl-number">19210000</span>),
+};</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d142692e310__20250123155213">更详细的说明请参考官方文档：<span class="+ topic/ph sw-d/filepath ph filepath">doc/driver-model/of-plat.rst</span></p>
+        </section>
+        <section class="- topic/section section" id="dts__section_x4g_g1h_bzb" data-ofbid="dts__section_x4g_g1h_bzb"><h2 class="- topic/title title sectiontitle">扫描和绑定</h2>
+            
+            <div class="- topic/p p" data-ofbid="d142692e321__20250123155213">在 SPL 和 U-Boot 初始化阶段，需要对设备驱动模型进行初始化，并且需要扫描 DTS 或者 Platform Data 的配置，实现设备和驱动的绑定。<div class="- topic/note note note note_note" id="dts__note_b1w_3rn_y1c" data-ofbid="dts__note_b1w_3rn_y1c"><span class="note__title">注：</span> <div class="note__body">在此阶段仅完成设备和驱动的匹配和绑定， 并不会 probe 激活具体的设备。设备 Probe
+                    在设备使用时才被触发。</div></div></div>
+            <div class="- topic/p p" data-ofbid="d142692e326__20250123155213">SPL
+                的设备驱动初始化流程：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_cdr_bvl_q1c" data-ofbid="dts__codeblock_cdr_bvl_q1c"><code>_start <em class="hl-comment">// arch/riscv/cpu/start.S</em>
+|-&gt; board_init_f   <em class="hl-comment">// arch/riscv/lib/spl.c</em>
+    |-&gt; spl_early_init() <em class="hl-comment">// common/spl/spl.c</em>
+        |-&gt; spl_common_init(setup_malloc = true) <em class="hl-comment">// common/spl/spl.c</em>
+            |-&gt; fdtdec_setup(); <em class="hl-comment">// lib/fdtdec.c 获取 dtb 的地址，并验证合法性</em>
+            |-&gt; dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
+            |  <em class="hl-comment">// 初始化驱动模型的根节点，扫描设备树创建 udevice,uclass</em></code></pre></div>
+            <p class="- topic/p p" data-ofbid="d142692e331__20250123155213">U-Boot 的设备驱动初始化分为两个阶段： <code class="+ topic/ph pr-d/codeph ph codeph">initf_dm</code> &amp; <code class="+ topic/ph pr-d/codeph ph codeph">initr_dm</code>
+                。</p>
+            <div class="- topic/p p" data-ofbid="d142692e340__20250123155213">前一阶段只处理标记了 <span class="+ topic/keyword pr-d/parmname keyword parmname">u-boot,dm-pre-reloc</span> 的设备或者标记了
+                    <span class="+ topic/keyword pr-d/parmname keyword parmname">DM_FLAG_PRE_RELOC</span> 的驱动。
+                后一阶段处理所有的设备和驱动。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_ocx_bvl_q1c" data-ofbid="dts__codeblock_ocx_bvl_q1c"><code>_start <em class="hl-comment">// arch/riscv/cpu/start.S</em>
+|-&gt; board_init_f()   <em class="hl-comment">// common/board_f.c</em>
+    |-&gt; fdtdec_setup(); <em class="hl-comment">// lib/fdtdec.c</em>
+    |   |-&gt; gd-&gt;fdt_blob = board_fdt_blob_setup(); <em class="hl-comment">// lib/fdtdec.c</em>
+    |   |-&gt; fdtdec_prepare_fdt();
+    |
+    |-&gt; initf_dm() <em class="hl-comment">// common/board_f.c</em>
+    |   |-&gt; dm_init_and_scan(true); <em class="hl-comment">// drivers/core/root.c</em>
+    |
+    |-&gt; setup_reloc() <em class="hl-comment">// common/board_f.c</em>
+    |-&gt; jump_to_copy()
+        |-&gt; relocate_code(gd-&gt;start_addr_sp, gd-&gt;new_gd, gd-&gt;relocaddr);  <em class="hl-comment">// arch/riscv/cpu/start.S</em>
+            | <em class="hl-comment">// RISCV 上的实现，relocate 之后，函数不返回，直接跳转到 board_init_r 执行</em>
+            |-&gt; invalidate_icache_all()
+            |-&gt; flush_dcache_all()
+            |-&gt; board_init_r <em class="hl-comment">// common/board_r.c</em>
+                |-&gt; initr_dm() <em class="hl-comment">// 初始化设备驱动，这次扫描所有的设备，并且绑定到匹配的驱动上</em>
+                |-&gt; dm_init_and_scan(false);</code></pre></div>
+            <div class="- topic/p p" data-ofbid="d142692e352__20250123155213">具体的扫描和绑定过程：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_ff1_cvl_q1c" data-ofbid="dts__codeblock_ff1_cvl_q1c"><code>dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA)); <em class="hl-comment">// drivers/core/root.c</em>
+|-&gt; dm_init(); <em class="hl-comment">// driver model, initiate virtual root driver</em>
+|   |-&gt; device_bind_by_name()
+|   |   |   <em class="hl-comment">// drivers/core/device.c</em>
+|   |   |   <em class="hl-comment">// 加载"root_driver", gd-&gt;dm_root</em>
+|   |   |-&gt; lists_driver_lookup_name
+|   |   |   <em class="hl-comment">// drivers/core/lists.c</em>
+|   |   |   <em class="hl-comment">// 采用 U_BOOT_DRIVER(name) 声明的 driver</em>
+|   |   |
+|   |   |-&gt; device_bind_common(); <em class="hl-comment">// drivers/core/device.c</em>
+|   |       |-&gt; uclass_get(&amp;uc)
+|   |       |-&gt; uclass_bind_device(dev)
+|   |       |-&gt; drv-&gt;bind(dev)
+|   |       |-&gt; parent-&gt;driver-&gt;child_post_bind(dev)
+|   |       |-&gt; uc-&gt;uc_drv-&gt;post_bind(dev)
+|   |
+|   |-&gt; device_probe(gd-&gt;dm_root) <em class="hl-comment">// drivers/core/device.c</em>
+|       |-&gt; uclass_resolve_seq(dev)
+|
+|-&gt; dm_scan(pre_reloc_only);
+    |-&gt; dm_scan_plat(pre_reloc_only);
+    |   |   <em class="hl-comment">// 在 SPL OF_PLATDATA 的情况,扫描和绑定由 U_BOOT_DEVICE 声明的驱动。</em>
+    |   |-&gt; lists_bind_drivers(); <em class="hl-comment">// drivers/core/lists.c</em>
+    |       |-&gt; bind_drivers_pass();
+    |           |-&gt; device_bind_by_name(); <em class="hl-comment">// 通过名字匹配设备和驱动</em>
+    |
+    |-&gt; dm_extended_scan(pre_reloc_only);
+    |   |-&gt; dm_scan_fdt(pre_reloc_only); <em class="hl-comment">// 扫描设备树并与设备驱动建立联系</em>
+    |   |   |-&gt; dm_scan_fdt_node(gd-&gt;dm_root, ofnode_root(), pre_reloc_only); <em class="hl-comment">//扫描设备树并绑定 root 节点下的设备</em>
+    |   |       |-&gt; ofnode_first_subnode(parent_node) <em class="hl-comment">// 获取设备树的第一个子节点</em>
+    |   |       |-&gt; ofnode_next_subnode(node) <em class="hl-comment">// 遍历所有的子节点</em>
+    |   |       |-&gt; ofnode_is_enabled(node) <em class="hl-comment">// 判断设备树的子节点是否使能</em>
+    |   |       |-&gt; lists_bind_fdt(parent, node, NULL, pre_reloc_only); <em class="hl-comment">// 绑定设备树节点，创建新的 udevicd drivers/core/lists.c</em>
+    |   |           |-&gt; ofnode_get_property(node, <span class="hl-string">"compatible"</span>, &amp;compat_length); <em class="hl-comment">// 获取 compatible</em>
+    |   |           |-&gt; driver_check_compatible() <em class="hl-comment">// 和 driver 比较 compatible 值</em>
+    |   |           |-&gt; device_bind_with_driver_data() <em class="hl-comment">// 创建一个设备并绑定到 driver drivers/core/device.c</em>
+    |   |               |-&gt; device_bind_common() <em class="hl-comment">// 创建初始化 udevice  与对应的 uclass,driver 绑定</em>
+    |   |
+    |   | <em class="hl-comment">// nodes = /chosen /clocks /firmware 一些节点本身不是设备，但包含一些设备，遍历其包含的设备</em>
+    |   |-&gt; dm_scan_fdt_ofnode_path(nodes[i], pre_reloc_only);
+    |       |-&gt; ofnode_path(path); <em class="hl-comment">// 找到节点下包含的设备</em>
+    |       |-&gt; dm_scan_fdt_node(gd-&gt;dm_root, node, pre_reloc_only);
+    |
+    |-&gt; dm_scan_other(pre_reloc_only);
+    |   <em class="hl-comment">// 扫描使用者自定义的节点 nothing</em></code></pre></div>
+            <div class="- topic/p p" data-ofbid="d142692e357__20250123155213">对于 DTS 中 <span class="+ topic/keyword pr-d/parmname keyword parmname">soc</span> 节点下的设备，在初始化时统一挂载到 <span class="+ topic/keyword pr-d/parmname keyword parmname">simple-bus</span> 中，在
+                <span class="+ topic/keyword pr-d/parmname keyword parmname">soc</span> 设备绑定了 simple-bus 驱动后，触发对 <span class="+ topic/keyword pr-d/parmname keyword parmname">soc</span>
+                的子设备的扫描和绑定。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="dts__codeblock_uld_cvl_q1c" data-ofbid="dts__codeblock_uld_cvl_q1c"><code>device_bind_common();
+|-&gt; uc-&gt;uc_drv-&gt;post_bind(dev)
+    simple_bus_post_bind(); <em class="hl-comment">// drivers/core/simple-bus.c</em>
+    |-&gt; dm_scan_fdt_dev(dev); <em class="hl-comment">// drivers/core/root.c</em>
+        |-&gt; dm_scan_fdt_node();</code></pre></div>
+            <p class="- topic/p p" data-ofbid="d142692e374__20250123155213">在完成扫描和绑定所有的设备和驱动之后，系统处于可用状态，可以激活（probe）具体的设备并且使用。</p>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#dts__section_h4g_g1h_bzb" data-tocid="dts__section_h4g_g1h_bzb">两个 DTB</a></div></li><li class="section-item"><div class="section-title"><a href="#dts__section_j4g_g1h_bzb" data-tocid="dts__section_j4g_g1h_bzb">SPL DTS 的配置</a></div></li><li class="section-item"><div class="section-title"><a href="#dts__section_o4g_g1h_bzb" data-tocid="dts__section_o4g_g1h_bzb">PLATDATA</a></div></li><li class="section-item"><div class="section-title"><a href="#dts__section_x4g_g1h_bzb" data-tocid="dts__section_x4g_g1h_bzb">扫描和绑定</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

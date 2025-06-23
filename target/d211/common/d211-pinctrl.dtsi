@@ -192,16 +192,37 @@
 		pins {
 			pinmux = <AIC_PINMUX('A', 0, 5)>,
 					 <AIC_PINMUX('A', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('A', 0, 5)>;
 			bias-disable;
 			drive-strength = <3>;
 		};
+		pins2 {
+			pinmux = <AIC_PINMUX('A', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+
 	};
 
 	uart0_pins_b: uart0-1 {
 		pins {
 			pinmux = <AIC_PINMUX('C', 2, 6)>,
 					 <AIC_PINMUX('C', 4, 6)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('C', 2, 6)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('C', 4, 6)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -210,7 +231,17 @@
 		pins {
 			pinmux = <AIC_PINMUX_U('U', 0, 4)>,
 					 <AIC_PINMUX_U('U', 1, 4)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX_U('U', 0, 4)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX_U('U', 1, 4)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -219,7 +250,17 @@
 		pins {
 			pinmux = <AIC_PINMUX_U('U', 2, 4)>,
 					 <AIC_PINMUX_U('U', 3, 4)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX_U('U', 2, 4)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX_U('U', 3, 4)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -244,7 +285,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('A', 4, 5)>,
 					 <AIC_PINMUX('A', 5, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('A', 4, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('A', 5, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -253,7 +304,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('C', 0, 5)>,
 					 <AIC_PINMUX('C', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('C', 0, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('C', 1, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -262,7 +323,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 6, 5)>,
 					 <AIC_PINMUX('D', 7, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 6, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 7, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -271,7 +342,17 @@
 		pins {
 			pinmux = <AIC_PINMUX_U('U', 0, 5)>,
 					 <AIC_PINMUX_U('U', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX_U('U', 0, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX_U('U', 1, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -304,7 +385,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('A', 8, 5)>,
 					 <AIC_PINMUX('A', 9, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('A', 8, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('A', 9, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -313,7 +404,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('C', 3, 5)>,
 					 <AIC_PINMUX('C', 4, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('C', 3, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('C', 4, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -322,7 +423,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 8, 5)>,
 					 <AIC_PINMUX('D', 9, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 8, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 9, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -331,7 +442,17 @@
 		pins {
 			pinmux = <AIC_PINMUX_U('U', 2, 5)>,
 					 <AIC_PINMUX_U('U', 3, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX_U('U', 2, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX_U('U', 3, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -364,7 +485,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('C', 5, 5)>,
 					 <AIC_PINMUX('C', 6, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('C', 5, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('C', 6, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -373,7 +504,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('F', 12, 5)>,
 					 <AIC_PINMUX('F', 11, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('F', 12, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('F', 11, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -382,7 +523,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 14, 5)>,
 					 <AIC_PINMUX('E', 15, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('E', 14, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('E', 15, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -391,7 +542,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 10, 5)>,
 					 <AIC_PINMUX('D', 11, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 10, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 11, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -424,7 +585,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('F', 14, 5)>,
 					 <AIC_PINMUX('F', 15, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('F', 14, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('F', 15, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -433,7 +604,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('B', 6, 5)>,
 					 <AIC_PINMUX('B', 7, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('B', 6, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('B', 7, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -442,7 +623,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 2, 5)>,
 					 <AIC_PINMUX('E', 3, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('E', 2, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('E', 3, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -451,7 +642,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 12, 5)>,
 					 <AIC_PINMUX('D', 13, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 12, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 13, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -484,7 +685,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('F', 0, 5)>,
 					 <AIC_PINMUX('F', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('F', 0, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('F', 1, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -493,7 +704,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 4, 5)>,
 					 <AIC_PINMUX('E', 5, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('E', 4, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('E', 5, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -502,7 +723,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('B', 8, 5)>,
 					 <AIC_PINMUX('B', 9, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('B', 8, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('B', 9, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -511,7 +742,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 24, 5)>,
 					 <AIC_PINMUX('D', 25, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 24, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 25, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -544,7 +785,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 6, 5)>,
 					 <AIC_PINMUX('E', 7, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('E', 6, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('E', 7, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -553,7 +804,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('B', 10, 5)>,
 					 <AIC_PINMUX('B', 11, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('B', 10, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('B', 11, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -562,7 +823,18 @@
 		pins {
 			pinmux = <AIC_PINMUX('F', 4, 5)>,
 					 <AIC_PINMUX('F', 5, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('F', 4, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+
+		pins2 {
+			pinmux = <AIC_PINMUX('F', 5, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -571,7 +843,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 22, 6)>,
 					 <AIC_PINMUX('D', 23, 6)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 22, 6)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 23, 6)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -604,7 +886,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('F', 6, 5)>,
 					 <AIC_PINMUX('F', 7, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('F', 6, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('F', 7, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -613,7 +905,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 8, 5)>,
 					 <AIC_PINMUX('E', 9, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('E', 8, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('E', 9, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -622,7 +924,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('B', 0, 5)>,
 					 <AIC_PINMUX('B', 1, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('B', 0, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('B', 1, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -631,7 +943,17 @@
 		pins {
 			pinmux = <AIC_PINMUX('D', 20, 5)>,
 					 <AIC_PINMUX('D', 21, 5)>;
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+		pins1 {
+			pinmux = <AIC_PINMUX('D', 20, 5)>;
 			bias-disable;
+			drive-strength = <3>;
+		};
+		pins2 {
+			pinmux = <AIC_PINMUX('D', 21, 5)>;
+			bias-pull-up;
 			drive-strength = <3>;
 		};
 	};
@@ -1068,6 +1390,30 @@
 		pins {
 			pinmux = <AIC_PINMUX('E', 4, 7)>,
 					<AIC_PINMUX('E', 5, 7)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	cap0_pins_a: cap0-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 6, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	cap1_pins_a: cap1-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 7, 8)>;
+			bias-disable;
+			drive-strength = <3>;
+		};
+	};
+
+	cap2_pins_a: cap2-0 {
+		pins {
+			pinmux = <AIC_PINMUX('E', 8, 8)>;
 			bias-disable;
 			drive-strength = <3>;
 		};

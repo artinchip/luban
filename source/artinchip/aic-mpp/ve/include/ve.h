@@ -1,14 +1,16 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: artinchip
-*  Desc: ve module interface
-*        ve is a singleton pattern. there ara three functions in this module:
-*           1) open ve device
-*           2) get the ve device resource
-*           3) map the register space
-*           4) get physic address of a dma-buf
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: artinchip
+ *  Desc: ve module interface
+ *        ve is a singleton pattern. there ara three functions in this module:
+ *           1) open ve device
+ *           2) get the ve device resource
+ *           3) map the register space
+ *           4) get physic address of a dma-buf
+ */
 
 #ifndef VE_H
 #define VE_H

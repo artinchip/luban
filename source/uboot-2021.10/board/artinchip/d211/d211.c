@@ -27,19 +27,29 @@
 #include <asm/arch/usb_detect.h>
 #include <serial.h>
 #include <linux/delay.h>
+#include <linux/ctype.h>
 #include <asm/unaligned.h>
 #include <userid.h>
+#include <log_buf.h>
 
 #define usleep_range(a, b) udelay((b))
 
-#define BASE_RTC                  ((void *)0x19030000)
-#define RTC_WRITE_KEY_REG         (BASE_RTC + 0x0FC)
-#define RTC_WRITE_KEY_VALUE       (0xAC)
+#define RTC_CMU_REG               ((void *)0x18020908)
+#define RTC_CMU_BUS_EN_MSK        (0x1000)
 
-#define RTC_BOOTINFO1_REG         (BASE_RTC + 0x100)
-#define BOOTINFO1_REASON_OFF      (4)
-#define BOOTINFO1_REASON_MSK      (0xF << 4)
-#define RTC_REBOOT_REASON_UPGRADE (4)
+#define BASE_RTC                     ((void *)0x19030000)
+#define RTC_WRITE_KEY_REG            (BASE_RTC + 0x0FC)
+#define RTC_WRITE_KEY_VALUE          (0xAC)
+
+#define RTC_BOOTINFO1_REG            (BASE_RTC + 0x100)
+#define BOOTINFO1_REASON_OFF         (4)
+#define BOOTINFO1_REASON_MSK         (0xF << 4)
+#define RTC_REBOOT_REASON_UPGRADE    (4)
+#define RTC_REBOOT_REASON_BL_UPGRADE (5)
+
+#define RTC_SYS_BAK_BASE             (BASE_RTC + 0x104)
+#define RTC_SYS_BAK_REG(id)          (RTC_SYS_BAK_BASE + (id) * 0x04)
+
 
 #ifdef CONFIG_SPL_SPI_NAND_TINY
 #include <artinchip_spinand.h>
@@ -63,7 +73,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 
-#define USE_UART1
+#define USE_UART0
 
 #define GPIO_CMU_CFG_REG     ((void *)(0x1802083C))
 #define CMU_PLL_INT1_CFG_REG ((void *)(0x18020004))
@@ -136,7 +146,7 @@ void board_init_f(ulong dummy)
 	/* SPL start time */
 	*p = aic_timer_get_us();
 #endif
-
+	log_buf_init();
 #ifdef CONFIG_DEBUG_UART
 	/*
 	 * For SPL, Use DEBUG UART to enable serial output,
@@ -283,7 +293,11 @@ static int board_prepare_logo(struct udevice *dev)
 		ret = aic_disp_logo("boot", bd);
 		break;
 	case BD_SDFAT32:
+#ifdef CONFIG_PROGRESS_BAR
+		ret = 0;
+#else
 		ret = aic_disp_logo("sdburn", bd);
+#endif
 		break;
 	case BD_BOOTROM:
 		ret = aic_disp_logo("usbburn", bd);
@@ -306,6 +320,12 @@ static int board_show_logo(void)
 		pr_err("Failed to find aicfb udevice\n");
 		return ret;
 	}
+
+#ifdef CONFIG_PROGRESS_BAR
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+	memset(priv->fb, 0xffffff, priv->fb_size);
+	flush_dcache_range((uintptr_t)&priv->fb, (uintptr_t)(&priv->fb_size));
+#endif
 
 	ret = board_prepare_logo(dev);
 	if (!ret) {
@@ -402,14 +422,141 @@ void fdt_fix_mem_size(void *blob)
 
 }
 
-#ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, struct bd_info *bd)
+#if defined(CONFIG_FIT_SIGNATURE)
+static int replace_first_str(char *src, char *match_str, char *replace_str)
 {
+	int str_len;
+	char newstring[1024] = {0};
+	char *find_pos;
+
+	if (!match_str || !replace_str)
+		return -1;
+
+	find_pos = strstr(src, match_str);
+	if (!find_pos)
+		return -1;
+
+	while (find_pos) {
+		str_len = find_pos - src;
+		strncpy(newstring, src, str_len);
+		strcat(newstring, replace_str);
+		strcat(newstring, find_pos + strlen(match_str));
+		strcpy(src, newstring);
+		return 0;
+	}
+
+	return 0;
+}
+
+static int fdt_get_cmdline(void *fdt, char *console, char *cmdline)
+{
+	int  nodeoffset;
+	const char *create, *waitfor, *bootargs, *args;
+	char buf[1024];
+
+	/* find or create "/chosen" node. */
+	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
+	if (nodeoffset < 0)
+		return nodeoffset;
+
+	debug("Get bootargs parameters.\n");
+	create = fdt_getprop(fdt, nodeoffset, "dm-mod.create", NULL);
+	waitfor = fdt_getprop(fdt, nodeoffset, "dm-mod.waitfor", NULL);
+	bootargs = fdt_getprop(fdt, nodeoffset, "bootargs", NULL);
+	args = fdt_getprop(fdt, nodeoffset, "args", NULL);
+
+	if (!create || !waitfor || !bootargs || !args) {
+		printf("Get bootargs parameters failed!\n");
+		printf("If secure boot is not used, ");
+		printf("CONFIG_FIT_SIGNATURE should be disabled!\n");
+		return -EINVAL;
+	}
+	strcpy(buf, create);
+	if (replace_first_str(buf, "data_dev", env_get("root_part")))
+		printf("Set data dev failed.\n");
+	if (replace_first_str(buf, "hash_dev", env_get("hash_part")))
+		printf("Set hash dev failed.\n");
+
+	/* Don't add console= if user already set it */
+	if (strstr(bootargs, "console="))
+		snprintf(cmdline, 1024, "%s %s %s %s", bootargs, args, buf,
+			 waitfor);
+	else
+		snprintf(cmdline, 1024, "%s %s %s %s %s", console, bootargs,
+			 args, buf, waitfor);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+char *board_fdt_chosen_bootargs(void)
+{
+	/* Set up chosen bootargs in ft_board_setup */
+	return NULL;
+}
+
+static int ft_board_setup_chosen_bootargs(void *fdt)
+{
+	int  err, idx;
+	int nodeoffset;
+	char *str, *s;
+	char cmdline[1024], console[32];
+
+	/* find or create "/chosen" node. */
+	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
+	if (nodeoffset < 0)
+		return nodeoffset;
+	err = 0;
+	str = (char *)fdtdec_get_chosen_prop(fdt, "stdout-path");
+	if (str) {
+		for (s = str; *s; s++)
+			if (isdigit(*s) || *s == ':')
+				break;
+		idx = simple_strtoul(s, NULL, 10);
+		s = strchr(str, ':');
+		s++;
+	} else {
+		idx = 0;
+		s = "115200n8";
+	}
+	snprintf(console, 32, "console=ttyS%d,%s", idx, s);
+
+#if defined(CONFIG_FIT_SIGNATURE)
+	err = fdt_get_cmdline(fdt, console, cmdline);
+	if (err)
+		return err;
+#else
+	str = env_get("bootargs");
+
+	/* Don't add console= if user already set it */
+	if (strstr(str, "console="))
+		snprintf(cmdline, 1024, "%s", str);
+	else
+		snprintf(cmdline, 1024, "%s %s", console, str);
+#endif
+
+	if (str) {
+		err = fdt_setprop(fdt, nodeoffset, "bootargs", cmdline,
+				  strlen(cmdline) + 1);
+		if (err < 0) {
+			printf("WARNING: could not set bootargs %s.\n",
+			       fdt_strerror(err));
+			return err;
+		}
+	}
+
+	return err;
+}
+
+static int fdt_fix_aic_logo_reserved_memory(void *blob)
+{
+	int ret = 0;
+
 #ifdef CONFIG_VIDEO_ARTINCHIP
 	struct fdt_memory logo;
 	struct video_priv *priv;
 	struct udevice *dev;
-	int ret, err;
 
 	ret = uclass_find_first_device(UCLASS_VIDEO, &dev);
 	if (ret) {
@@ -426,16 +573,25 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	logo.start = (phys_addr_t)priv->fb;
 	logo.end = (phys_addr_t)priv->fb + priv->fb_size - 1;
 
-	err = fdtdec_add_reserved_memory(blob, "aic-logo", &logo, NULL, 0, NULL, false);
-	if (err < 0 && err != -FDT_ERR_EXISTS) {
+	ret = fdtdec_add_reserved_memory(blob, "aic-logo", &logo, NULL, 0, NULL, false);
+	if (ret < 0 && ret != -FDT_ERR_EXISTS) {
 		pr_err("%s: failed to add reserved memory\n", __func__);
-		return err;
+		return ret;
 	}
 #endif
+
+	return ret;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
 	fdt_fix_mem_size(blob);
+	ft_board_setup_chosen_bootargs(blob);
+	fdt_fix_aic_logo_reserved_memory(blob);
 
 	return 0;
 }
+
 #endif /* CONFIG_OF_BOARD_SETUP */
 
 int board_late_init(void)
@@ -768,17 +924,19 @@ int spl_start_uboot(void)
 		goto out;
 	}
 
+#ifdef CONFIG_SPL_SERIAL_SUPPORT
 	/* break into full u-boot with CTRL + c/C */
 	if (serial_tstc() && serial_getc() == CTRL('C')) {
 		start = START_UBOOT;
 		puts("Run U-Boot: got CTRL+C\n");
 		goto out;
 	}
+#endif
 	if (start == START_UNKNOWN) {
 #ifdef CONFIG_CMD_AICUPG
 		if (aic_upg_mode_detect()) {
 			start = START_UBOOT;
-			puts("Run U-Boot: UPG PIN is pressed or Software reset to enter UPG mode\n");
+			puts("Run U-Boot: Software reset to enter UPG mode\n");
 			goto out;
 		}
 #endif
@@ -867,13 +1025,68 @@ int board_load_opensbi_to_ram_top(void)
 	return 1;
 }
 
-#ifndef CONFIG_SPL_BUILD
-extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
-void do_brom_upg(void)
+void aic_upg_flag_clear(void)
 {
 	u32 val;
 
-	printf("%s, RTC\n", __func__);
+	val = readl(RTC_CMU_REG);
+	if (!(val & RTC_CMU_BUS_EN_MSK))
+		writel(RTC_CMU_BUS_EN_MSK, RTC_CMU_REG);
+
+	writel(RTC_WRITE_KEY_VALUE, RTC_WRITE_KEY_REG);
+	val = readl(RTC_BOOTINFO1_REG);
+	val &= ~BOOTINFO1_REASON_MSK;
+	writel(val, RTC_BOOTINFO1_REG);
+	writel(0, RTC_WRITE_KEY_REG);
+}
+
+static int rtc_upg_flag_check(void)
+{
+	u32 val;
+
+	val = readl((void *)RTC_BOOTINFO1_REG);
+	val = (val & BOOTINFO1_REASON_MSK) >> BOOTINFO1_REASON_OFF;
+
+	if ((val == RTC_REBOOT_REASON_UPGRADE) ||
+	    (val == RTC_REBOOT_REASON_BL_UPGRADE)) {
+		printf("Software reboot to enter upgrading mode.\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+void aic_upg_succ_cnt(void)
+{
+	u32 val;
+
+	val = readl(RTC_CMU_REG);
+	if (!(val & RTC_CMU_BUS_EN_MSK))
+		writel(RTC_CMU_BUS_EN_MSK, RTC_CMU_REG);
+
+	writel(RTC_WRITE_KEY_VALUE, RTC_WRITE_KEY_REG);
+	val = readl(RTC_SYS_BAK_REG(14));
+	val += 1;
+	writel(val, RTC_SYS_BAK_REG(14));
+	writel(0, RTC_WRITE_KEY_REG);
+
+	printf("Successfully burned %d times.\n", val);
+}
+
+int aic_upg_mode_detect(void)
+{
+	int ret;
+
+	ret = rtc_upg_flag_check();
+	return ret;
+}
+
+#ifndef CONFIG_SPL_BUILD
+extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+void do_brom_upg(char *upg_mode)
+{
+	u32 val;
+
 	writel(RTC_WRITE_KEY_VALUE, RTC_WRITE_KEY_REG);
 
 	val = readl((void *)RTC_BOOTINFO1_REG);

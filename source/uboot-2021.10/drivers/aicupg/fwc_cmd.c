@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2021 ArtInChip Technology Co., Ltd
+ * Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
  */
 #include <common.h>
 #include <malloc.h>
@@ -25,7 +25,7 @@
  *   be written.
  */
 static struct fwc_info *fwc_info_data;
-static void CMD_SET_FWC_META_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void set_fwc_meta_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s data len %d\n", __func__, cmd_data_len);
 	if (cmd->cmd != UPG_PROTO_CMD_SET_FWC_META)
@@ -40,10 +40,12 @@ static void CMD_SET_FWC_META_start(struct upg_cmd *cmd, s32 cmd_data_len)
 		}
 	}
 	memset(fwc_info_data, 0, sizeof(struct fwc_info));
+	fwc_info_data->burn_result = -1;
+	fwc_info_data->run_result = -1;
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_SET_FWC_META_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 set_fwc_meta_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					     s32 len)
 {
 	struct fwc_info *fwc;
@@ -69,7 +71,7 @@ static s32 CMD_SET_FWC_META_write_input_data(struct upg_cmd *cmd, u8 *buf,
 	return clen;
 }
 
-static s32 CMD_SET_FWC_META_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 set_fwc_meta_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					     s32 len)
 {
 	struct resp_header resp;
@@ -92,7 +94,7 @@ static s32 CMD_SET_FWC_META_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_SET_FWC_META_end(struct upg_cmd *cmd)
+static void set_fwc_meta_cmd_end(struct upg_cmd *cmd)
 {
 	enum upg_dev_type dev_type;
 	struct fwc_info *fwc;
@@ -149,7 +151,7 @@ static void CMD_SET_FWC_META_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [BLOCK SIZE]
  */
-static void CMD_GET_BLOCK_SIZE_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_block_size_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_BLOCK_SIZE)
@@ -161,14 +163,14 @@ static void CMD_GET_BLOCK_SIZE_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_GET_BLOCK_SIZE_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_block_size_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					       s32 len)
 {
 	/* No input data for this command */
 	return 0;
 }
 
-static s32 CMD_GET_BLOCK_SIZE_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_block_size_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					       s32 len)
 {
 	struct resp_header resp;
@@ -205,7 +207,7 @@ static s32 CMD_GET_BLOCK_SIZE_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_BLOCK_SIZE_end(struct upg_cmd *cmd)
+static void get_block_size_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -220,7 +222,7 @@ static void CMD_GET_BLOCK_SIZE_end(struct upg_cmd *cmd)
  *   -> ...
  *   <- [RESP HEADER]
  */
-static void CMD_SEND_FWC_DATA_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void send_fwc_data_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_SEND_FWC_DATA) {
@@ -237,7 +239,7 @@ static void CMD_SEND_FWC_DATA_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_SEND_FWC_DATA_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 send_fwc_data_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					      s32 len)
 {
 	enum upg_dev_type dev_type;
@@ -282,15 +284,18 @@ static s32 CMD_SEND_FWC_DATA_write_input_data(struct upg_cmd *cmd, u8 *buf,
 			break;
 		}
 		clen = ret;
-		if (fwc->trans_size >= fwc->meta.size)
+		if (fwc->trans_size >= fwc->meta.size) {
+			fwc->burn_result = 0;
+			fwc->run_result = 0;
 			cmd_state_set_next(cmd, CMD_STATE_RESP);
+		}
 	}
 
 	debug("%s, l: %d\n", __func__, __LINE__);
 	return clen;
 }
 
-static s32 CMD_SEND_FWC_DATA_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 send_fwc_data_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					      s32 len)
 {
 	struct resp_header resp;
@@ -323,7 +328,7 @@ static s32 CMD_SEND_FWC_DATA_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_SEND_FWC_DATA_end(struct upg_cmd *cmd)
+static void send_fwc_data_cmd_end(struct upg_cmd *cmd)
 {
 	enum upg_dev_type dev_type;
 	struct fwc_info *fwc;
@@ -369,7 +374,7 @@ static void CMD_SEND_FWC_DATA_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [FWC CRC]
  */
-static void CMD_GET_FWC_CRC_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_fwc_crc_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_FWC_CRC)
@@ -381,14 +386,14 @@ static void CMD_GET_FWC_CRC_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_GET_FWC_CRC_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_fwc_crc_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					    s32 len)
 {
 	/* No input data for this command */
 	return 0;
 }
 
-static s32 CMD_GET_FWC_CRC_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_fwc_crc_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					    s32 len)
 {
 	struct resp_header resp;
@@ -425,7 +430,7 @@ static s32 CMD_GET_FWC_CRC_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_FWC_CRC_end(struct upg_cmd *cmd)
+static void get_fwc_crc_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -438,7 +443,7 @@ static void CMD_GET_FWC_CRC_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [FWC BURN RESULT]
  */
-static void CMD_GET_FWC_BURN_RESULT_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_fwc_burn_result_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_FWC_BURN_RESULT)
@@ -450,14 +455,14 @@ static void CMD_GET_FWC_BURN_RESULT_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_GET_FWC_BURN_RESULT_write_input_data(struct upg_cmd *cmd,
+static s32 get_fwc_burn_result_cmd_write_input_data(struct upg_cmd *cmd,
 						    u8 *buf, s32 len)
 {
 	/* No input data for this command */
 	return 0;
 }
 
-static s32 CMD_GET_FWC_BURN_RESULT_read_output_data(struct upg_cmd *cmd,
+static s32 get_fwc_burn_result_cmd_read_output_data(struct upg_cmd *cmd,
 						    u8 *buf, s32 len)
 {
 	struct resp_header resp;
@@ -494,7 +499,7 @@ static s32 CMD_GET_FWC_BURN_RESULT_read_output_data(struct upg_cmd *cmd,
 	return siz;
 }
 
-static void CMD_GET_FWC_BURN_RESULT_end(struct upg_cmd *cmd)
+static void get_fwc_burn_result_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -507,7 +512,7 @@ static void CMD_GET_FWC_BURN_RESULT_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [FWC RUN RESULT]
  */
-static void CMD_GET_FWC_RUN_RESULT_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_fwc_run_result_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_FWC_RUN_RESULT)
@@ -519,14 +524,14 @@ static void CMD_GET_FWC_RUN_RESULT_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd->priv = fwc_info_data;
 }
 
-static s32 CMD_GET_FWC_RUN_RESULT_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_fwc_run_result_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	/* No input data for this command */
 	return 0;
 }
 
-static s32 CMD_GET_FWC_RUN_RESULT_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_fwc_run_result_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	struct resp_header resp;
@@ -555,7 +560,7 @@ static s32 CMD_GET_FWC_RUN_RESULT_read_output_data(struct upg_cmd *cmd, u8 *buf,
 		return siz;
 
 	if (cmd->state == CMD_STATE_DATA_OUT) {
-		val = fwc->run_result;
+		val = fwc->run_result ? 1 : 0;
 		memcpy(buf, &val, 4);
 		siz += 4;
 		cmd_state_set_next(cmd, CMD_STATE_END);
@@ -563,7 +568,7 @@ static s32 CMD_GET_FWC_RUN_RESULT_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_FWC_RUN_RESULT_end(struct upg_cmd *cmd)
+static void get_fwc_run_result_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -576,7 +581,7 @@ static void CMD_GET_FWC_RUN_RESULT_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [MEDIA LIST]
  */
-static void CMD_GET_STORAGE_MEDIA_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_storage_media_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_STORAGE_MEDIA)
@@ -584,14 +589,14 @@ static void CMD_GET_STORAGE_MEDIA_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_GET_STORAGE_MEDIA_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_storage_media_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	/* No input data for this command */
 	return 0;
 }
 
-static s32 CMD_GET_STORAGE_MEDIA_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_storage_media_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	struct resp_header resp;
@@ -643,7 +648,7 @@ static s32 CMD_GET_STORAGE_MEDIA_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_STORAGE_MEDIA_end(struct upg_cmd *cmd)
+static void get_storage_media_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -655,7 +660,7 @@ static void CMD_GET_STORAGE_MEDIA_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [PARTITION TABLE]
  */
-static void CMD_GET_PARTITION_TABLE_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_partition_table_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	static struct storage_media media = {0};
 
@@ -667,7 +672,7 @@ static void CMD_GET_PARTITION_TABLE_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_GET_PARTITION_TABLE_write_input_data(struct upg_cmd *cmd,
+static s32 get_partition_table_cmd_write_input_data(struct upg_cmd *cmd,
 							u8 *buf, s32 len)
 {
 	struct storage_media *priv;
@@ -691,7 +696,7 @@ static s32 CMD_GET_PARTITION_TABLE_write_input_data(struct upg_cmd *cmd,
 	return clen;
 }
 
-static s32 CMD_GET_PARTITION_TABLE_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_partition_table_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	struct resp_header resp;
@@ -742,7 +747,7 @@ static s32 CMD_GET_PARTITION_TABLE_read_output_data(struct upg_cmd *cmd, u8 *buf
 	return siz;
 }
 
-static void CMD_GET_PARTITION_TABLE_end(struct upg_cmd *cmd)
+static void get_partition_table_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd->priv = 0;
@@ -755,7 +760,7 @@ static void CMD_GET_PARTITION_TABLE_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [FWC PARTITION DATA]
  */
-static void CMD_READ_FWC_DATA_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void read_fwc_data_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_READ_FWC_DATA)
@@ -774,7 +779,7 @@ static void CMD_READ_FWC_DATA_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_READ_FWC_DATA_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 read_fwc_data_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	struct fwc_info *fwc;
@@ -805,7 +810,7 @@ static s32 CMD_READ_FWC_DATA_write_input_data(struct upg_cmd *cmd, u8 *buf,
 	return clen;
 }
 
-static s32 CMD_READ_FWC_DATA_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 read_fwc_data_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 						   s32 len)
 {
 	enum upg_dev_type dev_type;
@@ -903,7 +908,7 @@ static s32 CMD_READ_FWC_DATA_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_READ_FWC_DATA_end(struct upg_cmd *cmd)
+static void read_fwc_data_cmd_end(struct upg_cmd *cmd)
 {
 	enum upg_dev_type dev_type;
 	struct fwc_info *fwc;
@@ -945,66 +950,66 @@ static void CMD_READ_FWC_DATA_end(struct upg_cmd *cmd)
 static struct upg_cmd fwc_cmd_list[] = {
 	{
 		UPG_PROTO_CMD_SET_FWC_META,
-		CMD_SET_FWC_META_start,
-		CMD_SET_FWC_META_write_input_data,
-		CMD_SET_FWC_META_read_output_data,
-		CMD_SET_FWC_META_end,
+		set_fwc_meta_cmd_start,
+		set_fwc_meta_cmd_write_input_data,
+		set_fwc_meta_cmd_read_output_data,
+		set_fwc_meta_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_BLOCK_SIZE,
-		CMD_GET_BLOCK_SIZE_start,
-		CMD_GET_BLOCK_SIZE_write_input_data,
-		CMD_GET_BLOCK_SIZE_read_output_data,
-		CMD_GET_BLOCK_SIZE_end,
+		get_block_size_cmd_start,
+		get_block_size_cmd_write_input_data,
+		get_block_size_cmd_read_output_data,
+		get_block_size_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_SEND_FWC_DATA,
-		CMD_SEND_FWC_DATA_start,
-		CMD_SEND_FWC_DATA_write_input_data,
-		CMD_SEND_FWC_DATA_read_output_data,
-		CMD_SEND_FWC_DATA_end,
+		send_fwc_data_cmd_start,
+		send_fwc_data_cmd_write_input_data,
+		send_fwc_data_cmd_read_output_data,
+		send_fwc_data_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_FWC_CRC,
-		CMD_GET_FWC_CRC_start,
-		CMD_GET_FWC_CRC_write_input_data,
-		CMD_GET_FWC_CRC_read_output_data,
-		CMD_GET_FWC_CRC_end,
+		get_fwc_crc_cmd_start,
+		get_fwc_crc_cmd_write_input_data,
+		get_fwc_crc_cmd_read_output_data,
+		get_fwc_crc_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_FWC_BURN_RESULT,
-		CMD_GET_FWC_BURN_RESULT_start,
-		CMD_GET_FWC_BURN_RESULT_write_input_data,
-		CMD_GET_FWC_BURN_RESULT_read_output_data,
-		CMD_GET_FWC_BURN_RESULT_end,
+		get_fwc_burn_result_cmd_start,
+		get_fwc_burn_result_cmd_write_input_data,
+		get_fwc_burn_result_cmd_read_output_data,
+		get_fwc_burn_result_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_FWC_RUN_RESULT,
-		CMD_GET_FWC_RUN_RESULT_start,
-		CMD_GET_FWC_RUN_RESULT_write_input_data,
-		CMD_GET_FWC_RUN_RESULT_read_output_data,
-		CMD_GET_FWC_RUN_RESULT_end,
+		get_fwc_run_result_cmd_start,
+		get_fwc_run_result_cmd_write_input_data,
+		get_fwc_run_result_cmd_read_output_data,
+		get_fwc_run_result_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_STORAGE_MEDIA,
-		CMD_GET_STORAGE_MEDIA_start,
-		CMD_GET_STORAGE_MEDIA_write_input_data,
-		CMD_GET_STORAGE_MEDIA_read_output_data,
-		CMD_GET_STORAGE_MEDIA_end,
+		get_storage_media_cmd_start,
+		get_storage_media_cmd_write_input_data,
+		get_storage_media_cmd_read_output_data,
+		get_storage_media_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_PARTITION_TABLE,
-		CMD_GET_PARTITION_TABLE_start,
-		CMD_GET_PARTITION_TABLE_write_input_data,
-		CMD_GET_PARTITION_TABLE_read_output_data,
-		CMD_GET_PARTITION_TABLE_end,
+		get_partition_table_cmd_start,
+		get_partition_table_cmd_write_input_data,
+		get_partition_table_cmd_read_output_data,
+		get_partition_table_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_READ_FWC_DATA,
-		CMD_READ_FWC_DATA_start,
-		CMD_READ_FWC_DATA_write_input_data,
-		CMD_READ_FWC_DATA_read_output_data,
-		CMD_READ_FWC_DATA_end,
+		read_fwc_data_cmd_start,
+		read_fwc_data_cmd_write_input_data,
+		read_fwc_data_cmd_read_output_data,
+		read_fwc_data_cmd_end,
 	},
 };
 

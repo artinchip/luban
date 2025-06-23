@@ -101,7 +101,7 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 
 	/* Configure default priorities of all IRQs */
 	for (i = 1; i <= plic->num_src; i++)
-		plic_set_priority(plic, i, 0);
+		plic_set_priority(plic, i, 1);
 
 	plic_enable_smode(plic);
 	return 0;

@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: h264 decoder contxet
-*
-*/
+ * Copyright (C) 2020-2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *   author: <qi.xu@artinchip.com>
+ *  Desc: h264 decoder contxet
+ *
+ */
 #ifndef _H264_DECODER_H_
 #define _H264_DECODER_H_
 
@@ -35,6 +37,24 @@
 
 // extra frames for picture reorder
 #define MAX_B_FRAMES 2
+
+/*
+	planing to perform appropriate error handling base on error indicators
+*/
+enum h264_decoder_error{
+	H264_DECODER_ERROR_NONE = 0,
+	H264_DECODER_ERROR_SLICETYPE,
+	H264_DECODER_ERROR_SLICENUM,
+	H264_DECODER_ERROR_SPS,
+	H264_DECODER_ERROR_PPS,
+	H264_DECODER_ERROR_PICTURESTRUCTUTE,
+	H264_DECODER_ERROR_NOEMPTYFRAME,
+	H264_DECODER_ERROR_REFPICMARKING,
+	H264_DECODER_ERROR_DEBLOCKINGFILTER,
+	H264_DECODER_ERROR_HARD,
+	H264_DECODER_ERROR_REFLISTREORDERING,
+	H264_DECODER_ERROR_CHECKLASTFRAME,
+};
 
 /**
  * Memory management control operation opcode.
@@ -187,8 +207,8 @@ struct h264_picture {
 	int field_poc[2];		// h264 top/bottom POC
 	int poc;			// h264 frame POC
 	int frame_num;			// h264 frame_num (raw frame_num from slice header)
-	int pic_id;			/**< h264 pic_num (short -> no wrap version of pic_num,
-						pic_num & max_pic_num; long -> long_pic_num) */
+	int pic_id;			//< h264 pic_num (short -> no wrap version of pic_num,
+						//pic_num & max_pic_num; long -> long_pic_num)
 	int long_ref;			// 1->long term nReference 0->short term nReference
 	int ref_poc[2][16];		// h264 POCs of the frames used as nReference
 	int ref_count[2];		// number of entries in ref_nPoc
@@ -263,6 +283,7 @@ struct h264_dec_ctx
 
 	struct read_bit_context gb;
 	int nal_ref_idc;
+	int nal_ref_idc_pre;
 	int nal_unit_type;
 	int idr_pic_flag; // IDR nalu
 
@@ -300,14 +321,16 @@ struct h264_dec_ctx
 	int slice_offset;		// slice offset in packet, in byte unit
 
 	FILE* fp_reg;
+
+	int error;
 };
 
 
 /**************** h264_refs *********************/
-//* init ref list
+// init ref list
 int init_ref_list(struct h264_dec_ctx *s);
 
-//* ref list reordering
+// ref list reordering
 int ref_pic_list_reordering(struct h264_dec_ctx *s);
 
 int execute_ref_pic_marking(struct h264_dec_ctx *s);

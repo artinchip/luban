@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: artinchip
-*  Desc: log module
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: artinchip
+ *  Desc: log module
+ */
 
 #ifndef MPP_LOG_H
 #define MPP_LOG_H

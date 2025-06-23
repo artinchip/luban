@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_audio_decoder interface
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_audio_decoder interface
+ */
 
 
 #ifndef _AIC_AUDIO_DECODER_H_
@@ -15,6 +17,7 @@ enum aic_audio_codec_type {
 	MPP_CODEC_AUDIO_DECODER_UNKOWN = -1,
 	MPP_CODEC_AUDIO_DECODER_MP3,         // decoder
 	MPP_CODEC_AUDIO_DECODER_AAC,
+    MPP_CODEC_AUDIO_DECODER_PCM,
 };
 
 struct aic_audio_frame {

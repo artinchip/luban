@@ -1,0 +1,907 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="屏源码位置： Kernel: source/linux-5.10/drivers/video/artinchip/disp/panel/ Uboot: source/uboot-2021.10/drivers/video/artinchip/display/panel/ LCD 屏驱动，即 panel，本质上是一个回调函数的集合。新屏驱动实际上是重新实现 aic_panel_funcs ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/display/display_panel_port.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_panel_port.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_fb_rotation.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="display_driver_intro"/><meta name="DC.language" content="zh-CN"/><title>屏驱动支持</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="display_driver_intro-d4445e5120"/><meta name="wh-source-relpath" content="topics/sdk/display/display_driver-intro.dita"/><meta name="wh-out-relpath" content="topics/sdk/display/display_driver-intro.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="display_driver_intro" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html">Display 使用指南</a></div></div></li><li><div class="topicref" data-id="display_screen_configuration"><div class="title"><a href="../../../topics/sdk/display/display_panel_port.html">屏适配指南</a></div></div></li><li class="active"><div class="topicref" data-id="display_driver_intro"><div class="title"><a href="../../../topics/sdk/display/display_driver-intro.html">屏驱动支持</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/display/display_panel_port.html" title="屏适配指南" aria-label="上一主题: 屏适配指南" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/display/display_fb_rotation.html" title="屏幕旋转" aria-label="下一主题: 屏幕旋转" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="display_configuration-d4445e4791" class="topicref" data-id="display_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_configuration-d4445e4791-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_config.html" id="display_configuration-d4445e4791-link">Display 配置</a><div class="wh-tooltip"><p class="shortdesc">显示模块的参数配置，包括 menuconfig 配置 和 dts 配置。</p></div></div></div></li><li role="treeitem"><div data-tocid="display_debug_guide-d4445e4965" class="topicref" data-id="display_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_debug.html" id="display_debug_guide-d4445e4965-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="display_test_guide-d4445e4979" class="topicref" data-id="display_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_test_guide.html" id="display_test_guide-d4445e4979-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_design_intro-d4445e4993" class="topicref" data-id="display_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_design_intro-d4445e4993-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display-design_intro.html" id="display_design_intro-d4445e4993-link">设计说明</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="display_screen_configuration-d4445e5106" class="topicref" data-id="display_screen_configuration" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action display_screen_configuration-d4445e5106-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_panel_port.html" id="display_screen_configuration-d4445e5106-link">屏适配指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="display_driver_intro-d4445e5120" class="topicref" data-id="display_driver_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_driver-intro.html" id="display_driver_intro-d4445e5120-link">屏驱动支持</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_xpy_32b_ybc-d4445e5134" class="topicref" data-id="concept_xpy_32b_ybc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_xpy_32b_ybc-d4445e5134-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_fb_rotation.html" id="concept_xpy_32b_ybc-d4445e5134-link">屏幕旋转</a></div></div></li><li role="treeitem"><div data-tocid="display_change_color-d4445e5162" class="topicref" data-id="display_change_color" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_color_property.html" id="display_change_color-d4445e5162-link">色彩调整</a></div></div></li><li role="treeitem"><div data-tocid="display_boot_logo-d4445e5176" class="topicref" data-id="display_boot_logo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_boot_logo.html" id="display_boot_logo-d4445e5176-link">Boot Logo</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="display_common_issues-d4445e5190" class="topicref" data-id="display_common_issues" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action display_common_issues-d4445e5190-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_faqs.html" id="display_common_issues-d4445e5190-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/display/display_driver-intro.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">屏驱动支持</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 9 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d104082e33__20250123155208">屏源码位置：<ul class="- topic/ul ul" id="display_driver_intro__ul_yql_jbb_ybc" data-ofbid="display_driver_intro__ul_yql_jbb_ybc">
+                <li class="- topic/li li" data-ofbid="d104082e37__20250123155208">
+                    <p class="- topic/p p" data-ofbid="d104082e39__20250123155208">Kernel:
+                            <span class="+ topic/ph sw-d/filepath ph filepath">source/linux-5.10/drivers/video/artinchip/disp/panel/</span></p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d104082e45__20250123155208">
+                    <p class="- topic/p p" data-ofbid="d104082e47__20250123155208">Uboot:
+                            <span class="+ topic/ph sw-d/filepath ph filepath">source/uboot-2021.10/drivers/video/artinchip/display/panel/</span></p>
+                </li>
+            </ul></div>
+        <div class="- topic/div div">
+            <div class="- topic/p p" data-ofbid="d104082e56__20250123155208">LCD 屏驱动，即 panel，本质上是一个回调函数的集合。新屏驱动实际上是重新实现 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_tkr_4hg_d1c">aic_panel_funcs</a>
+                    结构体中一个或多个回调接口。以下是新屏驱动支持的详细配置说明：<ol class="- topic/ol ol" id="display_driver_intro__ul_my1_bjk_ndc" data-ofbid="display_driver_intro__ul_my1_bjk_ndc">
+                    <li class="- topic/li li" data-ofbid="d104082e64__20250123155208">
+                        <div class="- topic/p p" data-ofbid="d104082e66__20250123155208">在 panel 目录下，根据屏接口类型选择一个合适的模板，拷贝一个屏驱动，例如：<ul class="- topic/ul ul" id="display_driver_intro__ul_klr_5sh_mbc" data-ofbid="display_driver_intro__ul_klr_5sh_mbc">
+                                <li class="- topic/li li" data-ofbid="d104082e70__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d104082e72__20250123155208">MIPI-DSI 接口可参考 <span class="+ topic/ph sw-d/filepath ph filepath">panel_dsi_xm91080.c</span></p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d104082e78__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d104082e80__20250123155208">SRGB 接口可参考 <span class="+ topic/ph sw-d/filepath ph filepath">panel_srgb_ili8961.c</span></p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d104082e86__20250123155208">
+                                    <p class="- topic/p p" data-ofbid="d104082e88__20250123155208">MIPI-DBI 接口可参考 <span class="+ topic/ph sw-d/filepath ph filepath">panel_dbi_ili9488.c</span></p>
+                                </li>
+                            </ul></div>
+                        <p class="- topic/p p" data-ofbid="d104082e95__20250123155208">不需要初始化动作的 LCD 屏幕，如 RGB/ LVDS 屏幕，可通过  <a class="- topic/xref xref" href="display_menuconfig.html">menuconfig 配置</a>选择 <span class="+ topic/ph sw-d/filepath ph filepath">panel_lvds_general.c</span>/
+                            <span class="+ topic/ph sw-d/filepath ph filepath">panel_rgb_general.c</span>，在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span>
+                            中修改相关参数即可。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d104082e112__20250123155208">修改新屏驱动名字，将屏驱动添加进 panel 目录下的 <span class="+ topic/ph sw-d/filepath ph filepath">Kconfig</span> 和
+                            <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span> 文件。</li>
+                    <li class="- topic/li li" data-ofbid="d104082e121__20250123155208">重新实现 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_tkr_4hg_d1c">aic_panel_funcs</a>
+                        结构体中的 <span class="+ topic/keyword pr-d/apiname keyword apiname">prepare</span> 或者 <span class="+ topic/keyword pr-d/apiname keyword apiname">enable</span>
+                            接口，添加屏幕所需的初始化操作。<ul class="- topic/ul ul" id="display_driver_intro__ul_rtk_ckk_ndc" data-ofbid="display_driver_intro__ul_rtk_ckk_ndc">
+                            <li class="- topic/li li" data-ofbid="d104082e135__20250123155208">
+                                <div class="- topic/p p" data-ofbid="d104082e137__20250123155208">对于 RGB 和 LVDS 屏幕，可执行下列操作：<ol class="- topic/ol ol" type="a" id="display_driver_intro__ul_nk2_5zp_bcc" data-ofbid="display_driver_intro__ul_nk2_5zp_bcc">
+                                        <li class="- topic/li li" data-ofbid="d104082e141__20250123155208">通过 <a class="- topic/xref xref" href="display_menuconfig.html">menuconfig 配置</a>选择<a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__section_ngv_xjk_ndc">RGB 和 LVDS 通用屏幕驱动</a>。</li>
+                                        <li class="- topic/li li" data-ofbid="d104082e152__20250123155208">在 <a class="- topic/xref xref" href="display_parameter_panel_rgb.html">Panel_RGB</a> 和
+                                                <a class="- topic/xref xref" href="display_parameter_panel_lvds.html">Panel_LVDS</a>中选择所需配置参数和时序参数。</li>
+                                    </ol></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d104082e165__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d104082e167__20250123155208">对于 MIPI-DSI 屏幕</p>
+                                <ol class="- topic/ol ol" type="a" id="display_driver_intro__ol_yqw_f2g_d1c" data-ofbid="display_driver_intro__ol_yqw_f2g_d1c">
+                                    <li class="- topic/li li" data-ofbid="d104082e172__20250123155208">
+                                        <p class="- topic/p p" data-ofbid="d104082e174__20250123155208">在发送 init_sequence 之前需要调用 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__table_rbf_5gg_d1c">panel_mipi_send_perpare</a>
+                                            确保屏幕能正确无误地接受到命令。</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e182__20250123155208">
+                                        <p class="- topic/p p" data-ofbid="d104082e184__20250123155208">在发送完 init_sequence 后需要调用 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__table_tbf_5gg_d1c">panel_mipi_setup_realmode</a> 设置正确的
+                                            MIPI 模式。</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e192__20250123155208">
+                                        <p class="- topic/p p" data-ofbid="d104082e194__20250123155208">发送 init_sequence 的两个接口：</p>
+                                        <ul class="- topic/ul ul" id="display_driver_intro__ul_s1b_kbq_bcc" data-ofbid="display_driver_intro__ul_s1b_kbq_bcc">
+                                            <li class="- topic/li li" data-ofbid="d104082e199__20250123155208">
+                                                <p class="- topic/p p" data-ofbid="d104082e201__20250123155208"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__table_ubf_5gg_d1c">panel_dsi_generic_send_seq</a>
+                                                  ：发送 DCS 命令</p>
+                                            </li>
+                                            <li class="- topic/li li" data-ofbid="d104082e208__20250123155208">
+                                                <p class="- topic/p p" data-ofbid="d104082e210__20250123155208"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__table_ubf_5gg_d1c">panel_dsi_generic_send_seq</a>：发送 Generic 命令</p>
+                                            </li>
+                                        </ul>
+                                        <div class="- topic/note note note note_note" id="display_driver_intro__note_xcr_kbq_bcc" data-ofbid="display_driver_intro__note_xcr_kbq_bcc"><span class="note__title">注：</span> <div class="note__body">
+                                            <div class="- topic/p p" data-ofbid="d104082e220__20250123155208">MIPI-DSI Command 分为下列两类：<ul class="- topic/ul ul" id="display_driver_intro__ul_t1b_kbq_bcc" data-ofbid="display_driver_intro__ul_t1b_kbq_bcc">
+                                                  <li class="- topic/li li" data-ofbid="d104082e224__20250123155208">
+                                                  <p class="- topic/p p" data-ofbid="d104082e226__20250123155208">DCS (Display Command Set)，MIPI
+                                                  协议定义的一个专门用于显示的命令集，使用广泛</p>
+                                                  </li>
+                                                  <li class="- topic/li li" data-ofbid="d104082e230__20250123155208">
+                                                  <p class="- topic/p p" data-ofbid="d104082e232__20250123155208">Generic，屏厂根据 MIPI 协议进行定制</p>
+                                                  </li>
+                                                </ul></div>
+                                        </div></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e239__20250123155208">
+                                        <p class="- topic/p p" data-ofbid="d104082e241__20250123155208">时序参数，推荐 hardcode 方式，保存在驱动源码中</p>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e245__20250123155208">
+                                        <div class="- topic/p p" data-ofbid="d104082e247__20250123155208">推荐 video burst
+                                            模式<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_omd_sbq_bcc" data-ofbid="display_driver_intro__codeblock_omd_sbq_bcc"><code><strong class="hl-keyword">struct</strong> panel_dsi dsi = {
+    .mode = DSI_MOD_VID_BURST,
+    ...
+};</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e254__20250123155208">
+                                        <p class="- topic/p p" data-ofbid="d104082e256__20250123155208">MIPI-DSI 数据通道支持顺序互换，极性翻转，时钟通道支持极性翻转</p>
+                                    </li>
+                                </ol>
+                                <div class="- topic/note note note note_note" id="display_driver_intro__note_cpr_tbq_bcc" data-ofbid="display_driver_intro__note_cpr_tbq_bcc"><span class="note__title">注：</span> <div class="note__body">参数含义，详见<a class="- topic/xref xref" href="display_parameter_function_config.html">功能参数配置</a> 中的 panel 描述和
+                                        <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_interface.html">接口设计</a>。</div></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d104082e273__20250123155208">
+                                <p class="- topic/p p" data-ofbid="d104082e275__20250123155208">对于 MIPI-DBI 屏幕</p>
+                                <div class="- topic/p p" data-ofbid="d104082e278__20250123155208">
+                                    <ol class="- topic/ol ol" type="a" id="display_driver_intro__ol_k1l_lcq_bcc" data-ofbid="display_driver_intro__ol_k1l_lcq_bcc">
+                                        <li class="- topic/li li" data-ofbid="d104082e282__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d104082e284__20250123155208">Type B 接口可配置参数：</p>
+                                            <ul class="- topic/ul ul" id="display_driver_intro__ul_m1l_lcq_bcc" data-ofbid="display_driver_intro__ul_m1l_lcq_bcc">
+                                                <li class="- topic/li li" data-ofbid="d104082e289__20250123155208">
+                                                  <p class="- topic/p p" data-ofbid="d104082e291__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">first_line</span> : 第一行刷屏数据自动插入的命令，默认
+                                                  0x2c</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e297__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e299__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">other_line</span> : 其余行刷屏数据自动插入的命令，默认
+                                                  0x3c</p>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d104082e307__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d104082e309__20250123155208">Type C 接口可配置参数：</p>
+                                            <ul class="- topic/ul ul" id="display_driver_intro__ul_o1l_lcq_bcc" data-ofbid="display_driver_intro__ul_o1l_lcq_bcc">
+                                                <li class="- topic/li li" data-ofbid="d104082e314__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e316__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">first_line</span> : 第一行刷屏数据自动插入的命令，默认
+                                                  0x2c</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e322__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e324__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">other_line</span> : 其余行刷屏数据自动插入的命令，默认
+                                                  0x3c</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e330__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e332__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">qspi_mode</span> : 刷屏数据是否携带时序信息</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e338__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e340__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">vbp_num</span> : 帧数据传输前的空白行数量</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e346__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e348__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">code1_cfg</span> : 引导码</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d104082e355__20250123155208">
+                                                    <p class="- topic/p p" data-ofbid="d104082e357__20250123155208"><span class="+ topic/keyword pr-d/parmname keyword parmname">code[3]</span> : 引导码</p>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d104082e365__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d104082e367__20250123155208">时序参数，推荐 hardcode 方式，保存在驱动源码中</p>
+                                            <p class="- topic/p p" data-ofbid="d104082e370__20250123155208">MIPI-DBI 接口读写/刷屏时序详见芯片手册 &gt; 多媒体 &gt; LCD 章节。</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d104082e374__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d104082e376__20250123155208">MIPI-DBI init_sequence 发送接口
+                                                panel_dbi_default_enable()</p>
+                                        </li>
+                                        <li class="- topic/li li" data-ofbid="d104082e380__20250123155208">
+                                            <p class="- topic/p p" data-ofbid="d104082e382__20250123155208">MIPI-DBI init_sequence 格式</p>
+                                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codecell7" data-ofbid="display_driver_intro__codecell7"><code>command, count of data, data...
+<em class="hl-comment">//命令，数据个数，不定长的数据</em></code></pre>
+                                            <p class="- topic/p p" data-ofbid="d104082e388__20250123155208">延时操作指令，毫秒级延时</p>
+                                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codecell8" data-ofbid="display_driver_intro__codecell8"><code><span class="hl-number">0x00</span>, delay_ms
+<em class="hl-comment">//标记头，毫秒级延时</em></code></pre>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></li>
+                </ol></div>
+        </div>
+        <section class="- topic/section section" id="display_driver_intro__section_ngv_xjk_ndc" data-ofbid="display_driver_intro__section_ngv_xjk_ndc"><h2 class="- topic/title title sectiontitle">RGB 和 LVDS 通用屏幕驱动</h2>
+            
+            <div class="- topic/p p" data-ofbid="d104082e406__20250123155208">
+                <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_mrc_xzp_bcc" data-ofbid="display_driver_intro__table_mrc_xzp_bcc" data-cols="4"><caption></caption><colgroup><col style="width:10.695187165775401%"/><col style="width:17.64705882352941%"/><col style="width:35.8288770053476%"/><col style="width:35.8288770053476%"/></colgroup><thead class="- topic/thead thead">
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="display_driver_intro__table_mrc_xzp_bcc__entry__1">屏类型</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="display_driver_intro__table_mrc_xzp_bcc__entry__2">通用屏幕驱动</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="display_driver_intro__table_mrc_xzp_bcc__entry__3">配置参数</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="display_driver_intro__table_mrc_xzp_bcc__entry__4">时序参数</th>
+                            </tr>
+                        </thead><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__1">RGB 屏幕</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__2"><span class="+ topic/ph sw-d/filepath ph filepath">panel_rgb_general.c</span></td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__3"><a class="- topic/xref xref" href="display_parameter_panel_rgb.html">Panel_RGB</a></td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__4"><span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 文件 panel_rgb 节点
+                                    display-timings 子节点。<div class="- topic/note note note note_note" id="display_driver_intro__note_pmf_x1q_bcc" data-ofbid="display_driver_intro__note_pmf_x1q_bcc"><span class="note__title">注：</span> <div class="note__body">参数含义，详见<a class="- topic/xref xref" href="display_parameter_function_config.html">功能参数配置</a>中的 panel
+                                        和 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_interface.html">接口设计</a>描述。</div></div></td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__1">LVDS 屏幕</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__2"><span class="+ topic/ph sw-d/filepath ph filepath">panel_lvds_general.c</span></td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__3"><a class="- topic/xref xref" href="display_parameter_panel_lvds.html">Panel_LVDS</a></td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mrc_xzp_bcc__entry__4"><span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span> 文件 panel_lvds 节点
+                                    display-timings 子节点。<div class="- topic/note note note note_note" id="display_driver_intro__note_yy5_41q_bcc" data-ofbid="display_driver_intro__note_yy5_41q_bcc"><span class="note__title">注：</span> <div class="note__body">参数含义，详见<a class="- topic/xref xref" href="display_parameter_function_config.html">功能参数配置</a>中的 panel
+                                        和 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_interface.html">接口设计</a>描述。</div></div>
+                                </td>
+                            </tr>
+                        </tbody></table></div>
+            </div>
+        </section>
+        <section class="- topic/section section" id="display_driver_intro__section_y4c_xsh_mbc" data-ofbid="display_driver_intro__section_y4c_xsh_mbc"><h2 class="- topic/title title sectiontitle">GPIO 操作</h2>
+            
+            <ul class="- topic/ul ul" id="display_driver_intro__ol_brw_f2g_d1c" data-ofbid="display_driver_intro__ol_brw_f2g_d1c">
+                <li class="- topic/li li" data-ofbid="d104082e514__20250123155208"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_dzw_yhg_d1c">panel_comp</a> 结构体默认支持两个 GPIO<ol class="- topic/ol ol" id="display_driver_intro__ol_drw_f2g_d1c" data-ofbid="display_driver_intro__ol_drw_f2g_d1c">
+                        <li class="- topic/li li" data-ofbid="d104082e521__20250123155208">
+                            <p class="- topic/p p" data-ofbid="d104082e523__20250123155208">一个 <span class="+ topic/keyword pr-d/parmname keyword parmname">enable gpio</span> , 可用于控制背光，使能屏幕</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d104082e530__20250123155208">
+                            <p class="- topic/p p" data-ofbid="d104082e532__20250123155208">一个 <span class="+ topic/keyword pr-d/parmname keyword parmname">sleep gpio</span>, 可用于控制屏幕供电，休眠唤醒</p>
+                        </li>
+                    </ol></li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d104082e541__20250123155208">如果需要添加更多 gpio 引脚，可参考
+                <span class="+ topic/ph sw-d/filepath ph filepath">panel_dsi_wuxga_7in.c/panel_srgb_ili8961.c</span>。</p>
+        </section>
+        <section class="- topic/section section" id="display_driver_intro__section_uqw_f2g_d1c" data-ofbid="display_driver_intro__section_uqw_f2g_d1c"><h2 class="- topic/title title sectiontitle">数据结构</h2>
+            
+            <ul class="- topic/ul ul" id="display_driver_intro__ol_onz_jgg_d1c" data-ofbid="display_driver_intro__ol_onz_jgg_d1c">
+                <li class="- topic/li li" id="display_driver_intro__li_dzw_yhg_d1c" data-ofbid="display_driver_intro__li_dzw_yhg_d1c">struct
+                    panel_comp<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_hss_qgg_d1c" data-ofbid="display_driver_intro__codeblock_hss_qgg_d1c"><code><strong class="hl-keyword">struct</strong> panel_comp {
+    <strong class="hl-keyword">struct</strong> aic_panel panel;
+    <strong class="hl-keyword">struct</strong> display_timings *timings;
+    bool   use_dt_timing;
+    <strong class="hl-keyword">struct</strong> backlight_device *backlight;
+    <strong class="hl-keyword">struct</strong> regulator *supply;
+    <strong class="hl-keyword">struct</strong> gpio_desc *enable_gpio;
+    <strong class="hl-keyword">struct</strong> gpio_desc *sleep_gpio;
+};</code></pre></li>
+                <li class="- topic/li li" id="display_driver_intro__li_rjj_13g_d1c" data-ofbid="display_driver_intro__li_rjj_13g_d1c">struct
+                    aic_panel<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_scy_qgg_d1c" data-ofbid="display_driver_intro__codeblock_scy_qgg_d1c"><code><strong class="hl-keyword">struct</strong> aic_panel {
+    <strong class="hl-keyword">struct</strong> aic_panel_funcs *funcs;
+    <strong class="hl-keyword">struct</strong> aic_panel_callbacks callbacks;
+    <strong class="hl-keyword">struct</strong> videomode *vm;
+    <strong class="hl-keyword">struct</strong> device *dev;
+    <strong class="hl-keyword">union</strong> {
+        <strong class="hl-keyword">struct</strong> panel_rgb *rgb;
+        <strong class="hl-keyword">struct</strong> panel_lvds *lvds;
+        <strong class="hl-keyword">struct</strong> panel_dsi *dsi;
+    };
+};</code></pre></li>
+                <li class="- topic/li li" id="display_driver_intro__li_tkr_4hg_d1c" data-ofbid="display_driver_intro__li_tkr_4hg_d1c">struct aic_panel_funcs<div class="- topic/p p" data-ofbid="d104082e567__20250123155208">panel 提供，供 fb
+                        调用的回调。新屏驱动必须实现。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_eb1_rgg_d1c" data-ofbid="display_driver_intro__codeblock_eb1_rgg_d1c"><code><em class="hl-comment">/* Each panel driver should define the follow functions. */</em>
+<strong class="hl-keyword">struct</strong> aic_panel_funcs {
+    <strong class="hl-keyword">int</strong> (*prepare)(<strong class="hl-keyword">struct</strong> aic_panel *panel);
+    <strong class="hl-keyword">int</strong> (*enable)(<strong class="hl-keyword">struct</strong> aic_panel *panel);
+    <strong class="hl-keyword">int</strong> (*disable)(<strong class="hl-keyword">struct</strong> aic_panel *panel);
+    <strong class="hl-keyword">int</strong> (*unprepare)(<strong class="hl-keyword">struct</strong> aic_panel *panel);
+    <strong class="hl-keyword">int</strong> (*get_video_mode)(<strong class="hl-keyword">struct</strong> aic_panel *panel, <strong class="hl-keyword">struct</strong> videomode *vm);
+    <strong class="hl-keyword">int</strong> (*register_callback)(<strong class="hl-keyword">struct</strong> aic_panel *panel,
+                <strong class="hl-keyword">struct</strong> aic_panel_callbacks *pcallback);
+};</code></pre></div></li>
+                <li class="- topic/li li" id="display_driver_intro__li_phj_23g_d1c" data-ofbid="display_driver_intro__li_phj_23g_d1c">struct aic_panel_callbacks<div class="- topic/p p" data-ofbid="d104082e574__20250123155208">panel 无需实现，由 DE、DI 提供，供 panel
+                        调用的回调。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_xlc_rgg_d1c" data-ofbid="display_driver_intro__codeblock_xlc_rgg_d1c"><code><strong class="hl-keyword">struct</strong> aic_panel_callbacks {
+    <strong class="hl-keyword">int</strong> (*di_enable)(<strong class="hl-keyword">void</strong>);
+    <strong class="hl-keyword">int</strong> (*di_disable)(<strong class="hl-keyword">void</strong>);
+    <strong class="hl-keyword">int</strong> (*di_send_cmd)(u32 dt, u32 vc, s8 *data, u32 len);
+    <strong class="hl-keyword">int</strong> (*di_set_videomode)(<strong class="hl-keyword">struct</strong> videomode *vm, <strong class="hl-keyword">int</strong> enable);
+    <strong class="hl-keyword">int</strong> (*timing_enable)(<strong class="hl-keyword">void</strong>);
+    <strong class="hl-keyword">int</strong> (*timing_disable)(<strong class="hl-keyword">void</strong>);
+};</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d104082e579__20250123155208">struct panel_rgb<div class="- topic/p p" data-ofbid="d104082e581__20250123155208">RGB
+                        接口屏幕参数<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_okf_rgg_d1c" data-ofbid="display_driver_intro__codeblock_okf_rgg_d1c"><code><strong class="hl-keyword">struct</strong> panel_rgb {
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> mode;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> format;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> clock_phase;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> data_order;
+    bool data_mirror;
+};</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d104082e587__20250123155208">struct panel_lvds<div class="- topic/p p" data-ofbid="d104082e589__20250123155208">LVDS
+                        接口屏幕参数<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_inh_rgg_d1c" data-ofbid="display_driver_intro__codeblock_inh_rgg_d1c"><code><strong class="hl-keyword">struct</strong> panel_lvds {
+    <strong class="hl-keyword">enum</strong> lvds_mode mode;
+    <strong class="hl-keyword">enum</strong> lvds_link_mode link_mode;
+};</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d104082e594__20250123155208">struct panel_dsi<div class="- topic/p p" data-ofbid="d104082e596__20250123155208">MIPI-DSI
+                        接口屏幕参数<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_qtk_rgg_d1c" data-ofbid="display_driver_intro__codeblock_qtk_rgg_d1c"><code><strong class="hl-keyword">struct</strong> panel_dsi {
+    <strong class="hl-keyword">enum</strong> dsi_mode mode;
+    <strong class="hl-keyword">enum</strong> dsi_format format;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> lane_num;
+};</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d104082e601__20250123155208">struct panel_dbi<div class="- topic/p p" data-ofbid="d104082e603__20250123155208">MIPI-DBI
+                        接口屏幕参数<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_driver_intro__codeblock_jyk_d14_f1c" data-ofbid="display_driver_intro__codeblock_jyk_d14_f1c"><code><strong class="hl-keyword">struct</strong> panel_dbi_commands {
+    <strong class="hl-keyword">const</strong> u8 *buf;
+    size_t len;
+};
+
+<strong class="hl-keyword">struct</strong> spi_cfg {
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> qspi_mode;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> vbp_num;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> code1_cfg;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> code[<span class="hl-number">3</span>];
+};
+
+<strong class="hl-keyword">struct</strong> panel_dbi {
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> type;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> format;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> first_line;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">int</strong> other_line;
+    <strong class="hl-keyword">struct</strong> panel_dbi_commands commands;
+    <strong class="hl-keyword">struct</strong> spi_cfg *spi;
+};</code></pre></div></li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="display_driver_intro__section_khx_ggg_d1c" data-ofbid="display_driver_intro__section_khx_ggg_d1c"><h2 class="- topic/title title sectiontitle">函数接口</h2>
+            
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_gbf_5gg_d1c" data-ofbid="display_driver_intro__table_gbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_default_prepare</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_gbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_gbf_5gg_d1c__entry__2">int panel_default_prepare(struct aic_panel *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__2">默认的 prepare 接口函数,使能 regulator</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_gbf_5gg_d1c__entry__2">
+                                <ul class="- topic/ul ul" id="display_driver_intro__ul_tmx_2dq_bcc" data-ofbid="display_driver_intro__ul_tmx_2dq_bcc">
+                                    <li class="- topic/li li" data-ofbid="d104082e671__20250123155208">0: 成功 </li>
+                                    <li class="- topic/li li" data-ofbid="d104082e674__20250123155208">负数：失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_gbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_gbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_hbf_5gg_d1c" data-ofbid="display_driver_intro__table_hbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_default_enable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_hbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_hbf_5gg_d1c__entry__2">int panel_default_enable(struct aic_panel *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__2">默认的 enable 接口函数，设置 de 模块的 timing 参数，使能相应的 DI 接口，开启背光</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_hbf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_hbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_hbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_ibf_5gg_d1c" data-ofbid="display_driver_intro__table_ibf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_default_unprepare</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_ibf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_ibf_5gg_d1c__entry__2">int panel_default_unprepare(struct aic_panel *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__2">默认的 unprepare 接口函数，禁用 regulator</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ibf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_ibf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_ibf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_jbf_5gg_d1c" data-ofbid="display_driver_intro__table_jbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_default_disable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_jbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_jbf_5gg_d1c__entry__2">int panel_default_disable(struct aic_panel *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__2">默认的 disable 接口函数，禁用背光，禁用 DI 接口，禁用 DE</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_jbf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_jbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_jbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_kbf_5gg_d1c" data-ofbid="display_driver_intro__table_kbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 5</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_register_callback</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_kbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_kbf_5gg_d1c__entry__2">int panel_register_callback(struct aic_panel *panel, struct
+                                aic_panel_callbacks *pcallback)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__2">DE，DI 提供的回调函数，供 panel 调用</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>
+                                <p class="- topic/p p" data-ofbid="d104082e939__20250123155208">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_phj_23g_d1c">aic_panel_callbacks</a></p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_kbf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_kbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_kbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_lbf_5gg_d1c" data-ofbid="display_driver_intro__table_lbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 6</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_default_get_video_mode</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_lbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_lbf_5gg_d1c__entry__2">int panel_default_get_video_mode(struct aic_panel *panel, struct
+                                videomode *vm)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__2">panel 提供的回调，供 fb 调用，传递从 dts 中解析的 timing 参数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__2">videomode：包含屏幕的 timing 参数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_lbf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_lbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_lbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_mbf_5gg_d1c" data-ofbid="display_driver_intro__table_mbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 7</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_parse_dts</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_mbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_mbf_5gg_d1c__entry__2">int panel_parse_dts(struct panel_comp *p, struct device
+                                *dev);</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__2">解析 dts 中的 panel 结点</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__2"><a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_dzw_yhg_d1c">panel_comp</a>
+                                ，结构体 device</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_mbf_5gg_d1c__entry__2">0：成功</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_mbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_mbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_nbf_5gg_d1c" data-ofbid="display_driver_intro__table_nbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 8</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_di_enable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_nbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_nbf_5gg_d1c__entry__2">void panel_di_enable(struct aic_panel *panel, u32 ms)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__2">使能相应的 DI 接口</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>,
+                                ms 延时毫秒</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_nbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_nbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_nbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_obf_5gg_d1c" data-ofbid="display_driver_intro__table_obf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 9</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_di_disable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_obf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_obf_5gg_d1c__entry__2">void panel_di_disable(struct aic_panel *panel, u32 ms)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__2">禁用相应的 DI 接口</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>,
+                                ms 延时毫秒</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_obf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_obf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_obf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_pbf_5gg_d1c" data-ofbid="display_driver_intro__table_pbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 10</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_de_timing_enable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_pbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_pbf_5gg_d1c__entry__2">void panel_de_timing_enable(struct aic_panel *panel, u32
+                                ms)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__2">启用 DE, 设置 de 模块的 timing 参数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>,
+                                ms 延时毫秒</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_pbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_pbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_pbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_qbf_5gg_d1c" data-ofbid="display_driver_intro__table_qbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 11</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_de_timing_disable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_qbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_qbf_5gg_d1c__entry__2">void panel_de_timing_disable(struct aic_panel *panel, u32
+                                ms)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__2">禁用 DE, 设置 de 模块的 timing 参数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>,
+                                ms 延时毫秒</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_qbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_qbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_qbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_rbf_5gg_d1c" data-ofbid="display_driver_intro__table_rbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 12</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_mipi_send_perpare</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_rbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_rbf_5gg_d1c__entry__2">void panel_mipi_send_perpare(struct aic_panel *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__2">将 DSI 通道切换到 command mode, 准备好给 MIPI 屏幕发送初始化命令</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_rbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_rbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_rbf_5gg_d1c__entry__2">在 MIPI 屏幕发送初始化命令前要先调用这个函数，以确保 MIPI 屏幕收到正确的初始化命令</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_sbf_5gg_d1c" data-ofbid="display_driver_intro__table_sbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 13</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_send_command</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_sbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_sbf_5gg_d1c__entry__2">void panel_send_command(u8 *para_cmd, u32 size, struct aic_panel
+                                *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__2">给 MIPI 屏幕发送初始化命令</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a> ,
+                                初始化序列大小 size, 初始化序列 para_cmd</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_sbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_sbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_sbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_tbf_5gg_d1c" data-ofbid="display_driver_intro__table_tbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 14</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_mipi_setup_realmode</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_tbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_tbf_5gg_d1c__entry__2">void panel_send_command(u8 *para_cmd, u32 size, struct aic_panel
+                                *panel)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__2">将 DSI 通道切换回正确的模式</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_tbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_tbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_tbf_5gg_d1c__entry__2">在 MIPI 屏幕发送完初始化命令后调用这个函数，以确保 MIPI 通道正常工作</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_ubf_5gg_d1c" data-ofbid="display_driver_intro__table_ubf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 15</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_dsi_generic_send_seq</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_ubf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_ubf_5gg_d1c__entry__2">#define panel_dsi_generic_send_seq(panel, seq…)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__2">发送屏厂根据 MIPI 协议扩展的 command</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>，seq: init
+                                command</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_ubf_5gg_d1c__entry__2">0: 成功， 负数：失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_ubf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_ubf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_vbf_5gg_d1c" data-ofbid="display_driver_intro__table_vbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 16</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_dsi_dcs_send_seq</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_vbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_vbf_5gg_d1c__entry__2">#define panel_dsi_dcs_send_seq(panel, seq…)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__2">发送 mipi 协议标准的 command</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_rjj_13g_d1c">aic_panel</a>，seq: init
+                                command</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_vbf_5gg_d1c__entry__2">0: 成功， 负数：失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_vbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_vbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_driver_intro__table_wbf_5gg_d1c" data-ofbid="display_driver_intro__table_wbf_5gg_d1c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 17</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">panel_init</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="display_driver_intro__table_wbf_5gg_d1c__entry__1">接口定义</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="display_driver_intro__table_wbf_5gg_d1c__entry__2">
+                                <p class="- topic/p p" data-ofbid="d104082e1730__20250123155208">static inline void panel_init(struct panel_comp *p, struct device
+                                    *dev,</p>
+                                <p class="- topic/p p" data-ofbid="d104082e1733__20250123155208">struct videomode *vm, struct aic_panel_funcs *funcs)</p>
+                            </th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__2">初始化一个 panel</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__2">结构体 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_dzw_yhg_d1c">panel_comp</a> ,
+                                结构体 device，屏时序参数 videomode， <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="display_driver-intro.html#display_driver_intro__li_tkr_4hg_d1c">aic_panel_funcs</a></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_driver_intro__table_wbf_5gg_d1c__entry__2">void</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_driver_intro__table_wbf_5gg_d1c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_driver_intro__table_wbf_5gg_d1c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#display_driver_intro__section_ngv_xjk_ndc" data-tocid="display_driver_intro__section_ngv_xjk_ndc">RGB 和 LVDS 通用屏幕驱动</a></div></li><li class="section-item"><div class="section-title"><a href="#display_driver_intro__section_y4c_xsh_mbc" data-tocid="display_driver_intro__section_y4c_xsh_mbc">GPIO 操作</a></div></li><li class="section-item"><div class="section-title"><a href="#display_driver_intro__section_uqw_f2g_d1c" data-tocid="display_driver_intro__section_uqw_f2g_d1c">数据结构</a></div></li><li class="section-item"><div class="section-title"><a href="#display_driver_intro__section_khx_ggg_d1c" data-tocid="display_driver_intro__section_khx_ggg_d1c">函数接口</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

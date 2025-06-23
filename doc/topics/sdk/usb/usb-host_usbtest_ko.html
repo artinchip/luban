@@ -1,0 +1,668 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="在 Host 侧的 usbtest.ko 是一个标准的 usb interface driver 。它根据 Vendor ID = 0x0525 、 Product ID = 0xa4a0 适配上一节 Composite Device 中的 SourceSink Interface 或者 Loopback Interface 。 static const struct usb_device_id ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-test_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-loopback_function.html"/><meta name="DC.relation" content="../../../topics/sdk/usb/usb-host_testusb.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="usb_host_usbtest_ko"/><meta name="DC.language" content="zh-CN"/><title>Host 侧 usbtest.ko</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="usb_host_usbtest_ko-d4445e7439"/><meta name="wh-source-relpath" content="topics/sdk/usb/usb-host_usbtest_ko.dita"/><meta name="wh-out-relpath" content="topics/sdk/usb/usb-host_usbtest_ko.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="usb_host_usbtest_ko" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="usb_user_guide"><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html">USB 使用指南</a></div></div></li><li><div class="topicref" data-id="usb_test_guide"><div class="title"><a href="../../../topics/sdk/usb/usb-test_guide.html">测试指南</a></div></div></li><li class="active"><div class="topicref" data-id="usb_host_usbtest_ko"><div class="title"><a href="../../../topics/sdk/usb/usb-host_usbtest_ko.html">Host 侧 usbtest.ko</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-loopback_function.html" title="Loopback Function" aria-label="上一主题: Loopback Function" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/usb/usb-host_testusb.html" title="Host 侧 testusb" aria-label="下一主题: Host 侧 testusb" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="usb_configuration-d4445e7313" class="topicref" data-id="usb_configuration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_configuration-d4445e7313-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_config.html" id="usb_configuration-d4445e7313-link">USB 配置</a></div></div></li><li role="treeitem"><div data-tocid="usb_debug_guide-d4445e7369" class="topicref" data-id="usb_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-debug_guide.html" id="usb_debug_guide-d4445e7369-link">调试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="usb_test_guide-d4445e7383" class="topicref" data-id="usb_test_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action usb_test_guide-d4445e7383-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-test_guide.html" id="usb_test_guide-d4445e7383-link">测试指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="usb_device_gadget_zero-d4445e7397" class="topicref" data-id="usb_device_gadget_zero" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device_gadget_zero.html" id="usb_device_gadget_zero-d4445e7397-link">Device 侧 gadget zero</a></div></div></li><li role="treeitem"><div data-tocid="usb_source_sink_function-d4445e7411" class="topicref" data-id="usb_source_sink_function" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-source_sink_function.html" id="usb_source_sink_function-d4445e7411-link">SourceSink Function</a></div></div></li><li role="treeitem"><div data-tocid="usb_loopback_function-d4445e7425" class="topicref" data-id="usb_loopback_function" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-loopback_function.html" id="usb_loopback_function-d4445e7425-link">Loopback Function</a></div></div></li><li role="treeitem" class="active"><div data-tocid="usb_host_usbtest_ko-d4445e7439" class="topicref" data-id="usb_host_usbtest_ko" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-host_usbtest_ko.html" id="usb_host_usbtest_ko-d4445e7439-link">Host 侧 usbtest.ko</a></div></div></li><li role="treeitem"><div data-tocid="usb_host_testusb-d4445e7453" class="topicref" data-id="usb_host_testusb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-host_testusb.html" id="usb_host_testusb-d4445e7453-link"><strong class="ph b">Host 侧 testusb</strong></a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_design_intro-d4445e7468" class="topicref" data-id="usb_design_intro" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_design_intro-d4445e7468-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-design_intro.html" id="usb_design_intro-d4445e7468-link">设计说明</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_host_subsystem_code_structure-d4445e7594" class="topicref" data-id="usb_host_subsystem_code_structure" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_host_subsystem_code_structure-d4445e7594-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-host_subsystem_code_structure.html" id="usb_host_subsystem_code_structure-d4445e7594-link">USB Host 子系统代码架构</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_device_subsystem_code_structure-d4445e7762" class="topicref" data-id="usb_device_subsystem_code_structure" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_device_subsystem_code_structure-d4445e7762-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb-device_subsystem_code_structure.html" id="usb_device_subsystem_code_structure-d4445e7762-link">USB Device 子系统代码架构</a></div></div></li><li role="treeitem"><div data-tocid="usb_common_issues-d4445e7930" class="topicref" data-id="usb_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_faq.html" id="usb_common_issues-d4445e7930-link">常见问题</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/usb/usb-host_usbtest_ko.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Host 侧 usbtest.ko</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 8 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d92604e33__20250123155207">在 Host 侧的 <code class="+ topic/ph pr-d/codeph ph codeph">usbtest.ko</code> 是一个标准的 <code class="+ topic/ph pr-d/codeph ph codeph">usb interface driver</code>。它根据
+                <code class="+ topic/ph pr-d/codeph ph codeph">Vendor ID = 0x0525</code> 、 <code class="+ topic/ph pr-d/codeph ph codeph">Product ID = 0xa4a0</code> 适配上一节
+                <code class="+ topic/ph pr-d/codeph ph codeph">Composite Device</code> 中的 <code class="+ topic/ph pr-d/codeph ph codeph">SourceSink Interface</code> 或者
+                <code class="+ topic/ph pr-d/codeph ph codeph">Loopback
+            Interface</code>。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_host_usbtest_ko__codeblock_vfp_gkz_21c" data-ofbid="usb_host_usbtest_ko__codeblock_vfp_gkz_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> usb_device_id id_table[] = {
+
+    <em class="hl-comment">/* "Gadget Zero" firmware runs under Linux */</em>
+    { USB_DEVICE(<span class="hl-number">0x0525</span>, <span class="hl-number">0xa4a0</span>),
+        .driver_info = (<strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">long</strong>) &amp;gz_info,
+    },
+
+}
+MODULE_DEVICE_TABLE(usb, id_table);
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> usb_driver usbtest_driver = {
+    .name =         <span class="hl-string">"usbtest"</span>,
+    .id_table =     id_table,
+    .probe =        usbtest_probe,
+    .unlocked_ioctl = usbtest_ioctl,
+    .disconnect =   usbtest_disconnect,
+    .suspend =      usbtest_suspend,
+    .resume =       usbtest_resume,
+};</code></pre></div>
+        <section class="- topic/section section" id="usb_host_usbtest_ko__section_wk2_dkz_21c" data-ofbid="usb_host_usbtest_ko__section_wk2_dkz_21c"><h2 class="- topic/title title sectiontitle">TestCase</h2>
+            
+            <div class="- topic/p p" data-ofbid="d92604e65__20250123155207">其在 <code class="+ topic/ph pr-d/codeph ph codeph">SourceSink Interface</code> 提供的 4 个测试 endpoint、或者 <code class="+ topic/ph pr-d/codeph ph codeph">Loopback
+                    Interface</code> 提供的 2 个测试 endpoint + <code class="+ topic/ph pr-d/codeph ph codeph">Composite Device</code> 本身的
+                ep0 control endpoint 基础之上，提供了 30 个
+                testcase：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_host_usbtest_ko__codeblock_v3t_3kz_21c" data-ofbid="usb_host_usbtest_ko__codeblock_v3t_3kz_21c"><code>drivers\usb\misc\usbtest.c:
+
+usbtest_do_ioctl()</code></pre></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="usb_host_usbtest_ko__table_p53_kkz_21c" data-ofbid="usb_host_usbtest_ko__table_p53_kkz_21c" data-cols="8"><caption></caption><colgroup><col style="width:6.939625260235947%"/><col style="width:10.270645385149201%"/><col style="width:8.743927827897293%"/><col style="width:6.939625260235947%"/><col style="width:6.939625260235947%"/><col style="width:8.743927827897293%"/><col style="width:28.938237335183896%"/><col style="width:22.48438584316447%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">index</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">type</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">iterations</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">vary</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">sglen</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">unaligned</th>
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">testcase</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">0</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">nop</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">“TEST 0: NOPn”</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">1</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e184__20250123155207">“TEST 1: write %d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e187__20250123155207">param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">Simple non-queued bulk I/O tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">2</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e218__20250123155207">“TEST 2: read %d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e221__20250123155207">param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">3</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e252__20250123155207">“TEST 3: write/%d 0..%d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e255__20250123155207">param-&gt;vary, param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">4</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e286__20250123155207">“TEST 4: read/%d 0..%d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e289__20250123155207">param-&gt;vary, param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">5</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e321__20250123155207">“TEST 5: write %d sglists %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e324__20250123155207">param-&gt;iterations,param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">6</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e355__20250123155207">“TEST 6: read %d sglists %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e358__20250123155207">param-&gt;iterations,param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">7</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e389__20250123155207">“TEST 7: write/%d %d sglists %d entries 0..%d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e392__20250123155207">param-&gt;vary, param-&gt;iterations,param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">8</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e423__20250123155207">“TEST 8: read/%d %d sglists %d entries 0..%d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e426__20250123155207">param-&gt;vary, param-&gt;iterations,param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">9</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">control</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e457__20250123155207">“TEST 9: ch9 (subset) control tests, %d timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e460__20250123155207">param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">non-queued sanity tests for control (chapter 9 subset)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">10</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">control</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e491__20250123155207">“TEST 10: queue %d control calls, %d timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e494__20250123155207">param-&gt;sglen, param-&gt;iterations)</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">queued control messaging</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">11</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e526__20250123155207">“TEST 11: unlink %d reads of %dn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e529__20250123155207">param-&gt;iterations, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">simple non-queued unlinks (ring with one urb)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">12</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e560__20250123155207">“TEST 12: unlink %d writes of %dn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e563__20250123155207">param-&gt;iterations, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">13</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">control</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e594__20250123155207">“TEST 13: set/clear %d haltsn”</p>
+                                <p class="- topic/p p" data-ofbid="d92604e597__20250123155207">param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">ep halt tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">14</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">control</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e628__20250123155207">“TEST 14: %d ep0out, %d..%d vary %dn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e631__20250123155207">param-&gt;iterations,realworld ? 1 : 0,
+                                    param-&gt;length,param-&gt;vary</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">control write tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">15</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">iso</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e662__20250123155207">“TEST 15: write %d iso, %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e665__20250123155207">param-&gt;iterations, param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">iso write tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">16</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">iso</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e696__20250123155207">“TEST 16: read %d iso, %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e699__20250123155207">param-&gt;iterations, param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">iso read tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">17</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e731__20250123155207">“TEST 17: write odd addr %d bytes %u times core mapn”</p>
+                                <p class="- topic/p p" data-ofbid="d92604e734__20250123155207">param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">Tests for bulk I/O using DMA mapping by core and odd
+                                address</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">18</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e765__20250123155207">“TEST 18: read odd addr %d bytes %u times core mapn”,
+                                    param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">19</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e796__20250123155207">“TEST 19: write odd addr %d bytes %u times premappedn”,
+                                    param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">Tests for bulk I/O using premapped coherent buffer and odd
+                                address</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">20</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e827__20250123155207">“TEST 20: read odd addr %d bytes %u times premappedn”,
+                                    param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">21</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">control</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e858__20250123155207">“TEST 21: %d ep0out odd addr, %d..%d vary
+                                    %dn”,param-&gt;iterations,realworld ? 1 : 0, param-&gt;length,
+                                    param-&gt;vary</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">control write tests with unaligned buffer</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">22</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">iso</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e889__20250123155207">“TEST 22: write %d iso odd, %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e892__20250123155207">param-&gt;iterations, param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">unaligned iso tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">23</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">iso</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e924__20250123155207">“TEST 23: read %d iso odd, %d entries of %d bytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e927__20250123155207">param-&gt;iterations, param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">24</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e958__20250123155207">“TEST 24: unlink from %d queues of %d %d-byte writesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e961__20250123155207">param-&gt;iterations, param-&gt;sglen, param-&gt;length</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">unlink URBs from a bulk-OUT queue</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">25</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">int</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e992__20250123155207">“TEST 25: write %d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e995__20250123155207">param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">Simple non-queued interrupt I/O tests</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">26</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">int</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e1026__20250123155207">“TEST 26: read %d bytes %u timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e1029__20250123155207">param-&gt;length, param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">27</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e1060__20250123155207">“TEST 27: bulk write %dMbytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e1063__20250123155207">(param-&gt;iterations * param-&gt;sglen * param-&gt;length) / (1024 *
+                                    1024))</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8">Performance test</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">28</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e1094__20250123155207">“TEST 28: bulk read %dMbytesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e1097__20250123155207">(param-&gt;iterations * param-&gt;sglen * param-&gt;length) / (1024 *
+                                    1024))</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__1">29</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__2">bulk</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__3">Y</td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__4"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__5"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__6"></td>
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__7">
+                                <p class="- topic/p p" data-ofbid="d92604e1129__20250123155207">“TEST 29: Clear toggle between bulk writes %d timesn”,</p>
+                                <p class="- topic/p p" data-ofbid="d92604e1132__20250123155207">param-&gt;iterations</p>
+                            </td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="usb_host_usbtest_ko__table_p53_kkz_21c__entry__8"></td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+        <section class="- topic/section section" id="usb_host_usbtest_ko__section_a42_dkz_21c" data-ofbid="usb_host_usbtest_ko__section_a42_dkz_21c"><h2 class="- topic/title title sectiontitle">Ioctl</h2>
+            
+            <p class="- topic/p p" data-ofbid="d92604e1149__20250123155207"><em class="+ topic/ph hi-d/i ph i">usbtest.ko</em> 以 ioctl 的形式向用户态提供对 testcase 的调用：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="usb_host_usbtest_ko__pre_b42_dkz_21c" data-ofbid="usb_host_usbtest_ko__pre_b42_dkz_21c"><code>usbdev_file_operations → usbdev_ioctl() → usbdev_do_ioctl() → proc_ioctl_default() → proc_ioctl()：
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> proc_ioctl(<strong class="hl-keyword">struct</strong> usb_dev_state *ps, <strong class="hl-keyword">struct</strong> usbdevfs_ioctl *ctl)
+{
+
+    <em class="hl-comment">/*  (1) 找到对应的 usb interface device */</em>
+    <strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong> (!(intf = usb_ifnum_to_if(ps-&gt;dev, ctl-&gt;ifno)))
+        retval = -EINVAL;
+
+    <em class="hl-comment">/* talk directly to the interface's driver */</em>
+    <strong class="hl-keyword">default</strong>:
+        <strong class="hl-keyword">if</strong> (intf-&gt;dev.driver)
+            <em class="hl-comment">/*  (2) 找到 usb interface device 对应的 driver  */</em>
+            driver = to_usb_driver(intf-&gt;dev.driver);
+        <strong class="hl-keyword">if</strong> (driver == NULL || driver-&gt;unlocked_ioctl == NULL) {
+            retval = -ENOTTY;
+        } <strong class="hl-keyword">else</strong> {
+            <em class="hl-comment">/* (3) 调用 driver 的 ioctl 函数 */</em>
+            retval = driver-&gt;unlocked_ioctl(intf, ctl-&gt;ioctl_code, buf);
+            <strong class="hl-keyword">if</strong> (retval == -ENOIOCTLCMD)
+                retval = -ENOTTY;
+        }
+
+}
+
+↓
+
+usbtest_ioctl() → usbtest_do_ioctl()</code></pre>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#usb_host_usbtest_ko__section_wk2_dkz_21c" data-tocid="usb_host_usbtest_ko__section_wk2_dkz_21c">TestCase</a></div></li><li class="section-item"><div class="section-title"><a href="#usb_host_usbtest_ko__section_a42_dkz_21c" data-tocid="usb_host_usbtest_ko__section_a42_dkz_21c">Ioctl</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

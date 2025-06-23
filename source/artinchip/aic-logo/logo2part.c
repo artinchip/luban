@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Copyright (C) 2023 Artinchip Technology Co., Ltd.
  * Authors:  Huahui <huahui.mai@artinchip.com>
@@ -123,12 +123,13 @@ struct file_object *part_open(const char *path)
 
 		part->fsize = part->mtdinfo.size;
 	} else {
-		struct stat blkstat;
-
-		if (fstat(part->fd, &blkstat) < 0)
+		part->fsize = lseek(part->fd, 0, SEEK_END);
+		if (part->fsize < 0) {
+			ERR("get mmc part size failed\n");
 			goto out;
+		}
 
-		part->fsize = blkstat.st_size;
+		lseek(part->fd, 0, SEEK_SET);
 	}
 
 	ret = part_read(part);

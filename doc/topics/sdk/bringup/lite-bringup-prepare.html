@@ -1,0 +1,350 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="为了让后续的开发工作更便捷，在开始进行开发板 Bringup 之前，需做好下列相关准备工作。 注： 编译环境的搭建可以参考 SDK 编译 。 创建 Git 仓库 如果使用了 git clone 获取的代码，则表示已经存在 Git 仓库，可以略过此步。 如果不是直接下载的代码，则需要手动创建一下本地 Git 仓库，具体操作如下： sudo apt-get install git //安装 Git ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/bringup/chapter-bringup.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/chapter-bringup.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-memory-config.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>准备工作</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1981"/><meta name="wh-source-relpath" content="topics/sdk/bringup/lite-bringup-prepare.dita"/><meta name="wh-out-relpath" content="topics/sdk/bringup/lite-bringup-prepare.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/bringup/lite-bringup-prepare.html">准备工作</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/bringup/chapter-bringup.html" title="BringUp" aria-label="上一主题: BringUp" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/bringup/bringup-memory-config.html" title="存储配置" aria-label="下一主题: 存储配置" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="id-d4445e1981" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/lite-bringup-prepare.html" id="id-d4445e1981-link">准备工作</a></div></div></li><li role="treeitem"><div data-tocid="bringup_memoryConfiguration-d4445e1997" class="topicref" data-id="bringup_memoryConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-memory-config.html" id="bringup_memoryConfiguration-d4445e1997-link">存储配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_debugPortsConfiguration-d4445e2011" class="topicref" data-id="bringup_debugPortsConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-debug-ports-configuration.html" id="bringup_debugPortsConfiguration-d4445e2011-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_刷机-d4445e2025" class="topicref" data-id="bringup_刷机" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-boot.html" id="bringup_刷机-d4445e2025-link">刷机</a></div></div></li><li role="treeitem"><div data-tocid="bringup_icConfiguration-d4445e2039" class="topicref" data-id="bringup_icConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-ic-configuration.html" id="bringup_icConfiguration-d4445e2039-link">IC 配置</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="bringup_displayScreenConfiguration-d4445e2054" class="topicref" data-id="bringup_displayScreenConfiguration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action bringup_displayScreenConfiguration-d4445e2054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html" id="bringup_displayScreenConfiguration-d4445e2054-link">屏幕配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_demo-d4445e2138" class="topicref" data-id="bringup_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-demo.html" id="bringup_demo-d4445e2138-link">Demo</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/bringup/lite-bringup-prepare.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">准备工作</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="- topic/p p" data-ofbid="d166415e28__20250123155217">为了让后续的开发工作更便捷，在开始进行开发板 Bringup 之前，需做好下列相关准备工作。<div class="- topic/note note note note_note" id="id__note_abb_tsv_1dc" data-ofbid="id__note_abb_tsv_1dc"><span class="note__title">注：</span> <div class="note__body">编译环境的搭建可以参考<a class="- topic/xref xref" href="../env/sdk-compile.html" title="介绍不同编译环境下 SDK 的详细编译流程。">SDK 编译</a>。</div></div></div>
+        <section class="- topic/section section" id="id__section_lf4_x4v_1dc" data-ofbid="id__section_lf4_x4v_1dc"><h2 class="- topic/title title sectiontitle">创建
+                Git 仓库</h2>
+            
+            
+            <p class="- topic/p p" data-ofbid="d166415e45__20250123155217">如果使用了 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">git clone</span> 获取的代码，则表示已经存在 Git 仓库，可以略过此步。</p>
+            <p class="- topic/p p" data-ofbid="d166415e51__20250123155217">如果不是直接下载的代码，则需要手动创建一下本地 Git 仓库，具体操作如下：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_shg_gqv_1dc" data-ofbid="id__codeblock_shg_gqv_1dc"><code>sudo apt-get install git   <em class="hl-comment">//安装 Git</em>
+git init                   <em class="hl-comment">//创建本地仓库</em>
+git add *                  <em class="hl-comment">//添加所有代码到本地仓库暂存区</em>
+git commit -m <span class="hl-string">"init"</span>       <em class="hl-comment">//将暂存区的代码提交到本地参考</em></code></pre>
+            
+            <div class="- topic/p p" data-ofbid="d166415e57__20250123155217">创建 Git
+                    仓库，有助于执行下列操作：<div class="- topic/note note note note_note" id="id__note_bnv_xsv_1dc" data-ofbid="id__note_bnv_xsv_1dc"><span class="note__title">注：</span> <div class="note__body">务必使用一个版本管理工具对代码进行管理。如果没有
+                    Git 服务器，
+                    建议创建一个本地仓库进行跟踪。</div></div></div>
+            <ul class="- topic/ul ul" id="id__ul_ofl_y4v_1dc" data-ofbid="id__ul_ofl_y4v_1dc">
+                <li class="- topic/li li" data-ofbid="d166415e65__20250123155217">
+                    <p class="- topic/p p" data-ofbid="d166415e67__20250123155217">跟踪修改的历史记录。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d166415e71__20250123155217">
+                    <p class="- topic/p p" data-ofbid="d166415e73__20250123155217">方便进行修改回退，防止调试代码影响开发工作。</p>
+                </li>
+                
+            </ul>
+            
+        </section>
+        
+        <section class="- topic/section section" id="id__section_ny5_pqv_1dc" data-ofbid="id__section_ny5_pqv_1dc"><h2 class="- topic/title title sectiontitle">生成固件</h2>
+            
+            <p class="- topic/p p" data-ofbid="d166415e84__20250123155217">每一块开发板可以对应一个工程，工程的代码存放于 <span class="+ topic/ph sw-d/filepath ph filepath">target/ic/</span> 目录下。 关于代码结构的详细说明，可查看<a class="- topic/xref xref" href="../env/sourcecode.html">准备代码</a>。</p>
+            <p class="- topic/p p" data-ofbid="d166415e94__20250123155217">在进行工程编译前，可以使用已有的工程，也可以建一个给开发板使用的独立工程，详细流程如下：</p>
+            <ul class="- topic/ul ul" id="id__ul_zmp_ttv_1dc" data-ofbid="id__ul_zmp_ttv_1dc">
+                <li class="- topic/li li" id="id__li_xlk_hfr_ldc" data-ofbid="id__li_xlk_hfr_ldc">
+                    <p class="- topic/p p" data-ofbid="d166415e101__20250123155217"><strong class="+ topic/ph hi-d/b ph b">选择已有工程</strong>：</p>
+                    <div class="- topic/p p" data-ofbid="d166415e106__20250123155217">选择一个合适的工程可以减少修改配置的工作量，可遵照以下优先级顺序：<ul class="- topic/ul ul" id="id__ul_anl_prv_1dc" data-ofbid="id__ul_anl_prv_1dc">
+                            
+                            
+                            <li class="- topic/li li" data-ofbid="d166415e110__20250123155217">
+                                <p class="- topic/p p" data-ofbid="d166415e112__20250123155217">存储：SPINAND、SPINOR、eMMC</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d166415e116__20250123155217">
+                                <p class="- topic/p p" data-ofbid="d166415e118__20250123155217">屏幕：RGB、LVDS、MIPI-DSI、MIPI-DBI</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d166415e122__20250123155217">
+                                <p class="- topic/p p" data-ofbid="d166415e124__20250123155217">封装: D211B (88 pin)、D211D (100 pin)、D213E (128 pin)</p>
+                            </li>
+                        </ul></div>
+                    <div class="table-container"><table class="- topic/table table frame-all" id="id__table_fpx_znr_gdc" data-ofbid="id__table_fpx_znr_gdc" data-cols="7"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">工程文件优先级顺序</span></caption><colgroup><col style="width:14.439655172413795%"/><col style="width:14.439655172413795%"/><col style="width:12.71551724137931%"/><col style="width:15.40948275862069%"/><col style="width:10.775862068965518%"/><col style="width:16.81034482758621%"/><col style="width:15.40948275862069%"/></colgroup><thead class="- topic/thead thead">
+                                <tr class="- topic/row">
+                                    <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_fpx_znr_gdc__entry__1">工程名称</th>
+                                    <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_fpx_znr_gdc__entry__2">存储</th>
+                                    <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_fpx_znr_gdc__entry__3">封装</th>
+                                    <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_fpx_znr_gdc__entry__4">DDR</th>
+                                    <th class="- topic/entry entry colsep-1 rowsep-1" id="id__table_fpx_znr_gdc__entry__5">屏幕</th>
+                                    <th class="- topic/entry entry colsep-0 rowsep-1" id="id__table_fpx_znr_gdc__entry__6" colspan="2">其他功能</th>
+                                </tr>
+                            </thead><tbody class="- topic/tbody tbody">
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__1">demo</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__2">eMMC</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__3">QFN88</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__4">64M ddr2</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__5">LVDS</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_fpx_znr_gdc__entry__6" colspan="2">RTP,UART,MAC,SDCARD</td>
+                                </tr>
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__1">demo88_nand</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__2">SPI NAND</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__3">QFN88</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__4">64M ddr2</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__5">RGB565</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_fpx_znr_gdc__entry__6" colspan="2">CTP,MAC,CAN,SDCARD</td>
+                                </tr>
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__1">demo100_nand</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__2">SPI NAND</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__3">QFN100</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__4">128M ddr3</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__5">LVDS</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_fpx_znr_gdc__entry__6" colspan="2">CTP,MAC,CAN,SDCARD,USB</td>
+                                </tr>
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__1">demo128_nand</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__2">SPI NAND</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__3">QFN128</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__4">128M ddr3</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__5">LVDS</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_fpx_znr_gdc__entry__6" colspan="2">CTP,2xGMAC,SDCARD,WiFi,2xUSB,RS485</td>
+                                </tr>
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__1">ota</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-1" headers="id__table_fpx_znr_gdc__entry__2">SPI NAND</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-1" headers="id__table_fpx_znr_gdc__entry__3 id__table_fpx_znr_gdc__entry__4 id__table_fpx_znr_gdc__entry__5 id__table_fpx_znr_gdc__entry__6" colspan="5">针对 SPINAND
+                                        介质的升级包配置，不作为独立示例</td>
+                                </tr>
+                                <tr class="- topic/row">
+                                    <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_fpx_znr_gdc__entry__1">ota_emmc</td>
+                                    <td class="- topic/entry entry colsep-1 rowsep-0" headers="id__table_fpx_znr_gdc__entry__2">eMMC</td>
+                                    <td class="- topic/entry entry colsep-0 rowsep-0" headers="id__table_fpx_znr_gdc__entry__3 id__table_fpx_znr_gdc__entry__4 id__table_fpx_znr_gdc__entry__5 id__table_fpx_znr_gdc__entry__6" colspan="5">针对 eMMC
+                                        介质的升级包配置，不作为独立示例</td>
+                                </tr>
+                            </tbody></table></div>
+                    
+                </li>
+                <li class="- topic/li li" data-ofbid="d166415e295__20250123155217">
+                    <p class="- topic/p p" data-ofbid="d166415e297__20250123155217"><strong class="+ topic/ph hi-d/b ph b">建立新工程</strong>：使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">add-board</span> 命令创建新板子对应的工程。</p>
+                    <div class="- topic/p p" data-ofbid="d166415e305__20250123155217">该命令会参考某一个已经存在的工程建立一个全新命名的工程，
+                            参考工程的选择依然需要按照存储、屏幕和封装的优先级进行。<div class="- topic/div div">
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_cg1_bpr_5dc" data-ofbid="id__codeblock_cg1_bpr_5dc"><code>make add-board</code></pre>
+                            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_r5v_bpr_5dc" data-ofbid="id__codeblock_r5v_bpr_5dc"><code>Chip list:
+    <span class="hl-number">1</span>: d211
+Select chip <strong class="hl-keyword">for</strong> new board(number): <span class="hl-number">1</span>
+    d211
+
+Reference defconfig:(Create new board base on selected defconfig)
+    <span class="hl-number">1</span>: d211_demo100_nand_defconfig
+    <span class="hl-number">2</span>: d211_demo128_nand_defconfig
+    <span class="hl-number">3</span>: d211_demo88_nand_defconfig
+    <span class="hl-number">4</span>: d211_demo88_nand_musl_defconfig
+    <span class="hl-number">5</span>: d211_demo_defconfig
+    <span class="hl-number">6</span>: d211_ota_defconfig
+    <span class="hl-number">7</span>: d211_ota_emmc_defconfig
+
+Select reference defconfig <strong class="hl-keyword">for</strong> new board(number): <span class="hl-number">2</span>
+    d211_demo128_nand_defconfig
+
+Input new board<span class="hl-string">'s name: newboard
+</span>    newboard
+
+Input manufacturer<span class="hl-string">'s name: customer
+</span>    customer
+
+Created: target/d211/newboard
+Created: source/uboot-<span class="hl-number">2021.10</span>/configs/d211_newboard_defconfig
+Created: source/linux-<span class="hl-number">5.10</span>/arch/riscv/configs/d211_newboard_defconfig
+Created: package/third-party/busybox/configs/d211_newboard_defconfig
+Created: target/configs/d211_newboard_defconfig
+Updated: target/d211/Config.in</code></pre>
+                        </div></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d166415e320__20250123155217">
+                    
+                    <div class="- topic/p p" data-ofbid="d166415e322__20250123155217">推荐使用 OneStep 命令进行系统的 bringup，详细命令说明，可查看<span class="- topic/xref xref"></span>。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_n3d_g4r_gdc" data-ofbid="id__codeblock_n3d_g4r_gdc"><code>source tools/onestep.sh
+lunch d211_newboard_defconfig
+make                              <em class="hl-comment">//在任何目录 m 命令都可以编译出固件</em></code></pre></div>
+                    <p class="- topic/p p" data-ofbid="d166415e330__20250123155217">准备工作完成后应该能够顺利编译出固件。</p>
+                </li>
+            </ul>
+            
+        </section>
+        
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_lf4_x4v_1dc" data-tocid="id__section_lf4_x4v_1dc">创建
+                Git 仓库</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_ny5_pqv_1dc" data-tocid="id__section_ny5_pqv_1dc">生成固件</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

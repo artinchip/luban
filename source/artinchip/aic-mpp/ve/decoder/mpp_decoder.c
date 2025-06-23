@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: mpp_decoder interface
-*/
+ * Copyright (C) 2020-2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: mpp_decoder interface
+ */
 
 #include "mpp_codec.h"
 #include "frame_allocator.h"
@@ -12,21 +14,30 @@
 extern struct mpp_decoder* create_jpeg_decoder();
 extern struct mpp_decoder* create_png_decoder();
 extern struct mpp_decoder* create_h264_decoder();
+extern struct mpp_decoder* create_aicp_wrapper();
+extern int destroy_aicp_wrapper();
 
 struct mpp_decoder* mpp_decoder_create(enum mpp_codec_type type)
 {
-	if(type == MPP_CODEC_VIDEO_DECODER_MJPEG)
+	if (type == MPP_CODEC_VIDEO_DECODER_MJPEG)
 		return create_jpeg_decoder();
-	else if(type == MPP_CODEC_VIDEO_DECODER_H264)
+	else if (type == MPP_CODEC_VIDEO_DECODER_H264)
 		return create_h264_decoder();
-	else if(type == MPP_CODEC_VIDEO_DECODER_PNG)
+	else if (type == MPP_CODEC_VIDEO_DECODER_PNG)
 		return create_png_decoder();
+	else if (type == MPP_CODEC_VIDEO_DECODER_AICP)
+		return create_aicp_wrapper();
+
 	return NULL;
 }
 
 void mpp_decoder_destory(struct mpp_decoder* decoder)
 {
+	if (decoder == NULL)
+		return;
+
 	decoder->ops->destory(decoder);
+	destroy_aicp_wrapper();
 }
 
 int mpp_decoder_init(struct mpp_decoder *decoder, struct decode_config *config)
@@ -36,12 +47,15 @@ int mpp_decoder_init(struct mpp_decoder *decoder, struct decode_config *config)
 
 int mpp_decoder_decode(struct mpp_decoder* decoder)
 {
-	if(decoder->pm && decoder->fm) {
+	if (decoder == NULL)
+		return DEC_ERR_NULL_PTR;
+
+	if (decoder->pm && decoder->fm) {
 		logd("render frame number: %d, empty frame number: %d", fm_get_render_frame_num(decoder->fm),
 		  fm_get_empty_frame_num(decoder->fm));
 	}
 
-	if(decoder->pm && pm_get_ready_packet_num(decoder->pm) == 0)
+	if (decoder->pm && pm_get_ready_packet_num(decoder->pm) == 0)
 		return DEC_NO_READY_PACKET;
 
 	return decoder->ops->decode(decoder);
@@ -49,6 +63,9 @@ int mpp_decoder_decode(struct mpp_decoder* decoder)
 
 int mpp_decoder_control(struct mpp_decoder* decoder, int cmd, void *param)
 {
+	if (decoder == NULL || param == NULL)
+		return DEC_ERR_NULL_PTR;
+
 	struct mpp_scale_ratio* ratio = NULL;
 	struct mpp_dec_crop_info* info = NULL;
 	struct mpp_dec_output_pos* pos = NULL;
@@ -87,12 +104,15 @@ int mpp_decoder_control(struct mpp_decoder* decoder, int cmd, void *param)
 
 int mpp_decoder_reset(struct mpp_decoder* decoder)
 {
+	if (decoder == NULL)
+		return DEC_ERR_NULL_PTR;
+
 	return decoder->ops->reset(decoder);
 }
 
 int mpp_decoder_get_packet(struct mpp_decoder* decoder, struct mpp_packet* packet, int size)
 {
-	if(decoder == NULL || packet == NULL)
+	if(decoder == NULL || packet == NULL || decoder->pm == NULL)
 		return DEC_ERR_NULL_PTR;
 	if(pm_get_empty_packet_num(decoder->pm) == 0)
 		return DEC_NO_EMPTY_PACKET;
@@ -102,7 +122,7 @@ int mpp_decoder_get_packet(struct mpp_decoder* decoder, struct mpp_packet* packe
 
 int mpp_decoder_put_packet(struct mpp_decoder* decoder, struct mpp_packet* packet)
 {
-	if(decoder == NULL || packet == NULL)
+	if(decoder == NULL || packet == NULL || decoder->pm == NULL)
 		return DEC_ERR_NULL_PTR;
 
 	return pm_enqueue_ready_packet(decoder->pm, packet);
@@ -128,5 +148,10 @@ int mpp_decoder_put_frame(struct mpp_decoder* decoder, struct mpp_frame* frame)
 {
 	if(decoder == NULL || frame == NULL)
 		return DEC_ERR_NULL_PTR;
+
+	if(decoder->fm == NULL) {
+		//logw("frame manager not create now, wait");
+		return DEC_ERR_FM_NOT_CREATE;
+	}
 	return fm_render_put_frame(decoder->fm, frame);
 }

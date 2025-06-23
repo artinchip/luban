@@ -5,7 +5,7 @@
 menuconfig WLAN_VENDOR_ASR
 	bool "Asr Wireless Modules"
 	depends on NET
-	default y
+	default n
 
 
 if WLAN_VENDOR_ASR
@@ -15,13 +15,11 @@ config ASR5531
 	tristate "ASR 5531 USB/SDIO Wi-Fi"
 	default n
 
-
 config ASR5505
 	select MMC
 	select CFG80211
 	tristate "ASR 5505 SDIO Wi-Fi"
 	default n
-
 
 config ASR5825
 	select MMC
@@ -29,25 +27,23 @@ config ASR5825
 	tristate "ASR 5825 SDIO Wi-Fi & BLE"
 	default n
 
-
 config ASR595X
 	select MMC
 	select CFG80211
 	tristate "ASR 595X SDIO Wi-Fi & BLE"
 	default n
 
-
 config ASR596X
 	select MMC
 	select CFG80211
 	tristate "ASR 596X SDIO Wi-Fi & BLE"
 	default n
+
 config ASR_SDIO
 	bool "SDIO bus interface support for FullMAC driver"
 	select MMC
 	depends on ( ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
 	default n
-
 
 config ASR_USB
 	bool "USB bus interface support for FullMAC driver"
@@ -55,25 +51,57 @@ config ASR_USB
 	depends on (ASR5531 && !ASR_SDIO)
 	default y
 
+config ASR_PM
+	bool "Power management support"
+	depends on ASR_SDIO
+	default n
 
-config ASR_SAE
+config AUTO_SUSPEND_RESUME
+	bool "Automatically suspend/resume module"
+	depends on (ASR_PM && ASR_SDIO)
+	default n
+
+config GPIO_WAKEUP_MOD
+	bool "Use GPIO wakeup module"
+	depends on (ASR_PM && ASR_SDIO)
+	default n
+
+config GPIO_WAKEUP_HOST
+	bool "Use GPIO wakeup host"
+	depends on (ASR_PM && ASR_SDIO)
+	default n
+
+choice
+	prompt "Module active GPIO level"
+	depends on GPIO_WAKEUP_HOST
+	default HIGH_LEVEL
+	config HIGH_LEVEL
+		bool "High level"
+	config LOW_LEVEL
+		bool "Low level"
+endchoice
+
+config ASR_USB_PM
+	bool "Power management support for USB"
+	depends on ASR_USB
+	default n
+
+config SAE
 	bool "ASR device SAE support"
 	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
 	default y
-
 
 config ASR_DBG
 	bool "ASR device tracing dbg log"
 	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
 	default n
 
-
 config ASR_KEY_DBG
 	bool "ASR driver debug functions"
 	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
 	default n
 
-config	NOT_USED_DTS
+config NOT_USED_DTS
 	bool "do not use dts"
 	depends on (ASR5531 || ASR5505 || ASR5825 || ASR595X || ASR596X)
 	default y

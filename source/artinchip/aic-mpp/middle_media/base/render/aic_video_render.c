@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_video_render
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_video_render
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -122,67 +124,31 @@ static s32 fb_video_render_rend(struct aic_video_render *render,struct mpp_frame
 	s32 find = 0;
 	struct dma_buf_info dmabuf_fd[3];
 	struct frame_dma_buf_info_list * dma_buf_node = NULL,*dma_buf_node1 = NULL;
+
 	if (frame_info == NULL) {
 		loge("frame_info=NULL\n");
 		return -1;
 	}
+	dmabuf_num = get_component_num(frame_info->buf.format);
 	if (!mpp_list_empty(&fb_render->dma_list)) {
 		mpp_list_for_each_entry_safe(dma_buf_node, dma_buf_node1, &fb_render->dma_list, list) {
-			dmabuf_num = get_component_num(frame_info->buf.format);
 			if (dmabuf_num == 1) {
 				if (dma_buf_node->dma_buf_info.fd[0] == frame_info->buf.fd[0]) {
-					if (dma_buf_node->dma_buf_info.frame_id != frame_info->id) {
-						//exist dma fd,frame_id not eq,it means relloc dma,so remove last dma fd in the de
-						dmabuf_fd[0].fd = frame_info->buf.fd[0];
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[0]);
-						mpp_list_del(&dma_buf_node->list);
-						mpp_free(dma_buf_node);
-						find = 0;
-						break;
-					}else{
-						find = 1;
-						break;
-					}
+					find = 1;
+					break;
 				}
 			} else if (dmabuf_num == 2) {
 				if (dma_buf_node->dma_buf_info.fd[0] == frame_info->buf.fd[0]
-				&& dma_buf_node->dma_buf_info.fd[1] == frame_info->buf.fd[1]) {
-					if (dma_buf_node->dma_buf_info.frame_id != frame_info->id) {
-						//exist dma fd,frame_id not eq,it means relloc dma,so remove last dma fd in the de
-						dmabuf_fd[0].fd = frame_info->buf.fd[0];
-						dmabuf_fd[1].fd = frame_info->buf.fd[1];
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[0]);
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[1]);
-						mpp_list_del(&dma_buf_node->list);
-						mpp_free(dma_buf_node);
-						find = 0;
-						break;
-					}else{
-						find = 1;
-						break;
-					}
+					&& dma_buf_node->dma_buf_info.fd[1] == frame_info->buf.fd[1]) {
+					find = 1;
+					break;
 				}
 			} else if (dmabuf_num == 3) {
 				if (dma_buf_node->dma_buf_info.fd[0] == frame_info->buf.fd[0]
-				&& dma_buf_node->dma_buf_info.fd[1] == frame_info->buf.fd[1]
-				&& dma_buf_node->dma_buf_info.fd[2] == frame_info->buf.fd[2]){
-					if (dma_buf_node->dma_buf_info.frame_id != frame_info->id) {
-						//exist dma fd,frame_id not eq,it means relloc dma,so remove last dma fd in the de
-						dmabuf_fd[0].fd = frame_info->buf.fd[0];
-						dmabuf_fd[1].fd = frame_info->buf.fd[1];
-						dmabuf_fd[2].fd = frame_info->buf.fd[2];
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[0]);
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[1]);
-						ioctl(fb_render->fd, AICFB_RM_DMABUF, &dmabuf_fd[2]);
-						printf("[%s:%d]%d,%u\n",__FUNCTION__,__LINE__,dma_buf_node->dma_buf_info.frame_id,frame_info->id);
-						mpp_list_del(&dma_buf_node->list);
-						mpp_free(dma_buf_node);
-						find = 0;
-						break;
-					}else{
-						find = 1;
-						break;
-					}
+					&& dma_buf_node->dma_buf_info.fd[1] == frame_info->buf.fd[1]
+					&& dma_buf_node->dma_buf_info.fd[2] == frame_info->buf.fd[2]) {
+					find = 1;
+					break;
 				}
 			} else {
 				loge("no support picture foramt %d", frame_info->buf.format);
@@ -197,9 +163,6 @@ static s32 fb_video_render_rend(struct aic_video_render *render,struct mpp_frame
 		dma_buf_node->dma_buf_info.frame_id = frame_info->id;
 		printf("[%s:%d]%d,%u\n",__FUNCTION__,__LINE__,dma_buf_node->dma_buf_info.frame_id,frame_info->id);
 		dma_buf_node->dma_buf_info.used = 0;
-		dmabuf_num = get_component_num(frame_info->buf.format);
-		//* add dmabuf to de driver
-		logw("AICFB_ADD_DMABUF frame_id:%u!",dma_buf_node->dma_buf_info.frame_id);
 		for(i=0; i<dmabuf_num; i++) {
 			dma_buf_node->dma_buf_info.fd[i] = frame_info->buf.fd[i];
 			dmabuf_fd[i].fd = frame_info->buf.fd[i];
@@ -220,7 +183,7 @@ static s32 fb_video_render_rend(struct aic_video_render *render,struct mpp_frame
 	if (ioctl(fb_render->fd, AICFB_UPDATE_LAYER_CONFIG, &fb_render->layer) < 0)
 		loge("fb ioctl() AICFB_UPDATE_LAYER_CONFIG failed!");
 
-	//* wait vsync (wait layer config)
+	// wait vsync (wait layer config)
 	ioctl(fb_render->fd, AICFB_WAIT_FOR_VSYNC, NULL);
 
 	return 0;
@@ -269,14 +232,14 @@ static s32 fb_video_render_get_dis_rect(struct aic_video_render *render,struct m
 	return 0;
 }
 
-static s32 fb_video_render_set_on_off(struct aic_video_render *render,s32 enable )
+static s32 fb_video_render_set_on_off(struct aic_video_render *render,s32 enable)
 {
 	struct aic_fb_video_render *fb_render = (struct aic_fb_video_render*)render;
 	fb_render->layer.enable = enable;
 	return 0;
 }
 
-static s32 fb_video_render_get_on_off(struct aic_video_render *render,s32 *enable )
+static s32 fb_video_render_get_on_off(struct aic_video_render *render,s32 *enable)
 {
 	struct aic_fb_video_render *fb_render = (struct aic_fb_video_render*)render;
 	if (enable == NULL) {

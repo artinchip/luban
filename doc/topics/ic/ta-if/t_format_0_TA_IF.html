@@ -1,0 +1,420 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="CF Command Field (CF) 组成结构如下： 在发送和接收的过程均涉及，CF 由以下部分组成： Start bit：1'b0，固定值。 Sync code：3’b010，固定值。 ID Code：4-bit，发送时可通过寄存器配置，接收时解析接收数据并存入 TSTS 寄存器。 ID Code 奇偶校验位：1-bit，发送时硬件自动根据 Code 判断填入，接收时解析接收数据并存入 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-12-18"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="t_format_0"/><meta name="DC.language" content="zh-CN"/><title>T-Format 域</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/ic/ta-if/t_format_0_TA_IF.dita"/><meta name="wh-out-relpath" content="topics/ic/ta-if/t_format_0_TA_IF.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="t_format_0" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="wh_topic_body">
+                        
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/ic/ta-if/t_format_0_TA_IF.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">T-Format 域</h1>
+    
+    <div class="date inPage">18 Dec 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="t_format_0__section_rd4_l1j_wbc" data-ofbid="t_format_0__section_rd4_l1j_wbc"><h2 class="- topic/title title sectiontitle">CF</h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e36__20250123155218">Command Field (CF) 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e39__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_anx_psw_ryb" src="../../../images/ta_if/ta_if_cf.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e44__20250123155218">在发送和接收的过程均涉及，CF 由以下部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_bnx_psw_ryb" data-ofbid="t_format_0__ul_bnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e49__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e51__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e55__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e57__20250123155218">Sync code：3’b010，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e61__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e63__20250123155218">ID Code：4-bit，发送时可通过寄存器配置，接收时解析接收数据并存入 TSTS 寄存器。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e67__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e69__20250123155218">ID Code 奇偶校验位：1-bit，发送时硬件自动根据 Code 判断填入，接收时解析接收数据并存入 TSTS 寄存器。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e73__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e75__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d169914e81__20250123155218">ID Code
+                一般对应如下指令表。不同型号的编码器可能不一致，如有需要，参考所用的编码器规格说明。</p>
+            
+                <div class="table-container"><table class="- topic/table table frame-all" id="t_format_0__id15" data-ofbid="t_format_0__id15" data-cols="7"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">指令表</span></caption><colgroup><col style="width:20.930232558139537%"/><col style="width:20.930232558139537%"/><col style="width:11.627906976744185%"/><col style="width:11.627906976744185%"/><col style="width:11.627906976744185%"/><col style="width:11.627906976744185%"/><col style="width:11.627906976744185%"/></colgroup><thead class="- topic/thead thead">
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__1">-</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__2">-</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__3" colspan="4">Code</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__4">Parity</th>
+                            </tr>
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__5">命令</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__6">Data ID</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__7">cc0</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__8">cc1</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__9">cc2</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__10">cc3</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-0" id="t_format_0__id15__entry__11">cc4</th>
+                            </tr>
+                        </thead><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">读数据命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">0</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">读数据命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">读数据命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 2</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">读数据命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 3</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">0</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">写 EEPROM 命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 6</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">0</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">读 EEPROM 命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID D</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">复位命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 7</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">复位命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID 8</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__1 t_format_0__id15__entry__5">复位命令</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__2 t_format_0__id15__entry__6">Data ID C</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__7">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__8">0</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__9">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__3 t_format_0__id15__entry__10">1</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="t_format_0__id15__entry__4 t_format_0__id15__entry__11">0</td>
+                            </tr>
+                        </tbody></table></div>
+            
+        </section>
+        <section class="- topic/section section" id="t_format_0__section_cnx_psw_ryb" data-ofbid="t_format_0__section_cnx_psw_ryb"><h2 class="- topic/title title sectiontitle">SF </h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e386__20250123155218">SF 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e389__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_enx_psw_ryb" src="../../../images/ta_if/sf.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e394__20250123155218">SF，Status Field 为在主机发出获取位置数据命令后，编码器第一个返回的域值，由以下几部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_fnx_psw_ryb" data-ofbid="t_format_0__ul_fnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e399__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e401__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e405__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e407__20250123155218">Information code：4-bit，解析接收数据并存入 TSTS 寄存器。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e411__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e413__20250123155218">Encoder alarm：2-bit，解析接收数据并存入 TSTS 寄存器。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e417__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e419__20250123155218">Communication alarm：2-bit，解析接收数据并存入 TSTS 寄存器。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e423__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e425__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="t_format_0__section_gnx_psw_ryb" data-ofbid="t_format_0__section_gnx_psw_ryb"><h2 class="- topic/title title sectiontitle">DFn</h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e436__20250123155218">DFn 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e439__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_inx_psw_ryb" src="../../../images/ta_if/ta_if_df.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e444__20250123155218">DFn，Data Field 为接收的数据域，最多接收 8x 数据域，由以下部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_jnx_psw_ryb" data-ofbid="t_format_0__ul_jnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e449__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e451__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e455__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e457__20250123155218">Data：8-bit，解析接收的数据并依次存入 RX_DAT0/ 1 寄存器中。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e461__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e463__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="t_format_0__section_knx_psw_ryb" data-ofbid="t_format_0__section_knx_psw_ryb"><h2 class="- topic/title title sectiontitle">CRC</h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e474__20250123155218">CRC 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e477__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_mnx_psw_ryb" src="../../../images/ta_if/ta_if_crc.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e482__20250123155218">CRC，校验域，是发送或接收的结束域。发送时，CRC 由硬件自动生成，接收时则保存在 TSTS 寄存器中。CRC 校验域由以下的部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_nnx_psw_ryb" data-ofbid="t_format_0__ul_nnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e487__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e489__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e493__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e495__20250123155218">CRC code：8-bit，CRC code 生成的多项式是 X<sup class="+ topic/ph hi-d/sup ph sup">8</sup>+1，需要计算 CRC 二进制序列为所有 field
+                        的数据（除去起始位和截止位）。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e502__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e504__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="t_format_0__section_onx_psw_ryb" data-ofbid="t_format_0__section_onx_psw_ryb"><h2 class="- topic/title title sectiontitle">ADF</h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e515__20250123155218">ADF 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e518__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_qnx_psw_ryb" src="../../../images/ta_if/ta_if_adf.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e523__20250123155218">ADF，地址域，表示需要操作的 EEPROM 的地址，ADF 域由以下的部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_rnx_psw_ryb" data-ofbid="t_format_0__ul_rnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e528__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e530__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e534__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e536__20250123155218">Address：7-bit，EEPROM 地址。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e540__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e542__20250123155218">BUSY：1-bit，1'b1 表示 EEPROM 繁忙，未能操作 EEPROM。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e546__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e548__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="t_format_0__section_snx_psw_ryb" data-ofbid="t_format_0__section_snx_psw_ryb"><h2 class="- topic/title title sectiontitle">EDF</h2>
+            
+            <p class="- topic/p p" data-ofbid="d169914e560__20250123155218">EDF 组成结构如下：</p>
+            <div class="- topic/p p" data-ofbid="d169914e563__20250123155218">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="t_format_0__image_unx_psw_ryb" src="../../../images/ta_if/ta_if_edf.png" width="576"/></div><br/>
+            </div>
+            <p class="- topic/p p" data-ofbid="d169914e568__20250123155218">EDF，EEPROM Data 域，表示 EEPROM 的数据，EDF 域由以下的部分组成：</p>
+            <ul class="- topic/ul ul" id="t_format_0__ul_vnx_psw_ryb" data-ofbid="t_format_0__ul_vnx_psw_ryb">
+                <li class="- topic/li li" data-ofbid="d169914e573__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e575__20250123155218">Start bit：1'b0，固定值。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e579__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e581__20250123155218">data：8-bit，EEPROM 的数据。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d169914e585__20250123155218">
+                    <p class="- topic/p p" data-ofbid="d169914e587__20250123155218">Delimiter：1'b1，固定值。</p>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#t_format_0__section_rd4_l1j_wbc" data-tocid="t_format_0__section_rd4_l1j_wbc">CF</a></div></li><li class="section-item"><div class="section-title"><a href="#t_format_0__section_cnx_psw_ryb" data-tocid="t_format_0__section_cnx_psw_ryb">SF </a></div></li><li class="section-item"><div class="section-title"><a href="#t_format_0__section_gnx_psw_ryb" data-tocid="t_format_0__section_gnx_psw_ryb">DFn</a></div></li><li class="section-item"><div class="section-title"><a href="#t_format_0__section_knx_psw_ryb" data-tocid="t_format_0__section_knx_psw_ryb">CRC</a></div></li><li class="section-item"><div class="section-title"><a href="#t_format_0__section_onx_psw_ryb" data-tocid="t_format_0__section_onx_psw_ryb">ADF</a></div></li><li class="section-item"><div class="section-title"><a href="#t_format_0__section_snx_psw_ryb" data-tocid="t_format_0__section_snx_psw_ryb">EDF</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

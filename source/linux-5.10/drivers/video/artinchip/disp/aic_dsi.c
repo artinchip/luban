@@ -22,7 +22,7 @@
 #include "hw/dsi_reg.h"
 #include "hw/reg_util.h"
 #include <video/mipi_display.h>
-#include "aic_com.h"
+#include "aic_fb.h"
 
 #define LANES_MAX_NUM	4
 #define LN_ASSIGN_WIDTH	4
@@ -162,7 +162,7 @@ static int aic_dsi_enable(void)
 
 	dsi_set_clk_div(comp->regs, comp->sclk_rate);
 	dsi_pkg_init(comp->regs);
-	dsi_phy_init(comp->regs, comp->sclk_rate, dsi->lane_num);
+	dsi_phy_init(comp->regs, comp->sclk_rate, dsi->lane_num, dsi->mode);
 	dsi_hs_clk(comp->regs, 1);
 
 	aic_dsi_release_drvdata();
@@ -359,6 +359,53 @@ static ssize_t commands_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_WO(commands);
 
+static ssize_t uart_commands_store(struct device *dev, struct device_attribute *attr,
+				const char *buf, size_t count)
+{
+	struct aic_dsi_comp *comp = aic_dsi_request_drvdata();
+	struct dsi_command *commands = &comp->commands;
+	char *new_buf;
+	size_t new_len = 0;
+	int ret = 0;
+	bool commands_key;
+
+	if (count > 2) {
+		if (!commands->buf) {
+			commands->buf = kmalloc(count, GFP_KERNEL);
+			if (!commands->buf) {
+				pr_err("Failed to malloc commands buf\n");
+				return -ENOMEM;
+			}
+			commands->len = 0;
+		} else {
+			new_len = commands->len + count;
+			new_buf = krealloc(commands->buf, new_len, GFP_KERNEL);
+			if (!new_buf) {
+				pr_err("Failed to realloc commands buf\n");
+				return -ENOMEM;
+			}
+			commands->buf = new_buf;
+		}
+
+		ret = hex2bin(commands->buf + commands->len, buf, count / 2);
+		if (ret < 0) {
+			pr_err("Failed to convert hex to bin\n");
+			return ret;
+		}
+
+		commands->len += count / 2;
+	} else {
+		ret = kstrtobool(buf, &commands_key);
+		if (commands_key) {
+			commands->len = 0;
+			kfree(commands->buf);
+		}
+	}
+
+	return count;
+}
+static DEVICE_ATTR_WO(uart_commands);
+
 #define DSI_LINE_CFG(field)						\
 static ssize_t								\
 field##_show(struct device *dev, struct device_attribute *devattr, char *buf) \
@@ -432,6 +479,7 @@ static struct attribute *aic_dsi_attrs[] = {
 	&dev_attr_dc_inv.attr,
 	&dev_attr_vc_num.attr,
 	&dev_attr_commands.attr,
+	&dev_attr_uart_commands.attr,
 	&dev_attr_command_on.attr,
 	NULL
 };

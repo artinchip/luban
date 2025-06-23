@@ -274,8 +274,10 @@ static int spi_nand_show_logo(struct spinand_device *spinand)
 	}
 
 	ret = spi_nand_load_logo(spinand, &dst, &len);
+#ifndef CONFIG_USERID_SUPPORT
 	if (ret)
 		goto out;
+#endif
 
 	if (dst[1] == 'P' || dst[2] == 'N' || dst[3] == 'G')
 		aic_png_decode(dst, len);
@@ -284,8 +286,10 @@ static int spi_nand_show_logo(struct spinand_device *spinand)
 	else
 		pr_err("Invaild logo file format, need a png/jpeg image\n");
 
+#ifndef CONFIG_USERID_SUPPORT
 out:
 	aicfb_update_ui_layer(dev);
+#endif
 	aicfb_startup_panel(dev);
 
 	return ret;

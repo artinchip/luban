@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <time.h>
 #include <env.h>
 #include <gzip.h>
 #include <part.h>
@@ -15,6 +16,7 @@ static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
+	unsigned long int start, delta;
 
 	switch (argc) {
 		case 4:
@@ -28,9 +30,13 @@ static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_USAGE;
 	}
 
+	start = get_timer(0);
 	if (gunzip((void *) dst, dst_len, (void *) src, &src_len) != 0)
 		return 1;
 
+	delta = get_timer(start);
+	printf("Decrompess OK, raw image length %lu, time %lu ms\n", src_len,
+	       delta);
 	printf("Uncompressed size: %lu = 0x%lX\n", src_len, src_len);
 	env_set_hex("filesize", src_len);
 

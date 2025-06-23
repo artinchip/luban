@@ -1,0 +1,59 @@
+/*hazard-content-border*/
+*[class~="hazard-d/hazardstatement"] th,
+*[class~="hazard-d/hazardstatement"] td {
+  border: 0;
+}
+/*hazard-borders-thick*/
+*[class~="hazard-d/hazardstatement"] {
+  border-width: thick;
+}
+/*hazard-colors-light*/
+*[class~="hazard-d/hazardstatement"],
+*[class~="hazard-d/hazardstatement"] th,
+*[class~="hazard-d/hazardstatement"] td {
+  border-color: #707070;
+}
+*[class~="hazard-d/hazardstatement"].hazardstatement_danger th {
+  background-color: #ff3636;
+}
+*[class~="hazard-d/hazardstatement"].hazardstatement_warning th {
+  background-color: #ffae5a;
+}
+*[class~="hazard-d/hazardstatement"].hazardstatement_caution th {
+  background-color: #ffdf4d;
+}
+*[class~="hazard-d/hazardstatement"] th {
+  background-color: #1c99ff;
+}
+/*notes-layout-two-lines*/
+span.note__title {
+  display: block;
+  margin-bottom: 2mm;
+}
+/*notes-style-burger*/
+*[class~="topic/note"]:not([class~="hazard-d/hazardstatement"]) {
+  border: 1px solid;
+  border-radius: 10px;
+}
+/*notes-colors-colorful*/
+*[class~="topic/note"]:not([class~="hazard-d/hazardstatement"]) {
+  background-color: rgba(0, 120, 160, 0.09);
+  border-color: #daeef5;
+}
+*[class~="topic/note"].note_danger,
+*[class~="topic/note"].note_caution {
+  background-color: rgba(255, 202, 45, 0.1);
+  border-color: #606060;
+}
+*[class~="topic/note"].note_warning,
+*[class~="topic/note"].note_attention,
+*[class~="topic/note"].note_important {
+  background-color: rgba(255, 202, 45, 0.1);
+  border-color: #FFCA2D;
+}
+*[class~="topic/note"].note_restriction {
+  background-color: rgba(255, 226, 225, 0.32);
+  border-color: #FF342D;
+}
+
+

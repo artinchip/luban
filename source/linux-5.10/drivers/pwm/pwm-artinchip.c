@@ -798,7 +798,7 @@ static int aic_pwm_probe(struct platform_device *pdev)
 			       0, AIC_PWM_NAME, apwm);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to request IRQ %d\n", irq);
-		goto free_irq;
+		goto out_disable_rst;
 	}
 	apwm->irq = irq;
 
@@ -807,7 +807,7 @@ static int aic_pwm_probe(struct platform_device *pdev)
 	apwm->attrs.attrs = aic_pwm_attr;
 	ret = sysfs_create_group(&pdev->dev.kobj, &apwm->attrs);
 	if (ret)
-		goto free_irq;
+		goto out_disable_rst;
 
 	apwm->chip.dev = &pdev->dev;
 	apwm->chip.ops = &aic_pwm_ops;
@@ -818,26 +818,26 @@ static int aic_pwm_probe(struct platform_device *pdev)
 	ret = pwmchip_add(&apwm->chip);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
-		goto free_irq;
+		goto out_disable_rst;
 	}
 
 	pwm_reg_enable(apwm->regs, PWM_CTL, PWM_CTL_EN, 1);
 	ret = aic_pwm_parse_dt(&pdev->dev);
 	if (ret)
-		goto free_irq;
+		goto out_pwmchip_remove;
 
 	ret = clk_set_rate(apwm->clk, apwm->clk_rate);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to set clk_rate %ld\n",
 			apwm->clk_rate);
-		goto free_irq;
+		goto out_pwmchip_remove;
 	}
 
 	dev_info(&pdev->dev, "ArtInChip PWM Loaded.\n");
 	return 0;
 
-free_irq:
-	free_irq(apwm->irq, apwm);
+out_pwmchip_remove:
+	pwmchip_remove(&apwm->chip);
 out_disable_rst:
 	reset_control_assert(apwm->rst);
 out_disable_clk:
@@ -850,8 +850,6 @@ static int aic_pwm_remove(struct platform_device *pdev)
 	struct aic_pwm_chip *apwm = platform_get_drvdata(pdev);
 
 	pwmchip_remove(&apwm->chip);
-
-	free_irq(apwm->irq, apwm);
 	reset_control_assert(apwm->rst);
 	clk_unprepare(apwm->clk);
 

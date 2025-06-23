@@ -224,6 +224,30 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 	return (data_size + info->bl_len - 1) / info->bl_len;
 }
 
+static int fit_image_uncipher(const void *fit, int image_noffset,
+			      void **data, size_t *size)
+{
+	int cipher_noffset, ret;
+	void *dst;
+	size_t size_dst;
+
+	cipher_noffset = fdt_subnode_offset(fit, image_noffset,
+					    FIT_CIPHER_NODENAME);
+	if (cipher_noffset < 0)
+		return 0;
+
+	ret = fit_image_decrypt_data(fit, image_noffset, cipher_noffset,
+				     *data, *size, &dst, &size_dst);
+	if (ret)
+		goto out;
+
+	*data = dst;
+	*size = size_dst;
+
+ out:
+	return ret;
+}
+
 /**
  * spl_load_fit_image(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
@@ -320,6 +344,22 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		       fit_get_name(fit, node, NULL));
 		if (!fit_image_verify_with_data(fit, node, src, length))
 			return -EPERM;
+		puts("OK\n");
+	}
+
+	/* get image data address and length */
+	if (fit_image_get_data_and_size(fit, node,
+					(const void **)&src, &length)) {
+		printf("Could not find %s subimage data!\n", fit_get_name(fit, node, NULL));
+		return -ENOENT;
+	}
+
+	if (IS_ENABLED(CONFIG_FIT_CIPHER) && IMAGE_ENABLE_DECRYPT) {
+		puts("   Decrypting Data ... ");
+		if (fit_image_uncipher(fit, node, &src, &length)) {
+			puts("Error\n");
+			return -EACCES;
+		}
 		puts("OK\n");
 	}
 

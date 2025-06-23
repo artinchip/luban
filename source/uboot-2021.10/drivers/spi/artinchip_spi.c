@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2022, ArtInChip Technology Co., Ltd
- * Dehuang Wu <dehuang.wu@artinchip.com>
+ * Copyright (c) 2022-2025, ArtInChip Technology Co., Ltd
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Dehuang Wu <dehuang.wu@artinchip.com>
  */
 
 #include <common.h>
@@ -32,6 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPI_REG_VER(priv)       (priv->base + 0x00)
 #define SPI_REG_GCR(priv)       (priv->base + 0x04)
 #define SPI_REG_TCR(priv)       (priv->base + 0x08)
+#define SPI_REG_PHC(priv)       (priv->base + 0x0c)
 #define SPI_REG_ICR(priv)       (priv->base + 0x10)
 #define SPI_REG_ISR(priv)       (priv->base + 0x14)
 #define SPI_REG_FCR(priv)       (priv->base + 0x18)
@@ -71,6 +72,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TCR_RX_SAMPDLY_NONE     (TCR_BIT_RXDLY_DIS)
 #define TCR_RX_SAMPDLY_HALF     (0)
 #define TCR_RX_SAMPDLY_ONE      (TCR_BIT_RXINDLY_EN)
+
+#define PHC_BIT_TX_CLK_MSK      GENMASK(2, 0)
+#define PHC_BIT_RX_DATA_OFF     (4)
+#define PHC_BIT_RX_DATA_MSK     GENMASK(7, 4)
+#define PHC_BIT_RX_PHA_MSK      BIT(12)
+#define PHC_BIT_TX_DATA_MSK     BIT(14)
+#define PHC_BIT_TX_PHA_MSK      BIT(15)
 
 #define FCR_BIT_RX_LEVEL_MSK    GENMASK(7, 0)
 #define FCR_BIT_RX_DMA_EN       BIT(8)
@@ -144,7 +152,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define AIC_SPI_RX_WL           0x20
 #define AIC_SPI_TX_WL           0x20
 
-#define AIC_SPI_MAX_RATE        144000000
+#define AIC_SPI_MAX_RATE        200000000
 #define AIC_SPI_MIN_RATE        3000
 #define AIC_SPI_DEFAULT_RATE    24000000
 #define AIC_SPI_TIMEOUT_US      1000000
@@ -161,10 +169,28 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OPCODE 0xbb
 #define SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OPCODE 0xeb
 
+enum aic_spi_rx_delay_mode {
+	RX_SAMP_DLY_0P,
+	RX_SAMP_DLY_90P,
+	RX_SAMP_DLY_180P,
+	RX_SAMP_DLY_270P,
+	RX_SAMP_DLY_360P,
+	RX_SAMP_DLY_450P,
+	RX_SAMP_DLY_540P,
+	RX_SAMP_DLY_630P,
+	RX_SAMP_DLY_720P,
+	RX_SAMP_DLY_810P,
+	RX_SAMP_DLY_900P,
+	RX_SAMP_DLY_990P,
+	RX_SAMP_DLY_1080P,
+	RX_SAMP_DLY_AUTOP
+};
+
 struct aic_spi_data {
 	u32 fifo_depth;
 	bool has_soft_reset;
 	bool has_burst_ctl;
+	bool has_pahse_ctl;
 };
 
 struct aic_spi_platdata {
@@ -175,6 +201,8 @@ struct aic_spi_platdata {
 	void __iomem *base;
 	u32 max_hz;
 	u32 rx_samp_dly;
+	u32 tx_samp_dly;
+	u32 tx_clk_dly;
 };
 
 struct aic_spi_priv {
@@ -185,6 +213,8 @@ struct aic_spi_priv {
 	u32 freq;
 	u32 mode;
 	u32 rx_samp_dly;
+	u32 tx_samp_dly;
+	u32 tx_clk_dly;
 
 #ifdef CONFIG_ARTINCHIP_DMA
 	/* DMA */
@@ -665,15 +695,15 @@ static u32 spi_get_best_div_param(u32 spiclk, u32 mclk, u32 *div)
 	if (cdr2 > 0xFF)
 		cdr2 = 0xFF;
 
-	cdr2_clk = mclk / (2 * cdr2 + 1);
+	cdr2_clk = mclk / (2 * (cdr2 + 1));
 	if ((cdr2 < 0xFF) && (cdr2_clk > spiclk)) {
-		cdr2_clkt = mclk / (2 * (cdr2 + 1) + 1);
+		cdr2_clkt = mclk / (2 * (cdr2 + 1));
 		if ((spiclk - cdr2_clkt) < (cdr2_clk - spiclk))
 			cdr2++;
 	}
 
 	cdr1_clk = mclk >> cdr1;
-	cdr2_clk = mclk / (2 * cdr2 + 1);
+	cdr2_clk = mclk / (2 * (cdr2 + 1));
 
 	/* cdr1 param vs cdr2 param, use the best */
 	if (cdr1_clk == spiclk) {
@@ -709,16 +739,21 @@ static int aic_spi_set_speed(struct udevice *dev, uint speed)
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_CLK_ARTINCHIP)
 	struct aic_spi_platdata *plat = dev_get_plat(dev);
 	struct aic_spi_priv *priv = dev_get_priv(dev);
-	u32 reg, cdr, div;
+	u32 reg, cdr, div, mclk;
 
-	dev_info(dev, "speed %d\n", speed);
+	dev_info(dev, "speed %d plat->max_hz %d\n", speed, plat->max_hz);
 	if (speed > plat->max_hz)
 		speed = plat->max_hz;
 
 	if (speed < AIC_SPI_MIN_RATE)
 		speed = AIC_SPI_MIN_RATE;
 
-	cdr = spi_get_best_div_param(speed, plat->max_hz, &div);
+	if (priv->spi_data->has_pahse_ctl)
+		mclk = plat->max_hz / 2;
+	else
+		mclk = plat->max_hz;
+
+	cdr = spi_get_best_div_param(speed, mclk, &div);
 
 	reg = readl(SPI_REG_CCR(priv));
 	if (cdr == 0) {
@@ -799,6 +834,29 @@ static int aic_spi_set_mode(struct udevice *dev, uint mode)
 		reg |= TCR_RX_SAMPDLY_ONE;
 	}
 	writel(reg, SPI_REG_TCR(priv));
+
+	reg = readl(SPI_REG_PHC(priv));
+	if (priv->spi_data->has_pahse_ctl) {
+		if (priv->rx_samp_dly == RX_SAMP_DLY_AUTOP) {
+			if (priv->freq <= 24000000) {
+				priv->rx_samp_dly = RX_SAMP_DLY_0P;
+			} else if (priv->freq <= 60000000) {
+				/* Delay half cycle to sample input */
+				priv->rx_samp_dly = RX_SAMP_DLY_180P;
+			} else {
+				/* Delay 1 cycle to sample input */
+				priv->rx_samp_dly = RX_SAMP_DLY_360P;
+			}
+		}
+		reg &= ~(PHC_BIT_TX_CLK_MSK |  PHC_BIT_RX_DATA_MSK | PHC_BIT_TX_DATA_MSK);
+		reg |= priv->rx_samp_dly << PHC_BIT_RX_DATA_OFF;
+		reg |= priv->tx_clk_dly & PHC_BIT_TX_CLK_MSK;
+		if (priv->tx_samp_dly)
+			reg |= PHC_BIT_TX_DATA_MSK;
+	} else {
+		reg |= PHC_BIT_TX_PHA_MSK | PHC_BIT_RX_PHA_MSK;
+	}
+	writel(reg, SPI_REG_PHC(priv));
 
 	val = (mode & (SPI_TX_DUAL | SPI_RX_DUAL));
 	if ((val > 0) && val != (SPI_TX_DUAL | SPI_RX_DUAL)) {
@@ -1022,6 +1080,8 @@ static int aic_spi_probe(struct udevice *bus)
 	priv->base = plat->base;
 	priv->freq = plat->max_hz;
 	priv->rx_samp_dly = plat->rx_samp_dly;
+	priv->tx_samp_dly = plat->tx_samp_dly;
+	priv->tx_clk_dly = plat->tx_clk_dly;
 
 	ret = aic_spi_set_clock(bus, true);
 	if (ret) {
@@ -1037,6 +1097,68 @@ static int aic_spi_probe(struct udevice *bus)
 	return ret;
 }
 
+static int aic_spi_parse_sample_phase(struct udevice *bus, u32 rx_sample_dly,
+					u32 tx_sample_dly, u32 tx_clk_dly)
+{
+	struct aic_spi_platdata *plat = dev_get_plat(bus);
+
+	switch (rx_sample_dly) {
+	case 0:
+		plat->rx_samp_dly = RX_SAMP_DLY_0P;
+		break;
+	case 90:
+		plat->rx_samp_dly = RX_SAMP_DLY_90P;
+		break;
+	case 180:
+		plat->rx_samp_dly = RX_SAMP_DLY_180P;
+		break;
+	case 270:
+		plat->rx_samp_dly = RX_SAMP_DLY_270P;
+		break;
+	case 360:
+		plat->rx_samp_dly = RX_SAMP_DLY_360P;
+		break;
+	default:
+		plat->rx_samp_dly = RX_SAMP_DLY_AUTOP;
+		break;
+	}
+
+	switch (tx_clk_dly) {
+	case 0:
+		plat->tx_clk_dly = 0;
+		break;
+	case 90:
+		plat->tx_clk_dly = 1;
+		break;
+	case 180:
+		plat->tx_clk_dly = 2;
+		break;
+	case 270:
+		plat->tx_clk_dly = 3;
+		break;
+	case 360:
+		plat->tx_clk_dly = 4;
+		break;
+	default:
+		plat->tx_clk_dly = 0;
+		break;
+	}
+
+	switch (tx_sample_dly) {
+	case 0:
+		plat->tx_samp_dly = 0;
+		break;
+	case 180:
+		plat->tx_samp_dly = 1;
+		break;
+	default:
+		plat->tx_samp_dly = 0;
+		break;
+	}
+
+	return 0;
+}
+
 static int aic_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct aic_spi_platdata *plat = dev_get_plat(bus);
@@ -1045,29 +1167,47 @@ static int aic_spi_ofdata_to_platdata(struct udevice *bus)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int node = dev_of_offset(bus);
 	const char *dly = NULL;
+	u32 rx_sample_dly, tx_sample_dly, tx_clk_dly;
 
 	plat->base = (void *)devfdt_get_addr(bus);
+	plat->spi_data = (struct aic_spi_data *)dev_get_driver_data(bus);
 	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node, "spi-max-frequency",
 				      AIC_SPI_DEFAULT_RATE);
 	if (plat->max_hz > AIC_SPI_MAX_RATE)
 		plat->max_hz = AIC_SPI_MAX_RATE;
-	dly = fdt_getprop(gd->fdt_blob, node, "aic,rx-samp-dly", NULL);
-	if (dly  && !strcmp(dly, "none"))
-		plat->rx_samp_dly = RX_SAMP_DLY_NONE;
-	if (dly  && !strcmp(dly, "half"))
-		plat->rx_samp_dly = RX_SAMP_DLY_HALF_CYCLE;
-	if (dly  && !strcmp(dly, "one"))
-		plat->rx_samp_dly = RX_SAMP_DLY_ONE_CYCLE;
+
+	if (!(plat->spi_data->has_pahse_ctl)) {
+		dly = fdt_getprop(gd->fdt_blob, node, "aic,rx-samp-dly", NULL);
+		if (dly  && !strcmp(dly, "none"))
+			plat->rx_samp_dly = RX_SAMP_DLY_NONE;
+		if (dly  && !strcmp(dly, "half"))
+			plat->rx_samp_dly = RX_SAMP_DLY_HALF_CYCLE;
+		if (dly  && !strcmp(dly, "one"))
+			plat->rx_samp_dly = RX_SAMP_DLY_ONE_CYCLE;
+	} else {
+		rx_sample_dly = fdtdec_get_int(gd->fdt_blob, node, "aic,rx-samp-dly", 0);
+		tx_sample_dly = fdtdec_get_int(gd->fdt_blob, node, "aic,tx-data-dly", 0);
+		tx_clk_dly = fdtdec_get_int(gd->fdt_blob, node, "aic,tx-clk-dly", 0);
+
+		aic_spi_parse_sample_phase(bus, rx_sample_dly, tx_sample_dly, tx_clk_dly);
+	}
 #endif
-	plat->spi_data = (struct aic_spi_data *)dev_get_driver_data(bus);
 
 	return 0;
 }
 
-static const struct aic_spi_data aic_spi_data = {
+static const struct aic_spi_data aic_spi_data_v1 = {
 	.fifo_depth     = 64,
 	.has_soft_reset = true,
 	.has_burst_ctl  = true,
+	.has_pahse_ctl  = false,
+};
+
+static const struct aic_spi_data aic_spi_data_v2 = {
+	.fifo_depth     = 64,
+	.has_soft_reset = true,
+	.has_burst_ctl  = true,
+	.has_pahse_ctl  = true,
 };
 
 static const struct spi_controller_mem_ops aic_spi_mem_ops = {
@@ -1087,7 +1227,11 @@ static const struct dm_spi_ops aic_spi_ops = {
 static const struct udevice_id aic_spi_ids[] = {
 	{
 		.compatible = "artinchip,aic-spi-v1.0",
-		.data       = (ulong)&aic_spi_data,
+		.data       = (ulong)&aic_spi_data_v1,
+	},
+	{
+		.compatible = "artinchip,aic-spi-v2.0",
+		.data       = (ulong)&aic_spi_data_v2,
 	},
 	{}
 };

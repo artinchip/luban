@@ -1,0 +1,168 @@
+
+/*between-elements-medium*/
+*[class~='topic/p'],
+*[class~='topic/lq'],
+*[class~='topic/note'],
+*[class~='topic/dl'],
+*[class~='topic/ul'],
+*[class~='topic/ol'],
+*[class~='topic/li'],
+*[class~='topic/sl'],
+*[class~='topic/pre'],
+*[class~='topic/lines'],
+*[class~='topic/fig'],
+*[class~='topic/table'],
+*[class~='topic/simpletable'],
+*[class~='topic/section'],
+*[class~='topic/example'] {
+  margin: 0.95em 0;
+}
+
+
+
+/*colors for codedeph*/
+*[class~='pr-d/codeph'], *[class~='codeph'] {
+	font-family: 'Consolas', monospace !important;
+	color:#343a40;
+  background-color: #eee;
+  font-size: smaller;
+  }
+
+/*code-font-consolas*/
+*[class~='pr-d/codeblock'],
+*[class~='codeblock'] {
+  font-family: 'Consolas', monospace !important;
+  padding:2px 0;
+  font-size: small;
+}
+
+pre, 
+pre.codeblock{
+  overflow: auto;
+  font-family: 'Consolas', monospace !important;
+}
+
+/**filepath-font-monospace*/
+*[class~='+topic/phsw-d/filepath'],
+.filepath {
+  font-family: 'Courier', monospace;
+  font-size: smaller;
+	font-weight: 400;
+	display: inline;
+	font-style: normal;
+	color: #c7254e;
+	}
+
+
+
+/*elements*/
+*[class~='uicontrol'],
+*[class="+ topic/ph ui-d/menucascade ph menucascade"],
+*[class="+ topic/ph ui-d/uicontrol ph uicontrol"]{
+  display: inline;
+  font-weight: 700;
+}
+
+*[class~='userinput']{
+  font-family: monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+*[class="+ topic/ph hi-d/b ph b"]{
+  font-weight: 700;
+  font-family: 'SFMono-Regular', 'Consolas', Helvetica, sans-serif;
+}
+
+
+*[class="+ topic/keyword pr-d/parmname keyword parmname"],
+.kwd, .parmname {
+font-family: 'Consolas', monospace, 'Consolas', serif, sans-serif;
+font-size: small;
+font-weight: 700;
+}
+
+*[class="+ topic/keyword pr-d/apiname keyword apiname"],
+.apiname {
+  font-family: 'Menlo', Monaco,Consolas, Courier New, monospace;
+  font-weight: 500;
+}
+
+
+*[class~='cite']{
+  display: inline;
+  font-weight: 500;
+  font-style: italic bold;
+}
+
+
+
+/* 使用伪元素来添加尖括号 */
+*[class="+ topic/keyword sw-d/varname keyword varname"],
+var {
+  display: inline;
+  font-style: italic;
+  font-family: monospace;
+}
+
+var::before,
+var::after {
+  content: "<";
+}
+
+var::after {
+  content: ">";
+}
+
+
+
+/* Colors for DITA documets resulted from OpenAPI conversion */
+*[class~='openapi-method-post'],
+*[class~='openapi-method-patch'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-post'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-patch'] {
+    background-color: #66806b; 
+}
+
+*[class~='openapi-method-get'],
+*[class~='openapi-method-options'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-get'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-options'] {
+    background-color: #70818c;
+}
+
+*[class~='openapi-method-delete'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-delete']{
+    background-color: #997c79;
+}
+
+*[class~='openapi-method-put'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-put']{
+    background-color: #998d77;
+}
+
+*[class~='openapi-method-head'],
+*[class~='wh_topic_toc'] *[class~='openapi-operation-method-head']{
+    background-color: #624980;
+}
+
+
+/* math style*/
+math {
+  font-family: "FangZhengShuSong", sans-serif, Latin Modern Math, STIX Two Math;
+}
+
+
+
+/* CSS rules to remove frames and borders from simpletable in dita files */
+*[class~='topic/simpletable'] {
+  border-style: none;
+}
+
+simpletable > * > tr,
+simpletable > * > td,
+simpletable > * > th {
+  border-style: none;
+}
+
+.stentry {
+    border-bottom: 1px solid;
+}

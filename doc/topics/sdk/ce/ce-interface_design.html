@@ -1,0 +1,668 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="表 1 . aic_skcipher_alg_init 函数原型 int aic_skcipher_alg_init(struct crypto_skcipher *tfm) 功能说明 对称密钥算法的初始化函数 参数定义 struct crypto_skcipher *tfm 算法实例指针 返回值 0: 成功 其他: 失败 注意事项 - 表 2 . aic_skcipher_alg_exit ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/ce/ce-design_intro.html"/><meta name="DC.relation" content="../../../topics/sdk/ce/ce_data_struct.html"/><meta name="DC.relation" content="../../../topics/sdk/ce/ce-demo.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="ce_interface_design"/><meta name="DC.language" content="zh-CN"/><title>接口设计</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="ce_interface_design-d4445e8087"/><meta name="wh-source-relpath" content="topics/sdk/ce/ce-interface_design.dita"/><meta name="wh-out-relpath" content="topics/sdk/ce/ce-interface_design.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="ce_interface_design" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="chapter-safety"><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="ce_user_guide"><div class="title"><a href="../../../topics/sdk/ce/ce_user_guide.html">CE 使用指南</a></div></div></li><li><div class="topicref" data-id="ce_design_intro"><div class="title"><a href="../../../topics/sdk/ce/ce-design_intro.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="ce_interface_design"><div class="title"><a href="../../../topics/sdk/ce/ce-interface_design.html">接口设计</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/ce/ce_data_struct.html" title="数据结构设计" aria-label="上一主题: 数据结构设计" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/ce/ce-demo.html" title="应用编程" aria-label="下一主题: 应用编程" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="ce_user_guide-d4445e7961" class="topicref" data-id="ce_user_guide" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ce_user_guide-d4445e7961-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_user_guide.html" id="ce_user_guide-d4445e7961-link">CE 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ce_configuration-d4445e7975" class="topicref" data-id="ce_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_config.html" id="ce_configuration-d4445e7975-link">CE 配置</a></div></div></li><li role="treeitem"><div data-tocid="ce_debug_guide-d4445e7989" class="topicref" data-id="ce_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_debug.html" id="ce_debug_guide-d4445e7989-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="ce_test_guide-d4445e8003" class="topicref" data-id="ce_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_test.html" id="ce_test_guide-d4445e8003-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="ce_design_intro-d4445e8017" class="topicref" data-id="ce_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action ce_design_intro-d4445e8017-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce-design_intro.html" id="ce_design_intro-d4445e8017-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="ce_architecture-d4445e8031" class="topicref" data-id="ce_architecture" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_architecture.html" id="ce_architecture-d4445e8031-link">模块架构</a></div></div></li><li role="treeitem"><div data-tocid="ce_key_design_intro-d4445e8045" class="topicref" data-id="ce_key_design_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce-key_design_intro.html" id="ce_key_design_intro-d4445e8045-link">设计要点</a></div></div></li><li role="treeitem"><div data-tocid="ce_key_procedures-d4445e8059" class="topicref" data-id="ce_key_procedures" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce-key_procedures.html" id="ce_key_procedures-d4445e8059-link">关键流程设计</a></div></div></li><li role="treeitem"><div data-tocid="ce_data_structure_design-d4445e8073" class="topicref" data-id="ce_data_structure_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce_data_struct.html" id="ce_data_structure_design-d4445e8073-link">数据结构设计</a></div></div></li><li role="treeitem" class="active"><div data-tocid="ce_interface_design-d4445e8087" class="topicref" data-id="ce_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce-interface_design.html" id="ce_interface_design-d4445e8087-link">接口设计</a></div></div></li><li role="treeitem"><div data-tocid="ce_demo-d4445e8101" class="topicref" data-id="ce_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ce/ce-demo.html" id="ce_demo-d4445e8101-link">应用编程</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="efuse_user_guide-d4445e8115" class="topicref" data-id="efuse_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action efuse_user_guide-d4445e8115-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/efuse/efuse_user_guide.html" id="efuse_user_guide-d4445e8115-link">eFuse 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi_enc_user_guide-d4445e8185" class="topicref" data-id="spi_enc_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi_enc_user_guide-d4445e8185-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spienc/spi-enc-user-guide.html" id="spi_enc_user_guide-d4445e8185-link">SPI ENC</a></div></div></li></ul></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/ce/ce-interface_design.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">接口设计</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_vbq_pby_21c" data-ofbid="ce_interface_design__table_vbq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_skcipher_alg_init</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_skcipher_alg_init(struct crypto_skcipher *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">对称密钥算法的初始化函数</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_skcipher *tfm 算法实例指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_mzs_w4d_ccc" data-ofbid="ce_interface_design__ul_mzs_w4d_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e82__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e85__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_wbq_pby_21c" data-ofbid="ce_interface_design__table_wbq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_skcipher_alg_exit</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">void aic_skcipher_alg_exit(struct crypto_skcipher *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">对称密钥算法使用完毕，释放相关资源</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_skcipher *tfm 算法实例指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">无</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_xbq_pby_21c" data-ofbid="ce_interface_design__table_xbq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_skcipher_alg_setkey</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_skcipher_alg_setkey(struct crypto_skcipher *tfm, const u8
+                                *key, unsigned int keylen)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">设置对称密钥算法的密钥</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_vzr_wvd_ccc" data-ofbid="ce_interface_design__ul_vzr_wvd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e204__20250123155219">struct crypto_skcipher *tfm 算法实例指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e207__20250123155219">const u8 *key 密钥的指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e210__20250123155219">keylen 密钥的长度</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccc" data-ofbid="ce_interface_design__ul_d1d_cpd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e225__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e228__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_ybq_pby_21c" data-ofbid="ce_interface_design__table_ybq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_skcipher_crypt</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_skcipher_crypt(struct skcipher_request *req, unsigned
+                                long flg)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">发起一个对称密钥算法的加解密处理的请求</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_nmd_wvd_ccc" data-ofbid="ce_interface_design__ul_nmd_wvd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e286__20250123155219">struct skcipher_request *req 加解密请求的指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e289__20250123155219">flg 算法标记，用来标识算法类型和算法模式</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccr" data-ofbid="ce_interface_design__ul_d1d_cpd_ccr">
+                                    <li class="- topic/li li" data-ofbid="d177345e304__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e307__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_zbq_pby_21c" data-ofbid="ce_interface_design__table_zbq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 5</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_alg_init</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_akcipher_rsa_alg_init(struct crypto_akcipher
+                                *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">RSA 算法初始化</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_akcipher *tfm 算法实例的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccd" data-ofbid="ce_interface_design__ul_d1d_cpd_ccd">
+                                    <li class="- topic/li li" data-ofbid="d177345e374__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e377__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_acq_pby_21c" data-ofbid="ce_interface_design__table_acq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 6</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_alg_exit</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">void aic_akcipher_rsa_alg_exit(struct crypto_akcipher
+                                *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">RSA 算法使用完毕，释放相关资源</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_akcipher *tfm 算法实例的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">无</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_bcq_pby_21c" data-ofbid="ce_interface_design__table_bcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 7</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_set_pub_key</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_akcipher_rsa_set_pub_key(struct crypto_akcipher *tfm,
+                                const void *key,unsigned int keylen)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">设置 RSA 算法的公钥</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_sr4_5vd_ccc" data-ofbid="ce_interface_design__ul_sr4_5vd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e497__20250123155219">struct crypto_akcipher *tfm 算法实例指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e500__20250123155219">const void *key 密钥数据的指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e503__20250123155219">keylen 密钥的长度</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccf" data-ofbid="ce_interface_design__ul_d1d_cpd_ccf">
+                                    <li class="- topic/li li" data-ofbid="d177345e518__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e521__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_ccq_pby_21c" data-ofbid="ce_interface_design__table_ccq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 8</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_set_priv_key</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_akcipher_rsa_set_priv_key(struct crypto_akcipher *tfm,
+                                const void *key,unsigned int keylen)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">设置 RSA 算法的私钥</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_nzv_tvd_ccc" data-ofbid="ce_interface_design__ul_nzv_tvd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e579__20250123155219">struct crypto_akcipher *tfm 算法实例指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e582__20250123155219">const void *key 密钥数据的指针 </li>
+                                    <li class="- topic/li li" data-ofbid="d177345e585__20250123155219">keylen 密钥的长度</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_cc0" data-ofbid="ce_interface_design__ul_d1d_cpd_cc0">
+                                    <li class="- topic/li li" data-ofbid="d177345e600__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e603__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_dcq_pby_21c" data-ofbid="ce_interface_design__table_dcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 9</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_max_size</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_akcipher_rsa_max_size(struct crypto_akcipher
+                                *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">获取当前 RSA 算法的密钥长度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_akcipher *tfm 算法实例指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_cc2" data-ofbid="ce_interface_design__ul_d1d_cpd_cc2">
+                                    <li class="- topic/li li" data-ofbid="d177345e670__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e673__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_ecq_pby_21c" data-ofbid="ce_interface_design__table_ecq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 10</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_akcipher_rsa_crypt</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_akcipher_rsa_crypt(struct akcipher_request *req, unsigned
+                                long flag)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">发起一个 RSA 算法的加解密请求</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct akcipher_request *req 请求的指针 flag 算法标记</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_cc1" data-ofbid="ce_interface_design__ul_d1d_cpd_cc1">
+                                    <li class="- topic/li li" data-ofbid="d177345e740__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e743__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_fcq_pby_21c" data-ofbid="ce_interface_design__table_fcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 11</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_alg_init</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_alg_init(struct crypto_tfm *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">HASH 算法的初始化</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_tfm *tfm 算法实例的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccg" data-ofbid="ce_interface_design__ul_d1d_cpd_ccg">
+                                    <li class="- topic/li li" data-ofbid="d177345e810__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e813__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_gcq_pby_21c" data-ofbid="ce_interface_design__table_gcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 12</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_alg_exit</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">void aic_hash_alg_exit(struct crypto_tfm *tfm)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">HASH 算法使用完毕，释放相关资源</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct crypto_tfm *tfm 算法实例的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">无</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_hcq_pby_21c" data-ofbid="ce_interface_design__table_hcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 13</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_init</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_init(struct ahash_request *req)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">初始化一个 HASH 运算的操作</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct ahash_request *req<p class="- topic/p p" data-ofbid="d177345e931__20250123155219">HASH
+                                运算的请求，具体所使用的算法，根据消息摘要的大小决定</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_cce" data-ofbid="ce_interface_design__ul_d1d_cpd_cce">
+                                    <li class="- topic/li li" data-ofbid="d177345e944__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e947__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_icq_pby_21c" data-ofbid="ce_interface_design__table_icq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 14</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_update</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_update(struct ahash_request *req)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">更新一笔 HASH 运算的数据，用于数据分多次输入的场景</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct ahash_request *req<p class="- topic/p p" data-ofbid="d177345e1003__20250123155219">HASH 运算的请求，数据信息保存在该结构体中</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_cck" data-ofbid="ce_interface_design__ul_d1d_cpd_cck">
+                                    <li class="- topic/li li" data-ofbid="d177345e1016__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e1019__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_jcq_pby_21c" data-ofbid="ce_interface_design__table_jcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 15</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_final</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_final(struct ahash_request *req)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">HASH 运算的数据输入结束，获取结果</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct ahash_request *req<p class="- topic/p p" data-ofbid="d177345e1075__20250123155219">HASH 运算的请求，本请求不带数据，只获取结果</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_d1d_cpd_ccj" data-ofbid="ce_interface_design__ul_d1d_cpd_ccj">
+                                    <li class="- topic/li li" data-ofbid="d177345e1088__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e1091__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_kcq_pby_21c" data-ofbid="ce_interface_design__table_kcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 16</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_finup</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_finup(struct ahash_request *req)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">HASH 运算的最后一笔数据，并且获取结果</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct ahash_request *req<p class="- topic/p p" data-ofbid="d177345e1147__20250123155219">HASH
+                                运算的请求，本请求带最后一笔数据，并获取结果</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_wmp_fpd_ccc" data-ofbid="ce_interface_design__ul_wmp_fpd_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e1160__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e1163__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="ce_interface_design__table_lcq_pby_21c" data-ofbid="ce_interface_design__table_lcq_pby_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 17</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_hash_digest</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">函数原型</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">int aic_hash_digest(struct ahash_request *req)</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">针对一笔数据，完成 init 和 finup 的 HASH 运算操作，并获取结果</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">struct ahash_request *req<p class="- topic/p p" data-ofbid="d177345e1219__20250123155219">HASH
+                                运算的请求，本请求带最后一笔数据，并获取结果</p></td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1">
+                                <ul class="- topic/ul ul" id="ce_interface_design__ul_wt5_y4d_ccc" data-ofbid="ce_interface_design__ul_wt5_y4d_ccc">
+                                    <li class="- topic/li li" data-ofbid="d177345e1232__20250123155219">0: 成功</li>
+                                    <li class="- topic/li li" data-ofbid="d177345e1235__20250123155219">其他: 失败</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0">-</td>
+                        </tr>
+                    </tbody></table></div>
+        
+        
+        
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

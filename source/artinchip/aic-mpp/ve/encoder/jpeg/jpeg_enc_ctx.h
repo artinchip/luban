@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg enc context
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg enc context
+ */
 
 #ifndef JPEG_ENC_CTX_H
 #define JPEG_ENC_CTX_H
@@ -115,6 +117,7 @@ struct jpeg_ctx {
 	int comp_num;
 	int width;
 	int height;
+	int y_stride;
 	int quality;
 	int header_offset;
 

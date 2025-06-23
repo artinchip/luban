@@ -287,6 +287,7 @@ static int aic_pinctrl_probe(struct udevice *dev)
 static const struct udevice_id aic_pinctrl_ids[] = {
 	{ .compatible = "artinchip,aic-pinctrl-v0.1" },
 	{ .compatible = "artinchip,aic-pinctrl-v1.0" },
+	{ .compatible = "artinchip,aic-pinctrl-v1.3" },
 	{ /* sentinel */ }
 };
 

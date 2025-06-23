@@ -62,15 +62,6 @@ static void asr_rxbuffs_dealloc(struct asr_hw *asr_hw)
 	struct sk_buff *skb;
 
 #ifdef CONFIG_ASR_SDIO
-    #ifndef SDIO_RXBUF_SPLIT
-	while (!skb_queue_empty(&asr_hw->rx_sk_list)) {
-		skb = __skb_dequeue(&asr_hw->rx_sk_list);
-		if (skb) {
-			dev_kfree_skb(skb);
-			skb = NULL;
-		}
-	}
-	#else
 	while (!skb_queue_empty(&asr_hw->rx_data_sk_list)) {
 		skb = __skb_dequeue(&asr_hw->rx_data_sk_list);
 		if (skb) {
@@ -86,7 +77,14 @@ static void asr_rxbuffs_dealloc(struct asr_hw *asr_hw)
 			skb = NULL;
 		}
 	}
-	#endif
+
+	while (!skb_queue_empty(&asr_hw->rx_log_sk_list)) {
+		skb = __skb_dequeue(&asr_hw->rx_log_sk_list);
+		if (skb) {
+			dev_kfree_skb(skb);
+			skb = NULL;
+		}
+	}
 
     #ifdef SDIO_DEAGGR
 	while (!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_list)) {
@@ -96,6 +94,16 @@ static void asr_rxbuffs_dealloc(struct asr_hw *asr_hw)
 			skb = NULL;
 		}
 	}
+
+    #ifdef SDIO_DEAGGR_AMSDU
+	while (!skb_queue_empty(&asr_hw->rx_sk_sdio_deaggr_amsdu_list)) {
+		skb = skb_dequeue(&asr_hw->rx_sk_sdio_deaggr_amsdu_list);
+		if (skb) {
+			dev_kfree_skb(skb);
+			skb = NULL;
+		}
+	}
+	#endif
 	#endif
 #endif
 
@@ -135,6 +143,7 @@ static void asr_elems_deallocs(struct asr_hw *asr_hw)
  *
  * @param[in]   asr_hw   Pointer to main structure storing all the relevant information
  */
+extern bool asr_sdio_rw_sg;
 static int asr_elems_allocs(struct asr_hw *asr_hw)
 {
 	struct sk_buff *skb;
@@ -143,33 +152,23 @@ static int asr_elems_allocs(struct asr_hw *asr_hw)
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
 #ifdef CONFIG_ASR_SDIO
+    #ifdef SDIO_DEAGGR
+	if (asr_sdio_rw_sg == false)
+	#endif
+	{
+		// data rxbuf alloc
+		for (i = 0; i < asr_hw->ipc_env->rx_bufnb; i++) {
 
-    #ifndef SDIO_RXBUF_SPLIT
-	for (i = 0; i < asr_hw->ipc_env->rx_bufnb; i++) {
+			// Allocate a new sk buff
+			if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz, &skb)) {
+				dev_err(asr_hw->dev, "%s:%d: DATA MEM ALLOC FAILED\n", __func__, __LINE__);
+				goto err_alloc;
+			}
 
-		// Allocate a new sk buff
-		if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz, &skb)) {
-			dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
-			goto err_alloc;
+			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
+			// Add the sk buffer structure in the table of rx buffer
+			skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
 		}
-
-		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
-		// Add the sk buffer structure in the table of rx buffer
-		skb_queue_tail(&asr_hw->rx_sk_list, skb);
-	}
-	#else	
-	// data rxbuf alloc
-	for (i = 0; i < asr_hw->ipc_env->rx_bufnb; i++) {
-
-		// Allocate a new sk buff
-		if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz, &skb)) {
-			dev_err(asr_hw->dev, "%s:%d: DATA MEM ALLOC FAILED\n", __func__, __LINE__);
-			goto err_alloc;
-		}
-
-		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
-		// Add the sk buffer structure in the table of rx buffer
-		skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
 	}
 
     // msg rxbuf alloc, only one-port size.
@@ -186,7 +185,19 @@ static int asr_elems_allocs(struct asr_hw *asr_hw)
 		skb_queue_tail(&asr_hw->rx_msg_sk_list, skb);
 	}
 
-	#endif // SDIO_RXBUF_SPLIT
+	// log rxbuf alloc, only one-port size.
+	for (i = 0; i < IPC_LOG_RXBUF_CNT; i++) {
+
+		// Allocate a new sk buff
+		if (asr_rxbuff_alloc(asr_hw, IPC_LOG_RXBUF_SIZE, &skb)) {
+			dev_err(asr_hw->dev, "%s:%d: LOG MEM ALLOC FAILED\n", __func__, __LINE__);
+			goto err_alloc;
+		}
+
+		memset(skb->data, 0, IPC_LOG_RXBUF_SIZE);
+		// Add the sk buffer structure in the table of rx buffer
+		skb_queue_tail(&asr_hw->rx_log_sk_list, skb);
+	}
 
     #ifdef SDIO_DEAGGR
 	for (i = 0; i < asr_hw->ipc_env->rx_bufnb_sdio_deagg; i++) {
@@ -201,8 +212,22 @@ static int asr_elems_allocs(struct asr_hw *asr_hw)
 		// Add the sk buffer structure in the table of rx buffer
 		skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
 	}
+
+    #ifdef SDIO_DEAGGR_AMSDU
+	for (i = 0; i < asr_hw->ipc_env->rx_bufnb_sdio_deagg_amsdu; i++) {
+
+		// Allocate a new sk buff
+		if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu, &skb)) {
+			dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
+			goto err_alloc;
+		}
+
+		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu);
+		// Add the sk buffer structure in the table of rx buffer
+		skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_amsdu_list, skb);
+	}
 	#endif
-	
+	#endif
 #endif
 
     // rx_sk_split_list used for amsdu rx.
@@ -327,7 +352,7 @@ bool check_is_dhcp_package(struct asr_vif *asr_vif, bool is_tx, u16 eth_proto, u
 				*d_mac = data + 56;
 			}
 
-			if((ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION)&& !is_equal_mac_addr(asr_vif->asr_hw->mac_addr,*d_mac))
+			if((ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION)&& (d_mac &&!is_equal_mac_addr(asr_vif->asr_hw->mac_addr,*d_mac)))
 				return false;
 
 			dev_info(asr_vif->asr_hw->dev, "DHCP:%d,%d,%d,%d,%d,%d:%d:%d:%d,%02X:%02X:%02X:%02X:%02X:%02X\n",
@@ -367,15 +392,9 @@ u8 asr_msgind(void *pthis, void *hostid)
 		asr_rx_ate_handle(asr_hw, msg);
 	}
 #ifdef CONFIG_ASR_SDIO
-    #ifndef SDIO_RXBUF_SPLIT
-	memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
-	// Add the sk buffer structure in the table of rx buffer
-	skb_queue_tail(&asr_hw->rx_sk_list, skb);
-	#else
 	memset(skb->data, 0, IPC_MSG_RXBUF_SIZE);
 	// Add the sk buffer structure in the table of rx buffer
 	skb_queue_tail(&asr_hw->rx_msg_sk_list, skb);
-	#endif
 #else
 	dev_kfree_skb(skb);
 #endif
@@ -386,17 +405,15 @@ u8 asr_msgind(void *pthis, void *hostid)
                        struct asr_sta *asr_sta_tmp = g_asr_traffic_sts.asr_sta_ps;
 
                         // send msg may schedule.
-				if (g_asr_traffic_sts.ps_id_bits & LEGACY_PS_ID)
+				if (g_asr_traffic_sts.ps_id_bits & CO_BIT(LEGACY_PS_ID))
 					asr_set_traffic_status(asr_hw, asr_sta_tmp, g_asr_traffic_sts.tx_ava, LEGACY_PS_ID);
 
-				if (g_asr_traffic_sts.ps_id_bits & UAPSD_ID)
+				if (g_asr_traffic_sts.ps_id_bits & CO_BIT(UAPSD_ID))
 					asr_set_traffic_status(asr_hw, asr_sta_tmp, g_asr_traffic_sts.tx_ava, UAPSD_ID);
 
-				dev_err(asr_hw->dev," [ps]tx_ava=%d:sta-%d, uapsd=0x%x, (%d , %d) \r\n",
-				                                        g_asr_traffic_sts.tx_ava,
-				                                        asr_sta_tmp->sta_idx,asr_sta_tmp->uapsd_tids,
-														asr_sta_tmp->ps.pkt_ready[LEGACY_PS_ID],
-														asr_sta_tmp->ps.pkt_ready[UAPSD_ID]);
+				dev_err(asr_hw->dev," [ps]tx_ava=%d:sta-%d,uapsd=0x%x,ps_id=0x%X(%d , %d) \r\n",
+				        g_asr_traffic_sts.tx_ava,asr_sta_tmp->sta_idx,asr_sta_tmp->uapsd_tids,g_asr_traffic_sts.ps_id_bits,
+					asr_sta_tmp->ps.pkt_ready[LEGACY_PS_ID],asr_sta_tmp->ps.pkt_ready[UAPSD_ID]);
 		   }
 	}
 
@@ -422,13 +439,9 @@ u8 asr_dbgind(void *pthis, void *hostid)
 	printk("lmac--%s\n", (char *)dbg_msg->string);
 
 #ifdef CONFIG_ASR_SDIO
-	memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
+	memset(skb->data, 0, IPC_LOG_RXBUF_SIZE);
 	// Add the sk buffer structure in the table of rx buffer
-	#ifndef SDIO_RXBUF_SPLIT
-	skb_queue_tail(&asr_hw->rx_sk_list, skb);
-	#else
-	skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
-	#endif
+	skb_queue_tail(&asr_hw->rx_log_sk_list, skb);
 #else
 	dev_kfree_skb(skb);
 #endif
@@ -448,7 +461,7 @@ int asr_ipc_init(struct asr_hw *asr_hw)
 	/* initialize the API interface */
 	cb.recv_data_ind = asr_rxdataind;
 	cb.recv_msg_ind = asr_msgind;
-	cb.recv_dbg_ind = asr_dbgind;
+	cb.recv_dbg_ind = asr_dbgind;     //ipc_host_dbg_handler
 
 	/* set the IPC environment */
 	asr_hw->ipc_env = (struct ipc_host_env_tag *)

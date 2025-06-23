@@ -1,0 +1,999 @@
+
+ { "facets" : 
+  [ 
+   { "key" : "productSbjKey",
+    "navtitle" : "product",
+    "categories" : 
+    [ 
+     { "key" : "p1602",
+      "navtitle" : "",
+      "categories" : 
+      [ 
+       { "key" : "1602",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "D21x",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "D215",
+        "navtitle" : "",
+        "categories" : 
+        [  ] } ] },
+     
+     { "key" : "p1603",
+      "navtitle" : "",
+      "categories" : 
+      [ 
+       { "key" : "1603",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "D13x",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "M680x",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "G73x",
+        "navtitle" : "",
+        "categories" : 
+        [ 
+         { "key" : "G730BDU",
+          "navtitle" : "",
+          "categories" : 
+          [  ] } ] },
+       
+       { "key" : "JYX68",
+        "navtitle" : "",
+        "categories" : 
+        [  ] } ] },
+     
+     { "key" : "p1605",
+      "navtitle" : "",
+      "categories" : 
+      [ 
+       { "key" : "1605",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "D12x",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "JYX58",
+        "navtitle" : "",
+        "categories" : 
+        [  ] },
+       
+       { "key" : "TR230",
+        "navtitle" : "",
+        "categories" : 
+        [  ] } ] },
+     
+     { "key" : "p1606",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "p1608",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "p1609",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "p1610",
+      "navtitle" : "",
+      "categories" : 
+      [  ] } ] },
+   
+   { "key" : "audienceSbjKey",
+    "navtitle" : "audience",
+    "categories" : 
+    [ 
+     { "key" : "External",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Internal",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Developer",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Marketing",
+      "navtitle" : "",
+      "categories" : 
+      [  ] } ] },
+   
+   { "key" : "platformSbjKey",
+    "navtitle" : "platform",
+    "categories" : 
+    [ 
+     { "key" : "Luban",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Luban-Lite",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Baremetal",
+      "navtitle" : "",
+      "categories" : 
+      [  ] } ] },
+   
+   { "key" : "versiontSbjKey",
+    "navtitle" : "version",
+    "categories" : 
+    [ 
+     { "key" : "AHBCFG(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AHBCFG(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AHBCFG(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AHBCFG(1.3)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AXICFG(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AXICFG(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AXICFG(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "AXICFG(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(2.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DMA(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MTOP(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MTOP(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MTOP(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MBOX(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CE(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CE(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SPIENC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SPIENC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SPIENC(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SID(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SID(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SID(1.3)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SID(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DCE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DCE(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CMU(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CMU(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CMU(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SDMC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SDMC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SDMC(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XSPI(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XSPI(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XSPI(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DRAMC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DRAMC_PHYC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DE(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DE(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DE(1.3)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DE(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GE(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GE(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "VE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "VE(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "VE(4.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LCD(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LCD(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LCD(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LVDS(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LVDS(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "LVDS(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MIPI_CSI(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MIPI_DSI(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MIPI_DSI(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MIPI_DSI(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DVP(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DVP(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "DVP(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Audio(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Audio(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Audio(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Audio(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "I2S(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ISP(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TVE(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TVE(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TVE(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GTC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "WDOG(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "WDOG(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "WDOG(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTC(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTC(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWM(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWM(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWM(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWM(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XPWM(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XPWM(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "XPWM(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CAP(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CAP(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CAP(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GPT(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_DEV(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_DEV(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_DEV(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_DEV(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_DEV(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_HOST(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USB_HOST(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "USBFSOTG(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MAC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MAC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "MAC(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GMAC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GMAC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GMAC(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "QSPI(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "QSPI(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "QSPI(3.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "QSPI(4.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "QSPI(5.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "UART(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "UART(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "UART(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "I2C(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CAN(V1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CANFD(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CIR(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CIR(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PBUS(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PBUS(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PBUS(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "Ethercat(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ADCIM(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ADCIM(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ADCIM(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GPAI(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GPAI(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "GPAI(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "THS(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "THS(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "THS(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "THS(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "THS(2.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTP(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTP(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "RTP(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWMCS(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "PWMCS(2.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "HCL(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CPM(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "BISS_IF(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "BISS_IF(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TA_IF(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TA_IF(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "TA_IF(1.2)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CORDIC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CORDIC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ENDAT(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ENDAT(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ADC(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "ADC(1.1)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "SIM(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "FPGA(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "CMT(1.0)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(D12x)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(D13x)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(D21x)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(D215)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(G73x)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(M680x)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(G730BDU)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1602)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1603)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1605)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1606)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1608)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1609)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] },
+     
+     { "key" : "deliverable(1610)",
+      "navtitle" : "",
+      "categories" : 
+      [  ] } ] } ] }

@@ -217,6 +217,7 @@ struct artinchip_mmc {
 	u32			sample_delay;
 	u32			driver_phase;
 	u32			driver_delay;
+	u32			power_gpio;
 };
 
 /* DMA ops for Internal/External DMAC interface */
@@ -457,6 +458,10 @@ struct artinchip_mmc_board {
 #define SDMC_DLYCTRL_CLK_SMP_DLY_SHIFT	16
 #define SDMC_DLYCTRL_CLK_SMP_DLY_MAX \
 	(SDMC_DLYCTRL_CLK_SMP_DLY_MASK >> SDMC_DLYCTRL_CLK_SMP_DLY_SHIFT)
+/* CLKSEL register defines */
+#define SDMMC_DLYCTRL_CCLK_DRIVER(x)	(((x) & 3) << SDMC_DLYCTRL_CLK_DRV_PHA_SHIFT)
+#define SDMMC_DLYCTRL_CCLK_UP_DRIVER(x, y)	(((x) & ~SDMMC_DLYCTRL_CCLK_DRIVER(3)) |\
+					 SDMMC_DLYCTRL_CCLK_DRIVER(y))
 
 /* Version ID register define */
 #define SDMC_VERID_GET(x)		((x) & 0xFFFF)

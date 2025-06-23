@@ -1,0 +1,258 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="D21x 是一个 IC 系列， 是不同的引脚数和不同的 ddr 容量的组合，因此在进行 Bringup 的时候要确保配置的正确。 内存配置 型号区分 D21XXB：64M ddr2，譬如 D211BB D21XXC：128M ddr3， 譬如 D211BC, D213EC 注： 目前 SDK 可以自动 turning ddr 的型号并进行初始化，但在 board.dts ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/bringup/chapter-bringup.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-boot.html"/><meta name="DC.relation" content="../../../topics/sdk/bringup/bringup-display-screen-configuration.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="bringup_icConfiguration"/><meta name="DC.language" content="zh-CN"/><title>IC 配置</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="bringup_icConfiguration-d4445e2039"/><meta name="wh-source-relpath" content="topics/sdk/bringup/bringup-ic-configuration.dita"/><meta name="wh-out-relpath" content="topics/sdk/bringup/bringup-ic-configuration.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="bringup_icConfiguration" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li class="active"><div class="topicref" data-id="bringup_icConfiguration"><div class="title"><a href="../../../topics/sdk/bringup/bringup-ic-configuration.html">IC 配置</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/bringup/bringup-boot.html" title="刷机" aria-label="上一主题: 刷机" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html" title="屏幕配置" aria-label="下一主题: 屏幕配置" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="id-d4445e1981" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/lite-bringup-prepare.html" id="id-d4445e1981-link">准备工作</a></div></div></li><li role="treeitem"><div data-tocid="bringup_memoryConfiguration-d4445e1997" class="topicref" data-id="bringup_memoryConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-memory-config.html" id="bringup_memoryConfiguration-d4445e1997-link">存储配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_debugPortsConfiguration-d4445e2011" class="topicref" data-id="bringup_debugPortsConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-debug-ports-configuration.html" id="bringup_debugPortsConfiguration-d4445e2011-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_刷机-d4445e2025" class="topicref" data-id="bringup_刷机" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-boot.html" id="bringup_刷机-d4445e2025-link">刷机</a></div></div></li><li role="treeitem" class="active"><div data-tocid="bringup_icConfiguration-d4445e2039" class="topicref" data-id="bringup_icConfiguration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-ic-configuration.html" id="bringup_icConfiguration-d4445e2039-link">IC 配置</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="bringup_displayScreenConfiguration-d4445e2054" class="topicref" data-id="bringup_displayScreenConfiguration" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action bringup_displayScreenConfiguration-d4445e2054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-display-screen-configuration.html" id="bringup_displayScreenConfiguration-d4445e2054-link">屏幕配置</a></div></div></li><li role="treeitem"><div data-tocid="bringup_demo-d4445e2138" class="topicref" data-id="bringup_demo" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/bringup-demo.html" id="bringup_demo-d4445e2138-link">Demo</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/bringup/bringup-ic-configuration.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">IC
+        配置</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 3 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d96378e42__20250123155207">D21x 是一个 IC 系列， 是不同的引脚数和不同的 ddr 容量的组合，因此在进行 Bringup 的时候要确保配置的正确。<ol class="- topic/ol ol" id="bringup_icConfiguration__ol_pql_xwb_d1c" data-ofbid="bringup_icConfiguration__ol_pql_xwb_d1c">
+                <li class="- topic/li li" data-ofbid="d96378e46__20250123155207">内存配置<div class="- topic/p p" data-ofbid="d96378e48__20250123155207">型号区分 <ul class="- topic/ul ul" id="bringup_icConfiguration__ul_dgr_pzl_jdc" data-ofbid="bringup_icConfiguration__ul_dgr_pzl_jdc">
+                            <li class="- topic/li li" data-ofbid="d96378e52__20250123155207">
+                                <p class="- topic/p p" data-ofbid="d96378e54__20250123155207">D21XXB：64M ddr2，譬如 D211BB </p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d96378e58__20250123155207">
+                                <p class="- topic/p p" data-ofbid="d96378e60__20250123155207">D21XXC：128M ddr3， 譬如 D211BC, D213EC</p>
+                            </li>
+                        </ul><div class="- topic/note note note note_note" id="bringup_icConfiguration__note_ilc_qqn_y1c" data-ofbid="bringup_icConfiguration__note_ilc_qqn_y1c"><span class="note__title">注：</span> <div class="note__body">目前 SDK 可以自动 turning ddr 的型号并进行初始化，但在
+                                <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span>
+                        中有对应用层容量进行配置的地方需要注意</div></div><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_icConfiguration__codeblock_jpr_ywb_d1c" data-ofbid="bringup_icConfiguration__codeblock_jpr_ywb_d1c"><code>memory@<span class="hl-number">40000000</span> {
+    device_type = <span class="hl-string">"memory"</span>;
+    reg = &lt;<span class="hl-number">0x0</span> <span class="hl-number">0x40000000</span> <span class="hl-number">0x0</span> <span class="hl-number">0x4000000</span>&gt;;  <em class="hl-comment">//0x4000000 为 64M，0x8000000 为 128M</em>
+};</code></pre></div></li>
+                <li class="- topic/li li" data-ofbid="d96378e72__20250123155207">检查 pin 脚。SDK 有自动的 Pin 脚配置检查，可以检查 pin 脚设置是否正确，不同模块是否有 pin 脚配置冲突等。<ol class="- topic/ol ol" type="a" id="bringup_icConfiguration__ol_lyc_bxb_d1c" data-ofbid="bringup_icConfiguration__ol_lyc_bxb_d1c">
+                        <li class="- topic/li li" data-ofbid="d96378e76__20250123155207">设置 pin 数目<div class="- topic/p p" data-ofbid="d96378e78__20250123155207">IC 的 pin 数目在 <span class="+ topic/ph sw-d/filepath ph filepath">board.dts</span>
+                                中设置，该设置只是辅助检查，不会产生功能性影响，但原则上应该要解决所有的告警<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_icConfiguration__codeblock_hln_cxb_d1c" data-ofbid="bringup_icConfiguration__codeblock_hln_cxb_d1c"><code>compatible = <span class="hl-string">"artinchip,d211"</span>;
+package = <span class="hl-string">"QFN88"</span>;</code></pre></div></li>
+                        <li class="- topic/li li" data-ofbid="d96378e86__20250123155207">配置 pin 脚<div class="- topic/p p" data-ofbid="d96378e88__20250123155207">如下告警的意思是 sdmc0 的 pinctrl 配置为 8 线，但 QFN88 只能支持 4
+                                线<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_icConfiguration__codeblock_wzd_2xb_d1c" data-ofbid="bringup_icConfiguration__codeblock_wzd_2xb_d1c"><code>Pinmux check ...
+    No conflict in pinmux
+  Package check ...
+    QFN88 not support the following modules:
+            sdmc@<span class="hl-number">10440000</span> only support <span class="hl-number">4</span> lines</code></pre></div><div class="- topic/p p" data-ofbid="d96378e92__20250123155207">定义在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">target/common/d211-pinctrl.dtsi</span> 中，
+                                解决方案是可以删掉不需要的引脚配置， 也可以仿照 <span class="+ topic/ph sw-d/filepath ph filepath">demo88_nand/board.dts</span>
+                                中 <span class="+ topic/keyword pr-d/apiname keyword apiname">gmac0_local_pins</span>
+                                的方式重新定义一组引脚。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_icConfiguration__codeblock_i4m_gxb_d1c" data-ofbid="bringup_icConfiguration__codeblock_i4m_gxb_d1c"><code>sdmc0_pins: sdmc0-<span class="hl-number">0</span> {
+    pins {
+        pinmux = &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">0</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">1</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">2</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">3</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">4</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">5</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">6</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">7</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">8</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">9</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">10</span>, <span class="hl-number">2</span>)&gt;,
+             &lt;AIC_PINMUX(<span class="hl-string">'B'</span>, <span class="hl-number">11</span>, <span class="hl-number">2</span>)&gt;;
+             bias-pull-up;
+             drive-strength = &lt;<span class="hl-number">3</span>&gt;;
+    };
+}</code></pre></div></li>
+                    </ol></li>
+                <li class="- topic/li li" data-ofbid="d96378e107__20250123155207">解决 pin
+                        脚冲突，如有。<div class="- topic/p p" data-ofbid="d96378e109__20250123155207">如果同一引脚在不同的功能块中被使用，则会告警有冲突，解决方案是按原理图重新厘定功能<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="bringup_icConfiguration__codeblock_tzy_jxb_d1c" data-ofbid="bringup_icConfiguration__codeblock_tzy_jxb_d1c"><code>Pinmux check ...
+    phy-reset-gpios pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE6
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE0
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE1
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE2
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE3
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE4
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE5
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE7
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE8
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE9
+    ethernet@<span class="hl-number">10280000</span> pinmux conflicts with /soc/dvp@<span class="hl-number">18830000</span>
+        The conflicting pin: PE10
+    Package check ...</code></pre></div></li>
+            </ol></div>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

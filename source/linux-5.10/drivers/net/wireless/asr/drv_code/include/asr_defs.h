@@ -33,6 +33,9 @@
 #include <linux/timer.h>
 #include <linux/kernel.h>
 #include <linux/device.h>
+#ifdef CONFIG_ASR_NAPI
+#include <linux/netdevice.h>
+#endif
 #include <linux/etherdevice.h>
 #include "asr_mod_params.h"
 #include "asr_debugfs.h"
@@ -103,6 +106,7 @@
 #define ASR_ATE_AT_CMD_TIMER_OUT	600	// 600ms
 
 #define ASR_TXFLOW_TIMER_OUT		500
+#define ASR_BROADCAST_FRAME_TIMEOUT 	300
 
 #define ASR_PAIRWISE_KEY_NUM		6
 
@@ -114,6 +118,13 @@ enum {
 
 	ASR_RESTART_REASON_MAX,
 };
+
+#ifdef CONFIG_ASR_NAPI
+enum _NAPI_STATE {
+    NAPI_DISABLE = 0,
+    NAPI_ENABLE = 1,
+};
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 0)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 2, 0)
@@ -320,6 +331,12 @@ struct asr_vif {
 	u8 ssid_len;
 	u8 bssid[ETH_ALEN];
 	u32 generation;
+#ifdef CONFIG_ASR_NAPI
+    struct napi_struct napi;
+    u8 napi_state;
+    struct sk_buff_head rx_napi_skb_list;
+    struct hrtimer rx_napi_hrtimer;
+#endif
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
 	struct ieee80211_channel ap_chan;
@@ -441,6 +458,8 @@ struct asr_sta {
 				   supports HT */
 	u32 ac_param[AC_MAX];	/* EDCA parameters */
 	struct asr_sta_stats stats;
+	u8 fw_tx_pkt;
+	u8 ps_tx_pkt;
 };
 
 struct stats_rate{
@@ -610,7 +629,7 @@ struct asr_hw {
 	struct device *dev;
 	struct wiphy *wiphy;
 	struct list_head vifs;
-	struct asr_vif *vif_table[NX_VIRT_DEV_MAX + NX_REMOTE_STA_MAX];	/* indexed with fw id */
+	struct asr_vif *vif_table[NX_VIRT_DEV_MAX];	/* indexed with fw id */
 	struct asr_sta sta_table[NX_REMOTE_STA_MAX + NX_VIRT_DEV_MAX];
 	struct asr_survey_info survey[SCAN_CHANNEL_MAX];
 	struct cfg80211_scan_request *scan_request;
@@ -684,21 +703,20 @@ struct asr_hw {
 
 	u8 mac_addr[ETH_ALEN];
 
-    #ifndef SDIO_RXBUF_SPLIT
-	struct sk_buff_head rx_sk_list;   // sdio skb list for rx.
-    #else
-	struct sk_buff_head rx_data_sk_list;   // sdio skb list for data/log rx.
+	struct sk_buff_head rx_data_sk_list;   // sdio skb list for data rx, may not use when asr_sdio_rw_sg is enable.
 	struct sk_buff_head rx_msg_sk_list;    // sdio skb list for msg rx.
-    #endif
+	struct sk_buff_head rx_log_sk_list;    // sdio skb list for log rx.
 
 	struct sk_buff_head rx_sk_split_list;
 
-    #ifdef SDIO_DEAGGR
+	#ifdef SDIO_DEAGGR
 	struct sk_buff_head rx_sk_sdio_deaggr_list;
+	struct sk_buff_head rx_sk_sdio_deaggr_amsdu_list;
+	struct sk_buff_head rx_sdio_sg_list;
 	#endif
-	
+
 	struct sk_buff_head rx_to_os_skb_list;
-	struct sk_buff_head rx_pending_skb_list;	
+	struct sk_buff_head rx_pending_skb_list;
 
 
 	volatile u16 tx_use_bitmap;
@@ -717,6 +735,7 @@ struct asr_hw {
 
 	struct hrtimer tx_evt_hrtimer;
 	bool ps_on;		//just record power save state from user call
+	bool usr_cmd_ps;// user cmd set ps mode
 
 #if 1
 	spinlock_t int_reg_lock;
@@ -824,6 +843,8 @@ struct asr_hw {
 	spinlock_t ate_at_cmd_lock;
 
 	struct asr_work_ctx sta_deauth_work[NX_REMOTE_STA_MAX];
+	bool scan_reverse;//reverse order scan
+
 };
 
 struct asr_traffic_status {

@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2024-2025 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: Keliang Liu <keliang.liu@artinchip.com>
+ *         Huahui Mai <huahui.mai@artinchip.com>
+ */
+
 #include "mainwindow.h"
 #include "aicbasewindow.h"
 #include "utils/aicconsts.h"
@@ -5,6 +14,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
     : AiCBaseWindow(QPixmap(":/resources/background.png"), parent)
@@ -19,12 +29,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     initVariable();
     setFixedSize(QSize(width, height));
-    if(width >= AIC_DEFAULT_WIDTH && height >= AIC_DEFAULT_HEIGHT){
+    if (width >= AIC_DEFAULT_WIDTH && height >= AIC_DEFAULT_HEIGHT) {
         setFixedSize(AIC_DEFAULT_WIDTH, AIC_DEFAULT_HEIGHT);
         initWindow();
         mDemoMode = M_DEMO_MODE_NORMAL;
-    }
-    else{
+    } else {
         setFixedSize(width, height);
         initSmallWindow(width, height);
         mDemoMode = M_DEMO_MODE_RTP_WINDOW;
@@ -50,6 +59,7 @@ void MainWindow::initWindow()
 
     mCentralView = new AiCCentralView();
     initCentralButtons();
+    initWiFiManager();
 
     mStackedWidget->addWidget(mBriefView);
     mStackedWidget->addWidget(mCentralView);
@@ -106,6 +116,7 @@ void MainWindow::initCentralButtons()
     mBtnVideo->setParameters(QPixmap(":/resources/central/video.png"),"Video");
     connect(mBtnVideo, SIGNAL(clicked()), SLOT(onBtnVideoClicked()));
     mCentralView->addButtonWidget(mBtnVideo,0,2,1,1);
+    mVideoTimer = NULL;
 
     mBtnRTP = new AiCDesktopButton(QSize(width,height),AiCDesktopButton::BG_LIGHT_GREEN);
     mBtnRTP->setParameters(QPixmap(":/resources/central/rtp.png"),"RTP");
@@ -143,26 +154,81 @@ void MainWindow::initCentralButtons()
     mCentralView->addButtonWidget(mBtnConfig,2,3,1,1);
 }
 
+#ifdef QTLAUNCHER_WIFI_MANAGER
+static void scanResultCallback(char *result)
+{
+    int ret;
+    key_t key = ftok("/tmp", 777);
+    int msgid = msgget(key, IPC_CREAT | 0666);
+
+    struct wifiMsg msg;
+    msg.mtype = MSG_TYPE;
+    memcpy(msg.mtext, result, strlen(result));
+
+    ret = msgsnd(msgid, &msg, MAX_SIZE, 0);
+    if (ret)
+        qDebug("msgsnd failed\n");
+}
+
+void statChangeCallback(wifistate_t stat, wifimanager_disconn_reason_t reason)
+{
+    int ret;
+    key_t key = ftok("/tmp", 777);
+    int msgid = msgget(key, IPC_CREAT | 0666);
+
+    struct wifiMsg msg;
+    msg.mtype = MSG_TYPE;
+    char *data = msg.mtext;
+
+    data[0] = 0xEE;
+    data[1] = (char)stat;
+    data[2] = (char)reason;
+
+    ret = msgsnd(msgid, &msg, MAX_SIZE, 0);
+    if (ret)
+        qDebug("msgsnd Change failed\n");
+}
+
+void MainWindow::initWiFiManager()
+{
+    QString fileName = AIC_WIFI_CONFIG_FILE;
+
+    if (!QFile::exists(fileName)) {
+        QSettings *setting = new QSettings(fileName, QSettings::IniFormat);
+
+        setting->setValue("wifimanager", 0);
+        setting->sync();
+
+        delete setting;
+    }
+
+    mwifimanager_cb_t.scan_result_cb = scanResultCallback;
+    mwifimanager_cb_t.stat_change_cb = statChangeCallback;
+    wifimanager_init(&mwifimanager_cb_t);
+}
+#else
+void MainWindow::initWiFiManager()
+{
+    qDebug() << __func__;
+}
+#endif
+
 void MainWindow::slideToRight()
 {
     int current = mStackedWidget->currentIndex();
-    if(current == 2){
+    if (current == 2)
         mStackedWidget->setCurrentIndex(1);
-    }
-    else if(current == 1){
+    else if (current == 1)
         mStackedWidget->setCurrentIndex(0);
-    }
 }
 
 void MainWindow::slideToLeft()
 {
     int current = mStackedWidget->currentIndex();
-    if(current == 0){
+    if (current == 0)
         mStackedWidget->setCurrentIndex(1);
-    }
-    else if(current == 1){
+    else if (current == 1)
         mStackedWidget->setCurrentIndex(2);
-    }
 }
 
 void MainWindow:: onBtnTimeClicked()
@@ -173,7 +239,7 @@ void MainWindow:: onBtnTimeClicked()
 
 void MainWindow:: onBtnCPUClicked()
 {
-	QWidget *currentWidget = new AiCDashBoardView(QSize(AIC_CENTRAL_VIEW_WIDTH,AIC_CENTRAL_VIEW_HEIGHT));
+    QWidget *currentWidget = new AiCDashBoardView(QSize(AIC_CENTRAL_VIEW_WIDTH,AIC_CENTRAL_VIEW_HEIGHT));
     switchView(currentWidget);
 }
 
@@ -182,10 +248,56 @@ void MainWindow:: onBtnMusicClicked()
     qDebug() << __func__;
 }
 
+#ifdef QTLAUNCHER_GE_SUPPORT
+void MainWindow:: onBtnVideoClicked()
+{
+    QWidget *currentWidget = new AiCVideoView(QSize(AIC_CENTRAL_VIEW_WIDTH,AIC_CENTRAL_VIEW_HEIGHT));
+
+    switchView(currentWidget);
+    mVideoView = (AiCVideoView *)currentWidget;
+
+    mNavBar->disableMenu(true);
+
+    mVideoTimer = new QTimer(this);
+    mVideoTimer->setSingleShot(true);
+    mVideoTimer->setInterval(200);
+    connect(mVideoTimer, SIGNAL(timeout()), SLOT(onVideoTimeout()));
+    mVideoTimer->start();
+}
+
+void MainWindow::onVideoTimeout()
+{
+    QWidget *curWidget = mStackedWidget->currentWidget();
+    AiCVideoView *videoView = (AiCVideoView *)curWidget == mVideoView ? mVideoView : NULL;
+
+    if (videoView) {
+        videoView->geBgFill();
+        videoView->geBtnBlt();
+    }
+
+    mVideoTimer->deleteLater();
+    mVideoTimer = NULL;
+}
+#else /* QTLAUNCHER_GE_SUPPORT */
 void MainWindow:: onBtnVideoClicked()
 {
     qDebug() << __func__;
+
+    mVideoTimer = new QTimer(this);
+    mVideoTimer->setSingleShot(true);
+    mVideoTimer->setInterval(20);
+    connect(mVideoTimer, SIGNAL(timeout()), SLOT(onVideoTimeout()));
+    mVideoTimer->start();
 }
+
+void MainWindow::onVideoTimeout()
+{
+    qDebug() << __func__;
+
+    mVideoTimer->deleteLater();
+    mVideoTimer = NULL;
+}
+#endif
 
 void MainWindow:: onBtnRTPClicked()
 {
@@ -212,6 +324,10 @@ void MainWindow:: onBtnScaleClicked()
 
 void MainWindow:: onBtnConfigClicked()
 {
+#ifdef QTLAUNCHER_WIFI_MANAGER
+    QWidget *currentWidget = new AiCConfigView(QSize(AIC_CENTRAL_VIEW_WIDTH,AIC_CENTRAL_VIEW_HEIGHT));
+    switchView(currentWidget);
+#endif
     qDebug() << __func__;
 }
 
@@ -242,10 +358,21 @@ void MainWindow:: switchView(QWidget *newWidget)
     mStackedWidget->removeWidget(oldWidget);
     mStackedWidget->insertWidget(2,newWidget);
     mStackedWidget->setCurrentIndex(2);
+    mNavBar->disableMenu(false);
 
-    if(oldWidget != NULL){
+    if (oldWidget != NULL) {
         delete oldWidget;
         oldWidget = NULL;
+    }
+}
+
+void MainWindow::checkMenuVideoStatus()
+{
+    QWidget *oldWidget = mStackedWidget->currentWidget();
+
+    if (oldWidget == (QWidget *)mVideoView) {
+        mVideoView->videoStop();
+        mNavBar->disableMenu(false);
     }
 }
 
@@ -256,11 +383,21 @@ void MainWindow::onMenuClicked()
 
 void MainWindow::onHomeClicked()
 {
+    if (mVideoTimer && mVideoTimer->isActive())
+        mVideoTimer->stop();
+
+    checkMenuVideoStatus();
+
     mStackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::onBackClicked()
 {
+    if (mVideoTimer && mVideoTimer->isActive())
+        mVideoTimer->stop();
+
+    checkMenuVideoStatus();
+
     mStackedWidget->setCurrentIndex(1);
 }
 
@@ -284,7 +421,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     if(mDemoMode == M_DEMO_MODE_RTP_WINDOW)
         return;
-    
+
     QPoint distance = event->pos() - mStartPoint;
     if ((abs(distance.x()) >= width()/8) && (distance.x() > 0)) {
         slideToRight();

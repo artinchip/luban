@@ -30,7 +30,26 @@
 #define CONFIG_LOGO_ITB_ADDRESS	0x42400000
 #define BOOTCFG_FILE_SIZE	1024
 
-#ifdef AICFB_CPU_DRAW
+/* font color */
+#define FONT_BG_COLOR	VID_WHITE
+#define FONT_FILL_COLOR	VID_BLACK
+
+/* bar background */
+#define	BAR_BG_R	0x00
+#define	BAR_BG_G	0x0f
+#define	BAR_BG_B	0xff
+
+/* bar fill */
+#define BAR_FILL_R	0x00
+#define BAR_FILL_G	0xff
+#define BAR_FILL_B	0x0f
+
+#define WIDTH_SPLIT_NUMERATOR       5
+#define WIDTH_SPLIT_DENOMINATOR     6
+#define BAR_HEIGHT                  35
+#define SPLIT_WIDTH(w)              \
+    ((w) * WIDTH_SPLIT_NUMERATOR / WIDTH_SPLIT_DENOMINATOR)
+
 void aicfb_draw_text(uint x_frac, uint y, int value)
 {
 	struct udevice *dev;
@@ -48,8 +67,8 @@ void aicfb_draw_text(uint x_frac, uint y, int value)
 
 	priv->ycur = y;
 	priv->xcur_frac = x_frac * 256;
-	vid_priv->colour_bg = vid_console_color(vid_priv, VID_BLACK);
-	vid_priv->colour_fg = vid_console_color(vid_priv, VID_LIGHT_BLUE);
+	vid_priv->colour_bg = vid_console_color(vid_priv, FONT_BG_COLOR);
+	vid_priv->colour_fg = vid_console_color(vid_priv, FONT_FILL_COLOR);
 
 	sprintf(str, "Upgrading %d%%", value);
 
@@ -171,7 +190,44 @@ int aic_bmp_display(struct udevice *dev, ulong bmp_image)
 
 	return 0;
 }
-#endif
+
+void draw_progress_bar(int value)
+{
+	struct udevice *dev = NULL;
+	unsigned int x, y, width, height, ret;
+	unsigned int text_x_pos, text_y_pos;
+	ret = uclass_first_device(UCLASS_VIDEO, &dev);
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	width  = SPLIT_WIDTH(priv->xsize);
+	height = BAR_HEIGHT;
+	x      = (priv->xsize - width)  / 2;
+	y      = (priv->ysize - height) / 2;
+
+	text_x_pos = priv->xsize / 2;
+	text_y_pos = y + BAR_HEIGHT + 5;
+
+	if (value == 0) {
+		aicfb_draw_rect(dev, x, y, width, height,
+				BAR_BG_R, BAR_BG_G, BAR_BG_B);
+		aicfb_draw_text(text_x_pos, text_y_pos, 0);
+		return;
+	}
+
+	if (value < 100)
+		width = width * value / 100;
+
+	aicfb_draw_rect(dev, x, y, width, height,
+			BAR_FILL_R, BAR_FILL_G, BAR_FILL_B);
+
+	if (value == 100) {
+		aicfb_draw_text(text_x_pos, text_y_pos, 100);
+		flush_dcache_range((uintptr_t)&priv->fb, (uintptr_t)(&priv->fb+priv->fb_size));
+    }
+
+	aicfb_draw_text(text_x_pos, text_y_pos, value);
+	flush_dcache_range((uintptr_t)&priv->fb, (uintptr_t)(&priv->fb+priv->fb_size));
+}
 
 static int aic_logo_decode(unsigned char *dst, unsigned int size)
 {
@@ -290,7 +346,6 @@ out:
 
 	return ret;
 }
-
 
 static int spinand_load_logo(const char *name)
 {

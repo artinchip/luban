@@ -17,6 +17,7 @@ spi-nor-objs			+= sst.o
 spi-nor-objs			+= winbond.o
 spi-nor-objs			+= xilinx.o
 spi-nor-objs			+= xmc.o
+spi-nor-objs			+= xtx.o
 spi-nor-objs			+= boya.o
 spi-nor-objs			+= fmsh.o
 spi-nor-objs			+= cfx.o

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2021 ArtInChip Technology Co., Ltd
+ * Copyright (C) 2021-2024 ArtInChip Technology Co., Ltd
  */
 #include <common.h>
 #include <command.h>
 #include <artinchip/aicupg.h>
+#include <log_buf.h>
 #include "upg_internal.h"
 
 // #undef debug
@@ -36,7 +37,7 @@ struct cmd_rw_priv {
  *   <- [RESP HEADER]
  *   <- [HWINFO DATA]
  */
-static void CMD_GET_HWINFO_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_hwinfo_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	debug("%s\n", __func__);
 	if (cmd->cmd != UPG_PROTO_CMD_GET_HWINFO)
@@ -44,14 +45,14 @@ static void CMD_GET_HWINFO_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_GET_HWINFO_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_hwinfo_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					   s32 len)
 {
 	/* No input data */
 	return 0;
 }
 
-static s32 CMD_GET_HWINFO_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_hwinfo_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					   s32 len)
 {
 	struct resp_header resp;
@@ -86,7 +87,7 @@ static s32 CMD_GET_HWINFO_read_output_data(struct upg_cmd *cmd, u8 *buf,
 		memset(&hw, 0, sizeof(hw));
 		memcpy(hw.magic, "HWINFO", 6);
 		hw.boot_stage = BOOT_STAGE_UBOOT;
-		hw.init_mode = upg_info.init.mode;
+		hw.init_mode = upg_info.init.mode_bits;
 		hw.curr_mode = upg_info.cfg.mode;
 		memcpy(buf + siz, &hw, sizeof(hw));
 		siz += sizeof(hw);
@@ -97,23 +98,23 @@ static s32 CMD_GET_HWINFO_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_HWINFO_end(struct upg_cmd *cmd)
+static void get_hwinfo_cmd_end(struct upg_cmd *cmd)
 {
 	debug("%s\n", __func__);
 	cmd_state_set_next(cmd, CMD_STATE_IDLE);
 }
 
-static void CMD_UNSUPPORTED_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void unsupported_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 }
 
-static s32 CMD_UNSUPPORTED_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 unsupported_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					    s32 len)
 {
 	return len;
 }
 
-static s32 CMD_UNSUPPORTED_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 unsupported_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					    s32 len)
 {
 	struct resp_header resp;
@@ -132,7 +133,7 @@ static s32 CMD_UNSUPPORTED_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_UNSUPPORTED_end(struct upg_cmd *cmd)
+static void unsupported_cmd_end(struct upg_cmd *cmd)
 {
 }
 
@@ -142,7 +143,7 @@ static void CMD_UNSUPPORTED_end(struct upg_cmd *cmd)
  *   -> [DATA from host]
  *   <- [RESP HEADER]
  */
-static void CMD_WRITE_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void write_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	static struct cmd_rw_priv write_info;
 
@@ -181,7 +182,7 @@ static void *hw_friendly_memcpy(void *dest, const void *src, size_t count)
 	return dest;
 }
 
-static s32 CMD_WRITE_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 write_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct cmd_rw_priv *priv;
 	u32 val, clen;
@@ -189,7 +190,7 @@ static s32 CMD_WRITE_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 
 	clen = 0;
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return 0;
 
 	if (cmd->state == CMD_STATE_START)
@@ -226,7 +227,7 @@ static s32 CMD_WRITE_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	return clen;
 }
 
-static s32 CMD_WRITE_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 write_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct cmd_rw_priv *priv;
 	struct resp_header resp;
@@ -234,7 +235,7 @@ static s32 CMD_WRITE_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	u8 sts;
 
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return 0;
 	if (cmd->state == CMD_STATE_RESP) {
 		/*
@@ -250,12 +251,12 @@ static s32 CMD_WRITE_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	return siz;
 }
 
-static void CMD_WRITE_end(struct upg_cmd *cmd)
+static void write_cmd_end(struct upg_cmd *cmd)
 {
 	struct cmd_rw_priv *priv;
 
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return;
 
 	if (cmd->state == CMD_STATE_END) {
@@ -273,7 +274,7 @@ static void CMD_WRITE_end(struct upg_cmd *cmd)
  *   <- [RESP HEADER]
  *   <- [DATA to host]
  */
-static void CMD_READ_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void read_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	static struct cmd_rw_priv read_info;
 
@@ -287,14 +288,14 @@ static void CMD_READ_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_READ_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 read_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct cmd_rw_priv *priv;
 	u32 val, clen;
 
 	clen = 0;
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return 0;
 
 	if (cmd->state == CMD_STATE_START)
@@ -317,7 +318,7 @@ static s32 CMD_READ_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	return clen;
 }
 
-static s32 CMD_READ_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 read_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct cmd_rw_priv *priv;
 	struct resp_header resp;
@@ -325,7 +326,7 @@ static s32 CMD_READ_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	u8 *p;
 
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return 0;
 	if (cmd->state == CMD_STATE_RESP) {
 		/*
@@ -352,12 +353,12 @@ static s32 CMD_READ_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	return siz;
 }
 
-static void CMD_READ_end(struct upg_cmd *cmd)
+static void read_cmd_end(struct upg_cmd *cmd)
 {
 	struct cmd_rw_priv *priv;
 
 	priv = (struct cmd_rw_priv *)cmd->priv;
-	if (priv == NULL)
+	if (!priv)
 		return;
 
 	if (cmd->state == CMD_STATE_END) {
@@ -378,7 +379,7 @@ static void CMD_READ_end(struct upg_cmd *cmd)
 
 typedef int (*exec_func)(void);
 
-static void CMD_EXEC_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void exec_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_EXEC)
 		return;
@@ -386,7 +387,7 @@ static void CMD_EXEC_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_EXEC_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 exec_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	u32 addr = 0, clen = 0;
 	exec_func fn;
@@ -417,7 +418,7 @@ out:
 	return clen;
 }
 
-static s32 CMD_EXEC_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 exec_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct resp_header resp;
 	u32 siz = 0;
@@ -435,7 +436,7 @@ static s32 CMD_EXEC_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 	return siz;
 }
 
-static void CMD_EXEC_end(struct upg_cmd *cmd)
+static void exec_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
 		cmd->priv = 0;
@@ -450,7 +451,7 @@ static struct run_shell_info {
 	char shell_str[MAX_SHELL_CMD_STR_LEN];
 } shell_info;
 
-static void CMD_RUN_SHELL_STR_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void run_shell_str_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_RUN_SHELL_STR)
 		return;
@@ -459,7 +460,7 @@ static void CMD_RUN_SHELL_STR_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_RUN_SHELL_STR_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 run_shell_str_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct run_shell_info *shinfo;
 	u32 clen = 0;
@@ -508,7 +509,7 @@ static s32 CMD_RUN_SHELL_STR_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 
 	return clen;
 }
 
-static s32 CMD_RUN_SHELL_STR_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 run_shell_str_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct run_shell_info *shinfo;
 	struct resp_header resp;
@@ -531,7 +532,7 @@ static s32 CMD_RUN_SHELL_STR_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 
 	return siz;
 }
 
-static void CMD_RUN_SHELL_STR_end(struct upg_cmd *cmd)
+static void run_shell_str_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
 		cmd->priv = 0;
@@ -539,7 +540,7 @@ static void CMD_RUN_SHELL_STR_end(struct upg_cmd *cmd)
 	}
 }
 
-static void CMD_GET_MEM_BUF_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void get_mem_buf_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_GET_MEM_BUF)
 		return;
@@ -547,7 +548,7 @@ static void CMD_GET_MEM_BUF_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_GET_MEM_BUF_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 get_mem_buf_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	u32 memlen, clen = 0;
 
@@ -570,7 +571,7 @@ static s32 CMD_GET_MEM_BUF_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 le
 	return clen;
 }
 
-static s32 CMD_GET_MEM_BUF_read_output_data(struct upg_cmd *cmd, u8 *buf,
+static s32 get_mem_buf_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
 					    s32 len)
 {
 	struct resp_header resp;
@@ -612,7 +613,7 @@ static s32 CMD_GET_MEM_BUF_read_output_data(struct upg_cmd *cmd, u8 *buf,
 	return siz;
 }
 
-static void CMD_GET_MEM_BUF_end(struct upg_cmd *cmd)
+static void get_mem_buf_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
 		cmd->priv = 0;
@@ -621,7 +622,7 @@ static void CMD_GET_MEM_BUF_end(struct upg_cmd *cmd)
 }
 
 
-static void CMD_FREE_MEM_BUF_start(struct upg_cmd *cmd, s32 cmd_data_len)
+static void free_mem_buf_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_FREE_MEM_BUF)
 		return;
@@ -629,7 +630,7 @@ static void CMD_FREE_MEM_BUF_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_FREE_MEM_BUF_write_input_data(struct upg_cmd *cmd, u8 *buf,
+static s32 free_mem_buf_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
 					     s32 len)
 {
 	u32 clen = 0;
@@ -654,7 +655,7 @@ static s32 CMD_FREE_MEM_BUF_write_input_data(struct upg_cmd *cmd, u8 *buf,
 	return clen;
 }
 
-static s32 CMD_FREE_MEM_BUF_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 free_mem_buf_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct resp_header resp;
 	u32 siz = 0;
@@ -673,7 +674,7 @@ static s32 CMD_FREE_MEM_BUF_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 l
 	return siz;
 }
 
-static void CMD_FREE_MEM_BUF_end(struct upg_cmd *cmd)
+static void free_mem_buf_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
 		cmd->priv = 0;
@@ -681,7 +682,12 @@ static void CMD_FREE_MEM_BUF_end(struct upg_cmd *cmd)
 	}
 }
 
-static void CMD_SET_UPG_CFG_start(struct upg_cmd *cmd, s32 cmd_data_len)
+struct upg_end_info {
+	u32 result;
+	u8 reserved[28];
+};
+
+static void set_upg_cfg_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_SET_UPG_CFG)
 		return;
@@ -689,7 +695,7 @@ static void CMD_SET_UPG_CFG_start(struct upg_cmd *cmd, s32 cmd_data_len)
 	cmd_state_init(cmd, CMD_STATE_START);
 }
 
-static s32 CMD_SET_UPG_CFG_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 set_upg_cfg_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	u32 cfglen, clen = 0;
 	struct upg_cfg cfg;
@@ -734,7 +740,7 @@ static s32 CMD_SET_UPG_CFG_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 le
 	return clen;
 }
 
-static s32 CMD_SET_UPG_CFG_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 set_upg_cfg_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct resp_header resp;
 	u32 siz = 0;
@@ -752,7 +758,7 @@ static s32 CMD_SET_UPG_CFG_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 le
 	return siz;
 }
 
-static void CMD_SET_UPG_CFG_end(struct upg_cmd *cmd)
+static void set_upg_cfg_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
 		cmd->priv = 0;
@@ -761,20 +767,19 @@ static void CMD_SET_UPG_CFG_end(struct upg_cmd *cmd)
 }
 
 
-extern void rtc_upg_succ_cnt(void);
-static void CMD_SET_UPG_END_start(struct upg_cmd *cmd, s32 cmd_data_len)
+extern void aic_upg_succ_cnt(void);
+static void set_upg_end_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
 {
 	if (cmd->cmd != UPG_PROTO_CMD_SET_UPG_END)
 		return;
-	printf("End of upgrading.\n\n");
 	cmd->priv = NULL;
 	cmd_state_init(cmd, CMD_STATE_START);
-	rtc_upg_succ_cnt();
 }
 
-static s32 CMD_SET_UPG_END_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 set_upg_end_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
-	u32 param_len, clen = 0;
+	struct upg_end_info *info;
+	u32 param_len = 0, clen = 0;
 
 	if (cmd->state == CMD_STATE_START)
 		cmd_state_set_next(cmd, CMD_STATE_ARG);
@@ -795,11 +800,6 @@ static s32 CMD_SET_UPG_END_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 le
 		return clen;
 
 	if (cmd->state == CMD_STATE_DATA_IN) {
-		/*
-		 * Enter recv data state, all command string should be sent in
-		 * one packet.
-		 */
-
 		param_len = (u32)(long)cmd->priv;
 		if (param_len != 32) {
 			clen += (len - clen);
@@ -807,17 +807,21 @@ static s32 CMD_SET_UPG_END_write_input_data(struct upg_cmd *cmd, u8 *buf, s32 le
 			pr_err("Error, Size of upg_end param is not matched.\n");
 			return clen;
 		}
-		/* Current, the param is not used, reserved for future */
 		clen += param_len;
 
-		/* Do nothing now, maybe it is useful in future. */
+		info = (struct upg_end_info *)buf;
+		if (info->result)
+			aic_upg_succ_cnt();
+		else
+			printf("Burn image failed.\n");
 
 		cmd_state_set_next(cmd, CMD_STATE_RESP);
 	}
+
 	return clen;
 }
 
-static s32 CMD_SET_UPG_END_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+static s32 set_upg_end_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
 {
 	struct resp_header resp;
 	u32 siz = 0;
@@ -829,15 +833,158 @@ static s32 CMD_SET_UPG_END_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 le
 		 */
 		aicupg_gen_resp(&resp, cmd->cmd, UPG_RESP_OK, 0);
 		siz = sizeof(struct resp_header);
+		memcpy(buf, &resp, siz);
 		cmd_state_set_next(cmd, CMD_STATE_END);
 	}
 
 	return siz;
 }
 
-static void CMD_SET_UPG_END_end(struct upg_cmd *cmd)
+static void set_upg_end_cmd_end(struct upg_cmd *cmd)
 {
 	if (cmd->state == CMD_STATE_END) {
+		printf("End of upgrading.\n\n");
+		cmd->priv = 0;
+		cmd_state_set_next(cmd, CMD_STATE_IDLE);
+	}
+}
+
+static void get_log_size_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
+{
+	cmd_state_init(cmd, CMD_STATE_START);
+}
+
+static s32 get_log_size_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
+					     s32 len)
+{
+	/* No input data for this command */
+	return 0;
+}
+
+static s32 get_log_size_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf, s32 len)
+{
+	struct resp_header resp;
+	u32 siz = 0, val = 0;
+
+	if (cmd->state == CMD_STATE_START)
+		cmd_state_set_next(cmd, CMD_STATE_RESP);
+
+	if (cmd->state == CMD_STATE_RESP) {
+		/*
+		 * Enter read RESP state, to make it simple, HOST should read
+		 * RESP in one read operation.
+		 */
+		aicupg_gen_resp(&resp, cmd->cmd, 0, 4);
+		siz = sizeof(struct resp_header);
+		memcpy(buf, &resp, siz);
+		cmd_state_set_next(cmd, CMD_STATE_DATA_OUT);
+	}
+	if (siz == len)
+		return siz;
+
+	if (cmd->state == CMD_STATE_DATA_OUT) {
+		val = log_buf_get_len();
+		memcpy(buf, &val, 4);
+		siz += 4;
+		cmd_state_set_next(cmd, CMD_STATE_END);
+	}
+	return siz;
+}
+
+static void get_log_size_cmd_end(struct upg_cmd *cmd)
+{
+	cmd_state_set_next(cmd, CMD_STATE_IDLE);
+}
+
+static void get_log_data_cmd_start(struct upg_cmd *cmd, s32 cmd_data_len)
+{
+	static struct cmd_rw_priv read_log;
+
+	read_log.addr = 0;
+	read_log.len = 0;
+	read_log.index = 0;
+	cmd->priv = &read_log;
+	cmd_state_init(cmd, CMD_STATE_START);
+}
+
+static s32 get_log_data_cmd_write_input_data(struct upg_cmd *cmd, u8 *buf,
+					     s32 len)
+{
+	struct cmd_rw_priv *priv;
+	u32 val, clen = 0;
+
+	priv = (struct cmd_rw_priv *)cmd->priv;
+	if (!priv)
+		return 0;
+
+	if (cmd->state == CMD_STATE_START)
+		cmd_state_set_next(cmd, CMD_STATE_ARG);
+
+	if (cmd->state == CMD_STATE_ARG) {
+		/*
+		 * Enter recv argument state
+		 */
+		if (len < 4)
+			return 0;
+		memcpy(&val, buf, 4);
+		if (val > log_buf_get_len())
+			val = log_buf_get_len();
+		priv->len = val;
+		clen += 4;
+		cmd_state_set_next(cmd, CMD_STATE_RESP);
+	}
+	return clen;
+}
+
+static s32 get_log_data_cmd_read_output_data(struct upg_cmd *cmd, u8 *buf,
+					     s32 len)
+{
+	struct cmd_rw_priv *priv;
+	struct resp_header resp;
+	u32 siz = 0;
+	char *p;
+
+	priv = (struct cmd_rw_priv *)cmd->priv;
+	if (!priv)
+		return 0;
+	if (cmd->state == CMD_STATE_RESP) {
+		/*
+		 * Enter read RESP state, to make it simple, HOST should read
+		 * RESP in one read operation.
+		 */
+		siz = priv->len;
+		aicupg_gen_resp(&resp, cmd->cmd, 0, siz);
+		siz = sizeof(struct resp_header);
+		memcpy(buf, &resp, siz);
+		cmd_state_set_next(cmd, CMD_STATE_DATA_OUT);
+	}
+	if (siz == len)
+		return siz;
+	if (cmd->state == CMD_STATE_DATA_OUT) {
+		/* Enter read DATA state */
+		p = (char *)buf;
+
+		log_buf_read(p, len - siz);
+		priv->index += (len - siz);
+		siz += (len - siz);
+		if (priv->index >= priv->len)
+			cmd_state_set_next(cmd, CMD_STATE_END);
+	}
+	return siz;
+}
+
+static void get_log_data_cmd_end(struct upg_cmd *cmd)
+{
+	struct cmd_rw_priv *priv;
+
+	priv = (struct cmd_rw_priv *)cmd->priv;
+	if (!priv)
+		return;
+
+	if (cmd->state == CMD_STATE_END) {
+		priv->addr = 0;
+		priv->len = 0;
+		priv->index = 0;
 		cmd->priv = 0;
 		cmd_state_set_next(cmd, CMD_STATE_IDLE);
 	}
@@ -846,73 +993,87 @@ static void CMD_SET_UPG_END_end(struct upg_cmd *cmd)
 static struct upg_cmd basic_cmd_list[] = {
 	{
 		UPG_PROTO_CMD_GET_HWINFO,
-		CMD_GET_HWINFO_start,
-		CMD_GET_HWINFO_write_input_data,
-		CMD_GET_HWINFO_read_output_data,
-		CMD_GET_HWINFO_end,
+		get_hwinfo_cmd_start,
+		get_hwinfo_cmd_write_input_data,
+		get_hwinfo_cmd_read_output_data,
+		get_hwinfo_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_TRACEINFO,
-		CMD_UNSUPPORTED_start,
-		CMD_UNSUPPORTED_write_input_data,
-		CMD_UNSUPPORTED_read_output_data,
-		CMD_UNSUPPORTED_end,
+		unsupported_cmd_start,
+		unsupported_cmd_write_input_data,
+		unsupported_cmd_read_output_data,
+		unsupported_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_WRITE,
-		CMD_WRITE_start,
-		CMD_WRITE_write_input_data,
-		CMD_WRITE_read_output_data,
-		CMD_WRITE_end,
+		write_cmd_start,
+		write_cmd_write_input_data,
+		write_cmd_read_output_data,
+		write_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_READ,
-		CMD_READ_start,
-		CMD_READ_write_input_data,
-		CMD_READ_read_output_data,
-		CMD_READ_end,
+		read_cmd_start,
+		read_cmd_write_input_data,
+		read_cmd_read_output_data,
+		read_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_EXEC,
-		CMD_EXEC_start,
-		CMD_EXEC_write_input_data,
-		CMD_EXEC_read_output_data,
-		CMD_EXEC_end,
+		exec_cmd_start,
+		exec_cmd_write_input_data,
+		exec_cmd_read_output_data,
+		exec_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_RUN_SHELL_STR,
-		CMD_RUN_SHELL_STR_start,
-		CMD_RUN_SHELL_STR_write_input_data,
-		CMD_RUN_SHELL_STR_read_output_data,
-		CMD_RUN_SHELL_STR_end,
+		run_shell_str_cmd_start,
+		run_shell_str_cmd_write_input_data,
+		run_shell_str_cmd_read_output_data,
+		run_shell_str_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_SET_UPG_CFG,
-		CMD_SET_UPG_CFG_start,
-		CMD_SET_UPG_CFG_write_input_data,
-		CMD_SET_UPG_CFG_read_output_data,
-		CMD_SET_UPG_CFG_end,
+		set_upg_cfg_cmd_start,
+		set_upg_cfg_cmd_write_input_data,
+		set_upg_cfg_cmd_read_output_data,
+		set_upg_cfg_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_SET_UPG_END,
-		CMD_SET_UPG_END_start,
-		CMD_SET_UPG_END_write_input_data,
-		CMD_SET_UPG_END_read_output_data,
-		CMD_SET_UPG_END_end,
+		set_upg_end_cmd_start,
+		set_upg_end_cmd_write_input_data,
+		set_upg_end_cmd_read_output_data,
+		set_upg_end_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_GET_MEM_BUF,
-		CMD_GET_MEM_BUF_start,
-		CMD_GET_MEM_BUF_write_input_data,
-		CMD_GET_MEM_BUF_read_output_data,
-		CMD_GET_MEM_BUF_end,
+		get_mem_buf_cmd_start,
+		get_mem_buf_cmd_write_input_data,
+		get_mem_buf_cmd_read_output_data,
+		get_mem_buf_cmd_end,
 	},
 	{
 		UPG_PROTO_CMD_FREE_MEM_BUF,
-		CMD_FREE_MEM_BUF_start,
-		CMD_FREE_MEM_BUF_write_input_data,
-		CMD_FREE_MEM_BUF_read_output_data,
-		CMD_FREE_MEM_BUF_end,
+		free_mem_buf_cmd_start,
+		free_mem_buf_cmd_write_input_data,
+		free_mem_buf_cmd_read_output_data,
+		free_mem_buf_cmd_end,
+	},
+	{
+		UPG_PROTO_CMD_GET_LOG_SIZE,
+		get_log_size_cmd_start,
+		get_log_size_cmd_write_input_data,
+		get_log_size_cmd_read_output_data,
+		get_log_size_cmd_end,
+	},
+	{
+		UPG_PROTO_CMD_GET_LOG_DATA,
+		get_log_data_cmd_start,
+		get_log_data_cmd_write_input_data,
+		get_log_data_cmd_read_output_data,
+		get_log_data_cmd_end,
 	},
 };
 

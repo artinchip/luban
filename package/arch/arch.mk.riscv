@@ -48,7 +48,7 @@ GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)v
 endif
 
 ifeq ($(BR2_RISCV_ISA_RVXTHEAD),y)
-GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)xthead
+GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)xtheadc
 endif
 
 endif

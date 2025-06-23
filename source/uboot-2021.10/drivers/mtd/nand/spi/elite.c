@@ -63,15 +63,16 @@ static int f50l1g_select_target(struct spinand_device *spinand,
 }
 
 static const struct spinand_info elite_spinand_table[] = {
-	SPINAND_INFO("F50L2G", 0x24,
-		NAND_MEMORG(1, 2048, 128, 64, 2048, 2, 1, 1),
-		NAND_ECCREQ(8, 512),
-		SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
-			&write_cache_variants,
-			&update_cache_variants),
-			SPINAND_HAS_QE_BIT,
-			SPINAND_ECCINFO(&f50l1g_ooblayout, NULL),
-			SPINAND_SELECT_TARGET(f50l1g_select_target)),
+	SPINAND_INFO("F50L2G",
+		     SPINAND_ID(0x24),
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 2, 1, 1),
+		     NAND_ECCREQ(8, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&f50l1g_ooblayout, NULL),
+		     SPINAND_SELECT_TARGET(f50l1g_select_target)),
 };
 
 static int elite_spinand_init(struct spinand_device *spinand)
@@ -95,7 +96,7 @@ static int elite_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, elite_spinand_table,
 				     ARRAY_SIZE(elite_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

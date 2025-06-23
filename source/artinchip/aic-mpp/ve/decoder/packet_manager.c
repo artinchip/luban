@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc:  packet (video bitstream container) manager
-*/
+ * Copyright (C) 2020-2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc:  packet (video bitstream container) manager
+ */
 
 #define LOG_TAG "packet_manager"
 
@@ -331,7 +333,14 @@ int pm_enqueue_empty_packet(struct packet_manager *pm, struct packet *packet)
 		read_offset -= pm->buffer_size;
 
 	pm->read_offset = read_offset;
-	pm->available_size += pkt_impl->pos_offset + pkt_impl->pkt.size;
+	if (pm->read_offset == pm->write_offset) {
+		pm->read_offset = 0;
+		pm->write_offset = 0;
+		pm->available_size = pm->buffer_size;
+	} else {
+		pm->available_size += pkt_impl->pos_offset + pkt_impl->pkt.size;
+	}
+
 	pm->empty_num++;
 
 	pthread_mutex_unlock(&pm->lock);
@@ -341,11 +350,18 @@ int pm_enqueue_empty_packet(struct packet_manager *pm, struct packet *packet)
 
 int pm_get_empty_packet_num(struct packet_manager *pm)
 {
+	if (!pm) {
+		return -1;
+	}
+
 	return pm->empty_num;
 }
 
 int pm_get_ready_packet_num(struct packet_manager *pm)
 {
+	if (!pm) {
+		return -1;
+	}
 	return pm->ready_num;
 }
 

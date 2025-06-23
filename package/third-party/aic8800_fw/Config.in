@@ -1,0 +1,5 @@
+menuconfig BR2_PACKAGE_AIC8800_FW
+	bool "AIC8800 firmware"
+	default n
+
+

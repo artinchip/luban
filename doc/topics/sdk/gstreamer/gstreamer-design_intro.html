@@ -1,0 +1,370 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="源码说明 本模块源代码在内核目录 source/artinchip/gst1-plugins-aic 下，目录结构如下： source/artinchip/gst1-plugins-aic ├── gstaicfb.c // fb_sink 插件 ├── gstaicfb.h ├── gstfbsink.c ├── gstfbsink.h ├── gstmppallocator.c // ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/gstreamer/gstreamer-user-guide.html"/><meta name="DC.relation" content="../../../topics/sdk/gstreamer/gstreamer-test_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/gstreamer/gstreamer-architecture.html"/><meta name="DC.relation" content="../../../topics/sdk/gstreamer/gstreamer-architecture.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="gstreamer_design_intro"/><meta name="DC.language" content="zh-CN"/><title>设计说明</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="gstreamer_design_intro-d4445e5638"/><meta name="wh-source-relpath" content="topics/sdk/gstreamer/gstreamer-design_intro.dita"/><meta name="wh-out-relpath" content="topics/sdk/gstreamer/gstreamer-design_intro.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="gstreamer_design_intro" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="gstreamer"><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html">Gstreamer 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="gstreamer_design_intro"><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-design_intro.html">设计说明</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/gstreamer/gstreamer-test_guide.html" title="测试指南" aria-label="上一主题: 测试指南" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/gstreamer/gstreamer-architecture.html" title="模块架构" aria-label="下一主题: 模块架构" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="gstreamer_configuration-d4445e5596" class="topicref" data-id="gstreamer_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-configuration.html" id="gstreamer_configuration-d4445e5596-link">Gstreamer 配置</a></div></div></li><li role="treeitem"><div data-tocid="gstreamer_debug_guide-d4445e5610" class="topicref" data-id="gstreamer_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-debug_guide.html" id="gstreamer_debug_guide-d4445e5610-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="gstreamer_test_guide-d4445e5624" class="topicref" data-id="gstreamer_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-test_guide.html" id="gstreamer_test_guide-d4445e5624-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true" class="active"><div data-tocid="gstreamer_design_intro-d4445e5638" class="topicref" data-id="gstreamer_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action gstreamer_design_intro-d4445e5638-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-design_intro.html" id="gstreamer_design_intro-d4445e5638-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="gstreamer_architecture-d4445e5652" class="topicref" data-id="gstreamer_architecture" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-architecture.html" id="gstreamer_architecture-d4445e5652-link">模块架构</a></div></div></li></ul></li><li role="treeitem"><div data-tocid="gstreamer_common_issues-d4445e5666" class="topicref" data-id="gstreamer_common_issues" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-common_issues.html" id="gstreamer_common_issues-d4445e5666-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/gstreamer/gstreamer-design_intro.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">设计说明</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="gstreamer_design_intro__section_oyk_mjn_4dc" data-ofbid="gstreamer_design_intro__section_oyk_mjn_4dc"><h2 class="- topic/title title sectiontitle">源码说明</h2>
+            
+            <p class="- topic/p p" data-ofbid="d108791e38__20250123155209">本模块源代码在内核目录 <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip/gst1-plugins-aic</span> 下，目录结构如下：</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__pre_hbz_j23_d1c" data-ofbid="gstreamer_design_intro__pre_hbz_j23_d1c"><code>source/artinchip/gst1-plugins-aic
+├── gstaicfb.c             <em class="hl-comment">// fb_sink 插件</em>
+├── gstaicfb.h
+├── gstfbsink.c
+├── gstfbsink.h
+├── gstmppallocator.c      <em class="hl-comment">// mpp_frame 内存申请模块</em>
+├── gstmppallocator.h
+├── gstplugin.c
+├── gstvedec.c             <em class="hl-comment">// ve 解码插件</em>
+├── gstvedec.h
+└── meson.build</code></pre>
+        </section>
+        <section class="- topic/section section" id="gstreamer_design_intro__section_kb2_njn_4dc" data-ofbid="gstreamer_design_intro__section_kb2_njn_4dc"><h2 class="- topic/title title sectiontitle">模块架构</h2>
+            
+            <p class="- topic/p p" data-ofbid="d108791e53__20250123155209"><a class="- topic/xref xref" href="#gstreamer_design_intro__fig_ryg_s23_d1c">Gstreamer 视频播放软件框架</a> 如下所示：</p>
+            <figure class="- topic/fig fig fignone" id="gstreamer_design_intro__fig_ryg_s23_d1c" data-ofbid="gstreamer_design_intro__fig_ryg_s23_d1c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="gstreamer_design_intro__image_cbg_423_d1c" src="../../../images/gstreamer/gst_aic_design.png" alt="gst_aic_design"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">Gstreamer 视频播放软件框架</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d108791e71__20250123155209">可分为三个模块：</p>
+            <ul class="- topic/ul ul" id="gstreamer_design_intro__ul_ebg_423_d1c" data-ofbid="gstreamer_design_intro__ul_ebg_423_d1c">
+                <li class="- topic/li li" data-ofbid="d108791e76__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e78__20250123155209">demux 模块，文件解封装模块，实现 ts、MP4、mkv、flv 等文件格式解析。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e82__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e84__20250123155209">decoder 模块，视频解码模块，完成视频解码功能。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e88__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e90__20250123155209">sink 模块，视频显示模块，完成视频显示功能。</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d108791e96__20250123155209">Gstreamer 已经实现了 3 个模块的调用流程并提供了模块接口，开发者只需按照 Gstreamer 定义的接口来实现一个插件就可以完成视频播放的功能。</p>
+            <p class="- topic/p p" data-ofbid="d108791e99__20250123155209">ArtInChip 平台提供了视频解码加速硬件模块（VE）和图像显示硬件模块（DE），为了在 Gstreamer 软件上发挥我们的硬件优势， 我们定义了 2
+                个插件：gstvedec 和 gstfbsink，分别作为 VE 和 DE 的 Gstreamer 插件。</p>
+            <p class="- topic/p p" data-ofbid="d108791e102__20250123155209">同时，为了实现 VE 和 DE 共享 buffer，GstVideoDecoder 和 GstVideoSink 之间传递的 GstBuffer 是由自定义的
+                gstmppallocator 模块进行内存管理。</p>
+        </section>
+        <section class="- topic/section section" id="gstreamer_design_intro__section_fbg_423_d1c" data-ofbid="gstreamer_design_intro__section_fbg_423_d1c"><h2 class="- topic/title title sectiontitle">gstmppallocator 设计</h2>
+            
+            <p class="- topic/p p" data-ofbid="d108791e111__20250123155209">gstmppallocator 模块主要用于管理视频帧 buffer，实现 gstvedec 和 gstfbsink 的 buffer 共享。</p>
+            <p class="- topic/p p" data-ofbid="d108791e114__20250123155209">GstMppAllocator 继承于 GstAllocator 对象，用于管理分配和释放内存。分配的内存 GstMppMemory 则继承于 GstMemory
+                对象。</p>
+            <p class="- topic/p p" data-ofbid="d108791e117__20250123155209">Gstreamer 中大多数对象都是通过引用计数进行管理，该对象在某个地方使用时，对其引用计数进行加 1 操作， 不使用时再将引用计数减 1，如果最终引用计数为
+                0，则表示该对象不会再被使用，应该释放该对象。 GstMppMemory 也遵循该原则。</p>
+            <p class="- topic/p p" data-ofbid="d108791e120__20250123155209">主要功能包括以下几点：</p>
+            <ul class="- topic/ul ul" id="gstreamer_design_intro__ul_hbg_423_d1c" data-ofbid="gstreamer_design_intro__ul_hbg_423_d1c">
+                <li class="- topic/li li" data-ofbid="d108791e126__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e128__20250123155209">通过 gstmppallocator 模块申请的 buffer 只能存放 mpp_frame 结构体，它的长度也只能是 mpp_frame
+                        结构体的大小。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e132__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e134__20250123155209">申请 buffer 的调用只会在 gstvedec 模块中，每次获取到一个解码帧后调用该接口。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e138__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e140__20250123155209">当 buffer 的引用计数为 0 时，会触发 buffer 释放接口的调用，因此释放 buffer 可能发生在 gstfbsink
+                        模块或其它模块中（比如丢帧时释放 buffer 是在 GstVideoDecoder 中调用）。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e144__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e146__20250123155209">调用释放 buffer 时，需要将 buffer 对应的 mpp_frame 还给解码器。</p>
+                </li>
+            </ul>
+            <div class="- topic/p p" data-ofbid="d108791e151__20250123155209">关键实现代码如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__codeblock_krd_r23_d1c" data-ofbid="gstreamer_design_intro__codeblock_krd_r23_d1c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">void</strong> gst_mpp_allocator_free (GstAllocator * alloc, GstMemory * mem)
+{
+    GstMppAllocator *allocator = (GstMppAllocator*) alloc;
+    GstMppMemory *mpp_mem = (GstMppMemory *)mem;
+    <strong class="hl-keyword">struct</strong> mpp_frame *mframe = mpp_mem-&gt;frame;
+
+    mpp_decoder_put_frame(allocator-&gt;decoder, mframe);
+    GST_DEBUG_OBJECT(allocator, <span class="hl-string">"return mpp_frame (%d)"</span>, mframe-&gt;id);
+
+    free(mpp_mem);
+}
+
+<strong class="hl-keyword">static</strong> GstMemory *gst_mpp_allocator_alloc (GstAllocator *alloc, gsize size,
+GstAllocationParams * params)
+{
+    <strong class="hl-keyword">int</strong> slice_size = <span class="hl-number">0</span>;
+    guint8 *data;
+    GstMppMemory *mem = NULL;
+    GstMppAllocator *allocator = (GstMppAllocator*) alloc;
+    <strong class="hl-keyword">if</strong> (size != <strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> mpp_frame)) {
+        GST_ERROR_OBJECT(allocator, <span class="hl-string">"memory size(%lu) is not right"</span>, size);
+        <strong class="hl-keyword">return</strong> NULL;
+    }
+
+    slice_size = <strong class="hl-keyword">sizeof</strong>(GstMppMemory) + size;
+
+    mem = (GstMppMemory*)malloc(slice_size);
+    data = (guint8 *) mem + <strong class="hl-keyword">sizeof</strong> (GstMppMemory);
+    mem-&gt;frame = (<strong class="hl-keyword">struct</strong> mpp_frame*)data;
+
+    gst_memory_init (GST_MEMORY_CAST (mem),
+            <span class="hl-number">0</span>, alloc, NULL, size, <span class="hl-number">0</span>, <span class="hl-number">0</span>, size);
+
+    GST_DEBUG_OBJECT(allocator, <span class="hl-string">"alloc mpp size(%lu), ref_count: %d"</span>,
+        size, GST_MINI_OBJECT_REFCOUNT_VALUE(mem));
+
+    <strong class="hl-keyword">return</strong> (GstMemory*)mem;
+}</code></pre></div>
+        </section>
+        <section class="- topic/section section" id="gstreamer_design_intro__section_jbg_423_d1c" data-ofbid="gstreamer_design_intro__section_jbg_423_d1c"><h2 class="- topic/title title sectiontitle">gstvedec 插件设计</h2>
+            
+            <p class="- topic/p p" data-ofbid="d108791e162__20250123155209">gstvedec 插件是对 mpp_decoder 接口的二次封装。mpp_decoder 接口实现 3 个功能：</p>
+            <ul class="- topic/ul ul" id="gstreamer_design_intro__ul_lbg_423_d1c" data-ofbid="gstreamer_design_intro__ul_lbg_423_d1c">
+                <li class="- topic/li li" data-ofbid="d108791e167__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e169__20250123155209">把视频码流数据送给解码器</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e173__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e175__20250123155209">调用硬件解码视频码流数据，并输出视频帧</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d108791e179__20250123155209">
+                    <p class="- topic/p p" data-ofbid="d108791e181__20250123155209">从解码器取视频帧</p>
+                </li>
+            </ul>
+            <div class="- topic/p p" data-ofbid="d108791e186__20250123155209">gstvedec 主要功能是使用 mpp_decoder 提供的这 3 个功能对接 GstVideoDecoder 的接口。<ul class="- topic/ul ul" id="gstreamer_design_intro__ul_tjp_523_d1c" data-ofbid="gstreamer_design_intro__ul_tjp_523_d1c">
+                    <li class="- topic/li li" data-ofbid="d108791e190__20250123155209">GstVideoDecoder 的接口说明<ul class="- topic/ul ul" id="gstreamer_design_intro__ul_vkn_x23_d1c" data-ofbid="gstreamer_design_intro__ul_vkn_x23_d1c">
+                            <li class="- topic/li li" data-ofbid="d108791e194__20250123155209">
+                                <div class="- topic/p p" data-ofbid="d108791e196__20250123155209">GstVideoDecoder
+                                    最重要的两个接口函数如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__codeblock_q4v_v23_d1c" data-ofbid="gstreamer_design_intro__codeblock_q4v_v23_d1c"><code>gboolean      (*set_format)     (GstVideoDecoder *decoder, GstVideoCodecState * state);
+GstFlowReturn (*handle_frame)   (GstVideoDecoder *decoder, GstVideoCodecFrame *frame);</code></pre></div>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d108791e202__20250123155209">
+                                <p class="- topic/p p" data-ofbid="d108791e204__20250123155209">set_format 主要用于传递解码器所需的元信息，包括 extradata （MP4 等帧格式文件会传递
+                                    extradata，而 TS 等流格式文件不传递）。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d108791e208__20250123155209">
+                                <p class="- topic/p p" data-ofbid="d108791e210__20250123155209">handle_frame 主要用于传递视频码流数据。</p>
+                            </li>
+                        </ul></li>
+                    <li class="- topic/li li" data-ofbid="d108791e215__20250123155209">对接设计<div class="- topic/p p" data-ofbid="d108791e217__20250123155209">对应于 mpp_decoder 的 3 个功能，3 个功能分别在不同线程中调用，实现方式如下：<ol class="- topic/ol ol" id="gstreamer_design_intro__ol_fkd_z23_d1c" data-ofbid="gstreamer_design_intro__ol_fkd_z23_d1c">
+                                <li class="- topic/li li" data-ofbid="d108791e221__20250123155209">GstVideoDecoder 的 handle_frame 接口主要实现把码流数据传递到
+                                    mpp_decoder;<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__codeblock_hxz_bf3_d1c" data-ofbid="gstreamer_design_intro__codeblock_hxz_bf3_d1c"><code><strong class="hl-keyword">int</strong> ret = mpp_decoder_get_packet(dec-&gt;mpp_dec, &amp;packet, input_minfo.size);
+packet.size = input_minfo.size;
+memcpy(packet.data, input_minfo.data, input_minfo.size);
+packet.pts = in_frame-&gt;pts;
+mpp_decoder_put_packet(dec-&gt;mpp_dec, &amp;packet);</code></pre></li>
+                                <li class="- topic/li li" data-ofbid="d108791e226__20250123155209">gstvedec 初始化时创建一个解码线程，该线程只完成解码功能。</li>
+                                <li class="- topic/li li" data-ofbid="d108791e229__20250123155209">gstvedec 的 srcpad 上创建一个显示线程，该线程的任务有两个：<ul class="- topic/ul ul" id="gstreamer_design_intro__ul_rbg_423_d1c" data-ofbid="gstreamer_design_intro__ul_rbg_423_d1c">
+                                        <li class="- topic/li li" data-ofbid="d108791e233__20250123155209">通过 GstMppAllocator 申请一个 buffer，用于传递视频帧信息。</li>
+                                        <li class="- topic/li li" data-ofbid="d108791e236__20250123155209">从 mpp_decoder 中获取一帧解码后的 mpp_frame，并把 mpp_frame 信息拷贝到
+                                                buffer<div class="- topic/note note note note_note" id="gstreamer_design_intro__note_mxj_srn_y1c" data-ofbid="gstreamer_design_intro__note_mxj_srn_y1c"><span class="note__title">注：</span> <div class="note__body">此时不能把 mpp_frame
+                                                还给解码器</div></div></li>
+                                        <li class="- topic/li li" data-ofbid="d108791e241__20250123155209">调用 gst_video_decoder_finish_frame 将 buffer 送到 sink
+                                            中。</li>
+                                    </ul></li>
+                            </ol></div></li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="gstreamer_design_intro__section_sbg_423_d1c" data-ofbid="gstreamer_design_intro__section_sbg_423_d1c"><h2 class="- topic/title title sectiontitle">gstfbsink 插件设计</h2>
+            
+            <p class="- topic/p p" data-ofbid="d108791e253__20250123155209">gstfbsink 插件是对 Linux 标准的 framebuffer 接口的二次封装，对接 GstVideoSink 接口。</p>
+            <p class="- topic/p p" data-ofbid="d108791e256__20250123155209">GstVideoSink 最重要的接口函数 render 如下，主要用于显示一帧视频数据。</p>
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__pre_tbg_423_d1c" data-ofbid="gstreamer_design_intro__pre_tbg_423_d1c"><code>GstFlowReturn(*render)(GstBaseSink*bsink,GstBuffer*buffer);</code></pre>
+            <p class="- topic/p p" data-ofbid="d108791e262__20250123155209">gstfbsink 插件设计的关键点是：必须避免同一个视频帧 VE 和 DE 同时读写的情况，否则会出现画面异常问题。</p>
+            <p class="- topic/p p" data-ofbid="d108791e266__20250123155209">设计方案：</p>
+            <ul class="- topic/ul ul" id="gstreamer_design_intro__ul_vbg_423_d1c" data-ofbid="gstreamer_design_intro__ul_vbg_423_d1c">
+                <li class="- topic/li li" data-ofbid="d108791e271__20250123155209">将当前 buffer 引用计数加 1。</li>
+                <li class="- topic/li li" data-ofbid="d108791e274__20250123155209">通过 framebuffer 接口显示当前视频帧。</li>
+                <li class="- topic/li li" data-ofbid="d108791e277__20250123155209">将上一个 buffer 引用计数减 1（释放上一个 buffer）。</li>
+            </ul>
+            <div class="- topic/p p" data-ofbid="d108791e281__20250123155209">代码实现如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="gstreamer_design_intro__codeblock_bd5_423_d1c" data-ofbid="gstreamer_design_intro__codeblock_bd5_423_d1c"><code>gst_memory_ref(mem);
+
+gst_aicfb_render(fbsink-&gt;aicfb, &amp;(mframe-&gt;buf), mframe-&gt;id);
+
+<strong class="hl-keyword">if</strong> (fbsink-&gt;prev_mem != NULL) {
+    gst_memory_unref(fbsink-&gt;prev_mem);
+}
+fbsink-&gt;prev_mem = mem;</code></pre></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        <div class=" wh_child_links d-print-none "><nav aria-label="Child Links" role="navigation" class="- topic/related-links related-links"><ul class="ullinks"><li class="- topic/link link ulchildlink"><strong><a href="../../../topics/sdk/gstreamer/gstreamer-architecture.html">模块架构</a></strong></li></ul></nav></div>
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#gstreamer_design_intro__section_oyk_mjn_4dc" data-tocid="gstreamer_design_intro__section_oyk_mjn_4dc">源码说明</a></div></li><li class="section-item"><div class="section-title"><a href="#gstreamer_design_intro__section_kb2_njn_4dc" data-tocid="gstreamer_design_intro__section_kb2_njn_4dc">模块架构</a></div></li><li class="section-item"><div class="section-title"><a href="#gstreamer_design_intro__section_fbg_423_d1c" data-tocid="gstreamer_design_intro__section_fbg_423_d1c">gstmppallocator 设计</a></div></li><li class="section-item"><div class="section-title"><a href="#gstreamer_design_intro__section_jbg_423_d1c" data-tocid="gstreamer_design_intro__section_jbg_423_d1c">gstvedec 插件设计</a></div></li><li class="section-item"><div class="section-title"><a href="#gstreamer_design_intro__section_sbg_423_d1c" data-tocid="gstreamer_design_intro__section_sbg_423_d1c">gstfbsink 插件设计</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

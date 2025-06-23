@@ -276,68 +276,6 @@ __weak char *board_fdt_chosen_bootargs(void)
 	return env_get("bootargs");
 }
 
-#if defined(CONFIG_FIT_SIGNATURE)
-static int replace_first_str(char *src, char *match_str, char *replace_str)
-{
-	int str_len;
-	char newstring[1024] = {0};
-	char *find_pos;
-
-	if (match_str == NULL || replace_str == NULL)
-		return -1;
-
-	find_pos = strstr(src, match_str);
-	if (!find_pos)
-		return -1;
-
-	while (find_pos) {
-		str_len = find_pos - src;
-		strncpy(newstring, src, str_len);
-		strcat(newstring, replace_str);
-		strcat(newstring, find_pos + strlen(match_str));
-		strcpy(src, newstring);
-		return 0;
-	}
-
-	return 0;
-}
-
-static int fdt_get_cmdline(void *fdt, char *cmdline)
-{
-	int  nodeoffset;
-	const char *create, *waitfor, *bootargs, *args;
-	char buf[1024];
-
-	/* find or create "/chosen" node. */
-	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
-	if (nodeoffset < 0)
-		return nodeoffset;
-
-	debug("Get bootargs parameters.\n");
-	create = fdt_getprop(fdt, nodeoffset, "dm-mod.create", NULL);
-	waitfor = fdt_getprop(fdt, nodeoffset, "dm-mod.waitfor", NULL);
-	bootargs = fdt_getprop(fdt, nodeoffset, "bootargs", NULL);
-	args = fdt_getprop(fdt, nodeoffset, "args", NULL);
-
-	if (!create || !waitfor || !bootargs || !args) {
-		printf("Get bootargs parameters failed!\n");
-		printf("If secure boot is not used, "
-				"CONFIG_FIT_SIGNATURE should disable!\n");
-		return -EINVAL;
-	}
-	strcpy(buf, create);
-	if (replace_first_str(buf, "data_dev", env_get("root_part"))) {
-		printf("Set data dev failed.\n");
-	}
-	if (replace_first_str(buf, "hash_dev", env_get("hash_part"))) {
-		printf("Set hash dev failed.\n");
-	}
-	snprintf(cmdline, 1024, "%s %s %s %s", bootargs, args, buf, waitfor);
-
-	return 0;
-}
-#endif
-
 int fdt_chosen(void *fdt)
 {
 	int nodeoffset;
@@ -355,16 +293,7 @@ int fdt_chosen(void *fdt)
 	if (nodeoffset < 0)
 		return nodeoffset;
 
-#if defined(CONFIG_FIT_SIGNATURE)
-	char cmdline[1024];
-
-	err = fdt_get_cmdline(fdt, cmdline);
-	if (err)
-		return err;
-	str = cmdline;
-#else
 	str = board_fdt_chosen_bootargs();
-#endif
 	if (str) {
 		err = fdt_setprop(fdt, nodeoffset, "bootargs", str,
 				  strlen(str) + 1);
@@ -1474,6 +1403,7 @@ int fdt_get_dma_range(const void *blob, int node, phys_addr_t *cpu,
 	int ret = 0;
 	int len;
 
+	ranges = NULL;
 	/* Find the closest dma-ranges property */
 	while (parent >= 0) {
 		ranges = fdt_getprop(blob, parent, "dma-ranges", &len);
@@ -1637,7 +1567,7 @@ unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 		phandle = fdt_alloc_phandle(fdt);
 		ret = fdt_set_phandle(fdt, nodeoffset, phandle);
 		if (ret < 0) {
-			printf("Can't set phandle %u: %s\n", phandle,
+			printf("Can't set phandle %d: %s\n", phandle,
 			       fdt_strerror(ret));
 			return 0;
 		}
@@ -1675,7 +1605,7 @@ int fdt_set_node_status(void *fdt, int nodeoffset,
 		ret = fdt_setprop_string(fdt, nodeoffset, "status", "fail");
 		break;
 	case FDT_STATUS_FAIL_ERROR_CODE:
-		sprintf(buf, "fail-%d", error_code);
+		sprintf(buf, "fail-%u", error_code);
 		ret = fdt_setprop_string(fdt, nodeoffset, "status", buf);
 		break;
 	default:

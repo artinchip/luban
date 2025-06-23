@@ -115,51 +115,133 @@ static void dsi_dphy_cfg_hsfreq(void __iomem *base, ulong mclk)
 	u32 freq_rdata = mclk / 1000000;
 	u32 freq_wdata;
 
-	freq_wdata = ((freq_rdata >=   80) && (freq_rdata <   90)) ? 0x00 << 1 :
-		     ((freq_rdata >=   90) && (freq_rdata <  100)) ? 0x10 << 1 :
-		     ((freq_rdata >=  100) && (freq_rdata <  110)) ? 0x20 << 1 :
-		     ((freq_rdata >=  110) && (freq_rdata <  130)) ? 0x01 << 1 :
-		     ((freq_rdata >=  130) && (freq_rdata <  140)) ? 0x11 << 1 :
-		     ((freq_rdata >=  140) && (freq_rdata <  150)) ? 0x21 << 1 :
-		     ((freq_rdata >=  150) && (freq_rdata <  170)) ? 0x02 << 1 :
-		     ((freq_rdata >=  170) && (freq_rdata <  180)) ? 0x12 << 1 :
-		     ((freq_rdata >=  180) && (freq_rdata <  200)) ? 0x22 << 1 :
-		     ((freq_rdata >=  200) && (freq_rdata <  220)) ? 0x03 << 1 :
-		     ((freq_rdata >=  220) && (freq_rdata <  240)) ? 0x13 << 1 :
-		     ((freq_rdata >=  240) && (freq_rdata <  250)) ? 0x23 << 1 :
-		     ((freq_rdata >=  250) && (freq_rdata <  270)) ? 0x04 << 1 :
-		     ((freq_rdata >=  270) && (freq_rdata <  300)) ? 0x14 << 1 :
-		     ((freq_rdata >=  300) && (freq_rdata <  330)) ? 0x05 << 1 :
-		     ((freq_rdata >=  330) && (freq_rdata <  360)) ? 0x15 << 1 :
-		     ((freq_rdata >=  360) && (freq_rdata <  400)) ? 0x25 << 1 :
-		     ((freq_rdata >=  400) && (freq_rdata <  450)) ? 0x06 << 1 :
-		     ((freq_rdata >=  450) && (freq_rdata <  500)) ? 0x16 << 1 :
-		     ((freq_rdata >=  500) && (freq_rdata <  550)) ? 0x07 << 1 :
-		     ((freq_rdata >=  550) && (freq_rdata <  600)) ? 0x17 << 1 :
-		     ((freq_rdata >=  600) && (freq_rdata <  650)) ? 0x08 << 1 :
-		     ((freq_rdata >=  650) && (freq_rdata <  700)) ? 0x18 << 1 :
-		     ((freq_rdata >=  700) && (freq_rdata <  750)) ? 0x09 << 1 :
-		     ((freq_rdata >=  750) && (freq_rdata <  800)) ? 0x19 << 1 :
-		     ((freq_rdata >=  800) && (freq_rdata <  850)) ? 0x29 << 1 :
-		     ((freq_rdata >=  850) && (freq_rdata <  900)) ? 0x39 << 1 :
-		     ((freq_rdata >=  900) && (freq_rdata <  950)) ? 0x0a << 1 :
-		     ((freq_rdata >=  950) && (freq_rdata < 1000)) ? 0x1a << 1 :
-		     ((freq_rdata >= 1000) && (freq_rdata < 1050)) ? 0x2a << 1 :
-		     ((freq_rdata >= 1050) && (freq_rdata < 1100)) ? 0x3a << 1 :
-		     ((freq_rdata >= 1100) && (freq_rdata < 1150)) ? 0x0b << 1 :
-		     ((freq_rdata >= 1150) && (freq_rdata < 1200)) ? 0x1b << 1 :
-		     ((freq_rdata >= 1200) && (freq_rdata < 1250)) ? 0x2b << 1 :
-		     ((freq_rdata >= 1250) && (freq_rdata < 1300)) ? 0x3b << 1 :
-		     ((freq_rdata >= 1300) && (freq_rdata < 1350)) ? 0x0c << 1 :
-		     ((freq_rdata >= 1350) && (freq_rdata < 1400)) ? 0x1c << 1 :
-		     ((freq_rdata >= 1400) && (freq_rdata < 1450)) ? 0x2c << 1 :
-		     ((freq_rdata >= 1450) && (freq_rdata < 1500)) ? 0x3c << 1 :
-		     0;
+	switch (freq_rdata) {
+	case   80 ...  89:
+		freq_wdata  = 0x00 << 1;
+		break;
+	case   90 ...  99:
+		freq_wdata  = 0x10 << 1;
+		break;
+	case  100 ... 109:
+		freq_wdata  = 0x20 << 1;
+		break;
+	case  110 ... 129:
+		freq_wdata  = 0x01 << 1;
+		break;
+	case  130 ... 139:
+		freq_wdata  = 0x11 << 1;
+		break;
+	case  140 ... 149:
+		freq_wdata  = 0x21 << 1;
+		break;
+	case  150 ... 169:
+		freq_wdata  = 0x02 << 1;
+		break;
+	case  170 ... 179:
+		freq_wdata  = 0x12 << 1;
+		break;
+	case  180 ... 199:
+		freq_wdata  = 0x22 << 1;
+		break;
+	case  200 ... 219:
+		freq_wdata  = 0x03 << 1;
+		break;
+	case  220 ... 239:
+		freq_wdata  = 0x13 << 1;
+		break;
+	case  240 ... 249:
+		freq_wdata  = 0x23 << 1;
+		break;
+	case  250 ... 269:
+		freq_wdata  = 0x04 << 1;
+		break;
+	case  270 ... 299:
+		freq_wdata  = 0x14 << 1;
+		break;
+	case  300 ... 329:
+		freq_wdata  = 0x05 << 1;
+		break;
+	case  330 ... 359:
+		freq_wdata  = 0x15 << 1;
+		break;
+	case  360 ... 399:
+		freq_wdata  = 0x25 << 1;
+		break;
+	case  400 ... 449:
+		freq_wdata  = 0x06 << 1;
+		break;
+	case  450 ... 499:
+		freq_wdata  = 0x16 << 1;
+		break;
+	case  500 ... 549:
+		freq_wdata  = 0x07 << 1;
+		break;
+	case  550 ... 599:
+		freq_wdata  = 0x17 << 1;
+		break;
+	case  600 ... 649:
+		freq_wdata  = 0x08 << 1;
+		break;
+	case  650 ... 699:
+		freq_wdata  = 0x18 << 1;
+		break;
+	case  700 ... 749:
+		freq_wdata  = 0x09 << 1;
+		break;
+	case  750 ... 799:
+		freq_wdata  = 0x19 << 1;
+		break;
+	case  800 ... 849:
+		freq_wdata  = 0x29 << 1;
+		break;
+	case  850 ... 899:
+		freq_wdata  = 0x39 << 1;
+		break;
+	case  900 ... 949:
+		freq_wdata  = 0x0a << 1;
+		break;
+	case  950 ... 999:
+		freq_wdata  = 0x1a << 1;
+		break;
+	case 1000 ... 1049:
+		freq_wdata = 0x2a << 1;
+		break;
+	case 1050 ... 1099:
+		freq_wdata = 0x3a << 1;
+		break;
+	case 1100 ... 1149:
+		freq_wdata = 0x0b << 1;
+		break;
+	case 1150 ... 1199:
+		freq_wdata = 0x1b << 1;
+		break;
+	case 1200 ... 1249:
+		freq_wdata = 0x2b << 1;
+		break;
+	case 1250 ... 1299:
+		freq_wdata = 0x3b << 1;
+		break;
+	case 1300 ... 1349:
+		freq_wdata = 0x0c << 1;
+		break;
+	case 1350 ... 1399:
+		freq_wdata = 0x1c << 1;
+		break;
+	case 1400 ... 1449:
+		freq_wdata = 0x2c << 1;
+		break;
+	case 1450 ... 1499:
+		freq_wdata = 0x3c << 1;
+		break;
+	default:
+		freq_wdata = 0x00;
+		break;
+	}
 
 	dsi_dphy_cfg(base, 0x44, &freq_wdata, &freq_rdata);
 }
 
-void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane)
+void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane, enum dsi_mode mode)
 {
 	void __iomem *ANA2 = base + DSI_ANA_CFG2;
 	void __iomem *CFG = base + DSI_PHY_CFG;
@@ -203,6 +285,14 @@ void dsi_phy_init(void __iomem *base, ulong mclk, u32 lane)
 	reg_set_bits(CFG, DSI_PHY_CFG_DATA_LANE_MASK,
 		DSI_PHY_CFG_DATA_LANE(lane - 1));
 	aic_delay_us(5);
+
+	if (mode & DSI_CLOCK_NON_CONTINUOUS) {
+		reg_clr_bit(CFG, DSI_PHY_CFG_HSCLK_REQ);
+		aic_delay_us(5);
+		reg_set_bit(CFG, DSI_PHY_CFG_AUTO_CLK_EN);
+		aic_delay_us(5);
+	}
+
 	reg_set_bit(CFG, DSI_PHY_CFG_RST_CLK_EN);
 }
 
@@ -248,8 +338,6 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 
 	if (unlikely(format >= DSI_FMT_MAX))
 		BUG();
-	if (unlikely(mode >= DSI_MOD_MAX))
-		BUG();
 
 	reg_clr_bit(IFCFG, DSI_DPI_IF_CFG_SHUTD);
 	reg_clr_bit(IFCFG, DSI_DPI_IF_CFG_COLORM);
@@ -270,7 +358,7 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	reg_clr_bit(INPOL, DSI_DPI_IN_POL_SHUTDOWN);
 	reg_clr_bit(INPOL, DSI_DPI_IN_POL_COLORM);
 
-	if (mode == DSI_MOD_CMD_MODE) {
+	if (mode & DSI_MOD_CMD_MODE) {
 		reg_set_bit(base + DSI_CTL, DSI_CTL_DSI_MODE);
 		reg_write(base + DSI_EDPI_CMD_SIZE, vm->xres);
 		reg_clr_bit(CMDCFG, DSI_CMD_MODE_CFG_ACK_REQ_EN);
@@ -287,7 +375,7 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_VFP);
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_VACT);
 	reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HBP);
-	if (mode == DSI_MOD_VID_BURST)
+	if (mode & DSI_MOD_VID_BURST)
 		reg_set_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HFP);
 	else
 		reg_clr_bit(VIDCFG, DSI_VID_MODE_CFG_LP_EN_HFP);
@@ -298,26 +386,16 @@ void dsi_set_vm(void __iomem *base, enum dsi_mode mode, enum dsi_format format,
 	reg_write(base + DSI_VID_CHK_NUM, 1);
 	reg_write(base + DSI_VID_NULL_SIZE, 0);
 
-	if (mode == DSI_MOD_VID_PULSE)
-		reg_set_bits(base + DSI_VID_HINACT_TIME,
-			DSI_VID_HSA_TIME_MASK,
-			DSI_VID_HSA_TIME(
-			vm->hsync_len * dsi_bits_per_pixel[format]/(8 * lane)));
-	else
-		reg_set_bits(base + DSI_VID_HINACT_TIME,
-			DSI_VID_HSA_TIME_MASK,
-			0);
+	reg_set_bits(base + DSI_VID_HINACT_TIME,
+		DSI_VID_HSA_TIME_MASK,
+		DSI_VID_HSA_TIME(
+		vm->hsync_len * dsi_bits_per_pixel[format]/(8 * lane)));
 
-	if (mode != DSI_MOD_VID_BURST)
-		reg_set_bits(base + DSI_VID_HINACT_TIME,
-			DSI_VID_HBP_TIME_MASK,
-			DSI_VID_HBP_TIME(
-				vm->left_margin *
-				dsi_bits_per_pixel[format]/(8 * lane)));
-	else
-		reg_set_bits(base + DSI_VID_HINACT_TIME,
-			DSI_VID_HBP_TIME_MASK,
-			0);
+	reg_set_bits(base + DSI_VID_HINACT_TIME,
+		DSI_VID_HBP_TIME_MASK,
+		DSI_VID_HBP_TIME(
+			vm->left_margin *
+			dsi_bits_per_pixel[format]/(8 * lane)));
 
 	reg_write(base + DSI_VID_HT_TIME,
 		ht * dsi_bits_per_pixel[format]/(8 * lane));

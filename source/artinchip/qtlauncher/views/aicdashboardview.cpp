@@ -1,6 +1,8 @@
- // SPDX-License-Identifier: GPL-2.0-only
  /*
   * Copyright (C) 2023 ArtInChip Technology Co., Ltd.
+ *
+  * SPDX-License-Identifier: Apache-2.0
+ *
   * Author: Keliang Liu <keliang.liu@artinchip.com>
  */
 

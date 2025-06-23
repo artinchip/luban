@@ -76,11 +76,12 @@ struct panel_lvds {
 };
 
 enum dsi_mode {
-	DSI_MOD_VID_PULSE = 0,
-	DSI_MOD_VID_EVENT = 1,
-	DSI_MOD_VID_BURST = 2,
-	DSI_MOD_CMD_MODE = 3,
-	DSI_MOD_MAX
+	DSI_MOD_VID_PULSE        = BIT(0),
+	DSI_MOD_VID_EVENT        = BIT(1),
+	DSI_MOD_VID_BURST        = BIT(2),
+	DSI_MOD_CMD_MODE         = BIT(3),
+
+	DSI_CLOCK_NON_CONTINUOUS = BIT(4),
 };
 
 enum dsi_format {

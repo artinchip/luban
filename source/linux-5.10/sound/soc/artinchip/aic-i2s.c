@@ -179,7 +179,24 @@ static void aic_set_lrck_period(struct aic_i2s *i2s,
 					I2S_FMT0_LRCK_PERIOD(ratio / 2 -1));
 		break;
 	case SND_SOC_DAI_FORMAT_DSP_A:
+		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
+					I2S_FMT0_LRCK_PERIOD_MASK,
+					I2S_FMT0_LRCK_PERIOD(ratio - 1));
+		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
+					I2S_FMT0_LRCK_POL_MASK,
+					I2S_FMT0_LRCK_POL_MASK);
+		break;
 	case SND_SOC_DAI_FORMAT_DSP_B:
+		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
+					I2S_FMT0_LRCK_WIDTH,
+					I2S_FMT0_LRCK_WIDTH);
+		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
+					I2S_FMT0_LRCK_POL_MASK,
+					I2S_FMT0_LRCK_POL_MASK);
+		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
+					I2S_FMT0_LRCK_PERIOD_MASK,
+					I2S_FMT0_LRCK_PERIOD(ratio - 1));
+		break;
 	default:	/* I2S default Mode is PCM mode */
 		regmap_update_bits(i2s->regmap, I2S_FMT0_REG,
 					I2S_FMT0_LRCK_PERIOD_MASK,
@@ -749,6 +766,23 @@ static const struct snd_soc_component_driver aic_i2s_component = {
 	.name = "aic_i2s_comp",
 };
 
+static const struct snd_pcm_hardware aic_i2s_pcm_hardware = {
+	.info			= SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID |
+					SNDRV_PCM_INFO_INTERLEAVED,
+	.buffer_bytes_max	= 128 * 1024,
+	.period_bytes_max	= 64 * 1024,
+	.period_bytes_min	= 256,
+	.periods_max		= 255,
+	.periods_min		= 2,
+	.fifo_size		= 0,
+};
+
+static const struct snd_dmaengine_pcm_config aic_i2s_dmaengine_pcm_config = {
+	.pcm_hardware = &aic_i2s_pcm_hardware,
+	.prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config,
+	.prealloc_buffer_size = 128 * 1024,
+};
+
 static bool aic_i2s_rd_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
@@ -919,7 +953,8 @@ static int aic_i2s_probe(struct platform_device *pdev)
 			goto err_pm_disable;
 	}
 
-	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+	ret = devm_snd_dmaengine_pcm_register(&pdev->dev,
+						&aic_i2s_dmaengine_pcm_config, 0);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register PCM DMA\n");
 		goto err_pm_disable;

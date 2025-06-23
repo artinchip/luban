@@ -69,12 +69,27 @@ config USB_GADGET_PRODUCT_NUM
 	help
 	  Product ID of the USB device emulated, reported to the host device.
 
-config USB_GADGET_AIC
+menuconfig USB_GADGET_AIC
 	bool "ArtInChip USB2.0 Device controller"
 	select USB_GADGET_DUALSPEED
 	help
 	  The ArtInChip USB2.0 high-speed device controller.
 	  This option requires USB_GADGET to be enabled.
+if USB_GADGET_AIC
+	choice
+		prompt "Select ArtInChip UDC device"
+		default AIC_USB_UDC_V10
+		config AIC_USB_UDC_V10
+			bool "aic-udc-v1.0"
+			help
+			 The ArtInChip USB2.0 high-speed device controller v1.0.
+
+		config AIC_USB_UDC_V20
+			bool "aic-udc-v2.0"
+			help
+			The ArtInChip USB2.0 high-speed device controller v2.0.
+	endchoice
+endif
 
 config USB_GADGET_ATMEL_USBA
 	bool "Atmel USBA"

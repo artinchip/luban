@@ -71,6 +71,15 @@ static struct aic_panel_funcs panel_funcs = {
 
 /* Init the videomode parameter, dts will override the initial value. */
 static struct videomode panel_vm = {
+	.pixelclock = 130000000,
+	.hactive = 1200,
+	.hfront_porch = 160,
+	.hback_porch = 160,
+	.hsync_len = 40,
+	.vactive = 1920,
+	.vfront_porch = 10,
+	.vback_porch = 20,
+	.vsync_len = 8,
 	.flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
 		DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
 };

@@ -16,6 +16,7 @@
 #include "asr_sdio.h"
 #include "asr_hif.h"
 #include "asr_utils.h"
+#include "asr_pm.h"
 
 static struct timer_list g_sdio_dev_detect_timer;
 
@@ -259,7 +260,7 @@ static int check_scratch_status(struct sdio_func *func, u16 status)
     total data format will be: | header data | fw_data | padding | CRC |(CRC check fw_data + padding)
     header data will be: | fw_len | transfer unit | transfer times |
 */
-#ifdef CONFIG_ASR5531
+#if defined(CONFIG_ASR5531) || defined(BASS_SUPPORT)
 #define HYBRID_BIN_TAG 0xAABBCCDD
 int asr_sdio_download_firmware(struct sdio_func *func, const struct firmware *fw_img)
 {
@@ -463,7 +464,7 @@ int asr_sdio_send_section_firmware(struct sdio_func *func, struct sdio_host_sec_
 			dev_info(g_asr_para.dev, "%s CRC_SUCCESS:0x%x\n", __func__, CRC_SUCCESS);
 			/* reset the fw_crc status to check next section */
 			sdio_claim_host(func);
-			sdio_writeb(func, sdio_readb(func,SCRATCH_1,0)&(~(CRC_SUCCESS>>8)), SCRATCH_1, &ret);// clear bit14 
+			sdio_writeb(func, sdio_readb(func,SCRATCH_1,0)&(~(CRC_SUCCESS>>8)), SCRATCH_1, &ret);// clear bit14
 			sdio_release_host(func);
 			if (ret) {
 				dev_err(g_asr_para.dev, "%s reset fw_crc status fail!!! (%d)\n", __func__, ret);
@@ -482,7 +483,7 @@ int asr_sdio_send_section_firmware(struct sdio_func *func, struct sdio_host_sec_
 
 }
 
-#elif defined(CONFIG_ASR5505) || defined(CONFIG_ASR595X)
+#elif defined(CONFIG_ASR5505) || defined(CONFIG_ASR595X) && !defined(BASS_SUPPORT)
 static int asr_sdio_send_fw(struct sdio_func *func, const struct firmware *fw_img, u8 *fw_buf,
     int blk_size, u32 total_len, u32 pad_len)
 {
@@ -605,7 +606,7 @@ int asr_sdio_send_header_firmware(struct sdio_func *func, u32 *header_data, u32 
 
 	} while (0);
 
-	sdio_claim_host(func);                                                                                                                                                                                                                                                
+	sdio_claim_host(func);
 	sdio_writeb(func, 0x0, SCRATCH_0, &ret);
 	sdio_writeb(func, 0x0, SCRATCH_1, &ret);
 	sdio_release_host(func);
@@ -1268,6 +1269,8 @@ static int asr_sdio_probe(struct sdio_func *func, const struct sdio_device_id *i
 	if (!asr_plat)
 		return -ENOMEM;
 
+	asr_sdio_set_state(asr_plat, SDIO_STATE_DOWNLOAD);
+
 	asr_plat->func = func;
 	//asr_plat->irq = asr_gpio_irq;
 
@@ -1311,21 +1314,28 @@ static void asr_sdio_remove(struct sdio_func *func)
 #define SD_DEVICE_ID_5531_FN0     0x600a
 #define SD_DEVICE_ID_5531_FN1     0x700a
 #define SD_DEVICE_ID_5531_BT_FN2  0x700b
+#define SD_DEVICE_ID_596X_FN1     0x701a
+
 
 /** define asr vendor id */
 #define ASR_VENDOR_ID 0x424c
 
 static const struct sdio_device_id asr_sdio_ids[] = {
-#if defined(CONFIG_ASR5531) || defined(BASS_SUPPORT)
+#if defined(CONFIG_ASR5531)
 	{SDIO_DEVICE(ASR_VENDOR_ID, SD_DEVICE_ID_5531_FN1)},
 #else
+#if defined(BASS_SUPPORT)
+	{SDIO_DEVICE(0x424c, SD_DEVICE_ID_596X_FN1)},
+#else
 	{SDIO_DEVICE(0x424c, 0x6006)},
+#endif
 	{SDIO_DEVICE(0x02df, 0x912d)},
 #endif
 	{},
 };
+MODULE_DEVICE_TABLE(sdio, asr_sdio_ids);
 
-#ifdef CONFIG_PM
+#if 0//def CONFIG_PM
 
  /** mlan_status */
 typedef enum _mlan_status {
@@ -1483,7 +1493,7 @@ struct asr_vif *asr_get_vif(struct asr_hw *asr_hw, mlan_bss_role bss_role)
 		iftype = NL80211_IFTYPE_MAX;
 	}
 
-	for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++) {
+	for (i = 0; i < (asr_hw->vif_max_num); i++) {
 		if (asr_hw->vif_table[i]) {
 			if ((bss_role == MLAN_BSS_ROLE_ANY) &&
 			    ((GET_BSS_ROLE(asr_hw->vif_table[i]) == NL80211_IFTYPE_STATION)
@@ -1596,7 +1606,7 @@ typedef struct _mlan_ds_hs_cfg {
 void asr_reconfig_bgscan(struct asr_hw *asr_hw)
 {
 	int i;
-	for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++) {
+	for (i = 0; i < (asr_hw->vif_max_num); i++) {
 		if (asr_hw->vif_table[i] && (GET_BSS_ROLE(asr_hw->vif_table[i]) == NL80211_IFTYPE_STATION)) {
 #if 0
 			if (asr_hw->vif_table[i]->bg_scan_start && asr_hw->vif_table[i]->bg_scan_reported) {
@@ -1977,7 +1987,7 @@ int asr_sdio_suspend(struct device *dev)
 
 	asr_dbg(SDIO, "suspend allowed!\n");
 
-	for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++) {
+	for (i = 0; i < (asr_hw->vif_max_num); i++) {
 		if (asr_hw->vif_table[i] && (asr_hw->vif_table[i]->ndev)) {
 			asr_dbg(SDIO, "netif_device_detach! i=%d\n", i);
 			netif_device_detach(asr_hw->vif_table[i]->ndev);
@@ -2005,7 +2015,7 @@ int asr_sdio_suspend(struct device *dev)
 		} else {
 			asr_dbg(SDIO, "HS not actived, suspend fail!");
 			asr_hw->suspend_fail = MTRUE;
-			for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++) {
+			for (i = 0; i < (asr_hw->vif_max_num); i++) {
 				if (asr_hw->vif_table[i]
 				    && (asr_hw->vif_table[i]->ndev))
 					netif_device_attach(asr_hw->vif_table[i]->ndev);
@@ -2062,7 +2072,7 @@ int asr_sdio_resume(struct device *dev)
 		LEAVE();
 		return MLAN_STATUS_SUCCESS;
 	}
-	for (i = 0; i < (asr_hw->vif_max_num + asr_hw->sta_max_num); i++)
+	for (i = 0; i < (asr_hw->vif_max_num); i++)
 		netif_device_attach(asr_hw->vif_table[i]->ndev);
 
 	/* Disable Host Sleep */
@@ -2070,6 +2080,53 @@ int asr_sdio_resume(struct device *dev)
 	asr_dbg(SDIO, "<--- Leave asr_sdio_resume --->\n");
 	LEAVE();
 	return MLAN_STATUS_SUCCESS;
+}
+#endif
+
+#ifdef CONFIG_ASR_PM
+int asr_sdio_suspend(struct device *dev)
+{
+	struct sdio_func *func = dev_to_sdio_func(dev);
+	struct asr_hw *asr_hw = sdio_get_drvdata(func);
+	mmc_pm_flag_t pm_flag;
+	bool keep_power = true;
+	int ret;
+
+	if (!asr_hw) {
+		asr_err("asr_hw is NULL\n");
+		return 0;
+	}
+
+	pm_flag = sdio_get_host_pm_caps(func);
+	if (!(pm_flag & MMC_PM_KEEP_POWER)) {
+		asr_err("SDIO host is not support keep power\n");
+		keep_power = false;
+	}
+
+	ret = asr_pm_suspend(asr_hw->plat);
+	if (ret) {
+		asr_err("Suspend is not allowed %d\n", ret);
+		return -EBUSY;
+	}
+
+	if (keep_power)
+		sdio_set_host_pm_flags(func, MMC_PM_KEEP_POWER);
+
+	return 0;
+}
+
+int asr_sdio_resume(struct device *dev)
+{
+	struct sdio_func *func = dev_to_sdio_func(dev);
+	struct asr_hw *asr_hw = sdio_get_drvdata(func);
+
+	if (!asr_hw) {
+		asr_err("asr_hw is NULL\n");
+		return 0;
+	}
+
+	asr_pm_resume(asr_hw->plat);
+	return 0;
 }
 
 const struct dev_pm_ops asr_sdio_pm_ops = {
@@ -2082,7 +2139,7 @@ static struct sdio_driver asr_sdio_drv = {
 	.name = "asrsdio",
 	.drv = {
 		.owner = THIS_MODULE,
-#ifdef CONFIG_PM
+#ifdef CONFIG_ASR_PM
 		.pm = &asr_sdio_pm_ops,
 #endif
 		},
@@ -2158,13 +2215,18 @@ u8 asr_get_tx_aggr_bitmap_addr(u8 start_port, u8 end_port)
 extern volatile uint8_t dbg_err_ind;
 int last_tx_time = 0;
 extern int tx_conserve;
+extern bool asr_xmit_opt;
+extern bool asr_sdio_rw_sg;
 int asr_sdio_tx_common_port_dispatch(struct asr_hw *asr_hw, u8 * src, u32 len, unsigned int io_addr, u16 bitmap_record)
 {
 	int ret = 0;
 	struct sdio_func *func = asr_hw->plat->func;
 
 	sdio_claim_host(func);
-	ret = sdio_writesb(func, io_addr, src, len);
+	if (asr_xmit_opt && asr_sdio_rw_sg && (bitmap_record != 0x1))
+		ret = asr_sdio_rw_extended_sg(func, 1, io_addr, 0, &(asr_hw->tx_hif_skb_list), len);
+	else
+		ret = sdio_writesb(func, io_addr, src, len);
 	spin_lock_bh(&asr_hw->tx_msg_lock);
 	asr_hw->tx_use_bitmap &= ~(bitmap_record);
 	spin_unlock_bh(&asr_hw->tx_msg_lock);
@@ -2277,15 +2339,25 @@ bool asr_sdio_tx_msg_port_available(struct asr_hw * asr_hw)
 int asr_sdio_send_data(struct asr_hw *asr_hw, u8 type, u8 * src, u16 len, unsigned int io_addr, u16 bitmap_record)
 {
 	int ret = 0;
-	static u32 tx_msg_jiffies = 0;
-	u64 txmsg_ms = 0;
 	struct lmac_msg *tx_msg = (struct lmac_msg *)src;
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
-	if (type == HIF_TX_MSG)	//msg
-	{
-		int count = 20;
+	if (type == HIF_TX_MSG) { //msg
+		int count = 50;
+		int state;
+
+#ifdef CONFIG_ASR_PM
+		state = asr_pm_acquire(asr_hw->plat, 0);
+#else
+		state = asr_sdio_get_state(asr_hw->plat);
+#endif
+
+		if (state != SDIO_STATE_ACTIVE) {
+			asr_err("error state: %d\n", state);
+			ret = -ECANCELED;
+			goto exit;
+		}
 
 		if (g_asr_para.sdio_send_times == 0)	//first time,poll state
 		{
@@ -2293,46 +2365,27 @@ int asr_sdio_send_data(struct asr_hw *asr_hw, u8 type, u8 * src, u16 len, unsign
 			ret = poll_card_status(asr_hw->plat->func, C2H_IO_RDY);
 			if (ret) {
 				dev_err(asr_hw->dev, "%s card is not in rdy\n", __func__);
-				return -EBUSY;
+				ret = -EBUSY;
+				goto exit;
 			}
 		} else {
 			while ((!(asr_sdio_tx_msg_port_available(asr_hw))) && (--count))	//no available msg port 0
 			{
 				//dev_err(g_asr_para.dev, "no tx msg port\n");
-				msleep(1);
+				msleep(2);
 			}
 			if (count == 0) {
 				dev_err(asr_hw->dev,
 					"ERROR: msg port 0 busy! msg(%d,%d)\n", MSG_T(tx_msg->id), MSG_I(tx_msg->id));
-				return -EBUSY;
+				ret = -EBUSY;
+				goto exit;
 			}
 		}
 
 		//adjust len, must be block size blocks
 		len = len + 4;	//  4 is for end token
-		//if (len > SDIO_BLOCK_SIZE)
+
 		len = ASR_ALIGN_BLKSZ_HI(len);
-
-		mutex_lock(&asr_hw->tx_msg_mutex);
-		if (jiffies >= tx_msg_jiffies) {
-			txmsg_ms = jiffies_to_msecs(jiffies - tx_msg_jiffies);
-		} else {
-			txmsg_ms = jiffies_to_msecs(jiffies);
-		}
-
-		while (txmsg_ms < 20) {	//delay 20 ms
-			//dev_info(asr_hw->dev,"%s: msg delay %lu,%lu,%llu\n",__func__
-			//      , (long unsigned int)tx_msg_jiffies, (long unsigned int)jiffies, (long long unsigned int)txmsg_ms);
-			msleep(1);	//fix no tx msg port bug
-
-			if (jiffies >= tx_msg_jiffies) {
-				txmsg_ms = jiffies_to_msecs(jiffies - tx_msg_jiffies);
-			} else {
-				txmsg_ms = jiffies_to_msecs(jiffies);
-			}
-		}
-		tx_msg_jiffies = jiffies;
-		mutex_unlock(&asr_hw->tx_msg_mutex);
 
 #if 0
 		uint32_t *temp = (uint32_t *) src;
@@ -2342,13 +2395,18 @@ int asr_sdio_send_data(struct asr_hw *asr_hw, u8 type, u8 * src, u16 len, unsign
 			 temp[3], temp[4], temp[5], temp[6], temp[7], temp[8],
 			 temp[9], temp[10], temp[11], temp[12], temp[13], temp[14], temp[15]);
 #else
-
-		dev_info(asr_hw->dev, "%s: tx msg %d,%d\n", __func__, MSG_T(tx_msg->id), MSG_I(tx_msg->id));
+		if (tx_msg->id != MM_REMAIN_ON_CHANNEL_REQ)
+			dev_info(asr_hw->dev, "%s: tx msg %d,%d,len=%d\n", __func__, MSG_T(tx_msg->id), MSG_I(tx_msg->id),len);
 #endif
 
 		ret = asr_sdio_tx_common_port_dispatch(asr_hw, src, len, io_addr, 0x1);
-	} else			//data
-	{
+
+	exit:
+#ifdef CONFIG_ASR_PM
+		asr_pm_release(asr_hw->plat);
+#endif
+		return ret;
+	} else { //data
 		//if (len % SDIO_BLOCK_SIZE)
 		//    dev_err(g_asr_para.dev, "tx len error %d\n",len)
 		ret = asr_sdio_tx_common_port_dispatch(asr_hw, src, len, io_addr, bitmap_record);
@@ -2360,3 +2418,120 @@ int asr_sdio_send_data(struct asr_hw *asr_hw, u8 type, u8 * src, u16 len, unsign
 
 	return ret;
 }
+
+int asr_sdio_rw_extended_sg(struct sdio_func *func, int write,
+	unsigned addr, int incr_addr, struct sk_buff_head *skb_list, unsigned size)
+{
+	unsigned max_blocks, blksz, blocks;
+	struct mmc_request mrq = {};
+	struct mmc_command cmd = {};
+	struct mmc_data data = {};
+	struct scatterlist sg, *sg_ptr;
+	struct sg_table sgtable;
+	struct sk_buff *skb_pending = NULL;
+	struct sk_buff *pnext = NULL;
+	struct mmc_card *card = func->card;
+	unsigned int seg_size = card->host->max_seg_size;
+	int err = 0;
+
+	if (!func || (func->num > 7))
+		return -EINVAL;
+
+	if (addr & ~0x1FFFF)
+		return -EINVAL;
+
+	if (func->card->cccr.multi_block && (size >= func->cur_blksize)) {
+		max_blocks = min(func->card->host->max_blk_count, 511u);
+		blksz = func->cur_blksize;
+		blocks = size / blksz;
+		if (blocks > max_blocks) {
+			asr_err("exceed max number of blocks\n");
+			return -EINVAL;
+		}
+	} else {
+		blksz = size;
+		blocks = 0;
+	}
+
+	mrq.cmd = &cmd;
+	mrq.data = &data;
+
+	cmd.opcode = SD_IO_RW_EXTENDED;
+	cmd.arg = write ? 0x80000000 : 0x00000000;
+	cmd.arg |= func->num << 28;
+	cmd.arg |= incr_addr ? 0x04000000 : 0x00000000;
+	cmd.arg |= addr << 9;
+	if (blocks == 0)
+		cmd.arg |= (blksz == 512) ? 0 : blksz;	/* byte mode */
+	else
+		cmd.arg |= 0x08000000 | blocks;		/* block mode */
+	cmd.flags = MMC_RSP_SPI_R5 | MMC_RSP_R5 | MMC_CMD_ADTC;
+
+	data.blksz = blksz;
+	/* Code in host drivers/fwk assumes that "blocks" always is >=1 */
+	data.blocks = blocks ? blocks : 1;
+	data.flags = write ? MMC_DATA_WRITE : MMC_DATA_READ;
+
+	data.sg_len = skb_queue_len(skb_list);
+	if (data.sg_len > 1) {
+		if (sg_alloc_table(&sgtable, data.sg_len, GFP_KERNEL))
+			return -ENOMEM;
+
+		data.sg = sgtable.sgl;
+		sg_ptr = data.sg;
+		skb_queue_walk_safe(skb_list, skb_pending, pnext)
+		{
+			if (skb_pending->len > seg_size) {
+				asr_err("exceed max seg size\n");
+				goto exit;
+			}
+			sg_set_buf(sg_ptr, (u8 *) skb_pending->data, skb_pending->len);
+			sg_ptr = sg_next(sg_ptr);
+		}
+	} else {
+		skb_pending = skb_peek(skb_list);
+		if (skb_pending->len > seg_size) {
+			asr_err("exceed max seg size\n");
+			return -EINVAL;
+		}
+		data.sg = &sg;
+		sg_init_one(&sg, (u8 *) skb_pending->data, skb_pending->len);
+	}
+
+	mmc_set_data_timeout(&data, card);
+
+	if (card->host->ops->pre_req)
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+		card->host->ops->pre_req(card->host, &mrq);
+	#else
+		card->host->ops->pre_req(card->host, &mrq, true);
+	#endif
+
+	mmc_wait_for_req(card->host, &mrq);
+
+	if (cmd.error)
+		err = cmd.error;
+	else if (data.error)
+		err = data.error;
+	else if (mmc_host_is_spi(card->host))
+		/* host driver already reported errors */
+		err = 0;
+	else if (cmd.resp[0] & R5_ERROR)
+		err = -EIO;
+	else if (cmd.resp[0] & R5_FUNCTION_NUMBER)
+		err = -EINVAL;
+	else if (cmd.resp[0] & R5_OUT_OF_RANGE)
+		err = -ERANGE;
+	else
+		err = 0;
+
+	if (card->host->ops->post_req)
+		card->host->ops->post_req(card->host, &mrq, err);
+
+exit:
+	if (data.sg_len > 1)
+		sg_free_table(&sgtable);
+
+	return err;
+}
+

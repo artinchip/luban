@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2024-2025 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: Keliang Liu <keliang.liu@artinchip.com>
+ *         Huahui Mai <huahui.mai@artinchip.com>
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -5,6 +14,7 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 #include <QPoint>
+#include <QTimer>
 
 #include "aicbasewindow.h"
 #include "widgets/aicnavigationbar.h"
@@ -20,7 +30,18 @@
 #include "views/aicscaleview.h"
 #include "views/aicrtpview.h"
 #include "views/aicdashboardview.h"
+#include "views/aicvideoview.h"
+#ifdef QTLAUNCHER_WIFI_MANAGER
+#include "views/aicconfigview.h"
+#include "wifi/aicwifithread.h"
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+#include <wifimanager.h>
+#endif
 
 #define M_DEMO_MODE_NORMAL 0
 #define M_DEMO_MODE_RTP_WINDOW 1
@@ -42,10 +63,12 @@ private:
     void initVariable();
     void initWindow();
     void initCentralButtons();
+    void initWiFiManager();
     void slideToRight();
     void slideToLeft();
     void initSmallWindow(int width, int height);
     void switchView(QWidget *newWidget);
+    void checkMenuVideoStatus();
 
 
 protected slots:
@@ -65,6 +88,7 @@ protected slots:
     void onBtnAnim1Clicked();
     void onBtnAnim2Clicked();
     void onBtnAnim3Clicked();
+    void onVideoTimeout();
 
 private:
     QStackedWidget *mStackedWidget;
@@ -91,9 +115,14 @@ private:
     AiCCentralView *mCentralView;
     AiCBriefView *mBriefView;
     AiCRtpView *mRtpView;
+    AiCVideoView *mVideoView;
+    QTimer *mVideoTimer;
 
     int mDemoMode;
-
+#ifdef QTLAUNCHER_WIFI_MANAGER
+    AiCConfigView *mConfigView;
+    wifimanager_cb_t mwifimanager_cb_t;
+#endif
 };
 
 #endif // MAINWINDOW_H

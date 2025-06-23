@@ -1,10 +1,12 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc:  decode nalu (sps/pps/slice)
-*
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc:  decode nalu (sps/pps/slice)
+ *
+ */
 
 #ifndef _H264_NAL_H_
 #define _H264_NAL_H_

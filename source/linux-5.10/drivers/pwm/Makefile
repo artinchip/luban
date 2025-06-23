@@ -8,6 +8,7 @@ obj-$(CONFIG_PWM_SYSFS)		+= sysfs.o
 obj-$(CONFIG_PWM_AB8500)	+= pwm-ab8500.o
 obj-$(CONFIG_PWM_ARTINCHIP)	+= pwm-artinchip.o
 obj-$(CONFIG_EPWM_ARTINCHIP)	+= epwm-artinchip.o
+obj-$(CONFIG_CAP_ARTINCHIP)	+= cap-artinchip.o
 obj-$(CONFIG_PWM_ATMEL)		+= pwm-atmel.o
 obj-$(CONFIG_PWM_ATMEL_HLCDC_PWM)	+= pwm-atmel-hlcdc.o
 obj-$(CONFIG_PWM_ATMEL_TCB)	+= pwm-atmel-tcb.o

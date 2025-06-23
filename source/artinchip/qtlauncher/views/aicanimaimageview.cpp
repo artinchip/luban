@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: artinchip
+ */
 #include "aicanimaimageview.h"
 
 #include <QDebug>
@@ -9,7 +16,7 @@ AiCAnimaImageView::AiCAnimaImageView(QSize size, QWidget *parent) : QWidget(pare
 
 void AiCAnimaImageView::initView(int width, int height)
 {
-    ANIMATION_ITEMS = 5;
+    ANIMATION_ITEMS = 10;
     ANIMATION_DURATIONS = 2000;
 
     QList<QPixmap> pixmap;
@@ -18,6 +25,11 @@ void AiCAnimaImageView::initView(int width, int height)
     pixmap.append(QPixmap(":/resources/animation/ic3.jpg"));
     pixmap.append(QPixmap(":/resources/animation/ic4.jpg"));
     pixmap.append(QPixmap(":/resources/animation/ic5.jpg"));
+    pixmap.append(QPixmap(":/resources/animation/ic6.png"));
+    pixmap.append(QPixmap(":/resources/animation/ic7.png"));
+    pixmap.append(QPixmap(":/resources/animation/ic8.png"));
+    pixmap.append(QPixmap(":/resources/animation/ic9.png"));
+    pixmap.append(QPixmap(":/resources/animation/ica.png"));
 
     mPointList.append(QPoint(randomValue(width),randomValue(height)));
     for(int i = 0; i < ANIMATION_ITEMS; i ++){

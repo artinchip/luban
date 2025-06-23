@@ -1,0 +1,228 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="TFormat / AFormat Absolute Encoder Interface (TA-AEI)，简称 TA_IF，即 TA 绝对值编码器接口，主要用作 Master，控制 T-Format/ A-Format 接口的绝对值编码器。Tamgawa 的编码器接口格式对应为 T-Format，Nikon 编码器接口格式对应为 A-Format。 特性说明 支持 T-Format 和 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-08-16"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="ta_interface_ta_if"/><meta name="DC.language" content="zh-CN"/><title>TA Interface (TA_IF)</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/ic/ta-if/ta_interface_ta_if.dita"/><meta name="wh-out-relpath" content="topics/ic/ta-if/ta_interface_ta_if.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="ta_interface_ta_if" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="wh_topic_body">
+                        
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/ic/ta-if/ta_interface_ta_if.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">TA Interface (TA_IF)</h1>
+    <div class="date inPage">16 Aug 2024</div><div style="color: gray;">
+                    Read time: 1 minute(s)
+                </div>
+    
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d78528e31__20250123155205">TFormat / AFormat Absolute Encoder Interface (TA-AEI)，简称 TA_IF，即 TA 绝对值编码器接口，主要用作
+            Master，控制 T-Format/ A-Format 接口的绝对值编码器。Tamgawa 的编码器接口格式对应为 T-Format，Nikon 编码器接口格式对应为
+            A-Format。</p>
+        <section class="- topic/section section" id="ta_interface_ta_if__section_pfq_4kk_qbc" data-ofbid="ta_interface_ta_if__section_pfq_4kk_qbc"><h2 class="- topic/title title sectiontitle">特性说明</h2>
+            
+            <ul class="- topic/ul ul" id="ta_interface_ta_if__ul_all_hlk_qbc" data-ofbid="ta_interface_ta_if__ul_all_hlk_qbc">
+                <li class="- topic/li li" data-ofbid="d78528e41__20250123155205">支持 T-Format 和 A-Format（A-Format 只支持点对点模式）。</li>
+                <li class="- topic/li li" data-ofbid="d78528e44__20250123155205">波特率支持 2.5 Mbps/ 4 Mbps/ 6.6 Mbps/ 8 Mbps/ 16 Mbps。</li>
+                <li class="- topic/li li" data-ofbid="d78528e47__20250123155205">支持编码器绝对值位置数据解码。</li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="ta_interface_ta_if__section_igv_qmk_qbc" data-ofbid="ta_interface_ta_if__section_igv_qmk_qbc"><h2 class="- topic/title title sectiontitle">原理框图</h2>
+            
+            <div class="- topic/p p" data-ofbid="d78528e57__20250123155205"><br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="ta_interface_ta_if__image_sk2_mnk_qbc" src="../../../images/ta_if/ta_principle.png" width="672"/></div><br/></div>
+            <div class="- topic/p p" data-ofbid="d78528e60__20250123155205">外部接口说明如下：<ul class="- topic/ul ul" id="ta_interface_ta_if__ul_jcl_trw_ryb" data-ofbid="ta_interface_ta_if__ul_jcl_trw_ryb">
+                    <li class="- topic/li li" data-ofbid="d78528e64__20250123155205">
+                        <p class="- topic/p p" data-ofbid="d78528e66__20250123155205">TA-DE：用于驱动外部的 RS485 芯片，自动切换 Dirver/Reception 状态。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d78528e70__20250123155205">
+                        <p class="- topic/p p" data-ofbid="d78528e72__20250123155205">TA-DIO：输入输出数据信号。</p>
+                    </li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="ta_interface_ta_if__section_ksy_lxj_syb" data-ofbid="ta_interface_ta_if__section_ksy_lxj_syb"><h2 class="- topic/title title sectiontitle">实时控制外设互联图</h2>
+            
+            <figure class="- topic/fig fig fignone" id="ta_interface_ta_if__fig_grn_kcr_5bc" data-ofbid="ta_interface_ta_if__fig_grn_kcr_5bc">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="ta_interface_ta_if__image_kzf_5rw_ryb" src="../../../images/ta_if/ta_connect_block.png" width="576"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">TA_IF 实时控制外设互联</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d78528e91__20250123155205"><strong class="+ topic/ph hi-d/b ph b">TA_IF 输入输出管脚</strong></p>
+            <p class="- topic/p p" data-ofbid="d78528e95__20250123155205">如<a class="- topic/xref xref" href="#ta_interface_ta_if__fig_grn_kcr_5bc">TA_IF 实时控制外设互联</a>所示，TA_IF 的输入输出管脚信号 TA_DE 和 TA_DIO
+                复用于 ENC_IO_MUX 模块，需通过 SYS_CFG 配置寄存器 ENCODER_CFG 进行选择。其中对应关系为：</p>
+            <ul class="- topic/ul ul" id="ta_interface_ta_if__ul_lzf_5rw_ryb" data-ofbid="ta_interface_ta_if__ul_lzf_5rw_ryb">
+                <li class="- topic/li li" data-ofbid="d78528e104__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d78528e106__20250123155205">ENC_IO0 对应 TA_DE。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d78528e110__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d78528e112__20250123155205">ENC_IO1 对应 TA_DIO。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d78528e116__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d78528e118__20250123155205">ENC_IO2 无对应 TA_IF 模块的信号，无需使用。</p>
+                </li>
+            </ul>
+            <p class="- topic/p p" data-ofbid="d78528e124__20250123155205"><strong class="+ topic/ph hi-d/b ph b">TA_IF 位置数据</strong></p>
+            <p class="- topic/p p" data-ofbid="d78528e128__20250123155205">如<a class="- topic/xref xref" href="#ta_interface_ta_if__fig_grn_kcr_5bc">TA_IF 实时控制外设互联</a>所示，TA_IF 的解析所得的位置数据，可以传输到 HCL 以及
+                QOUT 模块，分别用于硬件电流环的电角度计算和 QOUT 的任意分频输出。</p>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#ta_interface_ta_if__section_pfq_4kk_qbc" data-tocid="ta_interface_ta_if__section_pfq_4kk_qbc">特性说明</a></div></li><li class="section-item"><div class="section-title"><a href="#ta_interface_ta_if__section_igv_qmk_qbc" data-tocid="ta_interface_ta_if__section_igv_qmk_qbc">原理框图</a></div></li><li class="section-item"><div class="section-title"><a href="#ta_interface_ta_if__section_ksy_lxj_syb" data-tocid="ta_interface_ta_if__section_ksy_lxj_syb">实时控制外设互联图</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

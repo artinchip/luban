@@ -81,7 +81,8 @@ static int by5f1gq5_ecc_get_status(struct spinand_device *spinand, u8 status)
 }
 
 static const struct spinand_info byte_spinand_table[] = {
-	SPINAND_INFO("BY5F1GQ5UAYIG", 0x1B,
+	SPINAND_INFO("BY5F1GQ5UAYIG",
+		     SPINAND_ID(0x1B),
 		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -114,7 +115,7 @@ static int byte_spinand_detect(struct spinand_device *spinand)
 
 	ret = spinand_match_and_init(spinand, byte_spinand_table,
 				     ARRAY_SIZE(byte_spinand_table),
-				     id[2]);
+				     &id[2]);
 	if (ret)
 		return ret;
 

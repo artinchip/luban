@@ -1,0 +1,319 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="panel_dbi 结点的详细参数配置和描述如下： 注： 相关宏定义取值在文件 include/dt-bindings/display/artinchip,aic-disp.h 中。关于各参数的宏定义取值描述，可查看 宏定义取值 。 panel_dbi { compatible = &#34;artinchip,aic-dbi-panel-simple&#34; ; status = &#34;okay&#34; ; port ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_parameter_panel_dsi.html"/><meta name="DC.relation" content="../../../topics/sdk/display/display_parameter_backlight.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="display_dts_parameter_panel_dsi"/><meta name="DC.language" content="zh-CN"/><title>Panel_DBI</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="display_dts_parameter_panel_dsi-d4445e1846"/><meta name="wh-source-relpath" content="topics/sdk/display/display_parameter_panel_dbi.dita"/><meta name="wh-out-relpath" content="topics/sdk/display/display_parameter_panel_dbi.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="display_dts_parameter_panel_dsi" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="_59"><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html">显示屏</a><div class="wh-tooltip"><p class="shortdesc">Panel 类型详细介绍，以及参数和功能配置描述。</p></div></div></div></li><li class="active"><div class="topicref" data-id="display_dts_parameter_panel_dsi"><div class="title"><a href="../../../topics/sdk/display/display_parameter_panel_dbi.html">Panel_DBI</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/display/display_parameter_panel_dsi.html" title="Panel_DSI" aria-label="上一主题: Panel_DSI" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/display/display_parameter_backlight.html" title="PWM Backlight" aria-label="下一主题: PWM Backlight" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="touch_screen_debug_guide-d4445e1697" class="topicref" data-id="touch_screen_debug_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action touch_screen_debug_guide-d4445e1697-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/touch-screen-debug-guide.html" id="touch_screen_debug_guide-d4445e1697-link">触摸屏</a><div class="wh-tooltip"><p class="shortdesc">RTP 和 CTP 调试示例流程。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="_59-d4445e1743" class="topicref" data-id="_59" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action _59-d4445e1743-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-screen_debug_configuration.html" id="_59-d4445e1743-link">显示屏</a><div class="wh-tooltip"><p class="shortdesc">Panel 类型详细介绍，以及参数和功能配置描述。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="display_menuconfig_configuration-d4445e1760" class="topicref" data-id="display_menuconfig_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_menuconfig.html" id="display_menuconfig_configuration-d4445e1760-link"><code class="ph codeph">menuconfig</code> 配置</a></div></div></li><li role="treeitem"><div data-tocid="display_system_parameters_configuration-d4445e1776" class="topicref" data-id="display_system_parameters_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_sys_config.html" id="display_system_parameters_configuration-d4445e1776-link">系统参数配置</a></div></div></li><li role="treeitem"><div data-tocid="display_functional_parameters_configuration-d4445e1790" class="topicref" data-id="display_functional_parameters_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_function_config.html" id="display_functional_parameters_configuration-d4445e1790-link">功能参数配置</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_panel_rgb-d4445e1804" class="topicref" data-id="display_dts_parameter_panel_rgb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_panel_rgb.html" id="display_dts_parameter_panel_rgb-d4445e1804-link">Panel_RGB</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_panel_lvds-d4445e1818" class="topicref" data-id="display_dts_parameter_panel_lvds" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_panel_lvds.html" id="display_dts_parameter_panel_lvds-d4445e1818-link">Panel_LVDS</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_panel_dsi-d4445e1832" class="topicref" data-id="display_dts_parameter_panel_dsi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_panel_dsi.html" id="display_dts_parameter_panel_dsi-d4445e1832-link">Panel_DSI</a></div></div></li><li role="treeitem" class="active"><div data-tocid="display_dts_parameter_panel_dsi-d4445e1846" class="topicref" data-id="display_dts_parameter_panel_dsi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_panel_dbi.html" id="display_dts_parameter_panel_dsi-d4445e1846-link">Panel_DBI</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_backlight-d4445e1860" class="topicref" data-id="display_dts_parameter_backlight" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_backlight.html" id="display_dts_parameter_backlight-d4445e1860-link">PWM Backlight</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_display_interface-d4445e1874" class="topicref" data-id="display_dts_parameter_display_interface" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_display_interface.html" id="display_dts_parameter_display_interface-d4445e1874-link">Display Interface</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_display_engine-d4445e1888" class="topicref" data-id="display_dts_parameter_display_engine" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_display_engine.html" id="display_dts_parameter_display_engine-d4445e1888-link">Display Engine</a></div></div></li><li role="treeitem"><div data-tocid="display_dts_parameter_display_fb0-d4445e1903" class="topicref" data-id="display_dts_parameter_display_fb0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_parameter_display_fb0.html" id="display_dts_parameter_display_fb0-d4445e1903-link">Display FB0</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="wifi-d4445e1918" class="topicref" data-id="wifi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action wifi-d4445e1918-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/wifi/wifi-debug-guide.html" id="wifi-d4445e1918-link">WiFi</a></div></div></li><li role="treeitem"><div data-tocid="concept_s4m_zk3_pzb-d4445e1946" class="topicref" data-id="concept_s4m_zk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/keyadc/device-keyboards-user-guide.html" id="concept_s4m_zk3_pzb-d4445e1946-link">按键矩阵</a><div class="wh-tooltip"><p class="shortdesc">此章节介绍按键矩阵的使用方法以及相关配置。</p></div></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/display/display_parameter_panel_dbi.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Panel_DBI</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <div class="- topic/p p" data-ofbid="d113968e36__20250123155209"><span class="+ topic/keyword pr-d/parmname keyword parmname">panel_dbi</span> 结点的详细参数配置和描述如下：<div class="- topic/note note note note_note" id="display_dts_parameter_panel_dsi__note_gj3_chs_ldc" data-ofbid="display_dts_parameter_panel_dsi__note_gj3_chs_ldc"><span class="note__title">注：</span> <div class="note__body">相关宏定义取值在文件
+                    <span class="+ topic/ph sw-d/filepath ph filepath">include/dt-bindings/display/artinchip,aic-disp.h</span>
+                    中。关于各参数的宏定义取值描述，可查看<a class="- topic/xref xref" href="display_parameter_panel_dbi.html#display_dts_parameter_panel_dsi__section_wpg_2vs_ldc">宏定义取值</a>。</div></div><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="display_dts_parameter_panel_dsi__codeblock_clc_lxf_d1c" data-ofbid="display_dts_parameter_panel_dsi__codeblock_clc_lxf_d1c"><code>panel_dbi {
+    compatible = <span class="hl-string">"artinchip,aic-dbi-panel-simple"</span>;
+    status = <span class="hl-string">"okay"</span>;
+
+    port {
+        panel_dbi_in: endpoint {
+            remote-endpoint = &lt;&amp;dbi0_out&gt;;
+        };
+    };
+};</code></pre></div>
+        <div class="table-container"><table class="- topic/table table frame-all" id="display_dts_parameter_panel_dsi__table_sty_bls_ldc" data-ofbid="display_dts_parameter_panel_dsi__table_sty_bls_ldc" data-cols="4"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title"><span class="+ topic/keyword pr-d/parmname keyword parmname">panel_dsi</span> 节点参数描述</span></caption><colgroup><col style="width:14.666666666666666%"/><col style="width:14.666666666666666%"/><col style="width:57.333333333333336%"/><col style="width:13.333333333333334%"/></colgroup><thead class="- topic/thead thead">
+                    <tr class="- topic/row">
+                        <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">参数名称</th>
+                        <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">类型</th>
+                        <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">描述</th>
+                        <th class="- topic/entry entry colsep-0 rowsep-1" id="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__4">是否必需</th>
+                    </tr>
+                </thead><tbody class="- topic/tbody tbody">
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">
+                            <p class="- topic/p p" data-ofbid="d113968e94__20250123155209">backlight</p>
+                        </td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">屏幕的 pwm-backlight 配置节点。</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__4" rowspan="2">Optional</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">
+                            <p class="- topic/p p" data-ofbid="d113968e112__20250123155209">enable-gpios</p>
+                        </td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">预留的屏幕使能引脚，可用于控制屏幕供电，不使用 pwm-backlight 的情况下亦可控制屏幕背光。</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">port</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">显示接口输入端口，关联 DBI 结点。</td>
+                        <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__4">Required</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">disp-dither</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">色彩抖动，使图像过度更平滑。当内存数据为 8bit ，但输出为 6bit 或者 5bit 时，使能 dither
+                            能让图像过度更平滑，否则直接丢弃低位 bit。<p class="- topic/p p" data-ofbid="d113968e148__20250123155209">配置 dither 时默认使能随机 dither
+                            ，获取更好的显示效果。</p></td>
+                        <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__4" rowspan="4">Optional</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">tearing-effect</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">
+                            <p class="- topic/p p" data-ofbid="d113968e165__20250123155209">TE 信号响应模式，配合屏幕 TE 信号使用，控制 DE 模块的输出，避免 LCD 屏幕出现撕裂现象。</p>
+                            <ul class="- topic/ul ul" id="display_dts_parameter_panel_dsi__ul_agx_wwf_d1c" data-ofbid="display_dts_parameter_panel_dsi__ul_agx_wwf_d1c">
+                                <li class="- topic/li li" data-ofbid="d113968e170__20250123155209">
+                                    <p class="- topic/p p" data-ofbid="d113968e172__20250123155209">连续刷新 (default) ：忽略 TE 信号, 连续刷新</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d113968e176__20250123155209">
+                                    <p class="- topic/p p" data-ofbid="d113968e178__20250123155209">手动刷新：DE timging enable 后在下一个 TE 信号更新画面</p>
+                                </li>
+                                <li class="- topic/li li" data-ofbid="d113968e182__20250123155209">
+                                    <p class="- topic/p p" data-ofbid="d113968e184__20250123155209">自动刷新： 每收到一个 TE 信号，自动更新画面，更新期间忽略 TE 信号</p>
+                                </li>
+                            </ul>
+                            <p class="- topic/p p" data-ofbid="d113968e189__20250123155209">手动刷新和自动刷新模式下，需要设定 TE 脉冲宽度，用于检测屏幕 TE 信号。</p>
+                        </td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">te-pulse-width</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">TE 脉冲宽度，用于检测 TE 同步信号的有效状态，建议设为 5。</td>
+                    </tr>
+                    <tr class="- topic/row">
+                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__1">
+                            <p class="- topic/p p" data-ofbid="d113968e211__20250123155209">display-timings</p>
+                        </td>
+                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__2">-</td>
+                        <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_sty_bls_ldc__entry__3">屏的时序信号。由屏厂提供。</td>
+                    </tr>
+                </tbody></table></div>
+        <section class="- topic/section section" id="display_dts_parameter_panel_dsi__section_wpg_2vs_ldc" data-ofbid="display_dts_parameter_panel_dsi__section_wpg_2vs_ldc"><h2 class="- topic/title title sectiontitle">宏定义取值</h2>
+            
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc" data-ofbid="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title"><span class="+ topic/keyword pr-d/parmname keyword parmname">disp-dither</span> 宏定义取值</span></caption><colgroup><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/></colgroup><thead class="- topic/thead thead">
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__1">颜色输出深度</th>
+                                <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__2">macro</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-1" id="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__3">value</th>
+                            </tr>
+                        </thead><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__1">
+                                    <p class="- topic/p p" data-ofbid="d113968e266__20250123155209">R 分量输出 5bit</p>
+                                    <p class="- topic/p p" data-ofbid="d113968e269__20250123155209">G 分量输出 6bit</p>
+                                    <p class="- topic/p p" data-ofbid="d113968e272__20250123155209">B 分量输出 5bit</p>
+                                </td>
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__2">DITHER_RGB565</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__3">0x1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__1">
+                                    <p class="- topic/p p" data-ofbid="d113968e287__20250123155209">R 分量输出 6bit</p>
+                                    <p class="- topic/p p" data-ofbid="d113968e290__20250123155209">G 分量输出 6bit</p>
+                                    <p class="- topic/p p" data-ofbid="d113968e293__20250123155209">B 分量输出 6bit</p>
+                                </td>
+                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__2">DITHER_RGB666</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_dts_parameter_panel_dsi__table_s1v_c2t_ldc__entry__3">0x2</td>
+                            </tr>
+                        </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc" data-ofbid="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc" data-cols="3"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title"><span class="+ topic/keyword pr-d/parmname keyword parmname">tearing-effect</span> 宏定义取值</span></caption><colgroup><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/><col style="width:33.33333333333333%"/></colgroup><thead class="- topic/thead thead">
+                            <tr class="- topic/row">
+                                <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__1">TE mode</th>
+                                <th class="- topic/entry entry colsep-1 rowsep-1" id="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__2">macro</th>
+                                <th class="- topic/entry entry colsep-0 rowsep-1" id="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__3">value</th>
+                            </tr>
+                        </thead><tbody class="- topic/tbody tbody">
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__1">连续刷新</td>
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__2">TE_BYPASS</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__3">0x0</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__1">手动刷新</td>
+                                <td class="- topic/entry entry colsep-1 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__2">TE_HOLD</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-1" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__3">0x1</td>
+                            </tr>
+                            <tr class="- topic/row">
+                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__1">自动刷新</td>
+                                <td class="- topic/entry entry colsep-1 rowsep-0" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__2">TE_AUTO</td>
+                                <td class="- topic/entry entry colsep-0 rowsep-0" headers="display_dts_parameter_panel_dsi__table_fy5_2vs_ldc__entry__3">0x2</td>
+                            </tr>
+                        </tbody></table></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

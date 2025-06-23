@@ -283,9 +283,10 @@ static int aic_sdmc_data_transfer(struct aic_sdmc *host, struct mmc_data *data)
 	for (;;) {
 		mask = sdmc_readl(host, SDMC_OINTST);
 		if (mask & (SDMC_DATA_ERR | SDMC_DATA_TOUT)) {
-			pr_err("%s() Data error! size %d/%d, mode %s\n",
+			pr_err("%s() Data error! size %d/%d, mode %s-%s, status 0x%x\n",
 			       __func__, size * 4, total,
-				host->fifo_mode ? "FIFO" : "IDMA");
+				host->fifo_mode ? "FIFO" : "IDMA",
+				data->flags == MMC_DATA_READ ? "Read" : "Write", mask);
 			ret = -EINVAL;
 			break;
 		}
@@ -305,9 +306,10 @@ static int aic_sdmc_data_transfer(struct aic_sdmc *host, struct mmc_data *data)
 		}
 
 		if (get_timer(start) > timeout) {
-			pr_warn("%s() Data timeout %d! size %d/%d, mode %s\n",
+			pr_warn("%s() Data timeout %d! size %d/%d, mode %s-%s, status 0x%x\n",
 				__func__, timeout, size * 4, total,
-				host->fifo_mode ? "FIFO" : "IDMA");
+				host->fifo_mode ? "FIFO" : "IDMA",
+				data->flags == MMC_DATA_READ ? "Read" : "Write", mask);
 			ret = -ETIMEDOUT;
 			break;
 		}
@@ -479,8 +481,6 @@ static int aic_sdmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			ret = aic_sdmc_idma_stop(host, &bbstate, data->flags);
 	}
 
-	udelay(100);
-
 	return ret;
 }
 
@@ -557,6 +557,9 @@ static int aic_sdmc_setup_bus(struct aic_sdmc *host, u32 freq)
 			else
 				mux = 4;
 		}
+#ifdef CONFIG_FPGA_BOARD_ARTINCHIP
+		mux = 1;
+#endif
 		div /= mux * 2;
 		if (div > SDMC_CLKCTRL_DIV_MAX)
 			div = SDMC_CLKCTRL_DIV_MAX;
@@ -753,13 +756,14 @@ static const struct mmc_ops aic_mmc_ops = {
 
 static uint aic_sdmc_get_mmc_clk(struct aic_sdmc *host, uint freq)
 {
+#ifdef CONFIG_FPGA_BOARD_ARTINCHIP
+	freq = 48000000;
+#else
 	struct udevice *dev = host->priv;
 	struct aic_sdmc_priv *priv = dev_get_priv(dev);
 
-#ifdef CONFIG_FPGA_BOARD_ARTINCHIP
-	freq = 48000000;
-#endif
 	freq = clk_get_rate(&priv->clk);
+#endif
 	freq = freq / 2;
 	return freq;
 }

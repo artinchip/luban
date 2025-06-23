@@ -9,14 +9,13 @@ CONFIG_NOT_USED_DTS := y
 CONFIG_ASR_SDIO := n
 CONFIG_ASR_USB := y
 endif
-
 ###################### 5531(canon) #######################
 ifeq ($(CONFIG_ASR5531), m)
 CONFIG_BOARD=canon
 # as module(m) or as built-in(y)
 subdir-ccflags-y += -DCONFIG_ASR5531
 ifeq ($(CONFIG_ASR_SDIO), y)
-	subdir-ccflags-y += -DASR_UART_DOWNLOAD_ROMCODE
+	subdir-ccflags-y += -DASR_UART_DOWNLOAD_ROMCODE -DSDIO_BLOCK_SIZE=128
 	MODULE_NAME ?= asr5532s
 else
 	MODULE_NAME ?= asr5532u
@@ -25,12 +24,14 @@ obj-$(CONFIG_ASR5531) := $(MODULE_NAME).o
 ccflags-y += -DASR_WIFI_CONFIG_SUPPORT
 #support roaming for rrm,btm
 subdir-ccflags-y += -DCFG_ROAMING
+#subdir-ccflags-y += -DCFG_FWLOG_2HOST
 ###################### 5505(lega) #######################
-else ifneq ($(CONFIG_ASR5505), n)
+else ifeq ($(CONFIG_ASR5505), m)
 CONFIG_BOARD=lega
 MODULE_NAME ?= asr5505
 obj-$(CONFIG_ASR5505) := $(MODULE_NAME).o
-subdir-ccflags-y += -DCONFIG_ASR5505
+subdir-ccflags-y += -DCONFIG_ASR5505 -DSDIO_BLOCK_SIZE=128
+#subdir-ccflags-y += -DCFG_FOR_JICHENG_REGD
 ###################### 5825(duet) #######################
 else ifeq ($(CONFIG_ASR5825), m)
 CONFIG_BOARD=duet
@@ -39,7 +40,7 @@ CONFIG_ASR_KEY_DBG := y
 # as module(m) or as built-in(y)
 MODULE_NAME ?= asr5825
 obj-$(CONFIG_ASR5825) := $(MODULE_NAME).o
-subdir-ccflags-y += -DCONFIG_ASR5825
+subdir-ccflags-y += -DCONFIG_ASR5825 -DSDIO_BLOCK_SIZE=32
 # out-of-band interrupt.
 #subdir-ccflags-y += -DOOB_INTR_ONLY
 ###################### 595X(alto) #######################
@@ -50,7 +51,7 @@ CONFIG_BOARD=alto
 # as module(m) or as built-in(y)
 MODULE_NAME ?= asr595x
 obj-$(CONFIG_ASR595X) := $(MODULE_NAME).o
-subdir-ccflags-y += -DCONFIG_ASR595X -DCONFIG_TWT -DP2P_SUPPORT -DCONFIG_ASR_P2P_DEBUGFS -DSDIO_RXBUF_SPLIT
+subdir-ccflags-y += -DCONFIG_ASR595X -DSDIO_BLOCK_SIZE=32 -DCONFIG_TWT -DP2P_SUPPORT -DCONFIG_ASR_P2P_DEBUGFS
 #subdir-ccflags-y += -DCONFIG_ASR595X -DCONFIG_TWT
 subdir-ccflags-y += -DCFG_ROAMING
 ###################### 596X(bass) #######################
@@ -62,7 +63,7 @@ CONFIG_ASR595X := m
 # as module(m) or as built-in(y)
 MODULE_NAME ?= asr596x
 obj-$(CONFIG_ASR595X) := $(MODULE_NAME).o
-subdir-ccflags-y += -DCONFIG_ASR596X -DCONFIG_TWT
+subdir-ccflags-y += -DCONFIG_ASR596X -DSDIO_BLOCK_SIZE=32 -DCONFIG_TWT
 #need set ASR595X MACRO to compile
 subdir-ccflags-y += -DCONFIG_ASR595X
 subdir-ccflags-y += -DBASS_SUPPORT
@@ -72,6 +73,7 @@ endif
 CONFIG_ABSPATH=$(abspath $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 EXTRA_CFLAGS += -I$(srctree)/$(src)/drv_code/include
+#EXTRA_CFLAGS += -I$(src)/drv_code/include
 ARCH ?= arm
 PWD := $(shell pwd)
 BUILD_DIR = $(PWD)/out/tmp
@@ -114,6 +116,11 @@ CONFIG_DYNAMIC_DEBUG=y
 #CONFIG_WIRELESS_EXT=y
 #CONFIG_WEXT_PRIV=y
 
+#confict with ASR_REDUCE_TCP_ACK, can't enable them together
+CONFIG_ASR_NAPI := y
+#Generic Receive Offload
+CONFIG_ASR_GRO := y
+
 ###################### build info      #######################
 export BUILD_MACHINE_INFO ?=$(shell whoami)@$(shell hostname)
 export BUILD_DATE_INFO ?=$(shell date +"%Y%m%d")
@@ -144,12 +151,11 @@ CONFIG_POWER_SAVE ?= n
 MODULE_NAME ?= asrunknown
 
 ccflags-y += -DASR_WIFI_CONFIG_SUPPORT
-CONFIG_ASR_SAE = y
 # Enable drv_sme
 CONFIG_SME = y
 # Enable drv_sme
-CONFIG_SAE = y
-ifeq ($(CONFIG_ASRSDIO_LOOPBACK), y)
+#CONFIG_SAE = y
+ifeq ($(CONFIG_ASRSDIO_LOOPBACK), m)
 MODULE_SDIO_LOOPBACK_NAME ?= asrsdiodrv
 obj-$(CONFIG_ASRSDIO_LOOPBACK) += $(MODULE_SDIO_LOOPBACK_NAME).o
 subdir-ccflags-y += -DCONFIG_ASR_SDIO_LOOPBACK
@@ -212,7 +218,7 @@ else
 subdir-ccflags-y += -DNX_VIRT_DEV_MAX=2
 endif
 subdir-ccflags-y += -DNX_REMOTE_STA_MAX=16
-subdir-ccflags-y += -DNX_CHAN_CTXT_CNT=3
+subdir-ccflags-y += -DNX_CHAN_CTXT_CNT=3 -DSDIO_RXBUF_SPLIT
 
 ###################### build info      #######################
 subdir-ccflags-y += -DCFG_BUILD_MACHINE=$(BUILD_MACHINE_INFO)
@@ -225,6 +231,9 @@ CONFIG_ASR_AMSDUS_TX ?= n
 
 # Enable HW queue for Broadcast/Multicast traffic (need FW support)
 CONFIG_ASR_BCMC ?= y
+
+#read MAC addr form fw efuse
+ccflags-y += -DLOAD_MAC_ADDR_FROM_FW
 
 # extra DEBUG config for function entry
 #CONFIG_ASR_DBG ?= n
@@ -246,12 +255,12 @@ CONFIG_ASR_AMSDU_RX_8K ?= n
 #CONFIG_ASR_USB ?=y
 
 #reduce tcp ack frequence
-ccflags-y += -DASR_REDUCE_TCP_ACK
+#ccflags-y += -DASR_REDUCE_TCP_ACK
 
 #support hidden ssid for ap mode
 ccflags-y += -DCFG_AP_HIDDEN_SSID
 
-$(MODULE_NAME)-y := drv_code/asr_msg_tx.o          \
+$(MODULE_NAME)-y := drv_code/asr_msg_tx.o     \
                drv_code/asr_msg_rx.o          \
                drv_code/asr_utils.o           \
                drv_code/asr_cmds.o            \
@@ -265,9 +274,10 @@ $(MODULE_NAME)-y := drv_code/asr_msg_tx.o          \
                drv_code/asr_main.o            \
                drv_code/asr_mod_params.o      \
                drv_code/asr_platform.o        \
-               drv_code/asr_target_platform.o  \
-               drv_code/asr_ate.o              \
-               drv_code/ipc_host.o
+               drv_code/asr_target_platform.o \
+               drv_code/asr_ate.o             \
+               drv_code/ipc_host.o            \
+               drv_code/asr_pm.o
 
 ccflags-y += -I$(src)/drv_code/include
 ccflags-$(CONFIG_ASR_SPLIT_TX_BUF) += -DCONFIG_ASR_SPLIT_TX_BUF
@@ -305,6 +315,9 @@ ccflags-$(CONFIG_ASR_KEY_DBG) += -DCONFIG_ASR_KEY_DBG
 ccflags-$(CONFIG_SME) += -DCONFIG_SME
 ccflags-$(CONFIG_SAE) += -DCONFIG_SAE
 
+ccflags-$(CONFIG_ASR_NAPI) += -DCONFIG_ASR_NAPI
+ccflags-$(CONFIG_ASR_GRO) += -DCONFIG_ASR_GRO
+
 ccflags-$(CONFIG_ASR_NO_BOOTROOM) += -DCONFIG_ASR_NO_BOOTROOM
 
 ccflags-y += -DCONFIG_USER_MAX=1
@@ -319,7 +332,8 @@ ifeq ($(CONFIG_ASR_AMSDU_RX_8K), y)
 ccflags-y += -DWLAN_AMSDU_RX_LEN=8192
 else
 #amsdu len 3960 = data 3839 + trans head 60 + hw info 34 reserve 27
-ccflags-y += -DWLAN_AMSDU_RX_LEN=3960
+# frm_len + pld_offseta ,  max is NX_MAX_AMSDU + host_rx_desc + machdr+llcsnap
+ccflags-y += -DWLAN_AMSDU_RX_LEN=4608
 endif
 
 
@@ -342,8 +356,31 @@ endif
 
 ifeq ($(CONFIG_ASR_SDIO), y)
 #when enable bg scan for roaming, should not enable stats rates timer to block bg scan.
+# canon sdio not use this
+ifneq ($(CONFIG_BOARD), canon)
 ccflags-y += -DASR_STATS_RATES_TIMER
 endif
+endif
+
+ifeq ($(CONFIG_ASR_PM), y)
+ccflags-y += -DCONFIG_ASR_PM
+$(MODULE_NAME)-y += drv_code/asr_pm.o
+
+ccflags-$(CONFIG_AUTO_SUSPEND_RESUME) += -DCONFIG_AUTO_SUSPEND_RESUME
+ccflags-$(CONFIG_GPIO_WAKEUP_MOD) += -DCONFIG_GPIO_WAKEUP_MOD
+
+ifeq ($(CONFIG_GPIO_WAKEUP_HOST), y)
+ccflags-y += -DCONFIG_GPIO_WAKEUP_HOST
+
+ifeq ($(CONFIG_HIGH_LEVEL), y)
+ccflags-y += -DCONFIG_MOD_ACTIVE_LEVEL=1
+else
+ccflags-y += -DCONFIG_MOD_ACTIVE_LEVEL=0
+endif
+endif
+endif
+
+ccflags-$(CONFIG_ASR_USB_PM) += -DCONFIG_ASR_USB_PM
 
 #build driver out of kernel dir
 ifeq ($(KERNELRELEASE),)

@@ -216,6 +216,10 @@ static asset_info_t* aic_asset_info_create(uint16_t type, uint16_t subtype, cons
     goto ASSERT_CEATE_EXIT;
   }
   dec_asset->dec = mpp_decoder_create(decoder_type);
+  if (dec_asset->dec == NULL) {
+    log_info("mpp decoder create failed\n");
+    goto ASSERT_CEATE_EXIT;
+  }
 
   memset(&config, 0, sizeof(struct decode_config));
   config.bitstream_buffer_size = (size + 1023) & (~1023);

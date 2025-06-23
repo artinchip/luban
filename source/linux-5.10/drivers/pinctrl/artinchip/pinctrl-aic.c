@@ -931,7 +931,7 @@ static void aic_gpio_irq_suspend(struct irq_data *d)
 	struct aic_gpio_bank *bank = gc->private;
 
 	bank->saved_mask = irq_reg_readl(gc, bank->regs.irq_en);
-	irq_reg_writel(gc, ~gc->wake_active, bank->regs.irq_en);
+	irq_reg_writel(gc, gc->wake_active, bank->regs.irq_en);
 }
 
 static void aic_gpio_irq_resume(struct irq_data *d)

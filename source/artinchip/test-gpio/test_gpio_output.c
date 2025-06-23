@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Copyright (C) 2022-2023 ArtInChip Technology Co., Ltd.
  */
@@ -21,9 +21,11 @@ volatile int gpio_abort = 0;
 
 void print_usage(void)
 {
-	fprintf(stderr, "Usage: test_gpio_output <GPIO_NAME> <LINE_OFFSET>\n"
+	fprintf(stderr, "Usage: test_gpio_output <GPIO_NAME> <LINE_OFFSET> <OUTPUT_LEVEL>\n"
 		"    Example:\n"
-		"    test_gpio_output gpiochip3 6\n");
+		"    test_gpio_output gpiochip3 6 flipped\n"
+		"    test_gpio_output gpiochip3 6 high\n"
+		"    test_gpio_output gpiochip3 6 low\n");
 }
 
 void signal_handler(int sig)
@@ -40,7 +42,7 @@ int main(int argc, char *argv[])
 	char device_name[10];
 	char gpio_dev[20];
 
-	if (argc != 3) {
+	if (argc != 4) {
 		print_usage();
 		exit(-1);
 	}
@@ -80,27 +82,50 @@ int main(int argc, char *argv[])
 	/* a bitmap identifying the lines to get or set */
 	value.mask = 1;
 	/* a bitmap containing the value of the lines */
-	value.bits = 1;
 
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGABRT, signal_handler);
-	gpio_abort = 0;
 
-	printf("%s line %d output level will be flipped every second...\n",
+	if (!strncmp(argv[3], "flipped", 12)) {
+		value.bits = 1;
+		gpio_abort = 0;
+		printf("%s line %d output level will be flipped every second...\n",
 	       device_name, offset);
-
-	while (!gpio_abort) {
+		while (!gpio_abort) {
+			ret = ioctl(lfd, GPIO_V2_LINE_SET_VALUES_IOCTL, &value);
+			if (ret == -1) {
+				ret = -errno;
+				fprintf(stderr, "Failed to issue %s (%d), %s\n",
+					"GPIOHANDLE_SET_LINE_VALUES_IOCTL", ret,
+					strerror(errno));
+				break;
+			}
+			value.bits ^= 1;
+			sleep(1);
+		}
+	}
+	if (!strncmp(argv[3], "high", 12)) {
+		value.bits = 1;
+		printf("%s line %d output level will be high\n", device_name, offset);
 		ret = ioctl(lfd, GPIO_V2_LINE_SET_VALUES_IOCTL, &value);
 		if (ret == -1) {
 			ret = -errno;
 			fprintf(stderr, "Failed to issue %s (%d), %s\n",
 				"GPIOHANDLE_SET_LINE_VALUES_IOCTL", ret,
 				strerror(errno));
-			break;
 		}
-		value.bits ^= 1;
-		sleep(1);
+	}
+	if (!strncmp(argv[3], "low", 12)) {
+		value.bits = 0;
+		printf("%s line %d output level will be low\n", device_name, offset);
+		ret = ioctl(lfd, GPIO_V2_LINE_SET_VALUES_IOCTL, &value);
+		if (ret == -1) {
+			ret = -errno;
+			fprintf(stderr, "Failed to issue %s (%d), %s\n",
+				"GPIOHANDLE_SET_LINE_VALUES_IOCTL", ret,
+				strerror(errno));
+		}
 	}
 
 	if (close(lfd) == -1)

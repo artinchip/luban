@@ -247,7 +247,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 
 #ifdef CONFIG_SPL_OS_BOOT
 #ifdef CONFIG_VIDEO_ARTINCHIP
-#define CONFIG_LOGO_OFFSET	 (4096)
+#define CONFIG_LOGO_OFFSET	 (5120)
 #define CONFIG_IMAGE_HEADER_SIZE (4 << 10)
 static int mmc_load_logo(struct mmc *mmc)
 {

@@ -1,0 +1,407 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="Luban SDK 的开发可以在 Linux 系统中进行， Luban SDK 目前自动支持的 Linux 发行版为： Ubuntu 18.04、20.04、22.04 CentOS 7.x、8.x ArtInChip 推荐的 Linux 发行版为 Ubuntu 20.04 LTS（Long Term Support）版本，本节以此版本展示 Ubuntu ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/env/sdk-compile.html"/><meta name="DC.relation" content="../../../topics/sdk/advanced/lb_usage_structure.html"/><meta name="DC.relation" content="../../../topics/sdk/env/vmware.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>Ubuntu</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1143"/><meta name="wh-source-relpath" content="topics/sdk/env/ubuntu2004.dita"/><meta name="wh-out-relpath" content="topics/sdk/env/ubuntu2004.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/env/ubuntu2004.html">Ubuntu</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/advanced/lb_usage_structure.html" title="代码结构" aria-label="上一主题: 代码结构" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/env/vmware.html" title="VMWare 安装" aria-label="下一主题: VMWare 安装" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1113" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1113-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sourcecode.html" id="id-d4445e1113-link">准备代码</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1143" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/ubuntu2004.html" id="id-d4445e1143-link">Ubuntu</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1157" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1157-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/vmware.html" id="id-d4445e1157-link">VMWare 安装</a><div class="wh-tooltip"><p class="shortdesc">如需在虚拟机上进行 <span class="ph">Luban</span> 的开发工作，可以参考本节的安装说明。</p></div></div></div></li><li role="treeitem"><div data-tocid="compile-d4445e1225" class="topicref" data-id="compile" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/compile.html" id="compile-d4445e1225-link">固件编译</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/env/ubuntu2004.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">Ubuntu</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <div class="- topic/p p" data-ofbid="d67502e36__20250123155204"><span class="- topic/ph ph">Luban</span> SDK 的开发可以在 Linux 系统中进行，<span class="- topic/ph ph">Luban</span> SDK 目前自动支持的 Linux
+                发行版为：<ul class="- topic/ul ul" id="id__ul_ogj_3pc_2cc" data-ofbid="id__ul_ogj_3pc_2cc">
+                <li class="- topic/li li" data-ofbid="d67502e45__20250123155204">Ubuntu 18.04、20.04、22.04</li>
+                <li class="- topic/li li" data-ofbid="d67502e48__20250123155204">CentOS 7.x、8.x</li>
+            </ul></div>
+        <p class="- topic/p p" data-ofbid="d67502e52__20250123155204">ArtInChip 推荐的 Linux 发行版为 Ubuntu 20.04 LTS（Long Term Support）版本，本节以此版本展示 Ubuntu
+            系统安装注意事项。如使用其他版本，需要安装软件包对应的依赖和版本。</p>
+        <section class="- topic/section section" id="id__section_jsr_tmp_wcc" data-ofbid="id__section_jsr_tmp_wcc"><h2 class="- topic/title title sectiontitle">系统安装注意事项</h2>
+            
+            <div class="- topic/div div section" id="id__id1">
+                <p class="- topic/p p" data-ofbid="d67502e62__20250123155204">安装 Ubuntu 系统时，需注意以下事项：</p>
+                <ul class="- topic/ul ul simple" id="id__ul_az4_pnp_rcc" data-ofbid="id__ul_az4_pnp_rcc">
+                    <li class="- topic/li li" data-ofbid="d67502e67__20250123155204">
+                        <p class="- topic/p p" data-ofbid="d67502e69__20250123155204">至少保留 10 GB 磁盘空间，用于保存 SDK 源码。</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d67502e73__20250123155204">
+                        <p class="- topic/p p" data-ofbid="d67502e75__20250123155204">若使用虚拟机，不建议将 SDK 放在虚拟机与实体机的共享目录。</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="- topic/note note note note_note" id="id__note_svg_d5w_rcc" data-ofbid="id__note_svg_d5w_rcc"><span class="note__title">注：</span> <div class="note__body">本节不涉及 Ubuntu 系统安装的详细步骤。关于详细安装流程，可查看<a class="- topic/xref xref" href="vmware-install-ubuntu.html">安装 Ubuntu</a>。</div></div>
+        </section>
+        
+        
+    </div>
+    <article class="- topic/topic topic nested1" aria-labelledby="ariaid-title2" id="topic_gv2_x4f_jdc">
+        <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/env/ubuntu2004.dita">Edit online</a></span><h2 class="- topic/title title topictitle2" id="ariaid-title2">搭建开发环境</h2>
+        <div class="- topic/body body">
+            <div class="- topic/p p" data-ofbid="d67502e125__20250123155204"><span class="- topic/ph ph">Luban</span> SDK 的开发环境需要安装一些依赖包，且关键工具需满足下列版本要求：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_qst_ksg_bzb" data-ofbid="topic_gv2_x4f_jdc__ul_qst_ksg_bzb">
+                    <li class="- topic/li li" data-ofbid="d67502e131__20250123155204">
+                        <p class="- topic/p p" data-ofbid="d67502e133__20250123155204">GCC 版本 ≥ 6.4</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d67502e137__20250123155204">
+                        <p class="- topic/p p" data-ofbid="d67502e139__20250123155204">GLIBCXX 版本 ≥ 3.4.22：可在 <span class="+ topic/ph sw-d/filepath ph filepath">libstd++.so.6</span> 库文件中查看版本号</p>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d67502e146__20250123155204">
+                        <p class="- topic/p p" data-ofbid="d67502e148__20250123155204">Python3 版本 ≥ 3.5</p>
+                    </li>
+                </ul></div>
+            <p class="- topic/p p" data-ofbid="d67502e153__20250123155204">ArtInChip 提供多种开发环境搭建方式，用户可根据软件版本要求和软件源是否可访问等条件选择开发环境搭建方式。</p>
+            <section class="- topic/section section" id="topic_gv2_x4f_jdc__section_cdy_dnf_jdc" data-ofbid="topic_gv2_x4f_jdc__section_cdy_dnf_jdc"><h3 class="- topic/title title sectiontitle">一键安装</h3>
+                
+                <div class="- topic/p p" data-ofbid="d67502e161__20250123155204">如果使用的 Ubuntu 系统上已有可以访问的软件源，无论来自外网还是从内网搭建，Ubuntu
+                        系统可以自动完成一键安装。执行一键安装之前，确保开发环境满足以下条件：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ol_lrd_d4w_3zb" data-ofbid="topic_gv2_x4f_jdc__ol_lrd_d4w_3zb">
+                        <li class="- topic/li li" data-ofbid="d67502e165__20250123155204">
+                            <p class="- topic/p p" data-ofbid="d67502e167__20250123155204">开发环境中有可用的软件源。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d67502e171__20250123155204">
+                            <p class="- topic/p p" data-ofbid="d67502e173__20250123155204">已有 <code class="+ topic/ph pr-d/codeph ph codeph">apt-get</code> 工具。在安装软件时，Ubuntu 系统和一键安装脚本都需要使用
+                                    <code class="+ topic/ph pr-d/codeph ph codeph">apt-get</code> 工具。</p>
+                        </li>
+                    </ul></div>
+                <div class="- topic/p p" data-ofbid="d67502e184__20250123155204"><span class="- topic/ph ph">Luban</span> SDK 提供了一键安装脚本
+                        <span class="+ topic/ph sw-d/filepath ph filepath">oneclick.sh</span>，用户可在一分钟内搭建好开发环境，详细安装流程如下所示：<ol class="- topic/ol ol" id="topic_gv2_x4f_jdc__ol_u2t_q4f_jdc" data-ofbid="topic_gv2_x4f_jdc__ol_u2t_q4f_jdc">
+                        <li class="- topic/li li" data-ofbid="d67502e193__20250123155204">
+                            <div class="- topic/p p" data-ofbid="d67502e195__20250123155204">进入 SDK
+                                根目录：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_uqz_sxs_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_uqz_sxs_qdc"><code>cd /path/to/Luban_SDK_Root_Directory/</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d67502e201__20250123155204">在 SDK 根目录下，执行一键安装脚本 <span class="+ topic/ph sw-d/filepath ph filepath">oneclick.sh</span>，并添加
+                                <span class="+ topic/keyword pr-d/parmname keyword parmname">quiet</span>
+                                参数以静默模式运行：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_g1x_k4w_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_g1x_k4w_3zb"><code>./tools/scripts/oneclick.sh quiet</code></pre><span class="+ topic/ph sw-d/filepath ph filepath">oneclick.sh</span>
+                            会自动检查当前系统的版本、环境，在软件源可以正常访问的情况下，逐个安装 Luban
+                                需要的软件工具。<span class="+ topic/keyword pr-d/parmname keyword parmname">quiet</span> 参数会隐藏所有需要用户确认的环节，如果去掉
+                                <span class="+ topic/keyword pr-d/parmname keyword parmname">quiet</span> 参数，会在以下几个软件包的安装时提问是否继续：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_vst_ksg_bzb" data-ofbid="topic_gv2_x4f_jdc__ul_vst_ksg_bzb">
+                                <li class="- topic/li li" data-ofbid="d67502e223__20250123155204">GCC</li>
+                                <li class="- topic/li li" data-ofbid="d67502e226__20250123155204">Python3</li>
+                                <li class="- topic/li li" data-ofbid="d67502e229__20250123155204">Python3-dev</li>
+                                <li class="- topic/li li" data-ofbid="d67502e232__20250123155204">Python3-pip</li>
+                            </ul><div class="- topic/note note note note_note" id="topic_gv2_x4f_jdc__note_pqj_54w_3zb" data-ofbid="topic_gv2_x4f_jdc__note_pqj_54w_3zb"><span class="note__title">注：</span> <div class="note__body"><span class="+ topic/ph sw-d/filepath ph filepath">oneclick.sh</span>
+                                    目前支持下列系统版本：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_wst_ksg_bzb" data-ofbid="topic_gv2_x4f_jdc__ul_wst_ksg_bzb">
+                                    <li class="- topic/li li" data-ofbid="d67502e241__20250123155204">Ubuntu 14.04、16.04、18.04、20.04、22.04</li>
+                                    <li class="- topic/li li" data-ofbid="d67502e244__20250123155204">CentOS 7.x、8.x</li>
+                                </ul><p class="- topic/p p" data-ofbid="d67502e247__20250123155204">其中，Ubuntu 14.04、16.04 和 CentOS 7.x 自带的 GCC 版本太低，
+                                        <span class="+ topic/ph sw-d/filepath ph filepath">oneclick.sh</span> 会自动编译安装一份 GCC
+                                6.4。</p></div></div></li>
+                        <li class="- topic/li li" data-ofbid="d67502e253__20250123155204">
+                            <p class="- topic/p p" data-ofbid="d67502e255__20250123155204">等待安装完成。脚本将自动处理依赖项并完成安装过程。</p>
+                            <div class="- topic/p p" data-ofbid="d67502e258__20250123155204">安装成功后，系统会返回以下提示信息：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_ip1_44w_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_ip1_44w_3zb"><code>...
+fdt        <span class="hl-number">0.3</span>.<span class="hl-number">2</span>
+                                                                [OK]
+
+&gt;&gt;&gt; Congratulations! All the package is ready.
+&gt;&gt;&gt; Enjoy the LubanOS!</code></pre></div>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d67502e264__20250123155204">
+                            <div class="- topic/p p" data-ofbid="d67502e266__20250123155204">如需要，可以通过手动执行下列 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">apt-get</span>
+                                命令来逐个安装所需依赖，否则可以跳过此步。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_pz4_z4w_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_pz4_z4w_3zb"><code>sudo apt-get update
+sudo apt-get install build-essential python3 python3-pip
+sudo pip install pycrypto
+sudo pip install fdt</code></pre></div>
+                        </li>
+                    </ol></div>
+            </section>
+            <section class="- topic/section section" id="topic_gv2_x4f_jdc__section_ukh_1pf_jdc" data-ofbid="topic_gv2_x4f_jdc__section_ukh_1pf_jdc"><h3 class="- topic/title title sectiontitle">手动安装</h3>
+                
+                <div class="- topic/p p" data-ofbid="d67502e282__20250123155204">如果使用的 Ubuntu 系统上没有可以访问的软件源，则需要手动逐个下载安装包并手动执行安装。可以使用 ArtInChip 提供的
+                        <span class="+ topic/ph sw-d/filepath ph filepath">deb</span> 离线包进行离线安装，详细流程如下：<ol class="- topic/ol ol" id="topic_gv2_x4f_jdc__ul_ln4_24f_jdc" data-ofbid="topic_gv2_x4f_jdc__ul_ln4_24f_jdc">
+                        <li class="- topic/li li" data-ofbid="d67502e289__20250123155204">
+                            <div class="- topic/p p" data-ofbid="d67502e291__20250123155204">执行下列命令分别安装对应的 <span class="+ topic/ph sw-d/filepath ph filepath">deb</span> 离线包类别：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_zst_ksg_bzb" data-ofbid="topic_gv2_x4f_jdc__ul_zst_ksg_bzb">
+                                    <li class="- topic/li li" data-ofbid="d67502e298__20250123155204">
+                                        <p class="- topic/p p" data-ofbid="d67502e300__20250123155204"><span class="+ topic/ph sw-d/filepath ph filepath">tools</span> 包</p>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_b3g_mpw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_b3g_mpw_3zb"><code>cd tools</code></pre>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_bnr_hys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_bnr_hys_qdc"><code>sudo dpkg -i *.deb</code></pre>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e312__20250123155204">
+                                        <p class="- topic/p p" data-ofbid="d67502e314__20250123155204"><span class="+ topic/ph sw-d/filepath ph filepath">python</span> 包</p>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_e1t_mpw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_e1t_mpw_3zb"><code>cd python</code></pre>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_qwb_3ys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_qwb_3ys_qdc"><code>sudo dpkg -i *.deb</code></pre>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e326__20250123155204">
+                                        <p class="- topic/p p" data-ofbid="d67502e328__20250123155204"><span class="+ topic/ph sw-d/filepath ph filepath">vim</span> 包</p>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_bc5_4pw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_bc5_4pw_3zb"><code>cd vim</code></pre>
+                                        <div class="- topic/p p" data-ofbid="d67502e336__20250123155204"><span class="+ topic/ph sw-d/filepath ph filepath">vim</span>包需要手动安装依赖：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_r1k_3ys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_r1k_3ys_qdc"><code>sudo dpkg -i vim-tiny_<span class="hl-number">2</span>%<span class="hl-number">3</span>a8.<span class="hl-number">1.2269</span>-<span class="hl-number">1u</span>buntu5.<span class="hl-number">7</span>_amd64.deb</code></pre></div>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_gmh_rpw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_gmh_rpw_3zb"><code>sudo dpkg -i *.deb</code></pre>
+                                    </li>
+                                </ul></div>
+                        </li>
+                        <li class="- topic/li li" id="topic_gv2_x4f_jdc__li_gjg_4bt_qdc" data-ofbid="topic_gv2_x4f_jdc__li_gjg_4bt_qdc">
+                            <p class="- topic/p p" data-ofbid="d67502e351__20250123155204"><span class="+ topic/ph sw-d/filepath ph filepath">deb</span> 文件安装完成后，如发现依赖缺失，可按照下列流程解决，否则可跳过此步。</p>
+                            <div class="- topic/p p" data-ofbid="d67502e356__20250123155204">不同的系统的依赖可能会有不同。以 <span class="+ topic/ph sw-d/filepath ph filepath">libgcc-9-dev</span> 安装包为例：<ol class="- topic/ol ol" type="a" id="topic_gv2_x4f_jdc__ol_cpr_vzs_qdc" data-ofbid="topic_gv2_x4f_jdc__ol_cpr_vzs_qdc">
+                                    <li class="- topic/li li" id="topic_gv2_x4f_jdc__li_vbh_x1t_qdc" data-ofbid="topic_gv2_x4f_jdc__li_vbh_x1t_qdc">
+                                            执行下列命令安装离线包：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_ms4_dqw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_ms4_dqw_3zb"><code>sudo dpkg -i libgcc-<span class="hl-number">9</span>-dev_<span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>_amd64.deb</code></pre><div class="- topic/p p" data-ofbid="d67502e367__20250123155204">以下输出示例中，系统提示缺少了依赖包：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_j5f_nys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_j5f_nys_qdc"><code>dpkg: dependency problems prevent configuration of libgcc-<span class="hl-number">9</span>-dev:amd64:
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libitm1 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libitm1 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libatomic1 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libatomic1 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libasan5 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libasan5 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on liblsan0 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package liblsan0 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libtsan0 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libtsan0 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libubsan1 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libubsan1 is not installed.
+libgcc-<span class="hl-number">9</span>-dev:amd64 depends on libquadmath0 (≥ <span class="hl-number">9.3</span>.<span class="hl-number">0</span>-<span class="hl-number">17u</span>buntu1~<span class="hl-number">20.04</span>); however:
+    Package libquadmath0 is not installed.
+
+dpkg: error processing package libgcc-<span class="hl-number">9</span>-dev:amd64 (--install):
+dependency problems - leaving unconfigured
+Errors were encountered <strong class="hl-keyword">while</strong> processing:
+    libgcc-<span class="hl-number">9</span>-dev:amd64</code></pre></div></li>
+                                    <li class="- topic/li li" data-ofbid="d67502e372__20250123155204">
+                                        <p class="- topic/p p" data-ofbid="d67502e374__20250123155204">通过以下任意方式下载依赖包：</p>
+                                        <div class="- topic/p p" data-ofbid="d67502e377__20250123155204">
+                                            <ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_k3h_1qw_3zb" data-ofbid="topic_gv2_x4f_jdc__ul_k3h_1qw_3zb">
+                                                <li class="- topic/li li" data-ofbid="d67502e381__20250123155204">单独安装某一 <span class="+ topic/ph sw-d/filepath ph filepath">deb</span>
+                                                  安装包，获取缺失的依赖。</li>
+                                                <li class="- topic/li li" data-ofbid="d67502e387__20250123155204">在另外一台有网络环境的计算机上下载缺失的依赖包。</li>
+                                                <li class="- topic/li li" data-ofbid="d67502e390__20250123155204">复制所下载的依赖包到本服务器，安装依赖包。</li>
+                                            </ul>
+                                        </div>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_yrm_4ys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_yrm_4ys_qdc"><code>apt-get download libitm1 libatomic1 libasan5 liblsan0 libtsan0 libubsan1 libquadmath0</code></pre>
+                                        <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_byw_4ys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_byw_4ys_qdc"><code>Get:<span class="hl-number">1</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libasan5 amd64 9.3.0-17ubuntu1~20.04 [394 KB]</em>
+Get:<span class="hl-number">2</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libatomic1 amd64 10.3.0-1ubuntu1~20.04 [9,284 B]</em>
+Get:<span class="hl-number">3</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libitm1 amd64 10.3.0-1ubuntu1~20.04 [26.2 KB]</em>
+Get:<span class="hl-number">4</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 liblsan0 amd64 10.3.0-1ubuntu1~20.04 [835 KB]</em>
+Get:<span class="hl-number">5</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libquadmath0 amd64 10.3.0-1ubuntu1~20.04 [146 KB]</em>
+Get:<span class="hl-number">6</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libtsan0 amd64 10.3.0-1ubuntu1~20.04 [2,009 KB]</em>
+Get:<span class="hl-number">7</span> http:<em class="hl-comment">//cn.archive.ubuntu.com/ubuntu focal-updates/main amd64 libubsan1 amd64 10.3.0-1ubuntu1~20.04 [784 KB]</em>
+Fetched <span class="hl-number">4</span>,<span class="hl-number">204</span> KB in <span class="hl-number">18</span>s (<span class="hl-number">231</span> KB/s)</code></pre>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e402__20250123155204">
+                                        <div class="- topic/p p" data-ofbid="d67502e404__20250123155204">将下载好的依赖包复制到 <span class="+ topic/ph sw-d/filepath ph filepath">/media/aic/SDCARD/</span>
+                                            目录中：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_j5v_pys_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_j5v_pys_qdc"><code>cp *.deb /media/aic/SDCARD/</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e413__20250123155204">
+                                        <div class="- topic/p p" data-ofbid="d67502e415__20250123155204">使用下列命令安装依赖包。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_ik5_l1t_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_ik5_l1t_qdc"><code>sudo dpkg -i /media/aic/SDCARD<em class="hl-comment">/*.deb</em></code></pre></div>
+                                        <div class="- topic/p p" data-ofbid="d67502e420__20250123155204">上述命令可安装指定目录下的所有 <span class="+ topic/ph sw-d/filepath ph filepath">.deb</span>
+                                            文件。如果安装过程中出现新的依赖问题，可以运行以下命令来解决：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_cvj_41t_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_cvj_41t_qdc"><code>sudo apt-get install -f</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e429__20250123155204">
+                                        <p class="- topic/p p" data-ofbid="d67502e431__20250123155204">重复<a class="- topic/xref xref" href="#topic_gv2_x4f_jdc__li_vbh_x1t_qdc">2.a</a>，再次尝试安装
+                                                <span class="+ topic/ph sw-d/filepath ph filepath">libgcc-9-dev</span>。</p>
+                                    </li>
+                                </ol></div>
+                        </li>
+                    </ol></div>
+            </section>
+            <section class="- topic/section section" id="topic_gv2_x4f_jdc__section_kxw_1pf_jdc" data-ofbid="topic_gv2_x4f_jdc__section_kxw_1pf_jdc"><h3 class="- topic/title title sectiontitle">Python 安装</h3>
+                
+                <div class="- topic/p p" data-ofbid="d67502e451__20250123155204">Python 目录中包含 Python 的 <span class="+ topic/ph sw-d/filepath ph filepath">deb</span> 安装文件，和普通的 <span class="+ topic/ph sw-d/filepath ph filepath">deb</span>
+                    文件安装步骤类似。Python 工具有两种安装方式：<ul class="- topic/ul ul" id="topic_gv2_x4f_jdc__ul_y4r_pnf_jdc" data-ofbid="topic_gv2_x4f_jdc__ul_y4r_pnf_jdc">
+                        <li class="- topic/li li" data-ofbid="d67502e461__20250123155204">
+                            <p class="- topic/p p" data-ofbid="d67502e463__20250123155204">编译安装，适用于需要从源码编译的 Python 包。</p>
+                            <div class="- topic/p p" data-ofbid="d67502e466__20250123155204">下载源码进行安装，以 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">pip</span> 为例：<ol class="- topic/ol ol" id="topic_gv2_x4f_jdc__ol_hjn_wct_qdc" data-ofbid="topic_gv2_x4f_jdc__ol_hjn_wct_qdc">
+                                    <li class="- topic/li li" data-ofbid="d67502e473__20250123155204">
+                                        <div class="- topic/p p" data-ofbid="d67502e475__20250123155204">进入下载的源码目录，例如
+                                            <span class="+ topic/ph sw-d/filepath ph filepath">pip-22.0.3/</span>：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_o5s_xct_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_o5s_xct_qdc"><code>cd pip-<span class="hl-number">22.0</span>.<span class="hl-number">3</span>/</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e484__20250123155204">
+                                        <div class="- topic/p p" data-ofbid="d67502e486__20250123155204">使用 Python
+                                            构建工具进行构建：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_kxf_1dt_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_kxf_1dt_qdc"><code>python3 setup.py build</code></pre></div>
+                                    </li>
+                                    <li class="- topic/li li" data-ofbid="d67502e492__20250123155204">
+                                        <div class="- topic/p p" data-ofbid="d67502e494__20250123155204">安装构建好的包<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_vvj_bdt_qdc" data-ofbid="topic_gv2_x4f_jdc__codeblock_vvj_bdt_qdc"><code>sudo python3 setup.py  install</code></pre></div>
+                                    </li>
+                                </ol></div>
+                            <p class="- topic/p p" data-ofbid="d67502e501__20250123155204">关于其他 Python 工具下载安装，可查看官网 <a href="http://www.pypi.org" target="_blank" rel="external noopener"><span class="- topic/ph ph">http://www.pypi.org</span></a>。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d67502e509__20250123155204">
+                            <p class="- topic/p p" data-ofbid="d67502e511__20250123155204">压缩包安装。</p>
+                            <p class="- topic/p p" data-ofbid="d67502e514__20250123155204">Python 的打包格式分为 Wheel (<span class="+ topic/ph sw-d/filepath ph filepath">.whl</span>) 和 Egg
+                                    (<span class="+ topic/ph sw-d/filepath ph filepath">.egg</span>) ，两者都属于压缩文件，目的是支持不需要编译的安装过程。 </p>
+                            <div class="- topic/p p" data-ofbid="d67502e523__20250123155204">Wheel 文件可以使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">pip</span>
+                                直接安装：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="topic_gv2_x4f_jdc__codeblock_mzv_2rw_3zb" data-ofbid="topic_gv2_x4f_jdc__codeblock_mzv_2rw_3zb"><code>sudo pip install pycryptodome-<span class="hl-number">3.14</span>.<span class="hl-number">1</span>-cp27-cp27mu-manylinux2010.whl</code></pre></div>
+                        </li>
+                    </ul></div>
+                <p class="- topic/p p" data-ofbid="d67502e533__20250123155204">上述安装过程中，如需安装依赖，可参考<a class="- topic/xref xref" href="#topic_gv2_x4f_jdc__li_gjg_4bt_qdc">依赖安装流程</a>。</p>
+            </section>
+        </div>
+    </article>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_jsr_tmp_wcc" data-tocid="id__section_jsr_tmp_wcc">系统安装注意事项</a></div></li><li class="topic-item"><a href="#topic_gv2_x4f_jdc" data-tocid="topic_gv2_x4f_jdc">搭建开发环境</a><ul><li class="section-item"><div class="section-title"><a href="#topic_gv2_x4f_jdc__section_cdy_dnf_jdc" data-tocid="topic_gv2_x4f_jdc__section_cdy_dnf_jdc">一键安装</a></div></li><li class="section-item"><div class="section-title"><a href="#topic_gv2_x4f_jdc__section_ukh_1pf_jdc" data-tocid="topic_gv2_x4f_jdc__section_ukh_1pf_jdc">手动安装</a></div></li><li class="section-item"><div class="section-title"><a href="#topic_gv2_x4f_jdc__section_kxw_1pf_jdc" data-tocid="topic_gv2_x4f_jdc__section_kxw_1pf_jdc">Python 安装</a></div></li></ul></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

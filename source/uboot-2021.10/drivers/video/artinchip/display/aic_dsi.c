@@ -127,7 +127,7 @@ static int aic_dsi_enable(void)
 
 	dsi_set_clk_div(priv->regs, priv->sclk_rate);
 	dsi_pkg_init(priv->regs);
-	dsi_phy_init(priv->regs, priv->sclk_rate, dsi->lane_num);
+	dsi_phy_init(priv->regs, priv->sclk_rate, dsi->lane_num, dsi->mode);
 	dsi_hs_clk(priv->regs, 1);
 
 	aic_dsi_release_drvdata();

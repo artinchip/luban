@@ -1,0 +1,371 @@
+#!/bin/sh
+################################################################################
+# Copyright (C) 2024 ArtInChip.
+#
+# Burn-in Test script
+#
+################################################################################
+
+# $1 - module name, only test one module, optional
+SCRIPT_NAME=$0
+MOD_NAME=$1
+
+RUN_TIME=$(date +%Y-%m-%d_%H-%M)
+RESULT_FILE=/tmp/aic_test_${RUN_TIME}.log
+LOOPS=50000
+
+# Define the return value
+RT_NO_RESOURCE=100
+RT_NO_DEV=101
+RT_NO_TOOL=102
+RT_FAILED=119
+RT_OK=0
+
+usage()
+{
+	echo "Should input as follow:"
+	printf "\t$SCRIPT_NAME [Module]\n"
+	echo
+	echo "Example:"
+	printf "\t$SCRIPT_NAME        # Run all modules testcase $LOOPS times\n"
+	printf "\t$SCRIPT_NAME mpp    # Only run MPP module testcase once time\n"
+}
+
+COLOR_BEGIN="\033["
+COLOR_RED="${COLOR_BEGIN}41;37m"
+COLOR_YELLOW="${COLOR_BEGIN}43;30m"
+COLOR_WHITE="${COLOR_BEGIN}47;30m"
+COLOR_END="\033[0m"
+
+pr_err()
+{
+	echo -e "${COLOR_RED}*** $*${COLOR_END}"
+}
+
+pr_warn()
+{
+	echo -e "${COLOR_YELLOW}!!! $*${COLOR_END}"
+}
+
+pr_info()
+{
+	echo -e "${COLOR_WHITE}>>> $*${COLOR_END}"
+}
+
+run_cmd()
+{
+	echo
+	pr_info $1
+	echo
+	eval $1
+}
+
+# $1 - msg
+# $2 - cnt
+state_log()
+{
+	echo
+	pr_info "****************************************************************"
+	pr_info "$2 Run burn-in test of $1 ..."
+	pr_info "****************************************************************"
+	echo
+	MOD_CNT=0
+
+	printf "\n$2 The test result of $1\n" >> $RESULT_FILE
+	echo ----------------------------------------------------- >> $RESULT_FILE
+}
+
+check_date()
+{
+	CUR_TIME=`date +%Y-%m-%d_%H:%M:%S`
+	pr_info "Current time: $CUR_TIME"
+
+	YEAR=$(date +%Y)
+	if [ $YEAR -lt 2024 ]; then
+		pr_warn "It better to set the system date & time first."
+		printf "Set system date & time:\n\tdate -s 202405201314\n"
+	fi
+}
+
+# $1 - module name
+module_start()
+{
+	MOD_CNT=`expr $MOD_CNT + 1`
+	echo
+	echo $MOD_CNT") Test" $1 ...
+	echo -----------------------------------------------------------------
+}
+
+# $1 - module name
+# $2 - result string
+module_end()
+{
+	MOD_NAME=$1
+	RESULT=$2
+	ARG=$3
+
+	echo
+	echo -----------------------------------------------------------------
+	echo $MOD_NAME $ARG is $RESULT
+
+	CUR_TIME=`date +%Y-%m-%d_%H:%M:%S`
+	if [ "x$ARG" = "x" ]; then
+		printf "%2s) %-10s is %-8s\t[%s]\n" $MOD_CNT $MOD_NAME $RESULT $CUR_TIME >> $RESULT_FILE
+	else
+		printf "%2s) %-6s %-3s is %-8s\t[%s]\n" $MOD_CNT $MOD_NAME $ARG $RESULT $CUR_TIME >> $RESULT_FILE
+	fi
+	echo
+	pr_info "Current time: $CUR_TIME"
+}
+
+# $1 - the full path name
+dev_is_exist()
+{
+	if [ -c $1 ] || [ -b $1 ]; then
+		ls -l $1
+		return 0
+	else
+		pr_err "The device $1 does not exist!"
+		return 1
+	fi
+}
+
+# $1 - the command name
+cmd_is_exist()
+{
+	which $1 > /dev/null
+	if [ $? -eq 0 ]; then
+		return 0
+	else
+		pr_err "The command $1 does not exist!"
+		return 1
+	fi
+}
+
+# $1 - the full path name
+file_is_exist()
+{
+	if [ -f $1 ]; then
+		return 0
+	else
+		pr_err "The file $1 does not exist!"
+		return 1
+	fi
+}
+
+# $1 - the full path name
+folder_is_exist()
+{
+	if [ -d $1 ]; then
+		return 0
+	else
+		pr_err "The folder $1 does not exist!"
+		return 1
+	fi
+}
+
+bi_prepare()
+{
+	file_is_exist /usr/bin/which
+	if [ $? -ne 0 ]; then
+		pr_warn "Need enable ifconfig in Busybox menuconfig"
+		exit $RT_NO_TOOL
+	fi
+
+	LOGLEVEL=`cat /proc/sys/kernel/printk | awk '{print $1}'`
+	if [ $LOGLEVEL -lt 7 ]; then
+		run_cmd "echo 7 > /proc/sys/kernel/printk"
+	fi
+}
+
+bi_exit()
+{
+	if [ $LOGLEVEL -lt 7 ]; then
+		run_cmd "echo $LOGLEVEL > /proc/sys/kernel/printk"
+	fi
+
+	cd / > /dev/null
+}
+
+###############################################################################
+# The burn-in test entry of each module
+# Name format: bi_*
+###############################################################################
+
+bi_resource_available()
+{
+	if [ -d /mnt/udisk/aic_test ]; then
+		RES_DIR=/mnt/udisk/aic_test
+		return 1
+	elif [ -d /mnt/sdcard/aic_test ]; then
+		RES_DIR=/mnt/sdcard/aic_test
+		return 1
+	elif [ -d /aic_test ]; then
+		RES_DIR=/aic_test
+		return 1
+	fi
+
+	return 0
+}
+
+bi_mpp()
+{
+	RET=$RT_NO_RESOURCE
+
+	VIDEO_DIR=$RES_DIR/video
+	if [ ! -d $VIDEO_DIR ]; then
+		pr_info "No video folder found"
+		return $RT_NO_RESOURCE
+	fi
+
+	APP=/usr/local/bin/player_demo
+	cmd_is_exist $APP
+	if [ $? -ne 0 ]; then
+		pr_warn "Need enable $(basename $APP) in SDK menuconfig"
+		return $RT_NO_TOOL
+	fi
+
+	for file in $VIDEO_DIR/*.mp4
+	do
+		if [ ${#file} -eq 0 ]; then
+			continue
+		fi
+
+		if [ ! -f $file ]; then
+			continue
+		fi
+
+		run_cmd "$APP -i $file"
+		if [ $? -ne 0 ]; then
+			pr_err "Failed to player $file"
+			return $RT_FAILED
+		fi
+	done
+	return $RET
+}
+
+bi_custom()
+{
+	RET=$RT_NO_RESOURCE
+
+	cd $RES_DIR || exit $RT_NO_RESOURCE
+	for case in test_*.sh
+	do
+		if [ ${#file} -eq 0 ]; then
+			continue
+		fi
+
+		if [ ! -x $case ]; then
+			pr_info "Add executable attibute to $case"
+			chmod +x $case
+		fi
+
+		run_cmd "./$case"
+		TEMP=$?
+		echo
+		if [ $TEMP -eq 0 ]; then
+			echo "$case is OK"
+			echo "    $case is OK" >> $RESULT_FILE
+			HAVE_VALID_TESTCASE=1
+			RET=0
+		elif [ $TEMP -eq $RT_NO_RESOURCE ] || [ $TEMP -eq $RT_NO_DEV ] \
+			|| [ $TEMP -eq $RT_NO_TOOL ]; then
+			echo "$case is Ignored"
+			echo "    $case is Ignored" >> $RESULT_FILE
+		else
+			echo "$case is Failed"
+			exit $RT_FAILED
+		fi
+	done
+
+	cd - > /dev/null || exit $RT_NO_RESOURCE
+	return $RET
+}
+
+# $1 - module name
+# $2 - argument1
+bi_test()
+{
+	MOD_NAME=`echo $1 | tr a-z A-Z`
+	module_start $MOD_NAME
+
+	bi_$1 $2
+	RET=$?
+	if [ $RET -eq 0 ]; then
+		module_end $MOD_NAME "OK" $2
+		HAVE_VALID_TESTCASE=1
+	elif [ $RET -eq $RT_NO_RESOURCE ] || [ $RET -eq $RT_NO_DEV ] || [ $RET -eq $RT_NO_TOOL ]; then
+		module_end $MOD_NAME "Ignored" $2
+	else
+		module_end $MOD_NAME "Failed" $2
+		exit $RT_FAILED
+	fi
+}
+
+###############################################################################
+# The main process of burn-in test
+###############################################################################
+
+if [ $# -gt 1 ]; then
+	usage
+	exit 1
+elif [ $# -gt 0 ]; then
+	if [ "$MOD_NAME" = "help" ]; then
+		usage
+		exit $RT_OK
+	fi
+fi
+
+if [ "x$MOD_NAME" = "xstop" ]; then
+	exit $RT_OK
+fi
+
+bi_resource_available
+if [ $? -eq 0 ]; then
+	exit $RT_OK
+fi
+
+check_date
+
+pr_info "Prepares to run burn-in test ..."
+
+bi_prepare
+
+# Only test one module
+if [ ! "x$MOD_NAME" = "x" ] && [ ! "x$MOD_NAME" = "xstart" ]; then
+	MOD_CNT=0
+	bi_test $MOD_NAME $3
+	bi_exit
+	exit $?
+fi
+
+printf "---------------- Burn-in test report ----------------\n\n" > $RESULT_FILE
+printf "Test Time: $RUN_TIME\n" >> $RESULT_FILE
+
+i=1
+HAVE_VALID_TESTCASE=0
+while [ $i -le $LOOPS ]
+do
+	state_log "Multimedia" "$i/$LOOPS"
+	bi_test mpp
+
+	state_log "Custom" "$i/$LOOPS"
+	bi_test custom
+
+	if [ $HAVE_VALID_TESTCASE -eq 0 ]; then
+		echo
+		pr_warn "There is no valid testcase, so exit"
+		exit $RT_NO_RESOURCE
+	fi
+
+	i=`expr $i + 1`
+done
+
+grep "Failed" $RESULT_FILE
+if [ $? -eq 0 ]; then
+	printf "\nThere is some error in test!\n"
+else
+	printf "\nYEAH!! All testcase is OK!\n"
+fi
+printf "Test report is saved in $RESULT_FILE:\n\n"
+cat $RESULT_FILE

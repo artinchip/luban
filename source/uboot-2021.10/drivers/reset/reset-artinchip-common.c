@@ -14,6 +14,14 @@
 #include <dm/lists.h>
 #include <linux/log2.h>
 #include "reset-artinchip-common.h"
+#ifdef CONFIG_RESET_ARTINCHIP_V2_0
+#include <dt-bindings/reset/artinchip,aic-reset-v20.h>
+#elif CONFIG_RESET_ARTINCHIP_V3_0
+#include <dt-bindings/reset/artinchip,aic-reset-v30.h>
+#else
+#include <dt-bindings/reset/artinchip,aic-reset.h>
+#endif
+
 
 static int _get_reset_index(struct artinchip_reset_priv *priv, u32 id)
 {
@@ -47,6 +55,7 @@ int artinchip_set_reset(struct reset_ctl *reset_ctl, bool on)
 {
 	int index;
 	u32 value;
+	void *base;
 	struct artinchip_reset *reset;
 	struct artinchip_reset_priv *priv = dev_get_priv(reset_ctl->dev);
 
@@ -55,13 +64,23 @@ int artinchip_set_reset(struct reset_ctl *reset_ctl, bool on)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_RESET_ARTINCHIP_V1_0
+	base = priv->base;
+#else
+	if (reset_ctl->id < RST_CROSS_ZONE)
+		base = priv->base;
+	else
+		base = priv->cz_base;
+#endif
+
 	reset = &priv->rests[index];
-	value = readl(priv->base + reset->reg);
+	value = readl(base + reset->reg);
+
 	if (on)
 		value |= 1 << reset->bit;
 	else
 		value &= ~(1 << reset->bit);
-	writel(value, priv->base + reset->reg);
+	writel(value, base + reset->reg);
 
 	return 0;
 }

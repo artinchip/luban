@@ -1,0 +1,449 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="在 Luban SDK 中添加新应用的流程包括配置应用包、源码管理、编译和补丁制作。 如需在 Luban SDK 中添加新的应用，可执行下列步骤： 在 package 目录下添加下列必要的文件： pkg &gt; |-&gt; pkg .mk --&gt; 必须文件，用于定义包的基本信息。 |-&gt; Config.in --&gt; 可选文件，用于配置包的编译选项。 |-&gt; Config.in.host --&gt; 仅 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="topic"/><meta name="DC.relation" content="../../../topics/sdk/advanced/lb-delete-dev-board.html"/><meta name="DC.relation" content="../../../topics/sdk/file-system/lb_usage_autoboot.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="id"/><meta name="DC.language" content="zh-CN"/><title>添加新应用</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="id-d4445e1288"/><meta name="wh-source-relpath" content="topics/sdk/advanced/lb_usage_add_new_package.dita"/><meta name="wh-out-relpath" content="topics/sdk/advanced/lb_usage_add_new_package.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="id" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref"><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html">使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_add_new_package.html">添加新应用</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/advanced/lb-delete-dev-board.html" title="删除开发板" aria-label="上一主题: 删除开发板" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/file-system/lb_usage_autoboot.html" title="开机启动" aria-label="下一主题: 开机启动" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="lb-usage-commands-d4445e1244" class="topicref" data-id="lb-usage-commands" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="lb-usage-commands-d4445e1244-link">命令详解</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem"><div data-tocid="concept_dyd_dn3_pzb-d4445e1260" class="topicref" data-id="concept_dyd_dn3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/burn-image-add-dev-board.html" id="concept_dyd_dn3_pzb-d4445e1260-link">添加开发板</a></div></div></li><li role="treeitem"><div data-tocid="lb-delete-dev-board-Copy-d4445e1274" class="topicref" data-id="lb-delete-dev-board-Copy" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb-delete-dev-board.html" id="lb-delete-dev-board-Copy-d4445e1274-link">删除开发板</a></div></div></li><li role="treeitem" class="active"><div data-tocid="id-d4445e1288" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_add_new_package.html" id="id-d4445e1288-link">添加新应用</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e1302" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/file-system/lb_usage_autoboot.html" id="id-d4445e1302-link">开机启动</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_ixg_ql3_pzb-d4445e1316" class="topicref" data-id="concept_ixg_ql3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_ixg_ql3_pzb-d4445e1316-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/configure-precompilation-package.html" id="concept_ixg_ql3_pzb-d4445e1316-link">配置预编译包</a></div></div></li><li role="treeitem"><div data-tocid="concept_gjb_tm3_pzb-d4445e1344" class="topicref" data-id="concept_gjb_tm3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_fs_image.html" id="concept_gjb_tm3_pzb-d4445e1344-link">配置分区和镜像</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic topic" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/advanced/lb_usage_add_new_package.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">添加新应用</h1>
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 2 minute(s)
+                </div>
+    <div class="- topic/body body">
+        <p class="- topic/p p" data-ofbid="d79522e28__20250123155205">在 Luban SDK 中添加新应用的流程包括配置应用包、源码管理、编译和补丁制作。</p>
+        <p class="- topic/p p" data-ofbid="d79522e31__20250123155205">如需在 Luban SDK 中添加新的应用，可执行下列步骤：</p>
+        <ol class="- topic/ol ol" id="id__ol_nkd_3hp_fdc" data-ofbid="id__ol_nkd_3hp_fdc">
+            <li class="- topic/li li" data-ofbid="d79522e36__20250123155205">
+                <div class="- topic/p p" data-ofbid="d79522e38__20250123155205">在 <span class="+ topic/ph sw-d/filepath ph filepath">package</span>
+                    目录下添加下列必要的文件：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_okd_3hp_fdc" data-ofbid="id__codeblock_okd_3hp_fdc"><code><var class="+ topic/keyword sw-d/varname keyword varname">pkg</var>&gt;
+|-&gt; <var class="+ topic/keyword sw-d/varname keyword varname">pkg</var>.mk              --&gt; 必须文件，用于定义包的基本信息。
+|-&gt; Config.in             --&gt; 可选文件，用于配置包的编译选项。
+|-&gt; Config.in.host        --&gt; 仅 host 工具需要的文件</code></pre></div>
+            </li>
+            <li class="- topic/li li" data-ofbid="d79522e52__20250123155205">
+                <p class="- topic/p p" data-ofbid="d79522e54__20250123155205">修改上层的 <span class="+ topic/ph sw-d/filepath ph filepath">Config.in/Config.in.host</span>。</p>
+                <div class="- topic/p p" data-ofbid="d79522e60__20250123155205">为了在 menuconfig 中看到包，需要在上层的 <span class="+ topic/ph sw-d/filepath ph filepath">Config.in</span> 或
+                        <span class="+ topic/ph sw-d/filepath ph filepath">Config.in.host</span>
+                    文件中添加对包的引用。例如：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_n5p_2gr_ldc" data-ofbid="id__codeblock_n5p_2gr_ldc"><code>source <span class="hl-string">"package/artinchip/test-uart/Config.in"</span></code></pre></div>
+            </li>
+            <li class="- topic/li li" data-ofbid="d79522e72__20250123155205">添加应用源码和编译方案。<div class="- topic/p p" data-ofbid="d79522e74__20250123155205">SDK 支持的组件包有以下两种：<ul class="- topic/ul ul" id="id__ul_pkd_3hp_fdc" data-ofbid="id__ul_pkd_3hp_fdc">
+                        <li class="- topic/li li" data-ofbid="d79522e78__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e80__20250123155205"><a class="- topic/xref xref" href="lb_usage_add_new_package.html#id__section_fv2_nhp_fdc">编译
+                                    ArtInChip 自主开发的组件包</a>：需放在
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip</span> 目录中。</p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d79522e90__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e92__20250123155205"><a class="- topic/xref xref" href="lb_usage_add_new_package.html#id__section_i3p_whp_fdc">编译第三方开源代码包</a>：需下载源码包到
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">dl/<var class="+ topic/keyword sw-d/varname keyword varname">pkg</var></span> 目录中。</p>
+                        </li>
+                    </ul></div></li>
+        </ol>
+        <section class="- topic/section section" id="id__section_fv2_nhp_fdc" data-ofbid="id__section_fv2_nhp_fdc"><h2 class="- topic/title title sectiontitle">编译自开发应用</h2>
+            
+            <p class="- topic/p p" data-ofbid="d79522e111__20250123155205">自开发的应用一般以源码的方式存储，以 <code class="+ topic/ph pr-d/codeph ph codeph">test-uart</code> 测试源码为例：</p>
+            <ol class="- topic/ol ol arabic simple" id="id__ol_k31_ghp_fdc" data-ofbid="id__ol_k31_ghp_fdc">
+                <li class="- topic/li li" data-ofbid="d79522e119__20250123155205">
+                    <div class="- topic/p p" data-ofbid="d79522e121__20250123155205">创建目录：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_kg4_jgr_ldc" data-ofbid="id__codeblock_kg4_jgr_ldc"><code>mkdir -p package/artinchip/test-uart</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e127__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e129__20250123155205">生成文件：</p>
+                    <div class="- topic/p p" data-ofbid="d79522e132__20250123155205">
+                        <ul class="- topic/ul ul" id="id__ul_dr4_kgr_ldc" data-ofbid="id__ul_dr4_kgr_ldc">
+                            <li class="- topic/li li" data-ofbid="d79522e136__20250123155205"><span class="+ topic/ph sw-d/filepath ph filepath">test-uart.mk</span>：定义应用构建内容。</li>
+                            <li class="- topic/li li" data-ofbid="d79522e141__20250123155205"><span class="+ topic/ph sw-d/filepath ph filepath">Config.in</span>：配置选项。</li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e149__20250123155205">
+                    <div class="- topic/p p" data-ofbid="d79522e151__20250123155205">在 <span class="+ topic/ph sw-d/filepath ph filepath">package/artinchip/Config.in</span>
+                        中添加引用。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_n5r_mgr_ldc" data-ofbid="id__codeblock_n5r_mgr_ldc"><code>source <span class="hl-string">"package/artinchip/test-uart/Config.in"</span></code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e160__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e162__20250123155205">创建目录 <span class="+ topic/ph sw-d/filepath ph filepath">source/artinchip/test-uart</span>， 放置
+                            <code class="+ topic/ph pr-d/codeph ph codeph">test-uart</code> 示例的源码和 <span class="+ topic/ph sw-d/filepath ph filepath">Makefile</span>
+                            (<span class="+ topic/ph sw-d/filepath ph filepath">CMakeLists.txt</span>) 文件。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e178__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e180__20250123155205">使用编译命令 <span class="+ topic/ph sw-d/filepath ph filepath">make test-uart</span> 进行编译。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e188__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e190__20250123155205">如有需要，添加补丁，否则可略过。</p>
+                    <p class="- topic/p p" data-ofbid="d79522e193__20250123155205">关于补丁的说明，可查看 <a class="- topic/xref xref" href="lb_usage_add_new_package.html#id__id5">制作补丁</a>。</p>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__section_i3p_whp_fdc" data-ofbid="id__section_i3p_whp_fdc"><h2 class="- topic/title title sectiontitle">编译三方应用</h2>
+            
+            <p class="- topic/p p" data-ofbid="d79522e208__20250123155205">对于第三方开源代码包，建议从 buildroot2 官网获得相关移植流程说明，以 <span class="+ topic/ph sw-d/filepath ph filepath">attr</span> 为例：</p>
+            <ol class="- topic/ol ol arabic simple" id="id__ol_l31_ghp_fdc" data-ofbid="id__ol_l31_ghp_fdc">
+                <li class="- topic/li li" data-ofbid="d79522e216__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e218__20250123155205">在 Gitee 上查找 buildroot2 代码库，选择任意一个项目，例如
+                            <span class="+ topic/ph sw-d/filepath ph filepath">JakeYang/buildroot</span>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e225__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e227__20250123155205">在 <span class="+ topic/ph sw-d/filepath ph filepath">package</span> 中找到 <span class="+ topic/ph sw-d/filepath ph filepath">attr</span>，并将其下载到
+                            <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/</span> 目录中。</p>
+                    <p class="- topic/p p" data-ofbid="d79522e239__20250123155205"><img class="- topic/image image" id="id__image_flf_s1l_sdc" src="../../../images/sdk/locate-attr-pkg-in-gitee.jpg"/></p>
+                    <p class="- topic/p p" data-ofbid="d79522e242__20250123155205">在 <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/</span>
+                            中会生成三个文件：<span class="+ topic/ph sw-d/filepath ph filepath">patch</span>， <span class="+ topic/ph sw-d/filepath ph filepath">Config.in</span> 和
+                            <span class="+ topic/ph sw-d/filepath ph filepath">attr.mk</span>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e258__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e260__20250123155205">在 <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/Config.in</span> 中添加对
+                            <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/attr/Config.in</span> 文件的引用。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e270__20250123155205">
+                    <div class="- topic/p p" data-ofbid="d79522e272__20250123155205">打开 <span class="+ topic/ph sw-d/filepath ph filepath">attr.mk</span>
+                        文件，查找对应版本的下载地址，示例如下：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_qrn_z1t_hdc" data-ofbid="id__codeblock_qrn_z1t_hdc"><code>ATTR_VERSION = <span class="hl-number">2.5</span>.<span class="hl-number">1</span>
+ATTR_SOURCE = attr-$(ATTR_VERSION).tar.xz
+ATTR_SITE = http:<em class="hl-comment">//download.savannah.gnu.org/releases/attr</em></code></pre></div>
+                    
+                    <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="id__image_o31_ghp_fdc" src="../../../images/sdk/attr-pkg.jpg" alt="attr-pkg"/></div><br/>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e290__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e292__20250123155205">下载源码至 <span class="+ topic/ph sw-d/filepath ph filepath">dl/attr/</span> 目录下。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e300__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e302__20250123155205">执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make m</span> 命令，可在 <span class="+ topic/ph sw-d/filepath ph filepath">Third-party packages</span>
+                        中看到 <span class="+ topic/ph sw-d/filepath ph filepath">attr</span>。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e315__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e317__20250123155205">应用编译命令 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make attr</span></p>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__id5" data-ofbid="id__id5"><h2 class="- topic/title title sectiontitle">制作补丁</h2>
+            
+            <p class="- topic/p p" data-ofbid="d79522e331__20250123155205">如对第三方应用进行了适配修改或者补丁修复，则可能需要制作补丁提交至 <span class="+ topic/ph sw-d/filepath ph filepath">pacakge</span> 目录。以
+                    <span class="+ topic/ph sw-d/filepath ph filepath">ethtool</span> 为例，制作补丁的详细流程说明如下：</p>
+            <ol class="- topic/ol ol arabic simple" id="id__ol_p31_ghp_fdc" data-ofbid="id__ol_p31_ghp_fdc">
+                <li class="- topic/li li" data-ofbid="d79522e342__20250123155205">
+                    <div class="- topic/p p" data-ofbid="d79522e344__20250123155205">使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make m</span> 命令打开配置界面，取消勾选下列选项，以便取消 <span class="+ topic/ph sw-d/filepath ph filepath">attr</span>
+                        的预编译使用：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__codeblock_o3b_gbl_sdc" data-ofbid="id__codeblock_o3b_gbl_sdc"><code>[] use prebuilt binary instead of building from source</code></pre></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e356__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e358__20250123155205">使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make ethtool-extract</span> 生成源码，将源码压缩到
+                            <span class="+ topic/ph sw-d/filepath ph filepath">source/third-party/ethtool-5.12</span> 目录下。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e368__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e370__20250123155205">使用 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make ethtool-patch</span> 命令，添加现有补丁。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e377__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e379__20250123155205">进入到源码目录 <span class="+ topic/ph sw-d/filepath ph filepath">source/third-party/ethtool-5.12</span>，并建立 Git 仓库。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e386__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e388__20250123155205">修改代码，提交到本地 Git 仓库，并通过 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">git format-patch</span> 生成补丁。</p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e396__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e398__20250123155205">复制补丁到 <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/attr/</span> 目录， 并排序。</p>
+                </li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="id__id6" data-ofbid="id__id6"><h2 class="- topic/title title sectiontitle">编译工具示例</h2>
+            
+            <p class="- topic/p p" data-ofbid="d79522e412__20250123155205">不同的应用可能使用不同的编译工具，以下示例仅供参考：</p>
+            <ul class="- topic/ul ul arabic" id="id__ol_q31_ghp_fdc" data-ofbid="id__ol_q31_ghp_fdc">
+                <li class="- topic/li li" data-ofbid="d79522e417__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e419__20250123155205">Autotools: <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/acl</span>
+                    </p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e426__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e428__20250123155205">CMake:</p>
+                    <ul class="- topic/ul ul simple" id="id__ul_u31_ghp_fdc" data-ofbid="id__ul_u31_ghp_fdc">
+                        <li class="- topic/li li" data-ofbid="d79522e433__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e435__20250123155205">
+                                <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/lzo</span>
+                            </p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d79522e442__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e444__20250123155205">
+                                <span class="+ topic/ph sw-d/filepath ph filepath">package/artinchip/*</span>
+                            </p>
+                        </li>
+                    </ul>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e453__20250123155205">
+                    <div class="- topic/p p" data-ofbid="d79522e455__20250123155205">Golang: <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/fscrypt</span>
+                        <div class="- topic/note note note note_note" id="id__note_zht_1jp_fdc" data-ofbid="id__note_zht_1jp_fdc"><span class="note__title">注：</span> <div class="note__body">Golang 编写的源码包依赖文件，可以放置至
+                                <span class="+ topic/ph sw-d/filepath ph filepath">dl/vendor</span>
+                        目录中，编译时会优先从该目录中查找是否有所需要的依赖文件。</div></div></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e467__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e469__20250123155205">Generic Makefile: <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/bzip2</span>
+                    </p>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e476__20250123155205">
+                    <p class="- topic/p p" data-ofbid="d79522e478__20250123155205">Support Kconfig:</p>
+                    <ul class="- topic/ul ul simple" id="id__ul_aj1_ghp_fdc" data-ofbid="id__ul_aj1_ghp_fdc">
+                        <li class="- topic/li li" data-ofbid="d79522e483__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e485__20250123155205">
+                                <span class="+ topic/ph sw-d/filepath ph filepath">uboot</span>
+                            </p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d79522e492__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e494__20250123155205">
+                                <span class="+ topic/ph sw-d/filepath ph filepath">linux</span>
+                            </p>
+                        </li>
+                        <li class="- topic/li li" data-ofbid="d79522e501__20250123155205">
+                            <p class="- topic/p p" data-ofbid="d79522e503__20250123155205">
+                                <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/busybox</span>
+                            </p>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section class="- topic/section section" id="id__id7" data-ofbid="id__id7"><h2 class="- topic/title title sectiontitle">应用包使用规则</h2>
+            
+            <ul class="- topic/ul ul" id="id__ul_yng_dwp_gdc" data-ofbid="id__ul_yng_dwp_gdc">
+                <li class="- topic/li li" data-ofbid="d79522e521__20250123155205">
+                    <div class="- topic/div div section" id="id__id8">
+                        <strong class="+ topic/ph hi-d/b ph b">包的路径</strong> ：当前 SDK 中，仅支持在下列路径中添加包，并且仅支持新增一级目录：<ul class="- topic/ul ul simple" id="id__ul_cj1_ghp_fdc" data-ofbid="id__ul_cj1_ghp_fdc">
+                            <li class="- topic/li li" data-ofbid="d79522e530__20250123155205">
+                                <p class="- topic/p p" data-ofbid="d79522e532__20250123155205">
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">package/artinchip/</span>
+                                </p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d79522e539__20250123155205">
+                                <p class="- topic/p p" data-ofbid="d79522e541__20250123155205">
+                                    <span class="+ topic/ph sw-d/filepath ph filepath">package/third-party/</span>
+                                </p>
+                            </li>
+                        </ul><p class="- topic/p p" data-ofbid="d79522e548__20250123155205">可新增一级目录，例如 <span class="+ topic/ph sw-d/filepath ph filepath">pacakge/artinchip/foo</span>。</p></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e555__20250123155205">
+                    <div class="- topic/div div section" id="id__id9">
+                        <strong class="+ topic/ph hi-d/b ph b">包的名字</strong>：以添加一个名为 <span class="+ topic/ph sw-d/filepath ph filepath">foo</span> 的包为例<div class="table-container"><table class="- topic/table table docutils align-default frame-all" id="id__table_fj1_ghp_fdc" data-ofbid="id__table_fj1_ghp_fdc" data-cols="3"><caption></caption><colgroup><col style="width:17.301038062283737%"/><col style="width:35.813148788927336%"/><col style="width:46.88581314878893%"/></colgroup><tbody class="- topic/tbody tbody">
+                                    <tr class="- topic/row row-odd">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1">包的目录名字</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-1">必须为 <span class="+ topic/ph sw-d/filepath ph filepath">foo</span>
+                                            ，也可以有</td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-1">-</td>
+                                    </tr>
+                                    <tr class="- topic/row row-even">
+                                        <td class="- topic/entry entry colsep-1 rowsep-1"><span class="+ topic/ph sw-d/filepath ph filepath">Config.in</span> 中的名字</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-1">必须以 <span class="+ topic/ph sw-d/filepath ph filepath">BR2_PACKAGE_</span> 开头，这里为
+                                                <span class="+ topic/ph sw-d/filepath ph filepath">BR2_PACKAGE_FOO</span></td>
+                                        <td class="- topic/entry entry colsep-0 rowsep-0" rowspan="2">包的名字，可以包含 <span class="+ topic/ph sw-d/filepath ph filepath">-</span> 或者
+                                                <span class="+ topic/ph sw-d/filepath ph filepath">_</span> ，如果使用了中杠，则需要注意：<ul class="- topic/ul ul simple" id="id__ul_hj1_ghp_fdc" data-ofbid="id__ul_hj1_ghp_fdc">
+                                                <li class="- topic/li li" data-ofbid="d79522e620__20250123155205">
+                                                  <p class="- topic/p p" data-ofbid="d79522e622__20250123155205">包目录名字继续使用中杠</p>
+                                                </li>
+                                                <li class="- topic/li li" data-ofbid="d79522e626__20250123155205">
+                                                  <p class="- topic/p p" data-ofbid="d79522e628__20250123155205">相关的变量名字，需要将中杠改为下划线</p>
+                                                </li>
+                                            </ul></td>
+                                    </tr>
+                                    <tr class="- topic/row row-odd">
+                                        <td class="- topic/entry entry colsep-1 rowsep-0"><span class="+ topic/ph sw-d/filepath ph filepath">foo.mk</span> 中的变量名</td>
+                                        <td class="- topic/entry entry colsep-1 rowsep-0">变量名必须以 <span class="+ topic/keyword pr-d/parmname keyword parmname">FOO</span> 开头，例如
+                                                <span class="+ topic/keyword pr-d/parmname keyword parmname">FOO_INSTALL_STAGING = YES</span>
+                                        </td>
+                                    </tr>
+                                </tbody></table></div></div>
+                </li>
+                <li class="- topic/li li" data-ofbid="d79522e655__20250123155205">
+                    
+                    <div class="- topic/div div section" id="id__id10">
+                        <strong class="+ topic/ph hi-d/b ph b">软连接的使用</strong>
+                        <p class="- topic/p p" data-ofbid="d79522e664__20250123155205">如果在软件包的安装阶段，需要使用软连接创建目录，则需要添加参数 <span class="+ topic/keyword pr-d/parmname keyword parmname">-n</span>
+                            ，如：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="id__pre_ij1_ghp_fdc" data-ofbid="id__pre_ij1_ghp_fdc"><code>ln -snf source_dir_path target_name</code></pre><ul class="- topic/ul ul" id="id__ul_fch_vtq_3dc" data-ofbid="id__ul_fch_vtq_3dc">
+                            <li class="- topic/li li" data-ofbid="d79522e673__20250123155205">
+                                <p class="- topic/p p" data-ofbid="d79522e675__20250123155205"><span class="+ topic/keyword pr-d/parmname keyword parmname">ln-sf</span>
+                                    对重复创建的目标，并不会更新软连接的时间戳，导致重复执行 <span class="+ topic/keyword sw-d/cmdname keyword cmdname">make
+                                        pkg-prebuilt</span>，无法检测到安装目录中的软连接目录的变化，导致生成的预编译
+                                    二进制包缺漏该软连接。</p>
+                            </li>
+                            <li class="- topic/li li" data-ofbid="d79522e686__20250123155205">
+                                <p class="- topic/p p" data-ofbid="d79522e688__20250123155205"><span class="+ topic/keyword pr-d/parmname keyword parmname">-n</span>：当软连接指向目录时，将其当做一般文件对待。这样重复创建/更新链接时，
+                                    相应的时间戳也会更新。</p>
+                            </li>
+                        </ul></div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#id__section_fv2_nhp_fdc" data-tocid="id__section_fv2_nhp_fdc">编译自开发应用</a></div></li><li class="section-item"><div class="section-title"><a href="#id__section_i3p_whp_fdc" data-tocid="id__section_i3p_whp_fdc">编译三方应用</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id5" data-tocid="id__id5">制作补丁</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id6" data-tocid="id__id6">编译工具示例</a></div></li><li class="section-item"><div class="section-title"><a href="#id__id7" data-tocid="id__id7">应用包使用规则</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

@@ -93,7 +93,7 @@ int asr_send_me_traffic_ind(struct asr_hw *asr_hw, u8 sta_idx, bool uapsd, u8 tx
 int asr_send_me_rc_stats(struct asr_hw *asr_hw, u8 sta_idx, struct me_rc_stats_cfm *cfm);
 int asr_send_me_rc_set_rate(struct asr_hw *asr_hw, u8 sta_idx, u16 rate_idx);
 
-int asr_send_me_tx_agg_disable(struct asr_hw *asr_hw, bool tx_agg_disable);
+int asr_send_me_host_dbg_cmd(struct asr_hw *asr_hw, unsigned int host_dbg_cmd, unsigned int reg, unsigned int value);
 
 #ifdef CONFIG_SME
 int asr_send_sm_auth_req(struct asr_hw *asr_hw,
@@ -153,5 +153,7 @@ int asr_send_set_cca(struct asr_hw *asr_hw, struct mm_set_get_cca_cfm *cfm,
 int asr_send_get_rssi_req(struct asr_hw *asr_hw, u8 staid, s8 *rssi);
 int asr_send_upload_fram_req(struct asr_hw *asr_hw, u8 vif_idx, u16 fram_type, u8 enable);
 int asr_send_fram_appie_req(struct asr_hw *asr_hw, u8 vif_idx, u16 fram_type, u8 *ie, u8 ie_len);
+
+int asr_send_efuse_txpwr_req(struct asr_hw *asr_hw, uint8_t * txpwr, uint8_t * txevm, uint8_t *freq_err, bool iswrite, uint8_t *index);
 
 #endif /* _ASR_MSG_TX_H_ */

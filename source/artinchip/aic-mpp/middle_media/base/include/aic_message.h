@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_message
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0e
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_message
+ */
 
 
 #ifndef __AIC_MESSAGE_H__

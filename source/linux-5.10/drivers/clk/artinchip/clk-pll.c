@@ -48,8 +48,6 @@
 #define PLL_SDM_MODE_BIT	(29)
 #define PLL_SDM_EN_BIT		(31)
 
-#define PLL_VCO_MIN		(768000000)
-#define PLL_VCO_MAX		(1560000000)
 #define PLL_SDM_AMP_MAX		(0x20000)
 #define PLL_SDM_SPREAD_PPM	(10000)
 #define PLL_SDM_SPREAD_FREQ	(33000)
@@ -66,6 +64,15 @@ struct clk_pll {
 #ifdef CONFIG_DEBUG_ON_FPGA_BOARD_ARTINCHIP
 	unsigned long id;
 #endif
+};
+
+/* ALL chips:
+ * Other vco of clock not change
+ * The vco of pll_fra2 range from (768M~1560M) to (360M~1584M)
+ */
+static const struct pll_vco vco_arr[] = {
+	{360000000, 1584000000, "pll_fra2"},
+	{768000000, 1560000000,    "other"},
 };
 
 #define to_clk_pll(_hw) container_of(_hw, struct clk_pll, hw)
@@ -120,6 +127,24 @@ static int clk_pll_is_prepared(struct clk_hw *hw)
 	return 0;
 }
 
+static void clk_vco_select(struct clk_pll *pll,
+			   unsigned long *min, unsigned long *max)
+{
+	int i;
+	const struct pll_vco *vco;
+
+	for (i = 0; i < (ARRAY_SIZE(vco_arr) - 1); i++) {
+		vco = &vco_arr[i];
+		if (strcmp(vco->name, pll->name) == 0) {
+			*min = vco->vco_min;
+			*max = vco->vco_max;
+			return;
+		}
+	}
+	*max = vco_arr[ARRAY_SIZE(vco_arr) - 1].vco_max;
+	*min = vco_arr[ARRAY_SIZE(vco_arr) - 1].vco_min;
+}
+
 static unsigned long clk_pll_recalc_rate(struct clk_hw *hw,
 					 unsigned long parent_rate)
 {
@@ -161,7 +186,10 @@ static long clk_pll_round_rate(struct clk_hw *hw, unsigned long rate,
 	struct clk_pll *pll = to_clk_pll(hw);
 	u32 factor_n, factor_m, factor_p;
 	long rrate, vco_rate;
+	unsigned long pll_vco_min, pll_vco_max;
 	unsigned long parent_rate = *prate;
+
+	clk_vco_select(pll, &pll_vco_min, &pll_vco_max);
 
 	if (pll->type != AIC_PLL_INT) {
 		if (rate < pll->min_rate)
@@ -172,9 +200,11 @@ static long clk_pll_round_rate(struct clk_hw *hw, unsigned long rate,
 			return rate;
 	}
 
-	/* The frequency constraint of PLL_VCO is between 768M and 1560M */
-	if (rate < PLL_VCO_MIN)
-		factor_m = DIV_ROUND_UP(PLL_VCO_MIN, rate) - 1;
+	/* The frequency constraint of PLL_VCO is between 768M and 1560M
+	 * But the PLL_VCO of pll_fra2 is between 360M and 1584M
+	 */
+	if (rate < pll_vco_min)
+		factor_m = DIV_ROUND_UP(pll_vco_min, rate) - 1;
 	else
 		factor_m = 0;
 
@@ -182,8 +212,8 @@ static long clk_pll_round_rate(struct clk_hw *hw, unsigned long rate,
 		factor_m = PLL_FACTORM_MASK;
 
 	vco_rate = (factor_m + 1) * rate;
-	if (vco_rate > PLL_VCO_MAX)
-		vco_rate = PLL_VCO_MAX;
+	if (vco_rate > pll_vco_max)
+		vco_rate = pll_vco_max;
 
 	factor_p = (vco_rate % parent_rate) ? 1 : 0;
 	if (!factor_p)
@@ -207,10 +237,12 @@ static int clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 	u32 factor_n, factor_m, factor_p, reg_val;
 	u64 val, fra_in = 0;
 	u8 fra_en, factor_m_en;
-	unsigned long vco_rate;
+	unsigned long vco_rate, pll_vco_min, pll_vco_max;
 	u32 ppm_max, sdm_amp, sdm_en = 0;
 	u64 sdm_step;
 	struct clk_pll *pll = to_clk_pll(hw);
+
+	clk_vco_select(pll, &pll_vco_min, &pll_vco_max);
 
 	if (rate == 24000000) {
 		val = readl(pll->gen_reg);
@@ -222,11 +254,11 @@ static int clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 	/* Switch the output of PLL to 24MHz */
 	clk_pll_bypass(pll, true);
 	/* Calculate PLL parameters.
-	 * The frequency constraint of PLL_VCO
-	 * is between 768M and 1560M
+	 * The frequency constraint of PLL_VCO is between 768M and 1560M
+	 * But the PLL_VCO of pll_fra2 is between 360M and 1584M
 	 */
-	if (rate < PLL_VCO_MIN)
-		factor_m = DIV_ROUND_UP(PLL_VCO_MIN, rate) - 1;
+	if (rate < pll_vco_min)
+		factor_m = DIV_ROUND_UP(pll_vco_min, rate) - 1;
 	else
 		factor_m = 0;
 
@@ -239,8 +271,8 @@ static int clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 		factor_m_en = 0;
 
 	vco_rate = (factor_m + 1) * rate;
-	if (vco_rate > PLL_VCO_MAX)
-		vco_rate = PLL_VCO_MAX;
+	if (vco_rate > pll_vco_max)
+		vco_rate = pll_vco_max;
 
 	factor_p = (vco_rate % parent_rate) ? 1 : 0;
 	factor_n = vco_rate * (factor_p + 1) / parent_rate  - 1;

@@ -87,7 +87,6 @@
 			compatible = "riscv";
 			riscv,isa = "rv64gcxthead";
 			mmu-type = "riscv,sv39";
-			cpu-freq = "600Mhz";
 			cpu-icache = "32KB";
 			cpu-dcache = "32KB";
 			cpu-tlb = "1024 4-ways";

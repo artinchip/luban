@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: ve decode + ge blit + de
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: ve decode + ge blit + de
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -145,17 +147,17 @@ static int render_frame(struct mpp_frame *frame)
 	blt.dst_buf.crop.height = frame->buf.size.height;
 
 	ret =  mpp_ge_bitblt(ge, &blt);
-	if (ret < 0){
+	if (ret < 0) {
 		loge("ge bitblt fail\n");
 	}
 
 	ret = mpp_ge_emit(ge);
-	if (ret < 0){
+	if (ret < 0) {
 		loge("ge emit fail\n");
 	}
 
 	ret = mpp_ge_sync(ge);
-	if (ret < 0){
+	if (ret < 0) {
 		loge("ge sync fail\n");
 	}
 

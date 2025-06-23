@@ -320,9 +320,7 @@ static s32 spl_build_page_table(struct aicupg_nand_spl *spl,
 
 	pr_debug("%s, going to generate page table.\n", __func__);
 	slice_size = spl->mtd->writesize;
-	pt->head.page_size = PAGE_SIZE_2KB;
-	if (spl->mtd->writesize == 4096)
-		pt->head.page_size = PAGE_SIZE_4KB;
+	pt->head.page_size = spl->mtd->writesize;
 
 	page_per_blk = spl->mtd->erasesize / spl->mtd->writesize;
 	page_data = malloc(PAGE_MAX_SIZE);
@@ -469,8 +467,14 @@ static s32 nand_fwc_spl_program(struct fwc_info *fwc,
 	pr_debug("Write page table to blk %d pa 0x%x., off 0x%x\n", blkidx, pa,
 		 (u32)offs);
 
+#ifdef CONFIG_ARTINCHIP_SPIENC
+	spi_enc_set_bypass(AIC_SPIENC_BYPASS_ENABLE);
+#endif
 	ret = mtd_write(spl->mtd, offs, PAGE_TABLE_USE_SIZE, &retlen,
 			page_data);
+#ifdef CONFIG_ARTINCHIP_SPIENC
+	spi_enc_set_bypass(AIC_SPIENC_BYPASS_DISABLE);
+#endif
 	if (ret) {
 		pr_err("Write SPL page %d failed.\n", 0);
 		ret = -1;
@@ -517,7 +521,7 @@ static s32 nand_fwc_spl_program(struct fwc_info *fwc,
 			goto out;
 		}
 
-		if (slice_size - data_size > 0)
+		if ((trans_size + data_size) > fwc->meta.size)
 			calc_len = fwc->meta.size % slice_size;
 		else
 			calc_len = slice_size;
@@ -537,6 +541,7 @@ static s32 nand_fwc_spl_program(struct fwc_info *fwc,
 		trans_size += data_size;
 	}
 
+	fwc->calc_partition_crc = partition_crc;
 	fwc->calc_trans_crc = trans_crc;
 out:
 	if (page_data)
@@ -551,7 +556,7 @@ out:
 static s32 verify_page_table(struct aicupg_nand_spl *spl, u32 blkidx,
 			     struct nand_page_table *pt, u32 len)
 {
-	u8 page_data[PAGE_TABLE_USE_SIZE] = {0};
+	u8 page_data[PAGE_MAX_SIZE] = {0};
 	struct mtd_oob_ops ops;
 	struct mtd_info *mtd;
 	loff_t offs;
@@ -566,7 +571,13 @@ static s32 verify_page_table(struct aicupg_nand_spl *spl, u32 blkidx,
 	ops.datbuf = page_data;
 	//ops.mode = MTD_OPS_AUTO_OOB;
 
+#ifdef CONFIG_ARTINCHIP_SPIENC
+	spi_enc_set_bypass(AIC_SPIENC_BYPASS_ENABLE);
+#endif
 	ret = mtd_read_oob(mtd, offs, &ops);
+#ifdef CONFIG_ARTINCHIP_SPIENC
+	spi_enc_set_bypass(AIC_SPIENC_BYPASS_DISABLE);
+#endif
 	if (ret)
 		return -1;
 
@@ -680,6 +691,8 @@ s32 nand_fwc_spl_prepare(struct fwc_info *fwc)
 	s32 ret;
 
 	priv = (struct aicupg_nand_priv *)fwc->priv;
+	if (!priv)
+		return -EINVAL;
 
 	if (!priv->mtds[0]) {
 		pr_err("MTD is NULL\n");

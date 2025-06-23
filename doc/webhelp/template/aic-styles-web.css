@@ -1,0 +1,1105 @@
+/*
+ * ==============================================
+ * Skin for oXygen generated WebHelp.
+ * ==============================================
+ */
+ @import "aic-common.css";
+
+ 
+
+ /*
+ * ------------------------------------------------------------------
+ *  
+ * Fonts.
+ *  
+ */
+ @font-face {
+  font-family: "FangZhengShuSong";
+  font-style: normal;
+  font-weight: 400;
+  src: url(resources/fonts/FangZhengShuSong/FangZhengShuSongJianTi-1.ttf);
+}
+
+
+@font-face {
+  font-family: "Misans";
+  font-style: bold;
+  font-weight: 700; /* bold */
+  src: url(resources/fonts/FangZhengShuSong/FangZhengHeiTi-GBK-1.ttf);
+}
+
+@font-face {
+  font-family: "FangZhengShuSong";
+  font-style: normal;
+  font-weight: 300;
+  src: url(resources/fonts/FangZhengShuSong/FangZhengShuSong-GBK-1.ttf);
+}
+
+@font-face {
+  font-family: "Jianti";
+  font-style: bold;
+  font-weight: 700;
+  src: url(resources/fonts/FangZhengShuSong/FangZhengShuSongJianTi-1.ttf);
+}
+
+  
+
+html, body {
+  min-width:100%;
+}
+
+body{
+  font-family: "FangZhengShuSong", Roboto, Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12pt;
+}
+
+
+
+/*
+ * ------------------------------------------------------------------
+ *  
+ * Fight with bootstrap
+ *  
+ */
+.navbar-brand {
+  height: auto;
+
+}
+
+.navbar {
+  background-image: none;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+.wh_header {
+  background-image: url("resources/bgr_blue.png");
+  background-size: cover;
+  background-repeat: repeat-x;
+  padding: 0em;
+}
+
+a,
+a:hover,
+a:visited {
+  color: #15499a;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/*
+ * ------------------------------------------------------------------
+ *  
+ * Publication titles
+ *  
+ */
+.wh_publication_title>a {
+  color: #fff;
+  font-weight: 700;
+  font-style: bold;
+  font-size: 1.6em;
+}
+
+.webhelp.logo.image {
+  padding-left: 5px;
+}
+
+/*
+ * ------------------------------------------------------------------
+ *  
+ * Menu
+ *  
+ */
+.wh_top_menu {
+  text-transform: none;
+  margin: .3em 0;
+  font-size: 1.2em;
+}
+
+.wh_top_menu a {
+  color: #ffffff;
+  line-height: 1.8em;
+}
+
+.wh_top_menu ul a {
+  color: #ffffff;
+}
+
+/* The submenus */
+.wh_top_menu ul ul {
+  background-color: #15499a;
+}
+
+
+
+@media only screen and (min-width: 768px) {
+  .wh_top_menu>ul>li>.topicref>a {
+    background-color: transparent;
+    text-transform: none;
+    margin: 0 2px;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+  }
+
+  .wh_top_menu>ul>li>ul {
+    margin: 0 2px;
+  }
+
+  /* Menu bar */
+  .wh_top_menu ul li:hover a,
+  .wh_top_menu.activated-on-click ul li.active a {
+    background-color: #061e44;
+    color: #ffffff;
+  }
+
+  /* Sub menus */
+  .wh_top_menu ul ul li {
+    border: solid 1px #d1f1e9;
+    background-color: #15499a;
+  }
+
+  .wh_top_menu ul li:hover ul a,
+  .wh_top_menu.activated-on-click ul li.active ul a {
+    color: #adadad;
+    transition: background-color 0.25s ease-out 0s, color 0.3s ease-out 0s;
+  }
+
+  .wh_top_menu ul ul li a:hover {
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.08);
+    transition: background-color 0.25s ease-in 0s, color 0.3s ease-in 0s;
+  }
+
+  .wh_top_menu ul ul li.has-children:after {
+    color: #adadad;
+    
+  }
+
+  /*
+     This will add a blank space between the menu bar and the current submenu.
+     Also will ensure that when the mouse transits the blank space, the submenu is not hidden.
+  */
+  .wh_top_menu:not(.activated-on-click)>ul>li>ul,
+  .wh_top_menu.activated-on-click>ul>li.active>ul {
+    margin-top: 0;
+    border-top: 1.3em solid transparent;
+    background-color: transparent;
+  }
+
+  /* The ^ arrow on top of the drop-down menu */
+  .wh_top_menu:not(.activated-on-click)>ul>li>ul:before,
+  .wh_top_menu.activated-on-click>ul>li.active>ul:before {
+    content: '';
+    position: absolute;
+    top: -1.3em;
+    left: 1.3em;
+    width: 1.3em;
+    height: 1.3em;
+    border-bottom: solid 0.8em #15499a;
+    border-left: solid 0.8em transparent;
+    border-right: solid 0.8em transparent;
+  }
+
+  /* WH-2521 Apply transitions only if the document has been fully loaded. */
+  /* Otherwise, there will be color transitions between styles from different CSS files */
+  .doc-ready .wh_top_menu:not(.activated-on-click) ul:hover li a,
+  .doc-ready .wh_top_menu:not(.activated-on-click) ul li:hover a {
+    /* WH-2521 Change the background color imediatelly when the current menu item (li) or other menu item is hovered. */
+    transition: none;
+  }
+
+  .doc-ready .wh_top_menu:not(.activated-on-click) ul li a {
+    /* WH-2521 Delay the background color change on hover off. */
+    transition: 0.2s 1s;
+    transition-property: background-color, color;
+  }
+
+  /* @RTL: Display the arrow in the right side. */
+  *[dir='rtl'] .wh_top_menu:not(.activated-on-click)>ul>li:hover>ul:before,
+  *[dir='rtl'] .wh_top_menu.activated-on-click>ul>li.active>ul:before {
+    left: auto;
+    right: 1.3em
+  }
+
+  .wh_top_menu ul ul a {
+    color: #e0f0ec;
+    transition: background-color .25s ease-out 0s,
+      color .3s ease-out 0s;
+  }
+
+  .wh_top_menu ul ul li a:hover {
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.08);
+    transition: background-color .25s ease-in 0s,
+      color .3s ease-in 0s;
+  }
+
+  .wh_top_menu ul ul li.has-children:after {
+    color: #e0f0ec;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .wh_top_menu li a {
+    color: #ffffff;
+  }
+
+  .wh_top_menu li.active a {
+    color: #ffffff;
+  }
+
+  .wh_top_menu li.active {
+    background-color: #15499a;
+  }
+
+  .wh_top_menu li.active>span a {
+    background-color: rgba(0, 0, 0, 0.07);
+  }
+
+  .wh_toggle_button.navbar-toggle,
+  .wh_toggle_button.navbar-toggle:focus {
+    border: none;
+    border-color: #2372de;;
+    background-color: #dce5f2;
+  }
+
+  .wh_toggle_button.navbar-toggle .icon-bar {
+    background-color: #2372de;
+  }
+
+  .wh_top_menu ul ul li {
+    border: none;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .wh_topic_page .wh_top_menu_and_indexterms_link {
+    display: inline-block !important;
+    padding: 0;
+  }
+}
+
+@media only screen and (min-width: 769px) and (max-width: 1398px) {
+  /* Styles to apply when the screen width is less than or equal to 1400px */
+  .wh_top_menu {
+    /* Add your styles here to make the menu fold up */
+    /* For example, you might want to hide the menu items or change their display property */
+    display: none; /* This will hide the entire menu */
+  }
+  .wh_top_menu > ul {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 769px) and (max-width: 1398px) {
+  /* Styles for screens less than or equal to 1400px */
+  .wh_top_menu {
+    /* Add your icon styles here */
+    background-image: url('path/to/your/icon.png'); /* replace with your icon path */
+    background-repeat: no-repeat;
+    background-size: contain;
+    text-indent: -9999px; /* hide the text */
+    width: 32px; /* set the width of the icon */
+    height: 32px; /* set the height of the icon */
+    margin: .3em 0;
+    font-size: 0; /* remove font size */
+  }
+}
+
+
+
+/*
+* ------------------------------------------------------------------
+*  
+* Link to the index.
+* 
+*/
+.wh_indexterms_link a span{
+  display:none;
+}
+.wh_indexterms_link a:before{
+  color:#fff;
+}
+/*
+ * ------------------------------------------------------------------
+ *
+ * Breadcrumb
+ *
+ */
+.wh_breadcrumb ol {
+  color: #adadad;
+}
+
+.wh_breadcrumb ol a {
+  color:inherit;
+}
+
+.wh_breadcrumb ol .active a {
+  color: #15499a;
+}
+
+/*
+* ------------------------------------------------------------------
+*  
+* Tools and navigation
+* 
+*/
+.wh_tools {
+  border-bottom: solid 1px #dce5f2;
+  background-color: #ffffff;
+  margin: 1em 0 2em;
+}
+
+.wh_print_link,
+.wh_navigation_links,
+.wh_navigation_links .navnext,
+.wh_navigation_links .navprev{
+}
+
+.webhelp_expand_collapse_sections,
+.wh_hide_highlight,
+.wh_print_link button,
+.oxy-icon-pdf-link,
+.wh_navigation_links a,
+.wh_navigation_links a:hover,
+.wh_navigation_links a:active,
+.wh_navigation_links a:visited,
+.wh_print_link a:before,
+.wh_navigation_links a:before,
+.wh_navigation_links a:hover:before,
+.wh_navigation_links a:active:before,
+.wh_navigation_links a:visited:before{
+    color: #347bb7;
+    text-decoration: none;
+}
+
+/*
+ * Other content
+ */
+.wh_topic_content .shortdesc {
+  font-style: italic;
+}
+
+/* x more */
+.dots-after span,
+.dots-before span {
+  border: 1px solid #babdc1;
+}
+
+/*
+* ------------------------------------------------------------------
+*  
+* Tiles
+* 
+*/
+.wh_tile {
+  background-color: #ECF2F9;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.wh_tile_shortdesc {
+  margin-top: 1em;
+  text-align: left;
+  color: #0D1A2B;
+  font-size: 1.2em;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.wh_tile_text:after{
+  background: linear-gradient(to bottom, rgba(236, 242, 249, 0), rgba(236, 242, 249, 1) 75%);
+}
+.wh_tile_title{
+  font-size:1.7em;
+  font-weight: 700;
+  font-style: bold;
+  text-align: center;
+  text-decoration: none;
+}
+.wh_tile_title a{
+  color: #3077be;
+}
+@media only screen and (max-width: 767px) {
+  .wh_tile > div {
+      height: auto;
+  }
+}
+
+
+/*
+ * ------------------------------------------------------------------
+ *
+ *
+ */
+.wh_main_page .wh_content_area {
+  background-color: white;
+}
+
+.wh_tile:nth-child(6n+1) {
+  background-color: rgba(0, 0, 0, 0.035);
+}
+
+.wh_tile:nth-child(6n+2) {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+.wh_tile:nth-child(6n+3) {
+  background-color: rgba(0, 0, 0, 0.105);
+}
+
+.wh_tile:nth-child(6n+4) {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.wh_tile:nth-child(6n+5) {
+  background-color: rgba(0, 0, 0, 0.175);
+}
+
+.wh_tile:nth-child(6n+0) {
+  background-color: rgba(0, 0, 0, 0.21);
+}
+
+
+
+/*
+You can style some of the tiles in a special way. 
+Example:
+.wh_tiles *[data-id='getting_started']{
+  background-color:gray;
+}
+*/
+
+/*
+* ------------------------------------------------------------------
+*  
+* Search area
+* 
+*/
+
+@media only screen and (min-width: 768px) {
+  .wh_main_page .wh_search_input {
+    padding: 10em 0 5em 0;
+  }
+
+  .wh_main_page .wh_search_textfield {
+    height: 2em;
+    font-size: 2em;
+  }
+
+  .wh_search_textfield {
+    /*height: 2.3em;*/
+    /*font-size: 1.5em;*/
+  }
+
+  .wh_main_page .wh_search_button {
+    height: 2em;
+    font-size: 2em;
+    padding: 0.25em 1em;
+  }
+
+  .wh_search_button:after {
+    color: #ffffff;
+  }
+
+  .wh_search_button {
+    height: 1.5em;
+    font-size: 1.5em;
+    padding: 0 1em;
+    border: solid 2px #15499a;
+    background-color: #15499a;
+    /* Override the RTL rule. */
+    border-radius: 0 !important;
+  }
+}
+
+.wh_search_input {
+  padding: 2em 0;
+  margin: 0;
+  align-items: center;
+  color: #494949;
+  background-color: #ffffff;
+  text-align: center;
+  display:block;
+  margin:0;
+  position:relative;
+}
+
+.wh_search_textfield {
+  border: solid 1px #939393;
+  color: #494949;
+  background-color: #ffffff;
+  padding: 0 .5em;
+  height: 2em;
+  font-size: 1em;
+}
+
+/* Search autocomplete */
+
+.ui-menu-item {
+  font-size: 1.1em;
+  line-height: 1.7em;
+  color: #777;
+}
+
+/* Selected autocomplete item */
+.ui-menu-item .ui-state-active {
+  background-color: #15499a;
+  border: none;
+  margin: 0;
+}
+
+/* Search autocomplete icons */
+.search-autocomplete-proposal-type-history a,
+.search-autocomplete-proposal-type-history a:hover,
+.search-autocomplete-proposal-type-history a:visited,
+.search-autocomplete-proposal-type-history a:active {
+  text-decoration: none;
+  color:inherit;
+  font-size: 0.8em;
+}
+
+.ui-state-active .search-autocomplete-proposal-type-history a,
+.ui-state-active .search-autocomplete-proposal-type-history a:hover,
+.ui-state-active .search-autocomplete-proposal-type-history a:visited,
+.ui-state-active .search-autocomplete-proposal-type-history a:active {
+  color: #ffffff;
+}
+
+/* Search relative path */
+.searchresult li .relativePath a {
+  color: #006621;
+}
+
+/* Active search page */
+#wh-search-pagination>ul>li.active>a {
+  background-color: #15499a;
+}
+
+/* Color for the page number */
+.pagination>li>a,
+.pagination>li>span {
+  color: #15499a;
+}
+
+/* Border for the hovered page */
+.pagination>.active>a,
+.pagination>.active>a:focus,
+.pagination>.active>a:hover,
+.pagination>.active>span,
+.pagination>.active>span:focus,
+.pagination>.active>span:hover {
+  border-color: #15499a !important;
+}
+
+/* Do not allow the text to go beneath the search button  */
+@media only screen and (min-width: 768px) {
+  .wh_search_textfield {
+    padding-right: 3em;
+  }
+}
+.wh_search_button:after {
+  color: #ffffff;
+}
+.wh_search_button:hover {
+  background-color: rgba(2, 142, 178, 0.2) /*rgba(255, 255, 255, 0.1)*/;
+}
+/* Search field placeholder */
+::-webkit-input-placeholder {
+  color: #ffffff;
+}
+:-moz-placeholder {
+  /* Firefox 18- */
+  color: #ffffff;
+}
+::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #ffffff;
+}
+:-ms-input-placeholder {
+  color: #ffffff;
+}
+/* Change Autocomplete styles in Chrome */
+:-webkit-autofill,
+:-webkit-autofill:hover,
+:-webkit-autofill:focus {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  -webkit-text-fill-color: #17303c;
+  -webkit-box-shadow: none;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/*
+* ------------------------------------------------------------------
+*  
+* Publication TOC
+* 
+*/
+.wh_publication_toc {
+  border-radius: 3px;
+  padding: 1.5em .5em;
+  background-color: #f8f8f8;
+}
+
+.wh_publication_toc .active>.topicref a {
+  color: #15499a;
+  font-weight: normal;
+  font-weight: 400;
+}
+
+.wh_publication_toc div,
+.wh_publication_toc a,
+.wh_publication_toc a:visited,
+.wh_publication_toc a:hover {
+  color: #878787;
+}
+
+.wh_publication_toc a:hover {
+  text-decoration: underline;
+}
+
+.wh_publication_toc ul li,
+#wh_topic_toc ul li {
+  margin-top: .7em;
+}
+
+@media only screen and (max-width: 767px) {
+  .wh_publication_toc {
+    border-radius: 0;
+    padding: 1em 0.5em;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .wh_related_links,
+  .wh_child_links,
+  .wh_topic_content .related-links{
+      border: 1px solid #e0e0e0;
+  }
+}
+
+
+/* Publication TOC tooltip */
+.wh_breadcrumb .topicref .wh-tooltip,
+.wh-toc-tooltip {
+  background-color: #15499a;
+  color: #ffffff;
+  font-size: 1.4em;
+}
+
+.wh_breadcrumb .topicref .wh-tooltip a,
+.wh-toc-tooltip a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Tooltip arrow. */
+[data-tooltip-position="left"] .topicref .wh-tooltip::before,
+[data-tooltip-position="left"] .wh-toc-tooltip::before {
+  border-left-color: #15499a;
+}
+
+[data-tooltip-position="right"] .topicref .wh-tooltip::before,
+[data-tooltip-position="right"] .wh-toc-tooltip::before {
+  border-right-color: #15499a;
+}
+
+[data-tooltip-position="bottom"] .topicref .wh-tooltip::before,
+[data-tooltip-position="bottom"] .wh-toc-tooltip::before {
+  border-bottom-color: #15499a;
+}
+
+[data-tooltip-position="top"] .topicref .wh-tooltip::before,
+[data-tooltip-position="top"] .wh-toc-tooltip::before {
+  border-top-color: #15499a;
+}
+
+
+/*
+* ------------------------------------------------------------------
+*  
+* Footer
+* 
+*/
+.wh_footer {
+  text-align: center;
+  line-height: 1.7em;
+  font-size: 15px;
+  background-color: #000000;
+  padding: 1em;
+  position:relative;
+  bottom: 0;
+  width: 100%;
+  color: #ffffff;
+
+  margin-top: 2em;
+}
+
+.wh_footer a{
+  color: #CCE2F1;
+}
+
+/*
+* ------------------------------------------------------------------
+*  
+* Topic content
+* 
+*/
+
+.wh_topic_content,.wh_content_area {
+  color: #000000;
+  line-height: 1.5em;
+  margin-bottom: 80px;
+}
+.wh_main_page .wh_content_area {
+  margin: 40px 0;
+}
+.wh_topic_content .title.topictitle1 {
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.1em;
+}
+
+
+/*
+* Title & subtitles
+*/
+.wh_topic_content.topictitle2,
+.wh_topic_content.topictitle3,
+.wh_topic_content.topictitle4,
+.wh_topic_content.topictitle5,
+.wh_topic_content.topictitle6,
+.wh_topic_content.sectiontitle
+ {
+    font-weight: 700;
+    font-family: 'Roboto', Courier, monospace;
+    font-style: bold;
+}
+
+.topictitle2 {
+  font-weight: 700px;
+}
+.sectiontitle { 
+  font-size: 1.3em !important;
+  margin-top: 1em !important;
+  margin-bottom: 1em !important;
+}
+
+
+.wh_related_links .related-links,
+.wh_topic_content .related-links,
+.wh_child_links{
+    border-top: 1px solid #ccc;
+    padding-top: 7px;
+    margin-top: 0;
+}
+
+.wh_related_links .related-links,
+.wh_topic_content .related-links{
+    padding: .5em 1.5em ;
+}
+
+.wh_child_links {
+    padding: 1.5em ;
+}
+
+.related-links strong{
+    font-weight: 500;
+    font-style: normal;
+}
+
+.related-links a,
+.related-links a:visited {
+    color: #1ea7ef;
+}
+
+
+/*
+ * Other content
+ */
+.wh_topic_content .shortdesc {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* x more */
+.dots-after span,
+.dots-before span {
+  border: 1px solid #babdc1;
+}
+
+/*
+* ------------------------------------------------------------------
+*  
+* Search results.
+* 
+*/
+.searchresult {
+  list-style: none;
+}
+
+.searchresult li a {
+  color: #15499a;
+}
+
+.searchresult .shortdesclink {
+  margin: .3em .5em 0 0;
+}
+
+.wh_search_expression {
+  font-weight: bold;
+  font-weight: 700;
+}
+
+/* Search relative path */
+.searchresult li .relativePath a {
+  color: #006621;
+}
+
+/*--------- Search results breadcrumb ----------*/
+.search-breadcrumb li a {
+  background: #ECF2F9;
+}
+.search-breadcrumb li .title:before,
+.search-breadcrumb li .title:after {
+  border-color: #ECF2F9;
+}
+.search-breadcrumb li .title:before {
+  border-left-color: transparent;
+}
+.search-breadcrumb li .title:after {
+  border-color: transparent;
+  border-left-color: #ECF2F9;
+}
+
+
+/*
+* ------------------------------------------------------------------
+*  
+* Index terms.
+* 
+*/
+.wh_index_terms span.wh_first_letter {
+  color: #346ec5;
+}
+
+.wh_index_terms #indexList {
+  padding: 0;
+}
+
+/*
+ * ------------------------------------------------------------------
+ *
+ * Tree TOC for the main page.
+ *
+ */
+.wh_main_page_toc {
+  padding-left: 2em;
+  border: none;
+  border-left: 1px solid #939393;
+  background-color: #ffffff;
+}
+
+.wh_main_page_toc a {
+  color: #15499a;
+  font-size: 1.3em;
+}
+
+.wh_main_page_toc .wh_main_page_toc_accordion_header:before {
+  content: "b";
+  /* expand symbol */
+  left: -0.35em !important;
+  background-color: #ffffff;
+  font-size: 2em;
+}
+
+.wh_main_page_toc .wh_main_page_toc_accordion_header.expanded:before {
+  content: "c";
+  /* collapse symbol */
+}
+
+.wh_main_page_toc>.wh_main_page_toc_accordion_header,
+.wh_main_page_toc>.wh_main_page_toc_entry {
+  padding: 0.5em;
+  margin: 0.5em;
+  border: 1px solid #939393 !important;
+}
+
+.wh_main_page_toc_accordion_header.expanded {
+  border-bottom: none !important;
+  margin-bottom: 0;
+}
+
+.wh_main_page_toc_accordion_header.expanded+.wh_main_page_toc_accordion_entries {
+  margin: 0 .5em .5em .5em;
+  border: 1px solid #939393;
+  border-top: none;
+}
+
+.wh_main_page_toc .wh_main_page_toc_accordion_header:hover,
+.wh_main_page_toc>.wh_main_page_toc_entry:hover {
+  background-color: rgba(147, 147, 147, 0.06);
+}
+
+.wh_main_page_toc .wh_main_page_toc_accordion_header,
+.wh_main_page_toc>.wh_main_page_toc_entry,
+.wh_main_page_toc_accordion_entries {
+  background-color: #ffffff;
+  text-align: left;
+}
+
+.wh_main_page_toc .wh_toc_shortdesc {
+  color: #494949;
+  background-color: transparent;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1em;
+}
+
+.wh_main_page_toc_accordion_header:before {
+  color: #15499a;
+}
+
+.wh_main_page_toc .expanded {
+  border: none;
+}
+
+/* ---------------------------------   */
+.wh_main_page .wh_content_area {
+  background-color: #ffffff;
+  padding: 4em 0 2em 0;
+  color: #15499a;
+  text-align: center;
+  align-items: center;
+}
+
+/* Highlights */
+.highlight {
+  background-color: #dce5f2;
+  color: #15499a !important;
+  border-radius: 4px;
+  padding: 0 1px;
+}
+
+.wh-h {
+  padding: 0 1px;
+}
+
+*[class ~= "topic/xref"]{
+  color: #1ea7ef;
+}
+
+/* Tables */
+.table {
+  width: 90%;
+  border-collapse: collapse;
+  margin: 20px auto; /* Center the table on the page */
+}
+
+.tablecap {
+  font-weight: 700;
+  font-style: bold;
+  background-color: #ffffff; /* Added background color for headers */
+}
+
+.table th,
+.table td {
+  border: 1px solid #ccc; /* Using a lighter border color */
+  padding: 10px; /* Increasing padding for better readability */
+}
+
+.table th {
+  border: 1px solid #ccc; /* Using a lighter border color */
+  text-align: left;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #cccaca; /* Added background color for headers */
+}
+
+.table td {
+  text-align: left;
+}
+
+/* If you want to target a specific table with the class "hazard-d/hazardstatement", you can use the following rule */
+.table[class~="hazard-d/hazardstatement"] {
+  border-color: inherit;
+}
+
+
+/**
+ *
+ * Styles used for RTL pages
+ *
+ */
+ html[dir='rtl'] .wh_top_menu:not(.activated-on-click) ul li:hover > ul,
+ html[dir='rtl'] .wh_top_menu.activated-on-click ul li.active > ul {
+     max-width: 270px;
+ }
+
+
+
+.wh_footer {
+  flex-direction: column;
+}
+
+
+/* Figures */
+figure {
+  font-style: normal;
+  text-align: center;
+  font-size: medium;
+}
+figcaption {
+  display: block;
+  caption-side: bottom;
+  text-align: center;
+  font-weight: 700;
+  font-style: bold;
+}
+
+
+/* Images */
+img {
+  text-align: center;
+  max-width: 8in;
+  height: auto; /* This will maintain the aspect ratio of the image */
+}
+
+img.svg {
+  vertical-align: middle;
+  font-size: 12pt;
+  width: 8in;
+  image-resolution: 600;
+}
+
+
+*[class ~= "topic/fig"]{
+  text-align: center;
+}
+
+
+/*Main callouts properties.*/
+.oxy-insert,
+.oxy-delete {
+display: none !important;
+}
+
+.oxy-range-end, 
+.oxy-range-start {
+  display: none !important;
+}
+
+*[class="+ topic/keyword sw-d/cmdname keyword cmdname"]{
+  display: inline;
+  font-family: 'courier', 'Menlo', Ubuntu, 'Segoe UI', -apple-system, system-ui, BlinkMacSystemFont, Roboto, Cantarell, 'Helvetica Neue', sans-serif;
+  font-size: medium;
+  font-weight: 400;
+  color:rgb(116, 116, 116);
+}

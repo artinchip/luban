@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Copyright (C) 2020-2021 Artinchip Technology Co., Ltd.
  * Authors:
@@ -42,33 +42,44 @@ struct video_data_format {
 	enum mpp_pixel_format format;
 	char f_str[15];
 	int plane_num;
-	int y_shift;
+	union
+	{
+		int y_shift;
+		int pixel_bytes;
+	};
 	int u_shift;
 	int v_shift;
 };
 
 struct video_data_format g_vformat[] = {
-	{MPP_FMT_YUV420P, "yuv420p", 3, 0, 2, 2},
-	{MPP_FMT_YUV422P, "yuv422p", 3, 0, 1, 1},
+	{MPP_FMT_YUV420P, "yuv420p", 3, {0}, 2, 2},
+	{MPP_FMT_YUV422P, "yuv422p", 3, {0}, 1, 1},
 
-	{MPP_FMT_NV12, "nv12", 2, 0, 1, 0},
-	{MPP_FMT_NV21, "nv21", 2, 0, 1, 0},
-	{MPP_FMT_NV16, "nv16", 2, 0, 0, 0},
-	{MPP_FMT_NV61, "nv61", 2, 0, 0, 0},
+	{MPP_FMT_NV12, "nv12", 2, {0}, 1, 0},
+	{MPP_FMT_NV21, "nv21", 2, {0}, 1, 0},
+	{MPP_FMT_NV16, "nv16", 2, {0}, 0, 0},
+	{MPP_FMT_NV61, "nv61", 2, {0}, 0, 0},
 
-	{MPP_FMT_YUYV, "yuyv", 1, 1, 0, 0},
-	{MPP_FMT_YVYU, "yvyu", 1, 1, 0, 0},
-	{MPP_FMT_UYVY, "uyvy", 1, 1, 0, 0},
-	{MPP_FMT_VYUY, "vyuy", 1, 1, 0, 0},
+	{MPP_FMT_YUYV, "yuyv", 1, {1}, 0, 0},
+	{MPP_FMT_YVYU, "yvyu", 1, {1}, 0, 0},
+	{MPP_FMT_UYVY, "uyvy", 1, {1}, 0, 0},
+	{MPP_FMT_VYUY, "vyuy", 1, {1}, 0, 0},
 
-	{MPP_FMT_YUV400, "yuv400", 1, 0, 0, 0},
+	{MPP_FMT_YUV400, "yuv400", 1, {0}, 0, 0},
 
-	{MPP_FMT_YUV420_128x16_TILE, "yuv420_128x16", 2, 0, 1, 0},
-	{MPP_FMT_YUV420_64x32_TILE,  "yuv420_64x32",  2, 0, 1, 0},
-	{MPP_FMT_YUV422_128x16_TILE, "yuv422_128x16", 2, 0, 0, 0},
-	{MPP_FMT_YUV422_64x32_TILE,  "yuv422_64x32",  2, 0, 0, 0},
+	{MPP_FMT_YUV420_128x16_TILE, "yuv420_128x16", 2, {0}, 1, 0},
+	{MPP_FMT_YUV420_64x32_TILE,  "yuv420_64x32",  2, {0}, 1, 0},
+	{MPP_FMT_YUV422_128x16_TILE, "yuv422_128x16", 2, {0}, 0, 0},
+	{MPP_FMT_YUV422_64x32_TILE,  "yuv422_64x32",  2, {0}, 0, 0},
 
-	{MPP_FMT_MAX, "", 0, 0, 0, 0}
+	{MPP_FMT_XRGB_8888, "xrgb8888" ,1, {4}, 0, 0},
+	{MPP_FMT_ARGB_8888, "argb8888", 1, {4}, 0, 0},
+	{MPP_FMT_ARGB_4444, "argb4444", 1, {2}, 0, 0},
+	{MPP_FMT_ARGB_1555, "argb1555", 1, {2}, 0, 0},
+	{MPP_FMT_RGB_565,   "rgb565"  , 1, {2}, 0, 0},
+	{MPP_FMT_RGB_888,   "rgb888"  , 1, {3}, 0, 0},
+
+	{MPP_FMT_MAX, "", 0, {0}, 0, 0}
 };
 
 struct video_plane {
@@ -95,7 +106,6 @@ static int g_fb_fd = -1;
 static struct aicfb_video_layer g_vlayer = {0};
 
 /* Functions */
-
 void usage(char *program)
 {
 	printf("Usage: %s [options]: \n", program);
@@ -107,7 +117,7 @@ void usage(char *program)
 	printf("\t -l, --list\t\tlist the supported formats\n");
 	printf("\t -u, --usage \n");
 	printf("\n");
-	printf("Example: %s -w 176 -h 144 -f yuv420p -i my.yuv\n", program);
+	printf("Example: %s -w 176 -h 144 -f yuv420p/rgb888 -i my.yuv/my.rgb\n", program);
 }
 
 int format_list(char *program)
@@ -128,6 +138,12 @@ int format_list(char *program)
 	printf("\t yuv420_64x32\n");
 	printf("\t yuv422_128x16\n");
 	printf("\t yuv422_64x32\n");
+	printf("\t rgb565\n");
+	printf("\t rgb888\n");
+	printf("\t xrgb888\n");
+	printf("\t argb4444\n");
+	printf("\t argb8888\n");
+	printf("\t argb1555\n");
 	printf("\n");
 	return 0;
 }
@@ -236,6 +252,22 @@ static int tile_format_size(struct aicfb_video_layer *vlayer, int shift)
 	return size;
 }
 
+static inline bool is_rgb_format(enum mpp_pixel_format format)
+{
+	switch (format) {
+	case MPP_FMT_XRGB_8888:
+	case MPP_FMT_ARGB_8888:
+	case MPP_FMT_ARGB_4444:
+	case MPP_FMT_ARGB_1555:
+	case MPP_FMT_RGB_888:
+	case MPP_FMT_RGB_565:
+		return true;
+	default:
+		break;
+	}
+	return false;
+}
+
 /* Open a device file to be needed. */
 int device_open(char *_fname, int _flag)
 {
@@ -323,9 +355,7 @@ int vidbuf_request(struct aicfb_video_layer *vlayer)
 			DMA_HEAP_DEV, errno, strerror(errno));
 		return -1;
 	}
-
-	/* Prepare two group buffer for video player,
-	   and each group has three planes: y, u, v. */
+	/* Prepare two group buffer for video player*/
 	for (i = 0; i < AICFB_VID_BUF_NUM; i++) {
 		struct video_plane *p = (struct video_plane *)&vlayer->vbuf[i];
 		int *shift = &vlayer->f->y_shift;
@@ -339,9 +369,11 @@ int vidbuf_request(struct aicfb_video_layer *vlayer)
 
 			if (is_plane_format(vlayer->f->format))
 				vidbuf_request_one(p, y_frame >> shift[j], heap_fd);
+
+			if (is_rgb_format(vlayer->f->format))
+				vidbuf_request_one(p, y_frame * shift[j], heap_fd);
 		}
 	}
-
 	close(heap_fd);
 	return 0;
 }
@@ -403,14 +435,15 @@ void video_layer_set(struct aicfb_video_layer *vlayer, int index)
 
 	layer.layer_id = 0;
 	layer.enable = 1;
-	layer.scale_size.width = vlayer->w * 4;
-	layer.scale_size.height = vlayer->h * 4;
+	layer.scale_size.width = vlayer->w;
+	layer.scale_size.height = vlayer->h;
 	layer.pos.x = 10;
 	layer.pos.y = 10;
 	layer.buf.size.width = vlayer->w;
 	layer.buf.size.height = vlayer->h;
 	layer.buf.format = vlayer->f->format;
 	layer.buf.buf_type = MPP_DMA_BUF_FD;
+
 	layer.buf.fd[0] = vbuf->y.fd;
 	layer.buf.fd[1] = vbuf->u.fd;
 	layer.buf.fd[2] = vbuf->v.fd;
@@ -429,6 +462,9 @@ void video_layer_set(struct aicfb_video_layer *vlayer, int index)
 					vlayer->w : vlayer->w >> 1;
 		layer.buf.stride[2] = vlayer->w >> 1;
 	}
+
+	if(is_rgb_format(vlayer->f->format))
+		layer.buf.stride[0] = vlayer->w * vlayer->f->pixel_bytes;
 
 	if (ioctl(g_fb_fd, AICFB_UPDATE_LAYER_CONFIG, &layer) < 0)
 		ERR("ioctl() failed! err %d[%s]\n", errno, strerror(errno));

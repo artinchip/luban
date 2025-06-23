@@ -1,16 +1,43 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: Apache-2.0
 #
 # Copyright (C) 2022-2023 ArtInChip Technology Co., Ltd
 # Dehuang Wu <dehuang.wu@artinchip.com>
 
 MAX_LINES=20
-LUBAN_PRJ_TOP_DIR=
+export LUBAN_PRJ_TOP_DIR=
 LUBAN_PRJ_FFF=
 
 backup_list=
 display_list=
 display_list_total=
+
+# $1 - the command name
+function _unalias()
+{
+	CMD=$1
+	alias | grep $CMD"=" -w > /dev/null
+	if [ $? -eq 0 ]; then
+		unalias $CMD
+	fi
+}
+
+function _clear_env()
+{
+	unset menuconfig
+	unset mc
+	unset aicupg
+	unset addboard
+	_unalias m
+	_unalias ab
+	_unalias ma
+	_unalias mc
+	_unalias ms
+	_unalias mu
+	_unalias mb
+	_unalias km
+	_unalias update
+}
 
 function hmm()
 {
@@ -33,6 +60,7 @@ function hmm()
 	_hline "genindex|gi" "[keyword]" "Generate directory list for quick jump."
 	_hline "goexplorer|ge" "[keyword]" "Open explorer with selected directory."
 	_hline "list" "" "List all SDK defconfig."
+	_hline "list_module" "" "List all enabled modules."
 	_hline "i" "" "Get current project's information."
 	_hline "buildall"   "" "Build all the *defconfig in target/configs"
 	_hline "rebuildall" "" "Clean and build all the *defconfig in target/configs"
@@ -49,7 +77,7 @@ function lunch()
 		return
 	}
 
-	cd ${LUBAN_PRJ_TOP_DIR}
+	cd ${LUBAN_PRJ_TOP_DIR} || exit
 	# Get the SDK's defconfig list
 	defconfigs=$(_get_defconfig_list)
 
@@ -81,7 +109,7 @@ function croot()
 		echo "Not lunch project yet"
 		return
 	}
-	cd ${LUBAN_PRJ_TOP_DIR}
+	cd ${LUBAN_PRJ_TOP_DIR} || exit
 }
 alias cr=croot
 
@@ -96,7 +124,7 @@ function ckernel()
 
 	_get_linux_ver
 	kernel_dir="${LUBAN_PRJ_TOP_DIR}/source/linux-"${LINUX_VER}
-	cd ${kernel_dir}
+	cd ${kernel_dir} || exit
 }
 alias ck=ckernel
 
@@ -111,7 +139,7 @@ function cuboot()
 
 	_get_uboot_ver
 	uboot_dir="${LUBAN_PRJ_TOP_DIR}/source/uboot-"${UBOOT_VER}
-	cd ${uboot_dir}
+	cd ${uboot_dir} || exit
 }
 alias cu=cuboot
 
@@ -139,7 +167,7 @@ function ctarget()
 	eval ${board_dir}
 
 	target_dir=${LUBAN_PRJ_TOP_DIR}/target/${LUBAN_CHIP_NAME}/${LUBAN_BOARD_NAME}/
-	cd ${target_dir}
+	cd ${target_dir} || exit
 }
 alias ct=ctarget
 
@@ -157,7 +185,7 @@ function cout()
 	build_dir=$(cat ${LUBAN_PRJ_TOP_DIR}/output/.current)
 	eval ${build_dir}
 	build_dir="${LUBAN_PRJ_TOP_DIR}/output/"${LUBAN_CURRENT_OUT}/
-	cd ${build_dir}
+	cd ${build_dir} || exit
 }
 alias co=cout
 
@@ -175,7 +203,7 @@ function cbuild()
 	build_dir=$(cat ${LUBAN_PRJ_TOP_DIR}/output/.current)
 	eval ${build_dir}
 	build_dir="${LUBAN_PRJ_TOP_DIR}/output/"${LUBAN_CURRENT_OUT}/build
-	cd ${build_dir}
+	cd ${build_dir} || exit
 }
 alias cb=cbuild
 
@@ -186,7 +214,7 @@ function time_begin()
 
 function time_end()
 {
-	local end_sec=$(date +"%s")
+	local end_sec="$(date +"%s")"
 	local interval=$(($end_sec - $start_sec))
 	local hour=$(($interval / 3600))
 	local min=$((($interval % 3600) / 60))
@@ -198,7 +226,7 @@ function time_end()
 function time_now()
 {
 	TM_STR=$(date +"%Y-%m-%d %H:%M:%S")
-	echo $(date -d "$TM_STR" +%s)
+	echo "$(date -d "$TM_STR" +%s)"
 }
 
 # $1: before, in seconds
@@ -307,7 +335,7 @@ function build_one_solution()
 	NEED_CLEAN=$2
 
 	DEFCONFIG_NAME_SHORT=${DEFCONFIG_NAME::-10}
-	LOG_FILE=$LOG_DIR"/"$DEFCONFIG_NAME_SHORT".log"
+	LOG_FILE=${LOG_DIR}/${DEFCONFIG_NAME_SHORT}.log
 	echo
 	echo --------------------------------------------------------------
 	echo Build $DEFCONFIG_NAME_SHORT
@@ -327,12 +355,12 @@ function build_one_solution()
 	BUILD_CNT=`expr $BUILD_CNT + 1`
 	grep "Luban is built successfully" $LOG_FILE -w > /dev/null
 	if [ $? -eq 0 ]; then
-		WAR_CNT=`grep -E "warning:|warning |The conflicting pin" $LOG_FILE -ic`
+		WAR_CNT=`grep -E "warning:|warning |The conflicting pin|conflicts with" $LOG_FILE -ic`
 		printf "%2s) %-28s is OK. Warning: %s. Time: %s\n" \
 			$BUILD_CNT $DEFCONFIG_NAME_SHORT $WAR_CNT $INTERVAL >> $RESULT_FILE
 		if [ $WAR_CNT -gt 0 ]; then
-			echo [$SOC_NAME $BRD_NAME]: >> $WARNING_FILE
-			grep -E "warning:|warning |The conflicting pin" $LOG_FILE -i >> $WARNING_FILE
+			echo [$DEFCONFIG_NAME_SHORT]: >> $WARNING_FILE
+			grep -E "warning:|warning |The conflicting pin|conflicts with" $LOG_FILE -i >> $WARNING_FILE
 
 			echo >> $WARNING_FILE
 		fi
@@ -455,7 +483,7 @@ function godir()
 	_search_in_list "${keyword}"
 	# change directory
 	[[ ! ${select_item} == "" ]] && {
-		cd ${LUBAN_PRJ_TOP_DIR}/${select_item}
+		cd ${LUBAN_PRJ_TOP_DIR}/${select_item} || exit
 	}
 	_display_list_clear
 }
@@ -517,11 +545,11 @@ function genindex()
 	case ${result} in
 		"linux")
 			_get_linux_ver
-			gen_path=${LUBAN_PRJ_TOP_DIR}/source/linux-"${LINUX_VER}
+			gen_path=${LUBAN_PRJ_TOP_DIR}"/source/linux-"${LINUX_VER}
 		;;
 		"uboot")
 			_get_uboot_ver
-			gen_path=${LUBAN_PRJ_TOP_DIR}/source/uboot-"${UBOOT_VER}
+			gen_path=${LUBAN_PRJ_TOP_DIR}"/source/uboot-"${UBOOT_VER}
 		;;
 		"third-party")
 			gen_path=${LUBAN_PRJ_TOP_DIR}/source/third-party
@@ -567,6 +595,35 @@ function list()
 	make --no-print-directory -C ${LUBAN_PRJ_TOP_DIR} list
 }
 
+function list_module()
+{
+	local ret=
+
+	ret=$(_lunch_check)
+	if [ "${ret}" == "false" ]; then
+		echo "Not lunch project yet"
+		return
+	fi
+
+	images_dir=$(cat ${LUBAN_PRJ_TOP_DIR}/output/.current)
+	eval ${images_dir}
+	images_dir="${LUBAN_PRJ_TOP_DIR}/output/"${LUBAN_CURRENT_OUT}/images
+	printf "Load modules information from ${LUBAN_CURRENT_OUT}\n"
+
+	if [ ! -f ${LUBAN_PRJ_TOP_DIR}/output/${LUBAN_CURRENT_OUT}/host/bin/python3 ]; then
+		echo "The SDK environment for Python3 is not prepared yet"
+		make host-python3-fdt
+	fi
+
+	if [ ! -f ${images_dir}/u-boot.dtb ]; then
+		echo "The u-boot.dtb file is not prepared yet"
+		make b
+	fi
+
+	${LUBAN_PRJ_TOP_DIR}/output/${LUBAN_CURRENT_OUT}/host/bin/python3 \
+	${LUBAN_PRJ_TOP_DIR}/tools/scripts/list_module.py -d ${images_dir}
+}
+
 function _hline()
 {
 	local cmd="$1"
@@ -593,9 +650,9 @@ function _get_defconfig_list()
 	[[ ! -d ${LUBAN_PRJ_TOP_DIR}/target/configs/ ]] && {
 		return
 	}
-	cd ${LUBAN_PRJ_TOP_DIR}/target/configs/
+	cd ${LUBAN_PRJ_TOP_DIR}/target/configs/ || exit
 	defconfigs=`ls -1 *_defconfig`
-	cd - > /dev/null
+	cd - > /dev/null || exit
 	echo "${defconfigs}"
 }
 
@@ -961,6 +1018,7 @@ function _search_in_list()
 	_reset_terminal
 }
 
+_clear_env
 _mark_topdir
 
 export PATH=$PATH:${LUBAN_PRJ_TOP_DIR}/tools/scripts/bin

@@ -19,8 +19,6 @@
 #define PLL_SDM_MODE_BIT	(29)
 #define PLL_SDM_EN_BIT		(31)
 
-#define PLL_VCO_MIN		(768000000)
-#define PLL_VCO_MAX		(1560000000)
 #define PLL_SDM_AMP_MAX		(0x20000)
 #define PLL_SDM_SPREAD_PPM	(10000)
 #define PLL_SDM_SPREAD_FREQ	(33000)
@@ -44,12 +42,19 @@ enum aic_clk_type {
 	AIC_CLK_PERIPHERAL = 3,
 	AIC_CLK_DISP = 4,
 	AIC_CLK_OUTPUT = 5,
-	AIC_CLK_UNKNOWN = 6
+	AIC_CLK_CROSS_ZONE = 6,
+	AIC_CLK_UNKNOWN = 7
 };
 
 struct aic_clks {
 	ulong id;
 	const char *name;
+};
+
+struct pll_vco {
+	ulong vco_min;
+	ulong vco_max;
+	ulong id;
 };
 
 /**
@@ -198,6 +203,30 @@ struct aic_clk_out {
 };
 
 /**
+ * struct aic_clk_crosszone - A handle to (allowing control of) a PRCM core clock.
+ *
+ * The crosszone clock has a fixed parent, a bus gate, a module
+ * gate and a dividor.
+ *
+ * @id: The clock signal ID within the provider.
+ * @parent: Parent list, the count should be matched with width of @mux_mask.
+ * @reg: Register address for clock configuration.
+ * @bus_gate: bit shift of bus gate;
+ * @mod_gate: bit shift of module gate;
+ * @div_shift: bit shift for getting dividor
+ * @div_mask: bits mask for getting dividor
+ */
+struct aic_clk_crosszone {
+	u32 id;
+	u32 parent;
+	u32 reg;
+	s8  bus_gate;
+	s8  mod_gate;
+	s8  div_shift;
+	u8  div_mask;
+};
+
+/**
  * struct aic_clk_tree - clock tree information.
  *
  * @fixed_rate_base: the first clock id of fixed rate clocks
@@ -234,12 +263,19 @@ struct aic_clk_tree {
 	u16 disp_cnt;
 	u16 clkout_base;
 	u16 clkout_cnt;
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+	u16 cross_zone_base;
+	u16 cross_zone_cnt;
+#endif
 	struct aic_fixed_rate   *fixed_rate;
 	struct aic_pll          *plls;
 	struct aic_sys_clk      *system;
 	struct aic_periph_clk   *periph;
 	struct aic_disp_clk	*disp;
 	struct aic_clk_out      *clkout;
+#ifdef CONFIG_CLK_ARTINCHIP_CMU_V2_0
+	struct aic_clk_crosszone *clk_cz;
+#endif
 };
 
 struct aic_clk_ops {
@@ -253,6 +289,7 @@ struct aic_clk_ops {
 
 struct aic_clk_priv {
 	void *base;
+	void *cz_base;
 	struct aic_clk_tree *tree;
 };
 

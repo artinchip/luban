@@ -1,0 +1,1575 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="接口设计 状态机设计 状态机说明: IDLE 闲置状态,刚创建完 player 处于此状态,此状态只能通过 aic_player_set_uri 转换为 INITIALIZED INITIALIZED 初始化完成状态,和 IDLE 状态相比,仅仅是多了媒体数据源的信息 PREPARING 在 INITIALIZED 状态调用异步 aic_player_prepare_async ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/mpp/mpp_player_design.html"/><meta name="DC.relation" content="../../../topics/sdk/mpp/mpp_player_design.html"/><meta name="DC.relation" content="../../../topics/sdk/gstreamer/gstreamer-user-guide.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="mpp_player_interface_design"/><meta name="DC.language" content="zh-CN"/><title>MPP Player 接口设计</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="mpp_player_interface_design-d4445e5568"/><meta name="wh-source-relpath" content="topics/sdk/mpp/mpp_player_interface.dita"/><meta name="wh-out-relpath" content="topics/sdk/mpp/mpp_player_interface.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="mpp_player_interface_design" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_mcc_32s_nbc"><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="mpp_0"><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html">MPP 播放器使用指南</a></div></div></li><li><div class="topicref" data-id="mpp_player_design_intro"><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_design.html">设计说明</a></div></div></li><li class="active"><div class="topicref" data-id="mpp_player_interface_design"><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_interface.html">MPP Player 接口设计</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/mpp/mpp_player_design.html" title="设计说明" aria-label="上一主题: 设计说明" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" title="Gstreamer 使用指南" aria-label="下一主题: Gstreamer 使用指南" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="ge-d4445e4455" class="topicref" data-id="ge" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ge-d4445e4455-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ge/ge_user_guide.html" id="ge-d4445e4455-link">GE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="ve-d4445e4637" class="topicref" data-id="ve" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action ve-d4445e4637-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/ve/ve-user-guide.html" id="ve-d4445e4637-link">VE 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e4777" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e4777-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/display/display_user_guide.html" id="id-d4445e4777-link">Display 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_h4d_fwt_tzb-d4445e5218" class="topicref" data-id="concept_h4d_fwt_tzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_h4d_fwt_tzb-d4445e5218-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/dvp/dvp_user_guide.html" id="concept_h4d_fwt_tzb-d4445e5218-link">DVP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="mpp-d4445e5358" class="topicref" data-id="mpp" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action mpp-d4445e5358-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_user_guide.html" id="mpp-d4445e5358-link">MPP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="mpp_0-d4445e5498" class="topicref" data-id="mpp_0" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action mpp_0-d4445e5498-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_user_guide.html" id="mpp_0-d4445e5498-link">MPP 播放器使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="mpp_player_configuration-d4445e5512" class="topicref" data-id="mpp_player_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_config.html" id="mpp_player_configuration-d4445e5512-link">MPP 播放器配置</a></div></div></li><li role="treeitem"><div data-tocid="mpp_player_debug_guide-d4445e5526" class="topicref" data-id="mpp_player_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_debug.html" id="mpp_player_debug_guide-d4445e5526-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="mpp_player_test_guide-d4445e5540" class="topicref" data-id="mpp_player_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_test.html" id="mpp_player_test_guide-d4445e5540-link">测试指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="mpp_player_design_intro-d4445e5554" class="topicref" data-id="mpp_player_design_intro" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action mpp_player_design_intro-d4445e5554-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_design.html" id="mpp_player_design_intro-d4445e5554-link">设计说明</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="mpp_player_interface_design-d4445e5568" class="topicref" data-id="mpp_player_interface_design" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mpp/mpp_player_interface.html" id="mpp_player_interface_design-d4445e5568-link">MPP Player 接口设计</a></div></div></li></ul></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="gstreamer-d4445e5582" class="topicref" data-id="gstreamer" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gstreamer-d4445e5582-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gstreamer/gstreamer-user-guide.html" id="gstreamer-d4445e5582-link">Gstreamer 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2s-d4445e5680" class="topicref" data-id="i2s" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2s-d4445e5680-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2s/i2s_user_guide.html" id="i2s-d4445e5680-link">I2S 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="audio_codec_user_guide-d4445e5806" class="topicref" data-id="audio_codec_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action audio_codec_user_guide-d4445e5806-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/audio_codec/audio-codec-user-guide.html" id="audio_codec_user_guide-d4445e5806-link">Audio Codec 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/mpp/mpp_player_interface.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">MPP Player 接口设计</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 19 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <section class="- topic/section section" id="mpp_player_interface_design__player-interface" data-ofbid="mpp_player_interface_design__player-interface"><h2 class="- topic/title title sectiontitle">接口设计</h2>
+            
+            
+            <div class="- topic/div div section" id="mpp_player_interface_design__id4"><strong class="+ topic/ph hi-d/b ph b">状态机设计</strong>
+                <p class="- topic/p p" data-ofbid="d63684e42__20250123155203">状态机说明:</p><ul class="- topic/ul ul simple" id="mpp_player_interface_design__ul_tjz_trf_fdc" data-ofbid="mpp_player_interface_design__ul_tjz_trf_fdc">
+                    <li class="- topic/li li" data-ofbid="d63684e46__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_ujz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_ujz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e52__20250123155203">IDLE</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e57__20250123155203">闲置状态,刚创建完 player 处于此状态,此状态只能通过 aic_player_set_uri 转换为
+                                        INITIALIZED</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e64__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_vjz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_vjz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e70__20250123155203">INITIALIZED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e75__20250123155203">初始化完成状态,和 IDLE 状态相比,仅仅是多了媒体数据源的信息</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e82__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_wjz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_wjz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e88__20250123155203">PREPARING</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e93__20250123155203">在 INITIALIZED 状态调用异步 aic_player_prepare_async
+                                        到达此状态,这一状态主要是打开媒体文件并解析它,解析成功之后,自动转换为 PREPARED 状态,通过事件
+                                        AIC_PLAYER_EVENT_DEMUXER_FORMAT_DETECTED 告知 app</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e100__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_xjz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_xjz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e106__20250123155203">PREPARED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e111__20250123155203">在 INITIALIZED 状态调用同步 aic_player_prepare_sync
+                                        到达此状态,这一状态主要是打开媒体文件并解析它,解析完成后转换到 PREPARED 状态</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e118__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_yjz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_yjz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e124__20250123155203">STARTED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e129__20250123155203">在 PREPARED 状态调用 aic_player_start
+                                        到达此状态,这一状态主要是根据解析出的文件创建音视频解码线程和音视频显示线程,可以随时进行播放了</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e137__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_zjz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_zjz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e143__20250123155203">PLAYING</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e148__20250123155203">在 STARTED 或 PAUSED 状态调用 aic_player_play 到达此状态,开始播放媒体</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e155__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_akz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_akz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e161__20250123155203">PAUSED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e166__20250123155203">在 PLAYING 状态调用 aic_player_pause 到达此状态,暂停播放媒体</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e173__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_bkz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_bkz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e179__20250123155203">COMPLETED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e184__20250123155203">媒体播放完毕后,自动转换为 COMPLETED 状态,并以事件 AIC_PLAYER_EVENT_PLAY_END 告知
+                                        app</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e191__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_ckz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_ckz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e197__20250123155203">STOPPED</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e202__20250123155203">无论处于任何状态都可以调用 aic_player_stop 回到 STOPPED
+                                        状态。切换文件时，无论是否播放结束，要先调用 aic_player_stop 停止当前文件的播放。</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                    <li class="- topic/li li" data-ofbid="d63684e209__20250123155203">
+                        <dl class="- topic/dl dl simple" id="mpp_player_interface_design__dl_dkz_trf_fdc" data-ofbid="mpp_player_interface_design__dl_dkz_trf_fdc">
+                            
+                                <dt class="- topic/dt dt dlterm" data-ofbid="d63684e215__20250123155203">END</dt>
+                                <dd class="- topic/dd dd">
+                                    <p class="- topic/p p" data-ofbid="d63684e220__20250123155203">这里 END 表示释放掉播放器所有的资源，不是播放器的内部状态。</p>
+                                </dd>
+                            
+                        </dl>
+                    </li>
+                </ul></div>
+        </section>
+        <section class="- topic/section section" id="mpp_player_interface_design__section_fll_hsf_fdc" data-ofbid="mpp_player_interface_design__section_fll_hsf_fdc"><h2 class="- topic/title title sectiontitle">数据结构设计</h2>
+            
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="mpp_player_interface_design__codeblock_imh_3sf_fdc" data-ofbid="mpp_player_interface_design__codeblock_imh_3sf_fdc"><code><em class="hl-comment">// 事件回调函数</em>
+<strong class="hl-keyword">typedef</strong> s32 (*event_handler)(<strong class="hl-keyword">void</strong>* app_data,s32 event,s32 data1,s32 data2);
+
+<em class="hl-comment">// 事件</em>
+<strong class="hl-keyword">enum</strong> aic_player_event {
+        AIC_PLAYER_EVENT_PLAY_END = <span class="hl-number">0</span>,  <em class="hl-comment">// 文件播放结束</em>
+        AIC_PLAYER_EVENT_PLAY_TIME,             <em class="hl-comment">//播放时刻,pts = data1&lt;&lt;32|data2</em>
+        AIC_PLAYER_EVENT_DEMUXER_FORMAT_DETECTED,<em class="hl-comment">//文件解析成功</em>
+        AIC_PLAYER_EVENT_DEMUXER_FORMAT_NOT_DETECTED<em class="hl-comment">//文件解析失败</em>
+};
+
+<strong class="hl-keyword">struct</strong> aic_video_stream {
+        s32   width;
+        s32   height;
+};
+
+<strong class="hl-keyword">struct</strong> aic_audio_stream {
+        s32 nb_channel;
+        s32 bits_per_sample;
+        s32 sample_rate;
+};
+<em class="hl-comment">// 媒体信息</em>
+<strong class="hl-keyword">struct</strong> av_media_info {
+        s64  file_size;
+        s64  duration;
+        u8   has_video;
+        u8   has_audio;
+        u8   seek_able;
+        <strong class="hl-keyword">struct</strong> aic_video_stream video_stream;
+        <strong class="hl-keyword">struct</strong> aic_audio_stream audio_stream;
+};</code></pre>
+        </section>
+        <section class="- topic/section section" id="mpp_player_interface_design__section_f3x_3sf_fdc" data-ofbid="mpp_player_interface_design__section_f3x_3sf_fdc"><h2 class="- topic/title title sectiontitle">接口设计 </h2>
+            
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock" id="mpp_player_interface_design__codeblock_vbn_n3n_4dc" data-ofbid="mpp_player_interface_design__codeblock_vbn_n3n_4dc"><code>struct aic_player *aic_player_create(char *uri);
+
+s32 aic_player_destroy(struct aic_player *player);
+
+s32 aic_player_set_uri(struct aic_player *player,char *uri);
+
+// 异步解析媒体文件
+s32 aic_player_prepare_async(struct aic_player *player);
+
+// 同步解析媒体文件，媒体文件比较大时，解析文件比较耗时，程序会一直阻塞在这个函数中，所以提供了上面的异步接口，
+// 异步接口中，创建一个线程去解析文件，所以异步接口会立刻返回，但是文件并没有解析完。无论解析成功还是失败，player
+// 内部会通过事件回调函数 event_handler 通知 app。
+s32 aic_player_prepare_sync(struct aic_player *player);
+
+s32 aic_player_start(struct aic_player *player);
+
+s32 aic_player_play(struct aic_player *player);
+
+s32 aic_player_pause(struct aic_player *player);
+
+s32 aic_player_stop(struct aic_player *player);
+
+s32 aic_player_get_media_info(struct aic_player *player,struct av_media_info *media_info);
+
+s32 aic_player_set_event_callback(struct aic_player *player,void* app_data,event_handler event_handle );
+
+s32 aic_player_get_screen_size(struct aic_player *player,struct mpp_size *screen_size);
+
+s32 aic_player_set_disp_rect(struct aic_player *player,struct mpp_rect *disp_rect);
+
+s32 aic_player_get_disp_rect(struct aic_player *player,struct mpp_rect *disp_rect);
+
+s32 aic_player_set_mute(struct aic_player *player);
+
+s32 aic_player_set_volum(struct aic_player *player,s32 vol);
+
+s32 aic_player_get_volum(struct aic_player *player,s32 *vol);
+
+s64 aic_player_get_play_time(struct aic_player *player);
+
+s32 aic_player_seek(struct aic_player *player, u64 seek_time);
+
+s32 aic_player_capture(struct aic_player *player, struct aic_capture_info *capture_info);
+
+//rotation_angle 可以取的值 MPP_ROTATION_0，MPP_ROTATION_90，MPP_ROTATION_180，MPP_ROTATION_270
+s32 aic_player_set_rotation(struct aic_player *player, int rotation_angle);
+
+s32 aic_player_get_rotation(struct aic_player *player);</code></pre>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_ekz_trf_fdc" data-ofbid="mpp_player_interface_design__table_ekz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_create</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_ekz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_ekz_trf_fdc__entry__2">struct aic_player *aic_player_create(char *uri)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__2">创建 player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> uri：媒体文件路径</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__2">palyer 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_ekz_trf_fdc__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_fkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_fkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_destroy</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_fkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_fkz_trf_fdc__entry__2">s32 aic_player_destroy(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__2">销毁 player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_fkz_trf_fdc__entry__2">在 IDLE 和 STOPPED 状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_gkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_gkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_uri </span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_gkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_gkz_trf_fdc__entry__2">s32 aic_player_set_uri(struct aic_player *player,char
+                                *uri)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__2">设置媒体文件路径</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，uri：媒体文件路径</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_gkz_trf_fdc__entry__2">在 IDLE 和 STOPPED 状态起作用</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_hkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_hkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_prepare_async</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_hkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_hkz_trf_fdc__entry__2">s32 aic_player_prepare_async(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__2">异步解析媒体文件</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：解析命令发送成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_hkz_trf_fdc__entry__2">在 INITIALIZED 状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_ikz_trf_fdc" data-ofbid="mpp_player_interface_design__table_ikz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 5</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_prepare_sync</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_ikz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_ikz_trf_fdc__entry__2">s32 aic_player_prepare_sync(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__2">同步解析媒体文件</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：解析文件成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_ikz_trf_fdc__entry__2">在 INITIALIZED 状态起作用</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_jkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_jkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 6</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_start</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_jkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_jkz_trf_fdc__entry__2">s32 aic_player_start(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__2">启动播放器，创建音视频解码线程和音视频渲染线程</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_jkz_trf_fdc__entry__2">在 PREPARED 状态起作用</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_kkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_kkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 7</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_play</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_kkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_kkz_trf_fdc__entry__2">s32 aic_player_play(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__2">播放媒体文件</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_kkz_trf_fdc__entry__2">在 STARETED 状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_lkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_lkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 8</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_pause</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_lkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_lkz_trf_fdc__entry__2">s32 aic_player_pause(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__2">暂停播放媒体文件</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_lkz_trf_fdc__entry__2">在 PLAYING 和 PAUSED 状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_mkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_mkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 9</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_stop</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_mkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_mkz_trf_fdc__entry__2">s32 aic_player_stop(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__2">停止播放，释放音视频解码线程和音视频显示线程</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__2">player：player 对象</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_mkz_trf_fdc__entry__2"> 任意状态可以调用该函数来停止播放器。切换文件时一定要调用 aic_player_stop。 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_nkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_nkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 10</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_media_info</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_nkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_nkz_trf_fdc__entry__2">s32 aic_player_get_media_info(struct aic_player *player, struct
+                                av_media_info *media_info)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__2">获取媒体信息</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，media_info：媒体信息</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_nkz_trf_fdc__entry__2">在 PREPARED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_okz_trf_fdc" data-ofbid="mpp_player_interface_design__table_okz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 11</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_event_callback</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_okz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_okz_trf_fdc__entry__2">s32 aic_player_set_event_callback(struct aic_player *player,
+                                event_handler event_handle)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__2">获取媒体信息</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，event_handle：监听事件函数</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_okz_trf_fdc__entry__2">一定要注册，播放结束通过回调函数通知</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_pkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_pkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 12</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_screen_size</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_pkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_pkz_trf_fdc__entry__2">s32 aic_player_get_screen_size(struct aic_player *player, struct
+                                mpp_size *screen_size)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__2">获取屏幕大小</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，screen_size：屏幕大小</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_pkz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态均起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_qkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_qkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 13</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_disp_rect</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_qkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_qkz_trf_fdc__entry__2">s32 aic_player_set_disp_rect(struct aic_player *player, struct
+                                mpp_rect *disp_rect)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__2">设置显示区域</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，disp_rect：显示区域</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_qkz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_rkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_rkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 14</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_disp_rect</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_rkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_rkz_trf_fdc__entry__2">s32 aic_player_get_disp_rect(struct aic_player *player, struct
+                                mpp_rect *disp_rect)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__2">设置显示区域</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，disp_rect：显示区域</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_rkz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_skz_trf_fdc" data-ofbid="mpp_player_interface_design__table_skz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 15</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_mute</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_skz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_skz_trf_fdc__entry__2">s32 aic_player_set_mute(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__2">静音切换</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_skz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_tkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_tkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 16</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_volum</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_tkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_tkz_trf_fdc__entry__2">s32 aic_player_set_volum(struct aic_player *player,s32
+                                vol)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__2">设置音量</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，vol：音量</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_tkz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_ukz_trf_fdc" data-ofbid="mpp_player_interface_design__table_ukz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 17</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_volum</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_ukz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_ukz_trf_fdc__entry__2">s32 aic_player_get_volum(struct aic_player *player,s32
+                                *vol)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__2">获取音量</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，vol：音量</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_ukz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_vkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_vkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 18</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_play_time</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_vkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_vkz_trf_fdc__entry__2">s64 aic_player_get_play_time(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__2">获取播放时间</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> &gt;=0：播放时间，&lt;0：获取播放时间的状态不对</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_vkz_trf_fdc__entry__2">在 STARETED 和 COMPLETED 区间的状态起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_wkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_wkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 19</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_seek</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_wkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_wkz_trf_fdc__entry__2">s32 aic_player_seek(struct aic_player *player, u64
+                                seek_time)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__2">跳转指定时间点</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，seek_time：跳转的时间点</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_wkz_trf_fdc__entry__2">在 IDLE/INITIALIZED/PREPARING 状态下设置不起作用 </td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_xkz_trf_fdc" data-ofbid="mpp_player_interface_design__table_xkz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 20</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_set_rotation</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_xkz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_xkz_trf_fdc__entry__2">s32 aic_player_set_rotation(struct aic_player *player, int
+                                rotation_angle)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__2">设置视频旋转角度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象，rotation_angle：旋转角度</div>
+                                    <div class="- topic/div div">rotation_angle 可取值
+                                        MPP_ROTATION_0，MPP_ROTATION_90，MPP_ROTATION_180，MPP_ROTATION_270</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> 0：成功，其他：失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_xkz_trf_fdc__entry__2">在 STARTED/PLAYING/PAUSED/COMPLETED 状态下设置起作用</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="mpp_player_interface_design__table_ykz_trf_fdc" data-ofbid="mpp_player_interface_design__table_ykz_trf_fdc" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 21</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_player_get_rotation</span></caption><colgroup><col style="width:16.666666666666664%"/><col style="width:83.33333333333334%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="mpp_player_interface_design__table_ykz_trf_fdc__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="mpp_player_interface_design__table_ykz_trf_fdc__entry__2">s32 aic_player_get_rotation(struct aic_player *player)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__2">获取视频旋转角度</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div">player：player 对象</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__2">
+                                <div class="- topic/div div">
+                                    <div class="- topic/div div"> &gt;=0：旋转角度，&lt;0：获取失败</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="mpp_player_interface_design__table_ykz_trf_fdc__entry__2">在 STARTED/PLAYING/PAUSED/COMPLETED 状态下可以获取</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+        <section class="- topic/section section" id="mpp_player_interface_design__section_pkd_jsf_fdc" data-ofbid="mpp_player_interface_design__section_pkd_jsf_fdc"><h2 class="- topic/title title sectiontitle">APP Demo</h2>
+            
+            <pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="mpp_player_interface_design__codeblock_yj4_jsf_fdc" data-ofbid="mpp_player_interface_design__codeblock_yj4_jsf_fdc"><code>#include &lt;string.h&gt;
+#include &lt;malloc.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;pthread.h&gt;
+#include &lt;dirent.h&gt;
+#include &lt;inttypes.h&gt;
+#include &lt;getopt.h&gt;
+
+#include <span class="hl-string">"mpp_dec_type.h"</span>
+#include <span class="hl-string">"mpp_list.h"</span>
+#include <span class="hl-string">"mpp_log.h"</span>
+#include <span class="hl-string">"mpp_mem.h"</span>
+#include <span class="hl-string">"aic_message.h"</span>
+#include <span class="hl-string">"aic_player.h"</span>
+
+#include &lt;rthw.h&gt;
+#include &lt;rtthread.h&gt;
+#include &lt;shell.h&gt;
+
+#ifdef LPKG_USING_CPU_USAGE
+#include <span class="hl-string">"cpu_usage.h"</span>
+#endif
+
+#<span class="hl-directive">define</span> PLAYER_DEMO_FILE_MAX_NUM <span class="hl-number">128</span>
+#<span class="hl-directive">define</span> PLAYER_DEMO_FILE_PATH_MAX_LEN <span class="hl-number">256</span>
+#<span class="hl-directive">define</span> BUFFER_LEN <span class="hl-number">16</span>
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> g_player_end = <span class="hl-number">0</span>;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> g_demuxer_detected_flag = <span class="hl-number">0</span>;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> g_sync_flag = AIC_PLAYER_PREPARE_SYNC;
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> av_media_info g_media_info;
+<strong class="hl-keyword">struct</strong> file_list {
+        <strong class="hl-keyword">char</strong> *file_path[PLAYER_DEMO_FILE_MAX_NUM];
+        <strong class="hl-keyword">int</strong> file_num;
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">void</strong> print_help(<strong class="hl-keyword">const</strong> <strong class="hl-keyword">char</strong>* prog)
+{
+        printf(<span class="hl-string">"name: %s\n"</span>, prog);
+        printf(<span class="hl-string">"Compile time: %s\n"</span>, __TIME__);
+        printf(<span class="hl-string">"Usage: player_demo [options]:\n"</span>
+                <span class="hl-string">"\t-i                             input stream file name\n"</span>
+                <span class="hl-string">"\t-t                             directory of test files\n"</span>
+                <span class="hl-string">"\t-l                             loop time\n"</span>
+                <span class="hl-string">"\t-c                             save capture file path,default /sdcard/video/capture.jpg \n"</span>
+                <span class="hl-string">"\t-W                             capture widht\n"</span>
+                <span class="hl-string">"\t-H                             capture height\n"</span>
+                <span class="hl-string">"\t-q                             capture quality\n"</span>
+                <span class="hl-string">"\t-h                             help\n\n"</span>
+                <span class="hl-string">"Example1(test single file for 1 time): player_demo -i /mnt/video/test.mp4 \n"</span>
+                <span class="hl-string">"Example2(test single file for 3 times): player_demo -i /mnt/video/test.mp4 -l 3 \n"</span>
+                <span class="hl-string">"Example3(test some files for 1 time ) : player_demo -t /mnt/video \n"</span>
+                <span class="hl-string">"Example4(test some files for 3 times ): player_demo -t /mnt/video -l 3 \n"</span>
+                <span class="hl-string">"---------------------------------------------------------------------------------------\n"</span>
+                <span class="hl-string">"-------------------------------control key while playing-------------------------------\n"</span>
+                <span class="hl-string">"---------------------------------------------------------------------------------------\n"</span>
+                <span class="hl-string">"('d'): play next \n"</span>
+                <span class="hl-string">"('u'): play previous \n"</span>
+                <span class="hl-string">"('p'): pause/play \n"</span>
+                <span class="hl-string">"('+'): volum+5 \n"</span>
+                <span class="hl-string">"('-'): volum-5 \n"</span>
+                <span class="hl-string">"('f'): forward seek +8s \n"</span>
+                <span class="hl-string">"('b'): back seek -8s \n"</span>
+                <span class="hl-string">"('z'): seek to begin pos \n"</span>
+                <span class="hl-string">"('m':  enter/eixt mute \n"</span>
+                <span class="hl-string">"('e'): eixt app \n"</span>
+}
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> read_dir(<strong class="hl-keyword">char</strong>* path, <strong class="hl-keyword">struct</strong> file_list *files)
+{
+        <strong class="hl-keyword">char</strong>* ptr = NULL;
+        <strong class="hl-keyword">int</strong> file_path_len = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">struct</strong> dirent* dir_file;
+        DIR* dir = opendir(path);
+        <strong class="hl-keyword">if</strong>(dir == NULL) {
+                loge(<span class="hl-string">"read dir failed"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+
+        <strong class="hl-keyword">while</strong>((dir_file = readdir(dir))) {
+                <strong class="hl-keyword">if</strong>(strcmp(dir_file-&gt;d_name, <span class="hl-string">"."</span>) == <span class="hl-number">0</span> || strcmp(dir_file-&gt;d_name, <span class="hl-string">".."</span>) == <span class="hl-number">0</span>)
+                        <strong class="hl-keyword">continue</strong>;
+
+                ptr = strrchr(dir_file-&gt;d_name, <span class="hl-string">'.'</span>);
+                <strong class="hl-keyword">if</strong>(ptr == NULL)
+                        <strong class="hl-keyword">continue</strong>;
+
+                <strong class="hl-keyword">if</strong> (strcmp(ptr, <span class="hl-string">".h264"</span>) &amp;&amp; strcmp(ptr, <span class="hl-string">".264"</span>) &amp;&amp; strcmp(ptr, <span class="hl-string">".mp4"</span>) )
+                        <strong class="hl-keyword">continue</strong>;
+
+                logd(<span class="hl-string">"name: %s"</span>, dir_file-&gt;d_name);
+
+                file_path_len = <span class="hl-number">0</span>;
+                file_path_len += strlen(path);
+                file_path_len += <span class="hl-number">1</span> ; <em class="hl-comment">// '/'</em>
+                file_path_len += strlen(dir_file-&gt;d_name);
+                printf(<span class="hl-string">"file_path_len:%d\n"</span>,file_path_len);
+                <strong class="hl-keyword">if</strong>(file_path_len &gt; PLAYER_DEMO_FILE_PATH_MAX_LEN-<span class="hl-number">1</span>){
+                        loge(<span class="hl-string">"%s too long \n"</span>,dir_file-&gt;d_name);
+                        <strong class="hl-keyword">continue</strong> ;
+                }
+                files-&gt;file_path[files-&gt;file_num] = (<strong class="hl-keyword">char</strong> *)mpp_alloc(file_path_len+<span class="hl-number">1</span>);
+                files-&gt;file_path[files-&gt;file_num][file_path_len] = <span class="hl-string">'\0'</span>;
+                strcpy(files-&gt;file_path[files-&gt;file_num], path);
+                strcat(files-&gt;file_path[files-&gt;file_num], <span class="hl-string">"/"</span>);
+                strcat(files-&gt;file_path[files-&gt;file_num], dir_file-&gt;d_name);
+                logd(<span class="hl-string">"i: %d, filename: %s"</span>, files-&gt;file_num, files-&gt;file_path[files-&gt;file_num]);
+                files-&gt;file_num ++;
+                <strong class="hl-keyword">if</strong>(files-&gt;file_num ≥ PLAYER_DEMO_FILE_MAX_NUM)
+                        <strong class="hl-keyword">break</strong>;
+        }
+        <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+s32 event_handle( <strong class="hl-keyword">void</strong>* app_data,s32 event,s32 data1,s32 data2)
+{
+        <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">switch</strong>(event){
+                <strong class="hl-keyword">case</strong> AIC_PLAYER_EVENT_PLAY_END:
+                        g_player_end = <span class="hl-number">1</span>;
+                        logd(<span class="hl-string">"g_player_end\n"</span>);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> AIC_PLAYER_EVENT_PLAY_TIME:
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> AIC_PLAYER_EVENT_DEMUXER_FORMAT_DETECTED:
+                        <strong class="hl-keyword">if</strong>(AIC_PLAYER_PREPARE_ASYNC == g_sync_flag){
+                                g_demuxer_detected_flag = <span class="hl-number">1</span>;
+                                logd(<span class="hl-string">"AIC_PLAYER_EVENT_DEMUXER_FORMAT_DETECTED\n"</span>);
+                        }
+                        <strong class="hl-keyword">break</strong>;
+
+                <strong class="hl-keyword">case</strong> AIC_PLAYER_EVENT_DEMUXER_FORMAT_NOT_DETECTED:
+                        <strong class="hl-keyword">if</strong>(AIC_PLAYER_PREPARE_ASYNC == g_sync_flag){
+                                logd(<span class="hl-string">"AIC_PLAYER_EVENT_DEMUXER_FORMAT_NOT_DETECTED\n"</span>);
+                                logd(<span class="hl-string">"cur file format not detected,play next file!!!!!!\n"</span>);
+                                g_player_end = <span class="hl-number">1</span>;
+                        }
+
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">default</strong>:
+                        <strong class="hl-keyword">break</strong>;
+        }
+        <strong class="hl-keyword">return</strong> ret;
+}
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> set_volume(<strong class="hl-keyword">struct</strong> aic_player *player,<strong class="hl-keyword">int</strong> volume)
+{
+        <strong class="hl-keyword">if</strong>(volume &lt; <span class="hl-number">0</span>){
+                volume = <span class="hl-number">0</span>;
+        }
+        <strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(volume &lt; <span class="hl-number">101</span>){
+
+        }
+        <strong class="hl-keyword">else</strong>{
+                volume = <span class="hl-number">100</span>;
+        }
+        logd(<span class="hl-string">"volume:%d\n"</span>,volume);
+        <strong class="hl-keyword">return</strong> aic_player_set_volum(player,volume);
+}
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> do_seek(<strong class="hl-keyword">struct</strong> aic_player *player,<strong class="hl-keyword">int</strong> forward)
+{
+        s64 pos;
+        pos = aic_player_get_play_time(player);
+        <strong class="hl-keyword">if</strong>(pos == -<span class="hl-number">1</span>){
+                loge(<span class="hl-string">"aic_player_get_play_time error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        <strong class="hl-keyword">if</strong>(forward == <span class="hl-number">1</span>){
+                pos += <span class="hl-number">8</span>*<span class="hl-number">1000</span>*<span class="hl-number">1000</span>;<em class="hl-comment">//+8s</em>
+        }<strong class="hl-keyword">else</strong>{
+                pos -= <span class="hl-number">8</span>*<span class="hl-number">1000</span>*<span class="hl-number">1000</span>;<em class="hl-comment">//-8s</em>
+        }
+
+        <strong class="hl-keyword">if</strong>(pos &lt; <span class="hl-number">0</span>){
+                pos = <span class="hl-number">0</span>;
+        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(pos &lt; g_media_info.duration){
+
+        }<strong class="hl-keyword">else</strong>{
+                pos = g_media_info.duration;
+        }
+
+        <strong class="hl-keyword">if</strong>(aic_player_seek(player,pos) != <span class="hl-number">0</span>){
+                loge(<span class="hl-string">"aic_player_seek error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        logd(<span class="hl-string">"aic_player_seek ok\n"</span>);
+        <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> start_play(<strong class="hl-keyword">struct</strong> aic_player *player,<strong class="hl-keyword">int</strong> volume)
+{
+        <strong class="hl-keyword">int</strong> ret = -<span class="hl-number">1</span>;
+        <strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong> av_media_info media_info;
+        <strong class="hl-keyword">struct</strong> mpp_size screen_size;
+        <strong class="hl-keyword">struct</strong> mpp_rect disp_rect;
+
+        ret = aic_player_start(player);
+        <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                loge(<span class="hl-string">"aic_player_start error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        printf(<span class="hl-string">"[%s:%d]aic_player_start ok\n"</span>,__FUNCTION__,__LINE__);
+
+        ret =  aic_player_get_media_info(player,&amp;media_info);
+        <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                loge(<span class="hl-string">"aic_player_get_media_info error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        g_media_info = media_info;
+        logd(<span class="hl-string">"aic_player_get_media_info duration:"</span>FMT_x64<span class="hl-string">",file_size:"</span>FMT_x64<span class="hl-string">"\n"</span>,media_info.duration,media_info.file_size);
+
+        logd(<span class="hl-string">"has_audio:%d,has_video:%d,"</span>
+                <span class="hl-string">"width:%d,height:%d,\n"</span>
+                <span class="hl-string">"bits_per_sample:%d,nb_channel:%d,sample_rate:%d\n"</span>
+                ,media_info.has_audio
+                ,media_info.has_video
+                ,media_info.video_stream.width
+                ,media_info.video_stream.height
+                ,media_info.audio_stream.bits_per_sample
+                ,media_info.audio_stream.nb_channel
+                ,media_info.audio_stream.sample_rate);
+
+        <strong class="hl-keyword">if</strong>(media_info.has_video){
+                ret = aic_player_get_screen_size(player, &amp;screen_size);
+                <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                        loge(<span class="hl-string">"aic_player_get_screen_size error!!!!\n"</span>);
+                        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+                }
+                logd(<span class="hl-string">"screen_width:%d,screen_height:%d\n"</span>,screen_size.width,screen_size.height);
+                disp_rect.x = <span class="hl-number">324</span>;
+                disp_rect.y = <span class="hl-number">50</span>;
+                disp_rect.width = <span class="hl-number">600</span>;
+                disp_rect.height = <span class="hl-number">500</span>;
+                ret = aic_player_set_disp_rect(player, &amp;disp_rect);<em class="hl-comment">//attention:disp not exceed screen_size</em>
+                <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                        loge(<span class="hl-string">"aic_player_set_disp_rect error\n"</span>);
+                        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+                }
+                logd(<span class="hl-string">"aic_player_set_disp_rect  ok\n"</span>);
+        }
+
+        <strong class="hl-keyword">if</strong>(media_info.has_audio){
+                ret = set_volume(player,volume);
+                <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                        loge(<span class="hl-string">"set_volume error!!!!\n"</span>);
+                        <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+                }
+        }
+
+        ret = aic_player_seek(player,media_info.duration/<span class="hl-number">2</span>);
+        <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                loge(<span class="hl-string">"aic_player_seek error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        logd(<span class="hl-string">"aic_player_seek ok\n"</span>);
+
+        ret = aic_player_play(player);
+        <strong class="hl-keyword">if</strong>(ret != <span class="hl-number">0</span>){
+                loge(<span class="hl-string">"aic_player_play error!!!!\n"</span>);
+                <strong class="hl-keyword">return</strong> -<span class="hl-number">1</span>;
+        }
+        printf(<span class="hl-string">"[%s:%d]aic_player_play ok\n"</span>,__FUNCTION__,__LINE__);
+        <strong class="hl-keyword">return</strong> <span class="hl-number">0</span>;
+}
+
+
+<strong class="hl-keyword">struct</strong> thread_trace_info{
+        uint32_t enter_run_tick;
+        uint32_t total_run_tick;
+        <strong class="hl-keyword">char</strong> thread_name[<span class="hl-number">8</span>];
+};
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">struct</strong>  thread_trace_info thread_trace_infos[<span class="hl-number">6</span>];
+
+
+<em class="hl-comment">// count the cpu usage time of each thread</em>
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">void</strong> hook_of_scheduler(<strong class="hl-keyword">struct</strong> rt_thread *from,<strong class="hl-keyword">struct</strong> rt_thread *to){
+        <strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> show = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">static</strong> uint32_t sys_tick = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">int</strong> i = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">for</strong>(i=<span class="hl-number">0</span>;i&lt;<span class="hl-number">6</span>;i++){
+                <strong class="hl-keyword">if</strong>(!strcmp(thread_trace_infos[i].thread_name,from-&gt;name)){
+                        uint32_t run_tick;
+                        run_tick = rt_tick_get() -  thread_trace_infos[i].enter_run_tick;
+                        thread_trace_infos[i].total_run_tick += run_tick;
+                        <strong class="hl-keyword">break</strong>;
+                }
+        }
+
+        <strong class="hl-keyword">for</strong>(i=<span class="hl-number">0</span>;i&lt;<span class="hl-number">6</span>;i++){
+                <strong class="hl-keyword">if</strong>(!strcmp(thread_trace_infos[i].thread_name,to-&gt;name)){
+                                thread_trace_infos[i].enter_run_tick = rt_tick_get();
+                        <strong class="hl-keyword">break</strong>;
+                }
+        }
+        show++;
+        <strong class="hl-keyword">if</strong>(show &gt; <span class="hl-number">10</span>*<span class="hl-number">1000</span>){
+                rt_kprintf(<span class="hl-string">"[%u:%u:%u:%u:%u:%u:%u]:%u\n"</span>
+                        ,thread_trace_infos[<span class="hl-number">0</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">1</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">2</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">3</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">4</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">5</span>].total_run_tick
+                        ,thread_trace_infos[<span class="hl-number">5</span>].total_run_tick+thread_trace_infos[<span class="hl-number">4</span>].total_run_tick+thread_trace_infos[<span class="hl-number">3</span>].total_run_tick+thread_trace_infos[<span class="hl-number">2</span>].total_run_tick+thread_trace_infos[<span class="hl-number">1</span>].total_run_tick+thread_trace_infos[<span class="hl-number">0</span>].total_run_tick
+                        ,rt_tick_get() - sys_tick);
+
+                <strong class="hl-keyword">for</strong>(i=<span class="hl-number">0</span>;i&lt;<span class="hl-number">6</span>;i++){
+                        thread_trace_infos[i].total_run_tick = <span class="hl-number">0</span>;
+                }
+                show = <span class="hl-number">0</span>;
+                sys_tick = rt_tick_get();
+        }
+}
+
+<strong class="hl-keyword">static</strong> <strong class="hl-keyword">void</strong> player_demo_test(<strong class="hl-keyword">int</strong> argc, <strong class="hl-keyword">char</strong> **argv)
+{
+        <strong class="hl-keyword">int</strong> ret = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">int</strong> i = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">int</strong> j = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">char</strong> ch;
+        <strong class="hl-keyword">int</strong> file_path_len;
+        <strong class="hl-keyword">int</strong> opt;
+        <strong class="hl-keyword">int</strong> loop_time = <span class="hl-number">1</span>;
+        <strong class="hl-keyword">struct</strong> file_list  files;
+        <strong class="hl-keyword">struct</strong> aic_player *player = NULL;
+        <strong class="hl-keyword">int</strong> volume = <span class="hl-number">50</span>;
+        <strong class="hl-keyword">struct</strong> aic_capture_info   capture_info;
+        <strong class="hl-keyword">char</strong> file_path[<span class="hl-number">255</span>] = {<span class="hl-string">"/sdcard/video/capture.jpg"</span>};
+        rt_device_t dev = RT_NULL;
+        <em class="hl-comment">// get serial dev</em>
+        dev = rt_device_find(<span class="hl-string">"uart0"</span>);
+        <em class="hl-comment">//default capture_info</em>
+        capture_info.file_path = (s8 *)file_path;
+        capture_info.width = <span class="hl-number">1024</span>;
+        capture_info.height = <span class="hl-number">600</span>;
+        capture_info.quality = <span class="hl-number">90</span>;
+        memset(&amp;files,<span class="hl-number">0x00</span>,<strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> file_list));
+
+        memset(&amp;thread_trace_infos,<span class="hl-number">0x00</span>,<strong class="hl-keyword">sizeof</strong>(<strong class="hl-keyword">struct</strong> thread_trace_info));
+
+        <strong class="hl-keyword">for</strong>(i = <span class="hl-number">0</span>; i &lt; <span class="hl-number">6</span> ;i++){
+                sprintf(thread_trace_infos[i].thread_name,<span class="hl-string">"%s%02d"</span>,<span class="hl-string">"pth"</span>,i);
+                printf(<span class="hl-string">"%s\n"</span>,thread_trace_infos[i].thread_name);
+        }
+
+
+        rt_scheduler_sethook(hook_of_scheduler);
+
+        optind = <span class="hl-number">0</span>;
+        <strong class="hl-keyword">while</strong> (<span class="hl-number">1</span>) {
+                opt = getopt(argc, argv, <span class="hl-string">"i:t:l:c:W:H:q:h"</span>);
+                <strong class="hl-keyword">if</strong> (opt == -<span class="hl-number">1</span>) {
+                        <strong class="hl-keyword">break</strong>;
+                }
+                <strong class="hl-keyword">switch</strong> (opt) {
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'i'</span>:
+                        file_path_len = strlen(optarg);
+                        printf(<span class="hl-string">"file_path_len:%d\n"</span>,file_path_len);
+                        <strong class="hl-keyword">if</strong>(file_path_len &gt; PLAYER_DEMO_FILE_PATH_MAX_LEN-<span class="hl-number">1</span>){
+                                loge(<span class="hl-string">"file_path_len too long \n"</span>);
+                                <strong class="hl-keyword">goto</strong> _EXIT0_;
+                        }
+                        files.file_path[<span class="hl-number">0</span>] = (<strong class="hl-keyword">char</strong> *)mpp_alloc(file_path_len+<span class="hl-number">1</span>);
+                        files.file_path[<span class="hl-number">0</span>][file_path_len] = <span class="hl-string">'\0'</span>;
+                        strcpy(files.file_path[<span class="hl-number">0</span>], optarg);
+                        files.file_num = <span class="hl-number">1</span>;
+                        logd(<span class="hl-string">"file path: %s"</span>, files.file_path[<span class="hl-number">0</span>]);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'l'</span>:
+                        loop_time = atoi(optarg);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'t'</span>:
+                        read_dir(optarg, &amp;files);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'c'</span>:
+                        memset(file_path,<span class="hl-number">0x00</span>,<strong class="hl-keyword">sizeof</strong>(file_path));
+                        strncpy(file_path, optarg,<strong class="hl-keyword">sizeof</strong>(file_path)-<span class="hl-number">1</span>);
+                        logd(<span class="hl-string">"file path: %s"</span>, file_path);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'W'</span>:
+                        capture_info.width = atoi(optarg);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'H'</span>:
+                        capture_info.height = atoi(optarg);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'q'</span>:
+                        capture_info.quality = atoi(optarg);
+                        <strong class="hl-keyword">break</strong>;
+                <strong class="hl-keyword">case</strong> <span class="hl-string">'h'</span>:
+                        print_help(argv[<span class="hl-number">0</span>]);
+                <strong class="hl-keyword">default</strong>:
+                        <strong class="hl-keyword">goto</strong> _EXIT0_;
+                        <strong class="hl-keyword">break</strong>;
+                }
+        }
+
+        <strong class="hl-keyword">if</strong>(files.file_num == <span class="hl-number">0</span>) {
+                print_help(argv[<span class="hl-number">0</span>]);
+                loge(<span class="hl-string">"files.file_num ==0 !!!\n"</span>);
+                <strong class="hl-keyword">goto</strong> _EXIT0_;
+        }
+
+        player = aic_player_create(NULL);
+        <strong class="hl-keyword">if</strong>(player == NULL){
+                loge(<span class="hl-string">"aic_player_create fail!!!\n"</span>);
+                <strong class="hl-keyword">goto</strong> _EXIT0_;
+        }
+
+        aic_player_set_event_callback(player,player,event_handle);
+        g_sync_flag = AIC_PLAYER_PREPARE_SYNC;
+
+        <strong class="hl-keyword">for</strong>(i = <span class="hl-number">0</span>;i &lt; loop_time; i++){
+                <strong class="hl-keyword">for</strong>(j = <span class="hl-number">0</span>; j &lt; files.file_num; j++){
+                        aic_player_set_uri(player,files.file_path[j]);
+                        <strong class="hl-keyword">if</strong>(g_sync_flag == AIC_PLAYER_PREPARE_ASYNC){
+                                ret = aic_player_prepare_async(player);
+                        }<strong class="hl-keyword">else</strong>{
+                                ret = aic_player_prepare_sync(player);
+                        }
+                        <strong class="hl-keyword">if</strong>(ret){
+                                loge(<span class="hl-string">"aic_player_prepare error!!!!\n"</span>);
+                                g_player_end = <span class="hl-number">1</span>;
+                                <strong class="hl-keyword">goto</strong> _NEXT_FILE_;
+                        }
+
+                        <strong class="hl-keyword">if</strong>(g_sync_flag == AIC_PLAYER_PREPARE_SYNC){
+                                <strong class="hl-keyword">if</strong>(start_play(player,volume) != <span class="hl-number">0</span>){
+                                        g_player_end = <span class="hl-number">1</span>;
+                                        <strong class="hl-keyword">goto</strong> _NEXT_FILE_;
+                                }
+                        }
+
+                        <strong class="hl-keyword">while</strong>(<span class="hl-number">1</span>)
+                        {
+        _NEXT_FILE_:
+                                <strong class="hl-keyword">if</strong>(g_player_end == <span class="hl-number">1</span>){
+                                        logd(<span class="hl-string">"play file:%s end!!!!\n"</span>,files.file_path[j]);
+                                        ret = aic_player_stop(player);
+                                        g_player_end = <span class="hl-number">0</span>;
+                                        <strong class="hl-keyword">break</strong>;
+                                }
+                                <strong class="hl-keyword">if</strong>(g_sync_flag == AIC_PLAYER_PREPARE_ASYNC &amp;&amp; g_demuxer_detected_flag == <span class="hl-number">1</span>){
+                                        g_demuxer_detected_flag = <span class="hl-number">0</span>;
+                                        <strong class="hl-keyword">if</strong>(start_play(player,volume) != <span class="hl-number">0</span>){
+                                                g_player_end = <span class="hl-number">1</span>;
+                                                <strong class="hl-keyword">goto</strong> _NEXT_FILE_;
+                                        }
+                                }
+                                <strong class="hl-keyword">if</strong> (rt_device_read(dev, -<span class="hl-number">1</span>, &amp;ch, <span class="hl-number">1</span>) == <span class="hl-number">1</span>) {
+                                        <strong class="hl-keyword">if</strong>(ch == <span class="hl-number">0x20</span>){<em class="hl-comment">// pause</em>
+                                                logd(<span class="hl-string">"*********enter pause ***************\n"</span>);
+                                                aic_player_pause(player);
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'d'</span>){<em class="hl-comment">//stop cur, star next</em>
+                                                logd(<span class="hl-string">"*********enter down ***************\n"</span>);
+                                                aic_player_stop(player);
+                                                <strong class="hl-keyword">break</strong>;
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'u'</span>){<em class="hl-comment">//stop cur, star pre</em>
+                                                logd(<span class="hl-string">"*********enter up j:%d***************\n"</span>,j);
+                                                aic_player_stop(player);
+                                                j -= <span class="hl-number">2</span>;
+                                                j = (j &lt; -<span class="hl-number">1</span>)?(-<span class="hl-number">1</span>):(j);
+                                                <strong class="hl-keyword">break</strong>;
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'-'</span>){
+                                                logd(<span class="hl-string">"*********enter volume--**************\n"</span>);
+                                                volume -= <span class="hl-number">5</span>;
+                                                set_volume(player,volume);
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'+'</span>){
+                                                logd(<span class="hl-string">"*********enter volume++***************\n"</span>);
+                                                volume += <span class="hl-number">5</span>;
+                                                set_volume(player,volume);
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'m'</span>){
+                                                logd(<span class="hl-string">"*********enter/exit mute***************\n"</span>);
+                                                        aic_player_set_mute(player);
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'c'</span>){
+                                                logd(<span class="hl-string">"*********capture***************\n"</span>);
+                                                <strong class="hl-keyword">if</strong>(aic_player_capture(player,&amp;capture_info) == <span class="hl-number">0</span>){
+                                                        logd(<span class="hl-string">"*********aic_player_capture ok***************\n"</span>);
+                                                }<strong class="hl-keyword">else</strong>{
+                                                        loge(<span class="hl-string">"*********aic_player_capture fail ***************\n"</span>);
+                                                }
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'f'</span>){
+                                                logd(<span class="hl-string">"*********forward***************\n"</span>);
+                                                do_seek(player,<span class="hl-number">1</span>);<em class="hl-comment">//+8s</em>
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'b'</span>){
+                                                logd(<span class="hl-string">"*********back***************\n"</span>);
+                                                do_seek(player,<span class="hl-number">0</span>);<em class="hl-comment">//-8s</em>
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'z'</span>){<em class="hl-comment">//seek to start</em>
+                                                <strong class="hl-keyword">if</strong>(aic_player_seek(player,<span class="hl-number">0</span>) != <span class="hl-number">0</span>){
+                                                        loge(<span class="hl-string">"aic_player_seek error!!!!\n"</span>);
+                                                }<strong class="hl-keyword">else</strong>{
+                                                        logd(<span class="hl-string">"aic_player_seek ok\n"</span>);
+                                                }
+                                        }<strong class="hl-keyword">else</strong> <strong class="hl-keyword">if</strong>(ch == <span class="hl-string">'e'</span>) {
+                                                aic_player_stop(player);
+                                                <strong class="hl-keyword">goto</strong> _EXIT0_;
+                                        }
+                                }<strong class="hl-keyword">else</strong>{
+                                #ifdef LPKG_USING_CPU_USAGE
+                                {
+                                        <strong class="hl-keyword">static</strong> <strong class="hl-keyword">int</strong> index = <span class="hl-number">0</span>;
+                                        <strong class="hl-keyword">char</strong> data_str[<span class="hl-number">64</span>];
+                                        <strong class="hl-keyword">float</strong> value = <span class="hl-number">0.0</span> ;
+                                        <strong class="hl-keyword">if</strong>(index++ % <span class="hl-number">10</span> == <span class="hl-number">0</span> ){
+                                                value = cpu_load_average();
+                                                sprintf(data_str, <span class="hl-string">"%.2f%%\n"</span>, value);
+                                                printf(<span class="hl-string">"cpu_loading:%s\n"</span>,data_str);
+                                        }
+
+                                }
+                                #endif
+                                        usleep(<span class="hl-number">1000</span>*<span class="hl-number">1000</span>);
+                                }
+                        }
+                }
+        }
+
+_EXIT0_:
+        <strong class="hl-keyword">if</strong>(player)
+                aic_player_destroy(player);
+
+        <strong class="hl-keyword">for</strong>(i = <span class="hl-number">0</span>; i &lt;files.file_num ;i++){
+                <strong class="hl-keyword">if</strong>(files.file_path[i]){
+                        mpp_free(files.file_path[i]);
+                }
+        }
+        logd(<span class="hl-string">"player_demo exit\n"</span>);
+        <strong class="hl-keyword">return</strong> ;
+}
+
+MSH_CMD_EXPORT_ALIAS(player_demo_test,player_demo, player demo      );</code></pre>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#mpp_player_interface_design__player-interface" data-tocid="mpp_player_interface_design__player-interface">接口设计</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_player_interface_design__section_fll_hsf_fdc" data-tocid="mpp_player_interface_design__section_fll_hsf_fdc">数据结构设计</a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_player_interface_design__section_f3x_3sf_fdc" data-tocid="mpp_player_interface_design__section_f3x_3sf_fdc">接口设计 </a></div></li><li class="section-item"><div class="section-title"><a href="#mpp_player_interface_design__section_pkd_jsf_fdc" data-tocid="mpp_player_interface_design__section_pkd_jsf_fdc">APP Demo</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

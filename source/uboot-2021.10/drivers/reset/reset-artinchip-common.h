@@ -17,6 +17,7 @@ struct artinchip_reset {
 
 struct artinchip_reset_priv {
 	void *base;
+	void *cz_base;
 	u16  count;
 	u16  max_id;
 	struct artinchip_reset *rests;

@@ -1,0 +1,446 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="源代码位于： drivers/pwm/pwm-artinchip.c drivers/pwm/epwm-artinchip.c EPWM 驱动设计与 PWM 驱动相同，本节仅以 PWM 驱动为例，详细描述 PWM 的设计思路。 模块架构 Linux 提供了一个 PWM 子系统，使得在用户空间可以通过 sysfs 节点来控制 Backlight 背光。 整个软件框架如下图： 图 1 . Linux ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/pwm/pwm_user_guide.html"/><meta name="DC.relation" content="../../../topics/sdk/pwm/pwm_test.html"/><meta name="DC.relation" content="../../../topics/sdk/pwm/pwm_faq.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="pwm_design_intro"/><meta name="DC.language" content="zh-CN"/><title>设计说明</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="pwm_design_intro-d4445e6794"/><meta name="wh-source-relpath" content="topics/sdk/pwm/pwm_design.dita"/><meta name="wh-out-relpath" content="topics/sdk/pwm/pwm_design.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="pwm_design_intro" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="concept_nww_hzh_pzb"><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html">PWM 使用指南</a></div></div></li><li class="active"><div class="topicref" data-id="pwm_design_intro"><div class="title"><a href="../../../topics/sdk/pwm/pwm_design.html">设计说明</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/pwm/pwm_test.html" title="测试指南" aria-label="上一主题: 测试指南" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/pwm/pwm_faq.html" title="常见问题" aria-label="下一主题: 常见问题" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="false"><div data-tocid="can-d4445e5964" class="topicref" data-id="can" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action can-d4445e5964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/can/can_user_guide.html" id="can-d4445e5964-link">CAN 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="cir-d4445e6020" class="topicref" data-id="cir" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action cir-d4445e6020-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/cir/cir_user_guide.html" id="cir-d4445e6020-link">CIR 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="gpai-user-guide-d4445e6146" class="topicref" data-id="gpai-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action gpai-user-guide-d4445e6146-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/gpai/gpai_user_guide.html" id="gpai-user-guide-d4445e6146-link">GPAI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="i2c_user_guide-d4445e6288" class="topicref" data-id="i2c_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action i2c_user_guide-d4445e6288-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/i2c/i2c_user_guide.html" id="i2c_user_guide-d4445e6288-link">I2C 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e6400" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e6400-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/mac/mac_user_guide.html" id="id-d4445e6400-link">MAC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pbus_user_guide-d4445e6514" class="topicref" data-id="pbus_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pbus_user_guide-d4445e6514-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pbus/pbus-user-guide.html" id="pbus_user_guide-d4445e6514-link">PBUS 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="pinctrl_user_guide-d4445e6598" class="topicref" data-id="pinctrl_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action pinctrl_user_guide-d4445e6598-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pinctrl/pinctrl-user-guide.html" id="pinctrl_user_guide-d4445e6598-link">PINCTRL 使用指南</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e6738" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e6738-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_user_guide.html" id="id-d4445e6738-link">PWM 使用指南</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="pwm_configuration-d4445e6752" class="topicref" data-id="pwm_configuration" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_config.html" id="pwm_configuration-d4445e6752-link">PWM 配置</a></div></div></li><li role="treeitem"><div data-tocid="pwm_debug_guide-d4445e6766" class="topicref" data-id="pwm_debug_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_debug.html" id="pwm_debug_guide-d4445e6766-link">调试指南</a></div></div></li><li role="treeitem"><div data-tocid="pwm_test_guide-d4445e6780" class="topicref" data-id="pwm_test_guide" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_test.html" id="pwm_test_guide-d4445e6780-link">测试指南</a></div></div></li><li role="treeitem" class="active"><div data-tocid="pwm_design_intro-d4445e6794" class="topicref" data-id="pwm_design_intro" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_design.html" id="pwm_design_intro-d4445e6794-link">设计说明</a></div></div></li><li role="treeitem"><div data-tocid="id-d4445e6808" class="topicref" data-id="id" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/pwm/pwm_faq.html" id="id-d4445e6808-link">常见问题</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="rtp-user-guide-d4445e6822" class="topicref" data-id="rtp-user-guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action rtp-user-guide-d4445e6822-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/rtp/rtp_user_guide.html" id="rtp-user-guide-d4445e6822-link">RTP 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spi-d4445e6962" class="topicref" data-id="spi" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spi-d4445e6962-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/spi/spi_user_guide.html" id="spi-d4445e6962-link">SPI 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e7075" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e7075-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/psadc/psadc_user_guide.html" id="id-d4445e7075-link">PSADC 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="uart_user_guide-d4445e7215" class="topicref" data-id="uart_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action uart_user_guide-d4445e7215-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/uart/uart_user_guide.html" id="uart_user_guide-d4445e7215-link">UART 使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="usb_user_guide-d4445e7299" class="topicref" data-id="usb_user_guide" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action usb_user_guide-d4445e7299-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/usb/usb_user_guide.html" id="usb_user_guide-d4445e7299-link">USB 使用指南</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-7 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/pwm/pwm_design.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">设计说明</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 5 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d188308e33__20250123155220">源代码位于：</p>
+        <ul class="- topic/ul ul" id="pwm_design_intro__ul_qyx_nks_21c" data-ofbid="pwm_design_intro__ul_qyx_nks_21c">
+            <li class="- topic/li li" data-ofbid="d188308e38__20250123155220">
+                <p class="- topic/p p" data-ofbid="d188308e40__20250123155220"><span class="+ topic/ph sw-d/filepath ph filepath">drivers/pwm/pwm-artinchip.c</span></p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d188308e45__20250123155220">
+                <p class="- topic/p p" data-ofbid="d188308e47__20250123155220"><span class="+ topic/ph sw-d/filepath ph filepath">drivers/pwm/epwm-artinchip.c</span></p>
+            </li>
+        </ul>
+        <p class="- topic/p p" data-ofbid="d188308e53__20250123155220">EPWM 驱动设计与 PWM 驱动相同，本节仅以 PWM 驱动为例，详细描述 PWM 的设计思路。</p>
+        <section class="- topic/section section" id="pwm_design_intro__section_ryx_nks_21c" data-ofbid="pwm_design_intro__section_ryx_nks_21c"><h2 class="- topic/title title sectiontitle">模块架构</h2>
+            
+            <p class="- topic/p p" data-ofbid="d188308e61__20250123155220">Linux 提供了一个 PWM 子系统，使得在用户空间可以通过 sysfs 节点来控制 Backlight 背光。 整个软件框架如下图：</p>
+            <figure class="- topic/fig fig fignone" id="pwm_design_intro__fig_inh_qks_21c" data-ofbid="pwm_design_intro__fig_inh_qks_21c">
+                
+                <br/><div class="imagecenter"><img class="- topic/image image imagecenter" id="pwm_design_intro__image_syx_nks_21c" src="../../../images/pwm/sw_system18.png" width="480" alt="sw_system18"/></div><br/>
+            <figcaption data-caption-side="bottom" class="- topic/title title figcapcenter"><span class="figtitleprefix fig--title-label">图<span class="fig--title-label-number"> 1</span><span class="fig--title-label-punctuation">. </span></span><span class="fig--title">Linux PWM 子系统和 Backlight 子系统的软件关系</span></figcaption></figure>
+            <p class="- topic/p p" data-ofbid="d188308e76__20250123155220">上图可以看到 PWM 子系统中有两个概念：</p>
+            <ol class="- topic/ol ol" id="pwm_design_intro__ol_tyx_nks_21c" data-ofbid="pwm_design_intro__ol_tyx_nks_21c">
+                <li class="- topic/li li" data-ofbid="d188308e81__20250123155220">PWM Chip<p class="- topic/p p" data-ofbid="d188308e83__20250123155220">和硬件的 PWM 控制器一一对应，内核中维护了一个 chip 的链表。</p></li>
+                <li class="- topic/li li" data-ofbid="d188308e86__20250123155220">PWM Device<p class="- topic/p p" data-ofbid="d188308e88__20250123155220">和硬件的多路 PWM 通道一一对应，一个 chip 可以包含多个 device。</p></li>
+            </ol>
+        </section>
+        <section class="- topic/section section" id="pwm_design_intro__section_os4_f14_4dc" data-ofbid="pwm_design_intro__section_os4_f14_4dc"><h2 class="- topic/title title sectiontitle">关键流程设计</h2>
+            
+            <div class="- topic/p p" data-ofbid="d188308e98__20250123155220">
+                <ul class="- topic/ul ul" id="pwm_design_intro__ul_kc4_sks_21c" data-ofbid="pwm_design_intro__ul_kc4_sks_21c">
+                    <li class="- topic/li li" data-ofbid="d188308e102__20250123155220">初始化流程<p class="- topic/p p" data-ofbid="d188308e104__20250123155220">PWM 驱动的初始化过程见 aic_pwm_probe()函数，除了普通 platform 设备的处理过程（申请 regs
+                            资源、clk、reset）外，需要调用 PWM 子系统的接口 pwmchip_add()来注册一个 PWM
+                            控制器。</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_txf_xks_21c" data-ofbid="pwm_design_intro__codeblock_txf_xks_21c"><code><strong class="hl-keyword">int</strong> pwmchip_add(<strong class="hl-keyword">struct</strong> pwm_chip *chip);</code></pre><p class="- topic/p p" data-ofbid="d188308e108__20250123155220">其中参数
+                            chip 中关键信息有：通道数目、PWM 控制器的 ops 等，aic_pwm_ops
+                        定义如下：</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_zmd_xks_21c" data-ofbid="pwm_design_intro__codeblock_zmd_xks_21c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> <strong class="hl-keyword">struct</strong> pwm_ops aic_pwm_ops = {
+    .free = aic_pwm_free,
+    .get_state = aic_pwm_get_state,
+    .config = aic_pwm_config,
+    .set_polarity = aic_pwm_set_polarity,
+    .enable = aic_pwm_enable,
+    .disable = aic_pwm_disable,
+    .owner = THIS_MODULE,
+};</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d188308e113__20250123155220">背光设备的初始化流程<p class="- topic/p p" data-ofbid="d188308e115__20250123155220">在 <a xml:lang="zh-CN" lang="zh-CN" class="- topic/xref xref" href="pwm_config.html#pwm_configuration__section_hqy_23s_21c">内核配置</a> 中，打开了
+                            “Generic PWM based Backlight Driver” 选项对应的白光设备，驱动代码详见
+                                <span class="+ topic/ph sw-d/filepath ph filepath">drivers/video/backlight/pwm_bl.c</span>。其中
+                                <span class="+ topic/keyword pr-d/apiname keyword apiname">probe()</span> 函数中会调用
+                            <span class="+ topic/keyword pr-d/apiname keyword apiname">devm_pwm_get()</span>来获取对应的 pwm
+                        设备。</p><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_wgb_xks_21c" data-ofbid="pwm_design_intro__codeblock_wgb_xks_21c"><code>pwm_bl.c, pwm_backlight_probe()
+    -&gt; pwm/core.c, devm_pwm_get()
+        -&gt; aic_pwm_get_state()
+    -&gt; pwm/core.c, pwm_apply_state()
+        -&gt; aic_pwm_config()
+        -&gt; aic_pwm_set_polarity()</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d188308e133__20250123155220">中断处理流程<p class="- topic/p p" data-ofbid="d188308e135__20250123155220">PWM 的中断处理函数暂时为空，还不确定有哪些异常需要处理。</p></li>
+                </ul>
+            </div>
+        </section>
+        <section class="- topic/section section" id="pwm_design_intro__section_cpp_h14_4dc" data-ofbid="pwm_design_intro__section_cpp_h14_4dc"><h2 class="- topic/title title sectiontitle">数据结构设计</h2>
+            
+            <div class="- topic/p p" data-ofbid="d188308e147__20250123155220">
+                <ul class="- topic/ul ul" id="pwm_design_intro__ul_hwg_vks_21c" data-ofbid="pwm_design_intro__ul_hwg_vks_21c">
+                    <li class="- topic/li li" data-ofbid="d188308e151__20250123155220">struct aic_pwm_arg：记录每一个 PWM
+                        通道的配置信息<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_qfw_wks_21c" data-ofbid="pwm_design_intro__codeblock_qfw_wks_21c"><code><strong class="hl-keyword">struct</strong> aic_pwm_arg {
+    bool available;
+    <strong class="hl-keyword">enum</strong> aic_pwm_mode mode;
+    u32 tb_clk_rate;
+    u32 freq;
+    u32 db_red; <em class="hl-comment">/* Rising edge delay count of Dead-band */</em>
+    u32 db_fed; <em class="hl-comment">/* Failing edge delay count of Dead-band */</em>
+    <strong class="hl-keyword">struct</strong> aic_pwm_action action0;
+    <strong class="hl-keyword">struct</strong> aic_pwm_action action1;
+    u32 period;
+    bool def_level;
+    <strong class="hl-keyword">enum</strong> pwm_polarity polarity;
+};</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d188308e156__20250123155220">struct
+                        aic_pwm_chip<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_ffz_fls_21c" data-ofbid="pwm_design_intro__codeblock_ffz_fls_21c"><code><strong class="hl-keyword">struct</strong> aic_pwm_chip {
+    <strong class="hl-keyword">struct</strong> pwm_chip chip;
+    <strong class="hl-keyword">struct</strong> attribute_group attrs;
+    <strong class="hl-keyword">struct</strong> aic_pwm_arg args[AIC_PWM_CH_NUM];
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">long</strong> pll_rate;
+    <strong class="hl-keyword">unsigned</strong> <strong class="hl-keyword">long</strong> clk_rate;
+    <strong class="hl-keyword">void</strong> __iomem *regs;
+    <strong class="hl-keyword">struct</strong> clk *clk;
+    <strong class="hl-keyword">struct</strong> reset_control *rst;
+    u32 irq;
+};</code></pre></li>
+                    <li class="- topic/li li" data-ofbid="d188308e161__20250123155220">struct aic_pwm_action：属于 HAL 层接口，记录一组 Action
+                        的配置信息<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="pwm_design_intro__codeblock_dns_d2p_g1c" data-ofbid="pwm_design_intro__codeblock_dns_d2p_g1c"><code><strong class="hl-keyword">struct</strong> aic_pwm_action {
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type CBD;
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type CBU;
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type CAD;
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type CAU;
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type PRD;
+    <strong class="hl-keyword">enum</strong> aic_pwm_action_type ZRO;
+};</code></pre></li>
+                </ul>
+            </div>
+        </section>
+        <section class="- topic/section section" id="pwm_design_intro__section_bh1_314_4dc" data-ofbid="pwm_design_intro__section_bh1_314_4dc"><h2 class="- topic/title title sectiontitle">接口设计</h2>
+            
+            <p class="- topic/p p" data-ofbid="d188308e174__20250123155220">以下接口是 Linux PWM 子系统需要的标准接口。</p>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_gzx_nks_21c" data-ofbid="pwm_design_intro__table_gzx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 1</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_enable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_gzx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_gzx_nks_21c__entry__2">static int aic_pwm_enable(struct pwm_chip *chip, struct
+                                pwm_device *pwm)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__2">使能一个 pwm 通道（device）</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_gzx_nks_21c__entry__2">0，成功。 &lt; 0，失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_gzx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_gzx_nks_21c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_hzx_nks_21c" data-ofbid="pwm_design_intro__table_hzx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 2</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_disable</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_hzx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_hzx_nks_21c__entry__2">static void aic_pwm_disable(struct pwm_chip *chip, struct
+                                pwm_device *pwm)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__2">关闭一个 pwm 通道（device）</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_hzx_nks_21c__entry__2">-</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_hzx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_hzx_nks_21c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_izx_nks_21c" data-ofbid="pwm_design_intro__table_izx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 3</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_free</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_izx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_izx_nks_21c__entry__2">static void aic_pwm_free(struct pwm_chip *chip, struct pwm_device
+                                *pwm)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__2">释放一个 pwm 通道（device），实际上是设置其 period 为 0（无效）</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_izx_nks_21c__entry__2">无</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_izx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_izx_nks_21c__entry__2">需要先调用 aic_pwm_disable()，再调用此接口</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_jzx_nks_21c" data-ofbid="pwm_design_intro__table_jzx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 4</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_get_state</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_jzx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_jzx_nks_21c__entry__2">static void aic_pwm_get_state(struct pwm_chip *chip, struct
+                                pwm_device *pwm,struct pwm_state *state)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__2">获取当前 PWM 控制器的配置信息。当使能 logo 功能时，U-Boot 中已经初始化过 PWM，所以 Linux 中需要从
+                                PWM 控制器中同步一下当前状态</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针 state - 指向 state
+                                的指针，用于返回当前 PWM 的状态信息</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_jzx_nks_21c__entry__2">无</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_jzx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_jzx_nks_21c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_kzx_nks_21c" data-ofbid="pwm_design_intro__table_kzx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 5</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_config</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_kzx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_kzx_nks_21c__entry__2">static int aic_pwm_config(struct pwm_chip *chip, struct
+                                pwm_device *pwm,int duty_ns, int period_ns)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__2">配置一个 pwm 通道（device）的占空比</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针 duty_ns - 一个 PWM 周期内的负载时长
+                                period_ns - 一个 PWM 周期</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_kzx_nks_21c__entry__2">0，成功。&lt; 0，失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_kzx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_kzx_nks_21c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+            <div class="table-container"><table class="- topic/table table frame-all" id="pwm_design_intro__table_lzx_nks_21c" data-ofbid="pwm_design_intro__table_lzx_nks_21c" data-cols="2"><caption class="- topic/title title tablecap" data-caption-side="top" data-is-repeated="true"><span class="table--title-label">表<span class="table--title-label-number"> 6</span><span class="table--title-label-punctuation">. </span></span><span class="table--title">aic_pwm_set_polarity</span></caption><colgroup><col style="width:25%"/><col style="width:75%"/></colgroup><thead class="- topic/thead thead">
+                        <tr class="- topic/row">
+                            <th class="- topic/entry entry colsep-1 rowsep-1" id="pwm_design_intro__table_lzx_nks_21c__entry__1">函数原型</th>
+                            <th class="- topic/entry entry colsep-0 rowsep-1" id="pwm_design_intro__table_lzx_nks_21c__entry__2">static int aic_pwm_set_polarity(struct pwm_chip *chip, struct
+                                pwm_device *pwm,enum pwm_polarity polarity)</th>
+                        </tr>
+                    </thead><tbody class="- topic/tbody tbody">
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__1">功能说明</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__2">配置一个 pwm 通道（device）的极性（是否需要翻转）</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__1">参数定义</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__2">chip - 指向 chip 的指针 pwm - 指向 device 的指针 polarity - 指定的极性</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__1">返回值</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-1" headers="pwm_design_intro__table_lzx_nks_21c__entry__2">0，成功。&lt; 0，失败</td>
+                        </tr>
+                        <tr class="- topic/row">
+                            <td class="- topic/entry entry colsep-1 rowsep-0" headers="pwm_design_intro__table_lzx_nks_21c__entry__1">注意事项</td>
+                            <td class="- topic/entry entry colsep-0 rowsep-0" headers="pwm_design_intro__table_lzx_nks_21c__entry__2">-</td>
+                        </tr>
+                    </tbody></table></div>
+        </section>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#pwm_design_intro__section_ryx_nks_21c" data-tocid="pwm_design_intro__section_ryx_nks_21c">模块架构</a></div></li><li class="section-item"><div class="section-title"><a href="#pwm_design_intro__section_os4_f14_4dc" data-tocid="pwm_design_intro__section_os4_f14_4dc">关键流程设计</a></div></li><li class="section-item"><div class="section-title"><a href="#pwm_design_intro__section_cpp_h14_4dc" data-tocid="pwm_design_intro__section_cpp_h14_4dc">数据结构设计</a></div></li><li class="section-item"><div class="section-title"><a href="#pwm_design_intro__section_bh1_314_4dc" data-tocid="pwm_design_intro__section_bh1_314_4dc">接口设计</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

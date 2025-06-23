@@ -1,0 +1,320 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="U-Boot 的前初始化是指执行代码重定位之前的初始化，此时 U-Boot 在 DRAM 的前端空间执行。 前初始化分为两个阶段： 芯片架构相关的初始化代码 板子相关的前初始化代码 阶段一： 芯片架构相关初始化 这个阶段主要是对 CPU 进行了基本的初始化，并且将上一级引导程序传递过来的参数保存起来。 ArtInChip 平台上实现了对应的 save_boot_params ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-stage.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-stage.html"/><meta name="DC.relation" content="../../../topics/sdk/boot/uboot-code-relocate.html"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.creator" content="yan.wang"/><meta name="DC.date.modified" content="2024-01-15"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="concept_qh4_1l3_pzb"/><meta name="DC.language" content="zh-CN"/><title>前初始化</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../../"/><meta name="wh-toc-id" content="concept_qh4_1l3_pzb-d4445e2425"/><meta name="wh-source-relpath" content="topics/sdk/boot/uboot-pre-init.dita"/><meta name="wh-out-relpath" content="topics/sdk/boot/uboot-pre-init.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="concept_qh4_1l3_pzb" class="wh_topic_page frmBody">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "><ol class="d-print-none"><li><span class="home"><a href="../../../index.html"><span>主页</span></a></span></li><li><div class="topicref" data-id="id"><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div></li><li><div class="topicref" data-id="uBoot"><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div></li><li><div class="topicref" data-id="uBoot_0"><div class="title"><a href="../../../topics/sdk/boot/uboot-stage.html">U-Boot 阶段</a></div></div></li><li class="active"><div class="topicref" data-id="concept_qh4_1l3_pzb"><div class="title"><a href="../../../topics/sdk/boot/uboot-pre-init.html">前初始化</a></div></div></li></ol></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        <div class=" wh_navigation_links "><span id="topic_navigation_links" class="navheader">
+  
+<span class="navprev"><a class="- topic/link link" href="../../../topics/sdk/boot/uboot-stage.html" title="U-Boot 阶段" aria-label="上一主题: U-Boot 阶段" rel="prev"></a></span>  
+<span class="navnext"><a class="- topic/link link" href="../../../topics/sdk/boot/uboot-code-relocate.html" title="代码重定位" aria-label="下一主题: 代码重定位" rel="next"></a></span>  </span></div>
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        <button type="button" id="wh_toc_button" class="custom-toggler navbar-toggler collapsed wh_toggle_button navbar-light" aria-expanded="false" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                        <nav id="wh_publication_toc" class="col-lg-3 col-md-3 col-sm-12 d-md-block d-none d-print-none" aria-label="Table of Contents Container">
+                            <div id="wh_publication_toc_content">
+		                        
+                            	<div class=" wh_publication_toc " data-tooltip-position="right"><span class="expand-button-action-labels"><span id="button-expand-action" role="button" aria-label="Expand"></span><span id="button-collapse-action" role="button" aria-label="Collapse"></span><span id="button-pending-action" role="button" aria-label="Pending"></span></span><ul role="tree" aria-label="Table of Contents"><li role="treeitem"><div data-tocid="revinfo_linux-d4445e1079" class="topicref" data-id="revinfo_linux" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/revinfo/revinfo_linux.html" id="revinfo_linux-d4445e1079-link">修订记录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1096" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1096-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/env/sdk-compile.html" id="id-d4445e1096-link">SDK 编译</a><div class="wh-tooltip"><p class="shortdesc">介绍不同编译环境下 SDK 的详细编译流程。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="tocId-d4445e1240" class="topicref" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action tocId-d4445e1240-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/advanced/lb_usage_commands.html" id="tocId-d4445e1240-link">使用指南</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_rcx_czh_pzb-d4445e1360" class="topicref" data-id="concept_rcx_czh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_rcx_czh_pzb-d4445e1360-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-app.html" id="concept_rcx_czh_pzb-d4445e1360-link">应用场景</a><div class="wh-tooltip"><p class="shortdesc">描述了 SDK 在不同应用场景中的配置和使用，包括系统更新、OTA、安全方案等。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1678" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1678-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/peripheral/peripheral-intro.html" id="id-d4445e1678-link">外设移植</a><div class="wh-tooltip"><p class="shortdesc"><span class="ph">触摸屏、显示器、WIFI 模块、按键</span>等外设的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="id-d4445e1964" class="topicref" data-id="id" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action id-d4445e1964-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/bringup/chapter-bringup.html" id="id-d4445e1964-link">BringUp</a><div class="wh-tooltip"><p class="shortdesc">在硬件上电后快速初始化系统，为操作系统的启动准备好必要的硬件环境。</p></div></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="id-d4445e2153" class="topicref" data-id="id" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action id-d4445e2153-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/chapter-advanced-app.html" id="id-d4445e2153-link">高级应用</a><div class="wh-tooltip"><p class="shortdesc">系统、存储、多媒体、接口、安全等模块的详细配置和设计说明。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" aria-expanded="true"><div data-tocid="uBoot-d4445e2170" class="topicref" data-id="uBoot" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action uBoot-d4445e2170-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-module.html" id="uBoot-d4445e2170-link">U-Boot</a><div class="wh-tooltip"><p class="shortdesc">启动支持的基本功能以及运行时的基本硬件环境。</p></div></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem"><div data-tocid="_65-d4445e2187" class="topicref" data-id="_65" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-hardware-env.html" id="_65-d4445e2187-link">硬件运行环境</a></div></div></li><li role="treeitem"><div data-tocid="_1601-d4445e2201" class="topicref" data-id="_1601" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-parameter.html" id="_1601-d4445e2201-link">启动参数</a></div></div></li><li role="treeitem"><div data-tocid="_1601_0-d4445e2215" class="topicref" data-id="_1601_0" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/boot-memory.html" id="_1601_0-d4445e2215-link">内存相关</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_lbx_3n3_pzb-d4445e2229" class="topicref" data-id="concept_lbx_3n3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_lbx_3n3_pzb-d4445e2229-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/environment-variables.html" id="concept_lbx_3n3_pzb-d4445e2229-link">环境变量</a></div></div></li><li role="treeitem"><div data-tocid="dts-d4445e2271" class="topicref" data-id="dts" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-dts.html" id="dts-d4445e2271-link">DTS</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="spl-d4445e2285" class="topicref" data-id="spl" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action spl-d4445e2285-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/spl-program-stage.html" id="spl-d4445e2285-link">SPL 阶段</a></div></div></li><li role="treeitem" aria-expanded="true"><div data-tocid="uBoot_0-d4445e2411" class="topicref" data-id="uBoot_0" data-state="expanded"><span role="button" tabindex="0" aria-labelledby="button-collapse-action uBoot_0-d4445e2411-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-stage.html" id="uBoot_0-d4445e2411-link">U-Boot 阶段</a></div></div><ul role="group" class="navbar-nav nav-list"><li role="treeitem" class="active"><div data-tocid="concept_qh4_1l3_pzb-d4445e2425" class="topicref" data-id="concept_qh4_1l3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-pre-init.html" id="concept_qh4_1l3_pzb-d4445e2425-link">前初始化</a></div></div></li><li role="treeitem"><div data-tocid="concept_e2z_gl3_pzb-d4445e2439" class="topicref" data-id="concept_e2z_gl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-code-relocate.html" id="concept_e2z_gl3_pzb-d4445e2439-link">代码重定位</a></div></div></li><li role="treeitem"><div data-tocid="concept_p55_hl3_pzb-d4445e2453" class="topicref" data-id="concept_p55_hl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-post-init.html" id="concept_p55_hl3_pzb-d4445e2453-link">后初始化</a></div></div></li><li role="treeitem"><div data-tocid="concept_tyf_bm3_pzb-d4445e2467" class="topicref" data-id="concept_tyf_bm3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-load-env-variables.html" id="concept_tyf_bm3_pzb-d4445e2467-link">环境变量加载</a></div></div></li><li role="treeitem"><div data-tocid="concept_xsr_1m3_pzb-d4445e2481" class="topicref" data-id="concept_xsr_1m3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-cmd-stage.html" id="concept_xsr_1m3_pzb-d4445e2481-link">命令行阶段</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_q5s_jn3_pzb-d4445e2495" class="topicref" data-id="concept_q5s_jn3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_q5s_jn3_pzb-d4445e2495-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-driver-support.html" id="concept_q5s_jn3_pzb-d4445e2495-link">驱动支持</a></div></div></li><li role="treeitem"><div data-tocid="concept_l2d_xk3_pzb-d4445e2607" class="topicref" data-id="concept_l2d_xk3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-partition-config.html" id="concept_l2d_xk3_pzb-d4445e2607-link">配置启动分区</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_afz_xk3_pzb-d4445e2621" class="topicref" data-id="concept_afz_xk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_afz_xk3_pzb-d4445e2621-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-core.html" id="concept_afz_xk3_pzb-d4445e2621-link">启动内核</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_uzy_yk3_pzb-d4445e2692" class="topicref" data-id="concept_uzy_yk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_uzy_yk3_pzb-d4445e2692-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/bundle-images.html" id="concept_uzy_yk3_pzb-d4445e2692-link">打包镜像</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_yfv_1l3_pzb-d4445e2832" class="topicref" data-id="concept_yfv_1l3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_yfv_1l3_pzb-d4445e2832-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/uboot-chapter-image-burn.html" id="concept_yfv_1l3_pzb-d4445e2832-link">镜像烧录</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="userid-d4445e2888" class="topicref" data-id="userid" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action userid-d4445e2888-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/userid-burn.html" id="userid-d4445e2888-link">UserID 烧录</a></div></div></li><li role="treeitem"><div data-tocid="concept_azt_bl3_pzb-d4445e2944" class="topicref" data-id="concept_azt_bl3_pzb" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/logo-display.html" id="concept_azt_bl3_pzb-d4445e2944-link">图像显示</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="_1601_1-d4445e2958" class="topicref" data-id="_1601_1" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action _1601_1-d4445e2958-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/debug-configuration.html" id="_1601_1-d4445e2958-link">调试配置</a></div></div></li><li role="treeitem"><div data-tocid="opensbi-d4445e3000" class="topicref" data-id="opensbi" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/opensbi.html" id="opensbi-d4445e3000-link">OpenSBI</a></div></div></li><li role="treeitem"><div data-tocid="pbp-d4445e3014" class="topicref" data-id="pbp" data-state="leaf"><span role="button" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/boot/pre-boot-program.html" id="pbp-d4445e3014-link">Pre-Boot Program (PBP)</a></div></div></li></ul></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mtx_tk3_pzb-d4445e3028" class="topicref" data-id="concept_mtx_tk3_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mtx_tk3_pzb-d4445e3028-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/sdk/linux/chapter_linux.html" id="concept_mtx_tk3_pzb-d4445e3028-link">Linux</a></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-system-d4445e3198" class="topicref" data-id="chapter-system" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-system-d4445e3198-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-system.html" id="chapter-system-d4445e3198-link">系统</a><div class="wh-tooltip"><p class="shortdesc"></p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-memory-d4445e4054" class="topicref" data-id="chapter-memory" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-memory-d4445e4054-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-memory-sdk.html" id="chapter-memory-d4445e4054-link">存储</a><div class="wh-tooltip"><p class="shortdesc">SDMC、SPI NAND、SPI NOR 等存储模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_mcc_32s_nbc-d4445e4438" class="topicref" data-id="concept_mcc_32s_nbc" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_mcc_32s_nbc-d4445e4438-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-multi-media-sdk.html" id="concept_mcc_32s_nbc-d4445e4438-link">多媒体</a><div class="wh-tooltip"><p class="shortdesc">GE、VE、Display、DVP、MPP、MPP 播放器等多媒体模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="concept_nww_hzh_pzb-d4445e5947" class="topicref" data-id="concept_nww_hzh_pzb" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action concept_nww_hzh_pzb-d4445e5947-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-interface-sdk.html" id="concept_nww_hzh_pzb-d4445e5947-link">接口</a><div class="wh-tooltip"><p class="shortdesc">CAN、CIR、GPAI、GPIO、I2C、PSADC、PWM         等接口模块的介绍和使用说明。</p></div></div></div></li><li role="treeitem" aria-expanded="false"><div data-tocid="chapter-safety-d4445e7944" class="topicref" data-id="chapter-safety" data-state="not-ready"><span role="button" tabindex="0" aria-labelledby="button-expand-action chapter-safety-d4445e7944-link" class="wh-expand-btn"></span><div class="title"><a href="../../../topics/chapter-title/chapter-safety-sdk.html" id="chapter-safety-d4445e7944-link">安全</a><div class="wh-tooltip"><p class="shortdesc">SPI ENC、CE、eFuse 等安全模块的介绍和使用说明。</p></div></div></div></li></ul></li></ul></div>
+		                        
+                            </div>
+                        </nav>
+                    
+                    
+                    <div class="col-lg-9 col-md-9 col-sm-12" id="wh_topic_body">
+                        <button id="wh_close_publication_toc_button" class="close-toc-button d-none" aria-label="Toggle publishing table of content" aria-controls="wh_publication_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+    <span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/sdk/boot/uboot-pre-init.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">前初始化</h1>
+    
+    <div class="date inPage">15 Jan 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+    <div class="- topic/body concept/conbody body conbody">
+        <p class="- topic/p p" data-ofbid="d57747e33__20250123155202">U-Boot 的前初始化是指执行代码重定位之前的初始化，此时 U-Boot 在 DRAM 的前端空间执行。</p>
+        <p class="- topic/p p" data-ofbid="d57747e36__20250123155202">前初始化分为两个阶段：</p>
+        <ol class="- topic/ol ol" id="concept_qh4_1l3_pzb__ol_y1p_sbh_bzb" data-ofbid="concept_qh4_1l3_pzb__ol_y1p_sbh_bzb">
+            <li class="- topic/li li" data-ofbid="d57747e41__20250123155202">
+                <p class="- topic/p p" data-ofbid="d57747e43__20250123155202">芯片架构相关的初始化代码</p>
+            </li>
+            <li class="- topic/li li" data-ofbid="d57747e47__20250123155202">
+                <p class="- topic/p p" data-ofbid="d57747e49__20250123155202">板子相关的前初始化代码</p>
+            </li>
+        </ol>
+        <p class="- topic/p p" data-ofbid="d57747e54__20250123155202"><strong class="+ topic/ph hi-d/b ph b">阶段一：</strong> 芯片架构相关初始化</p>
+        <div class="- topic/p p" data-ofbid="d57747e59__20250123155202">这个阶段主要是对 CPU 进行了基本的初始化，并且将上一级引导程序传递过来的参数保存起来。 ArtInChip 平台上实现了对应的
+                <span class="+ topic/keyword pr-d/apiname keyword apiname">save_boot_params</span> 处理函数，并且将调用现场的关键寄存器信息保存到
+            <span class="+ topic/keyword pr-d/apiname keyword apiname">boot_params_stash</span>
+            全局变量中。<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="concept_qh4_1l3_pzb__codeblock_cqh_2mr_c1c" data-ofbid="concept_qh4_1l3_pzb__codeblock_cqh_2mr_c1c"><code>_start <em class="hl-comment">// arch/riscv/cpu/start.S</em>
+|-&gt; save_boot_params <em class="hl-comment">// arch/riscv/mach-artinchip/lowlevel_init.S</em>
+|   <em class="hl-comment">// BROM 或者 SPL 跳转到 U-Boot 执行的时候，传递了一些参数，这里首先将这</em>
+|   <em class="hl-comment">// 些参数保存起来。</em>
+|
+|-&gt; la  t0, trap_entry <em class="hl-comment">// 设置异常处理</em>
+|-&gt; li  t1, CONFIG_SYS_INIT_SP_ADDR <em class="hl-comment">// 设置初始栈</em>
+|-&gt; jal     board_init_f_alloc_reserve
+|-&gt; jal harts_early_init</code></pre></div>
+        <p class="- topic/p p" data-ofbid="d57747e71__20250123155202">后续的程序在需要了解当前的启动介质时，可以从中读取相关的信息。</p>
+        <div class="- topic/p p" data-ofbid="d57747e74__20250123155202"><strong class="+ topic/ph hi-d/b ph b">阶段二：</strong>
+            板子相关的前初始化<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="concept_qh4_1l3_pzb__codeblock_ttw_fmr_c1c" data-ofbid="concept_qh4_1l3_pzb__codeblock_ttw_fmr_c1c"><code>_start <em class="hl-comment">// arch/riscv/cpu/start.S</em>
+|-&gt; save_boot_params <em class="hl-comment">// arch/riscv/mach-artinchip/lowlevel_init.S</em>
+|-&gt; ...
+|-&gt; la  t5, board_init_f</code></pre></div>
+        <div class="- topic/p p" data-ofbid="d57747e81__20250123155202"><span class="+ topic/keyword pr-d/apiname keyword apiname">board_init_f()</span> 函数内逐个调用初始化函数列表 <span class="+ topic/keyword pr-d/apiname keyword apiname">init_sequence_f</span>
+            中的函数：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="concept_qh4_1l3_pzb__codeblock_zmq_gmr_c1c" data-ofbid="concept_qh4_1l3_pzb__codeblock_zmq_gmr_c1c"><code><strong class="hl-keyword">static</strong> <strong class="hl-keyword">const</strong> init_fnc_t init_sequence_f[] = {
+    setup_mon_len,
+#ifdef CONFIG_OF_CONTROL
+    fdtdec_setup,
+#endif
+    initf_malloc,
+    log_init,
+    initf_bootstage,        <em class="hl-comment">/* uses its own timer, so does not need DM */</em>
+    setup_spl_handoff,
+    initf_console_record,
+    arch_cpu_init,          <em class="hl-comment">/* basic arch cpu dependent setup */</em>
+    mach_cpu_init,          <em class="hl-comment">/* SoC/machine dependent CPU setup */</em>
+    initf_dm,
+    arch_cpu_init_dm,
+#<strong class="hl-keyword">if</strong> defined(CONFIG_BOARD_EARLY_INIT_F)
+    board_early_init_f,
+#endif
+    env_init,               <em class="hl-comment">/* initialize environment */</em>
+    init_baud_rate,         <em class="hl-comment">/* initialze baudrate settings */</em>
+    serial_init,            <em class="hl-comment">/* serial communications setup */</em>
+    console_init_f,         <em class="hl-comment">/* stage 1 init of console */</em>
+    display_options,        <em class="hl-comment">/* say that we are here */</em>
+    display_text_info,      <em class="hl-comment">/* show debugging info if required */</em>
+    INIT_FUNC_WATCHDOG_INIT
+#<strong class="hl-keyword">if</strong> defined(CONFIG_MISC_INIT_F)
+    misc_init_f,
+#endif
+    INIT_FUNC_WATCHDOG_RESET
+#<strong class="hl-keyword">if</strong> defined(CONFIG_SYS_I2C)
+    init_func_i2c,
+#endif
+    announce_dram_init,
+    dram_init,              <em class="hl-comment">/* configure available RAM banks */</em>
+    setup_dest_addr,
+    reserve_round_<span class="hl-number">4</span>k,
+#ifdef CONFIG_ARM
+    reserve_mmu,
+#endif
+    reserve_video,
+    reserve_trace,
+    reserve_uboot,
+    reserve_malloc,
+    reserve_board,
+    setup_machine,
+    reserve_global_data,
+    reserve_fdt,
+    reserve_bootstage,
+    reserve_bloblist,
+    reserve_arch,
+    reserve_stacks,
+    dram_init_banksize,
+    show_dram_config,
+    display_new_sp,
+#ifdef CONFIG_OF_BOARD_FIXUP
+    fix_fdt,
+#endif
+    INIT_FUNC_WATCHDOG_RESET
+    reloc_fdt,
+    reloc_bootstage,
+    reloc_bloblist,
+    setup_reloc,
+    NULL,
+};</code></pre></div>
+        <p class="- topic/p p" data-ofbid="d57747e91__20250123155202">由于 DRAM 在 PBP 阶段已经初始化，这里的 <span class="+ topic/keyword pr-d/apiname keyword apiname">dram_init</span> 只是初始化 DRAM 驱动， 用于获取 DRAM 基本信息。</p>
+        <div class="- topic/p p" data-ofbid="d57747e97__20250123155202">DTS 相关的流程可参考 <span class="+ topic/keyword pr-d/apiname keyword apiname">fdtdec_setup</span> 和 <span class="+ topic/keyword pr-d/apiname keyword apiname">initf_dm</span>
+            ：<pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="concept_qh4_1l3_pzb__codeblock_f1d_dmr_c1c" data-ofbid="concept_qh4_1l3_pzb__codeblock_f1d_dmr_c1c"><code>fdtdec_setup(); <em class="hl-comment">// lib/fdtdec.c</em>
+|-&gt; gd-&gt;fdt_blob = board_fdt_blob_setup(); <em class="hl-comment">// lib/fdtdec.c</em>
+|   <em class="hl-comment">// 对于 U-Boot, DTB 的位置是 _end 开始的位置，此处加载 dtb</em>
+|-&gt; fdtdec_prepare_fdt();
+    |-&gt; fdt_check_header(gd-&gt;fdt_blob);</code></pre><pre class="+ topic/pre pr-d/codeblock pre codeblock language-c" id="concept_qh4_1l3_pzb__codeblock_zhq_hmr_c1c" data-ofbid="concept_qh4_1l3_pzb__codeblock_zhq_hmr_c1c"><code>initf_dm(); <em class="hl-comment">// common/board_f.c</em>
+|-&gt; dm_init_and_scan(true); <em class="hl-comment">// drivers/core/root.c</em>
+     |-&gt; dm_init(IS_ENABLED(CONFIG_OF_LIVE)); <em class="hl-comment">// drivers/core/root.c</em>
+     |-&gt; dm_scan_platdata(pre_reloc_only=true);
+     |-&gt; dm_extended_scan_fdt(gd-&gt;fdt_blob, pre_reloc_only=true);
+     |   |-&gt; dm_scan_fdt(blob, pre_reloc_only);
+     |   |   |-&gt; dm_scan_fdt_node(gd-&gt;dm_root, blob, <span class="hl-number">0</span>, true);
+     |   |       |-&gt; lists_bind_fdt(parent, offset_to_ofnode(offset), NULL,true);
+     |   |           |   <em class="hl-comment">// drivers/core/lists.c</em>
+     |   |           |   <em class="hl-comment">// 此阶段仅处理设置了 "u-boot,dm-pre-reloc" 的并且</em>
+     |   |           |   <em class="hl-comment">// 对应驱动也是设置了 DM_FLAG_PRE_RELOC 的设备和驱动的绑定</em>
+     |   |           |
+     |   |           |-&gt; device_bind_with_driver_data(parent, entry, name,id-&gt;data,
+     |   |               |                            node, &amp;dev);
+     |   |               |-&gt; device_bind_common(...)
+     |   |                   |   <em class="hl-comment">// dev = calloc(1, sizeof(struct udevice));</em>
+     |   |                   |   <em class="hl-comment">//</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;platdata = platdata;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;driver_data = driver_data;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;name = name;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;node = node;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;parent = parent;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;driver = drv;</em>
+     |   |                   |   <em class="hl-comment">// dev-&gt;uclass = uc;</em>
+     |   |                   |   <em class="hl-comment">// 创建 udevice，并将 driver 挂上</em>
+     |   |                   |
+     |   |                   |-&gt; uclass_bind_device(dev);
+     |   |-&gt; dm_scan_fdt_ofnode_path(<span class="hl-string">"/clocks"</span>, pre_reloc_only);
+     |   |-&gt; dm_scan_fdt_ofnode_path(<span class="hl-string">"/firmware"</span>, pre_reloc_only);
+     |-&gt; dm_scan_other(pre_reloc_only);</code></pre></div>
+        <p class="- topic/p p" data-ofbid="d57747e110__20250123155202">此阶段并没有对 DTS 中列出的所有设备和驱动进行初始化处理，仅对标记了 “u-boot,dm-pre-reloc” 的设备， 以及驱动中标记了
+            DM_FLAG_PRE_RELOC 的驱动进行处理，以缩短这个阶段的处理时间。</p>
+        <div class="- topic/note note note note_note" id="concept_qh4_1l3_pzb__note_izk_5bh_bzb" data-ofbid="concept_qh4_1l3_pzb__note_izk_5bh_bzb"><span class="note__title">注：</span> <div class="note__body">
+            <p class="- topic/p p" data-ofbid="d57747e116__20250123155202">initf_dm 和 initr_dm 都会搜索一遍 DTB，花费的时间比较多，如果这里能够节省搜索的数量， 对于快速启动会有比较大的帮助。</p>
+        </div></div>
+    </div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

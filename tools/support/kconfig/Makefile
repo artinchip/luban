@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0
+# SPDX-License-Identifier: Apache-2.0
 # ===========================================================================
 # Kernel configuration targets
 # These targets are used from top-level makefile

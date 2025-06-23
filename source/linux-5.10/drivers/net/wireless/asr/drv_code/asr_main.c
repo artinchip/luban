@@ -59,7 +59,10 @@ static struct completion device_release;
 #ifdef ASR_REDUCE_TCP_ACK
 #include <net/tcp.h>
 #endif
-
+#ifdef CONFIG_ASR_PM
+#include "asr_pm.h"
+#endif
+#include "asr_main.h"
 #define RW_DRV_DESCRIPTION  "ASR 11bgn driver for Linux cfg80211"
 #define RW_DRV_COPYRIGHT    "Copyright(c) ASR"
 #define RW_DRV_AUTHOR       "ASR Microelectronics Co.,Ltd."
@@ -70,7 +73,8 @@ bool mrole_enable = 0;
 bool p2p_debug=0;
 int tx_status_debug = 0;
 int tx_debug = 2;
-bool asr_xmit_opt = 0;
+bool asr_xmit_opt = true;
+bool asr_sdio_rw_sg = false;
 bool tx_wait_agger = 0;
 bool txlogen = 0;
 bool rxlogen = 0;
@@ -104,7 +108,8 @@ int downloadfw = 1;
 int downloadATE = 0;
 int driver_mode = DRIVER_MODE_NORMAL;
 bool sdio1thread = false;
-//const uint8_t g_fw_macaddr_default[] = {0x22,0x33,0x99,0x88,0x77,0x55};
+bool sdio_restart = true;
+
 
 static char *mac_param = NULL;
 
@@ -667,11 +672,16 @@ static void asr_csa_finish(struct work_struct *ws)
 #ifdef CFG_SNIFFER_SUPPORT
 extern int asr_sniffer_handle_cb_register(monitor_cb_t fn);
 
+int amsdu_rx_cnt ;
+int mgt_rx_cnt ;
 void lega_test_monitor_rx_cb(u8 * data, int len)
 {
 	/* defined for debug */
-	if (*data == 0x40)
-		printk("monitor_rx_cb:[0x%x 0x%x], data_len:%d \n", *data, *(data + 1), len);
+	if (*data == 0x40 && ((mgt_rx_cnt ++) % 20 == 1)) {
+	    printk("monitor_rx_cb:[0x%x 0x%x], data_len:%d \n", *data, *(data + 1), len);
+        } else if (len > 2000 && ((amsdu_rx_cnt ++) % 20 == 1)) {
+	    printk("monitor_rx_cb:[0x%x 0x%x], data_len:%d \n", *data, *(data + 1), len);
+        }
 }
 #endif
 /*********************************************************************
@@ -699,7 +709,9 @@ static int asr_open(struct net_device *dev)
 #ifdef CFG_SNIFFER_SUPPORT
 	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_MONITOR) {
 		asr_sniffer_handle_cb_register(lega_test_monitor_rx_cb);
-		asr_hw->ipc_env->cb.recv_data_ind = asr_rxdataind_sniffer;
+
+		// reuse asr_rxdataind
+		//asr_hw->ipc_env->cb.recv_data_ind = asr_rxdataind_sniffer;
 	}
 #endif
 
@@ -742,6 +754,13 @@ static int asr_open(struct net_device *dev)
 	memset(asr_vif->bssid, 0xff, ETH_ALEN);
 	spin_unlock_bh(&asr_hw->cb_lock);
 
+#ifdef CONFIG_ASR_NAPI
+    if (asr_vif->napi_state == NAPI_DISABLE) {
+        napi_enable(&asr_vif->napi);
+        asr_vif->napi_state = NAPI_ENABLE;
+    }
+
+#endif
 	netif_carrier_off(dev);
 
 #ifdef CONFIG_ASR_SDIO
@@ -968,11 +987,7 @@ static int asr_close(struct net_device *dev)
             #ifndef SDIO_DEAGGR
 			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
 			// Add the sk buffer structure in the table of rx buffer
-			#ifndef SDIO_RXBUF_SPLIT
-			skb_queue_tail(&asr_hw->rx_sk_list, skb);
-			#else
 			skb_queue_tail(&asr_hw->rx_data_sk_list, skb);
-			#endif
             #else
 			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
 			// Add the sk buffer structure in the table of rx buffer
@@ -984,16 +999,29 @@ static int asr_close(struct net_device *dev)
 
 		}
 
-        #ifdef CFG_OOO_UPLOAD
+#ifdef CONFIG_ASR_SDIO
+#ifdef SDIO_DEAGGR
+		//clear rx_sdio_sg_list be empty when close
+		while (!skb_queue_empty(&asr_hw->rx_sdio_sg_list)) {
+			skb = skb_dequeue(&asr_hw->rx_sdio_sg_list);
+
+			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+			// Add the sk buffer structure in the table of rx buffer
+			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+		}
+#endif
+#endif
+
+		#ifdef CFG_OOO_UPLOAD
 		while (!skb_queue_empty(&asr_hw->rx_pending_skb_list)) {
 			skb = skb_dequeue(&asr_hw->rx_pending_skb_list);
 
-            #ifdef CONFIG_ASR_USB
+			#ifdef CONFIG_ASR_USB
 			dev_kfree_skb(skb);
 			#else
 			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
 			// Add the sk buffer structure in the table of rx buffer
-			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);	
+			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
 			#endif
 		}
 		#endif
@@ -1004,11 +1032,7 @@ static int asr_close(struct net_device *dev)
 
 			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz);
 			// Add the sk buffer structure in the table of rx buffer
-			#ifndef SDIO_RXBUF_SPLIT
-			skb_queue_tail(&asr_hw->rx_sk_list, skb);
-			#else
 			skb_queue_tail(&asr_hw->rx_msg_sk_list, skb);
-			#endif
 		}
 	}
 
@@ -1019,7 +1043,7 @@ static int asr_close(struct net_device *dev)
 		}
 	}
 
-#ifdef CFG_SNIFFER_SUPPORT
+#if 0//def CFG_SNIFFER_SUPPORT
 	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_MONITOR) {
 		asr_hw->ipc_env->cb.recv_data_ind = asr_rxdataind;
 	}
@@ -1183,79 +1207,96 @@ int asr_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 10, 0)
 #define CONFIG_ASR_PROC
-#define CONFIG_FW_TXAGG_PROC
+#define CONFIG_HOST_DBG_PROC
 #endif
 
 #ifdef CONFIG_ASR_PROC
 #define DRV_PROCNAME    "asr"
 static struct proc_dir_entry *libasr_proc = NULL;
 
-#ifdef CONFIG_FW_TXAGG_PROC
-// proc tx_aggr_disable
-unsigned int libasr_fwtxagg_disable = 0;
-EXPORT_SYMBOL_GPL(libasr_fwtxagg_disable);
-static int fwtxagg_disable_proc_show(struct seq_file *m, void *v)
+#ifdef CONFIG_HOST_DBG_PROC
+// proc host dbg cmd
+unsigned int libasr_host_dbg_cmd = 0;
+EXPORT_SYMBOL_GPL(libasr_host_dbg_cmd);
+static int host_dbg_cmd_proc_show(struct seq_file *m, void *v)
 {
-	seq_printf(m, "%d\n", libasr_fwtxagg_disable);
+	seq_printf(m, "send host cmd-%d to driver \n", libasr_host_dbg_cmd);
 	return 0;
 }
 
-static int fwtxagg_disable_proc_open(struct inode *inode, struct file *file)
+static int host_dbg_cmd_proc_open(struct inode *inode, struct file *file)
 {
-	return single_open(file, fwtxagg_disable_proc_show, NULL);
+	return single_open(file, host_dbg_cmd_proc_show, NULL);
 }
 
-static ssize_t fwtxagg_disable_proc_write(struct file *file, const char __user * buffer, size_t count, loff_t * pos)
+static ssize_t host_dbg_cmd_proc_write(struct file *file, const char __user * buffer, size_t count, loff_t * pos)
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
 	struct asr_hw *asr_hw = (struct asr_hw *)proc_get_parent_data(locks_inode(file));
 #else
 	struct asr_hw *asr_hw = (struct asr_hw *)PDE_DATA(file_inode(file));
 #endif
-	unsigned int fwtxagg_disable_old = libasr_fwtxagg_disable;
+	unsigned int host_dbg_cmd_old = libasr_host_dbg_cmd;
 
 	char buf[32] = { 0 };
 	size_t len = min(sizeof(buf) - 1, count);
-	unsigned int val;
+	unsigned int val1,val2,val3;
+
+        val1 = val2 = val3 = 0;
 
 	if (copy_from_user(buf, buffer, len))
 		return count;
 	buf[len] = 0;
 
-	if (sscanf(buf, "%d", &val) != 1)
-		printk("fwtxagg proc: %s is not in hex or decimal form.\n", buf);
-	else
-		libasr_fwtxagg_disable = val ? 1 : 0;
+	if (sscanf(buf, "%d:%d:%d", &val1,&val2,&val3) == 3 || sscanf(buf, "%d", &val1) == 1)
+		libasr_host_dbg_cmd = val1 ;
+	else {
+		printk("host dbg cmd proc: %s is not in hex or decimal form.\n", buf);
+		return 0;
+        }
 
 	// send msg to fw.
-	printk(" disable_proc_write (%d %d ,0x%x)\n", fwtxagg_disable_old,
-	       libasr_fwtxagg_disable, (unsigned int)(uintptr_t) asr_hw);
+	printk(" host_dbg_cmd_proc_write (%d %d ,%d:%d,0x%x)\n", host_dbg_cmd_old,
+	       libasr_host_dbg_cmd,val2,val3,(unsigned int)(uintptr_t) asr_hw);
 
-	if ((fwtxagg_disable_old != libasr_fwtxagg_disable) && asr_hw)
-		asr_send_me_tx_agg_disable(asr_hw, libasr_fwtxagg_disable);
+	if (asr_hw && libasr_host_dbg_cmd < 255)
+		asr_send_me_host_dbg_cmd(asr_hw, libasr_host_dbg_cmd, val2, val3);
+    else if (asr_hw && libasr_host_dbg_cmd == 255) {
+		#ifdef CONFIG_ASR_SDIO
+            // manual trigger sdio tx thread.
+	    dev_info(asr_hw->dev, "%s: tx pending cnt=%u, (0x%x , 0x%x , %d)n", __func__,
+                 asr_xmit_opt ? skb_queue_len(&asr_hw->tx_sk_list) : asr_hw->tx_agg_env.aggr_buf_cnt ,
+				 asr_hw->sdio_ireg,asr_hw->tx_use_bitmap,asr_hw->tx_data_cur_idx);
+
+	    set_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag);
+	    wake_up_interruptible(&asr_hw->waitq_main_task_thead);
+		#endif
+    } else {
+	    printk(" host_dbg_cmd_proc_write (%d)not support\n",libasr_host_dbg_cmd);
+    }
 
 	return strnlen(buf, len);
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
-static const struct proc_ops fwtxagg_disable_proc_fops = {
-	.proc_open = fwtxagg_disable_proc_open,
+static const struct proc_ops host_dbg_cmd_proc_fops = {
+	.proc_open = host_dbg_cmd_proc_open,
 	.proc_read = seq_read,
 	.proc_lseek = seq_lseek,
 	.proc_release = single_release,
-	.proc_write = fwtxagg_disable_proc_write,
+	.proc_write = host_dbg_cmd_proc_write,
 };
 #else
-static const struct file_operations fwtxagg_disable_proc_fops = {
+static const struct file_operations host_dbg_cmd_proc_fops = {
 	.owner = THIS_MODULE,
-	.open = fwtxagg_disable_proc_open,
+	.open = host_dbg_cmd_proc_open,
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.release = single_release,
-	.write = fwtxagg_disable_proc_write,
+	.write = host_dbg_cmd_proc_write,
 };
 #endif
-#endif /* CONFIG_FW_TXAGG_PROC */
+#endif /* CONFIG_HOST_DBG_PROC */
 
 #ifdef CONFIG_TWT
 // proc twt
@@ -1358,7 +1399,10 @@ static void asr_netdev_setup(struct net_device *dev)
 	dev->watchdog_timeo = ASR_TX_LIFETIME_MS;
 
 	dev->needed_headroom = sizeof(struct asr_txhdr) + ASR_SWTXHDR_ALIGN_SZ;
-	dev_info(g_asr_para.dev, "%s maxheadroom %d\n", __func__, dev->needed_headroom);
+        #ifdef CONFIG_ASR_SDIO
+	dev->needed_tailroom = SDIO_BLOCK_SIZE;
+        #endif
+	dev_info(g_asr_para.dev, "%s maxheadroom %d, tailroom len=%d \n", __func__, dev->needed_headroom,dev->needed_tailroom);
 
 	dev->hw_features = 0;
 }
@@ -1453,6 +1497,14 @@ static struct wireless_dev *asr_interface_add(struct asr_hw *asr_hw,
 	} else
 		vif->use_4addr = false;
 
+#ifdef CONFIG_ASR_NAPI
+    netif_napi_add(ndev, &vif->napi, asr_recv_napi_poll, ASR_NAPI_WEIGHT);
+    vif->napi_state = NAPI_DISABLE;
+    skb_queue_head_init(&vif->rx_napi_skb_list);
+	hrtimer_init(&vif->rx_napi_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	vif->rx_napi_hrtimer.function = rx_napi_hrtimer_handler;
+#endif
+
 	if (register_netdevice(ndev))
 		goto err;
 
@@ -1464,6 +1516,9 @@ static struct wireless_dev *asr_interface_add(struct asr_hw *asr_hw,
 	return &vif->wdev;
 
 err:
+#ifdef CONFIG_ASR_NAPI
+    netif_napi_del(&vif->napi);
+#endif
 	free_netdev(ndev);
 	return NULL;
 }
@@ -1909,29 +1964,30 @@ static int asr_cfg80211_set_power_mgmt(struct wiphy *wiphy, struct net_device *d
 {
 
 	struct asr_hw *asr_hw = wiphy_priv(wiphy);
-#ifdef CONFIG_ASR595X
+	int ret = -1;
+
 	struct asr_vif *asr_vif = netdev_priv(dev);
-#endif
+
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
-#ifdef CONFIG_ASR595X
+
 	if (asr_vif != NULL && ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION
 		&& (!enabled || (test_bit(ASR_DEV_STA_CONNECTED, &asr_vif->dev_flags)
-		&& test_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags) ) ) ) {
+		&& test_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags)
+		&& !test_bit(ASR_DEV_SCANING, &asr_vif->dev_flags)) ) ) {
 
-		dev_info(asr_hw->dev, "set power mgmt(%d)\n", enabled);
+		dev_info(asr_hw->dev, "set power mgmt(%d) dev_flags=0x%X\n", enabled,(unsigned int)asr_vif->dev_flags);
 
 		/* Forward the information to the LMAC */
-		return (asr_send_set_ps_mode(asr_hw, enabled));
+		ret = asr_send_set_ps_mode(asr_hw, enabled);
+		if(!ret)
+			asr_hw->usr_cmd_ps = enabled;
+		return ret;
 	} else {
-		dev_err(asr_hw->dev, "set power mgmt(%d) fail, dev_flags=0x%lX\n", enabled, asr_vif->dev_flags);
+		dev_err(asr_hw->dev, "set power mgmt(%d) fail, dev_flags=0x%X\n", enabled, (unsigned int)asr_vif->dev_flags);
 		return -EBUSY;
 	}
-#else
-	dev_err(asr_hw->dev, "power save not supported !\n");
-	return 0;
-#endif
 
 }
 
@@ -2067,9 +2123,9 @@ static int asr_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev, str
 		key_params.seq_len = 0;
 		key_params.cipher = sme->crypto.cipher_group;
 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
-		asr_cfg80211_add_key(wiphy, dev, 0, req->key_idx, false, NULL, &key_params);
+		asr_cfg80211_add_key(wiphy, dev, 0, sme->key_idx, false, NULL, &key_params);
 		#else
-		asr_cfg80211_add_key(wiphy, dev, req->key_idx, false, NULL, &key_params);
+		asr_cfg80211_add_key(wiphy, dev, sme->key_idx, false, NULL, &key_params);
 		#endif
 	}
 
@@ -2113,6 +2169,9 @@ int asr_cfg80211_deauth(struct wiphy *wiphy, struct net_device *dev, struct cfg8
 
 	if (test_bit(ASR_DEV_STA_CONNECTED, &asr_vif->dev_flags)
 	    || test_bit(ASR_DEV_STA_CONNECTING, &asr_vif->dev_flags)) {
+
+		if(ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION && asr_hw->ps_on && asr_hw->usr_cmd_ps)
+			asr_send_set_ps_mode(asr_hw, false);
 
 		return (asr_send_sm_disconnect_req(asr_hw, asr_vif, reason_code));
 	}
@@ -2189,13 +2248,13 @@ static int asr_cfg80211_add_station(struct wiphy *wiphy,
 	/* Forward the information to the LMAC */
 	if ((error = asr_send_me_sta_add(asr_hw, params, mac, asr_vif->vif_index, &me_sta_add_cfm))) {
 		dev_info(asr_hw->dev,
-			"ASR: %s,add sta fail..., error=%d,ch_index=%d,vif_index=%d.\n",
-			__func__, error, asr_vif->ch_index, asr_vif->vif_index);
+			"ASR: %s,add sta fail..., error=%d,ch_index=%d,aid=%u,vif_index=%d.\n",
+			__func__, error, asr_vif->ch_index, params->aid, asr_vif->vif_index);
 		return error;
 	} else {
 		dev_info(asr_hw->dev,
-			"ASR: %s,status=%d,sta_idx=%d,ch_index=%d,vif_index=%d.\n",
-			__func__, me_sta_add_cfm.status, me_sta_add_cfm.sta_idx, asr_vif->ch_index, asr_vif->vif_index);
+			"ASR: %s,status=%d,sta_idx=%d,ch_index=%d,aid=%u,vif_index=%d.\n",
+			__func__, me_sta_add_cfm.status, me_sta_add_cfm.sta_idx, asr_vif->ch_index, params->aid, asr_vif->vif_index);
 	}
 
 	// Check the status
@@ -2329,9 +2388,10 @@ static int asr_cfg80211_del_station(struct wiphy *wiphy, struct net_device *dev,
 	return 0;
 }
 
+#ifdef ASR_WIFI_CONFIG_SUPPORT
 static void asr_set_cca_config(struct asr_hw *asr_hw)
 {
-#ifdef ASR_WIFI_CONFIG_SUPPORT
+
 	struct mm_set_get_cca_req cca_req;
 	struct mm_set_get_cca_cfm cca_cfm;
 
@@ -2349,8 +2409,26 @@ static void asr_set_cca_config(struct asr_hw *asr_hw)
 
 		asr_send_set_cca(asr_hw, &cca_cfm, &cca_req);
 	}
-#endif
 }
+
+static void asr_set_edca_config(struct asr_hw *asr_hw, struct asr_vif *asr_vif)
+{
+	//set cca
+	if (g_wifi_config.edca_bk) {
+		asr_send_set_edca(asr_hw, ASR_HWQ_BK, g_wifi_config.edca_bk, false, asr_vif->vif_index);
+	}
+	if (g_wifi_config.edca_be) {
+		asr_send_set_edca(asr_hw, ASR_HWQ_BE, g_wifi_config.edca_be, false, asr_vif->vif_index);
+	}
+	if (g_wifi_config.edca_vi) {
+		asr_send_set_edca(asr_hw, ASR_HWQ_VI, g_wifi_config.edca_vi, false, asr_vif->vif_index);
+	}
+	if (g_wifi_config.edca_vo) {
+		asr_send_set_edca(asr_hw, ASR_HWQ_VO, g_wifi_config.edca_vo, false, asr_vif->vif_index);
+	}
+
+}
+#endif
 
 /**
  * @change_station: Modify a given station. Note that flags changes are not much
@@ -2371,7 +2449,8 @@ static int asr_cfg80211_change_station(struct wiphy *wiphy,
 	struct asr_vif *asr_vif = netdev_priv(dev);
 	struct asr_sta *sta;
 	uint32_t timeout_ms = 0;
-	dev_err(asr_hw->dev, "%s: dev_flags=%08X mask=%08X\n",__func__,(u32)asr_vif->dev_flags,(u32)params->sta_flags_mask);
+	if (asr_vif != NULL && params != NULL)
+		dev_err(asr_hw->dev, "%s: dev_flags=%08X mask=%08X\n",__func__,(u32)asr_vif->dev_flags,(u32)params->sta_flags_mask);
 	for (timeout_ms = 0; timeout_ms < 100; timeout_ms++) {
 		if (asr_vif != NULL
 		    && ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION
@@ -2384,7 +2463,8 @@ static int asr_cfg80211_change_station(struct wiphy *wiphy,
 		}
 	}
 	if (timeout_ms >= 100) {
-		dev_err(asr_hw->dev, "%s: cannot set in disconnected timeout_ms=%d,dev_flags=%08X\n",
+		if (asr_vif)
+			dev_err(asr_hw->dev, "%s: cannot set in disconnected timeout_ms=%d,dev_flags=%08X\n",
 			__func__, timeout_ms, (unsigned int)asr_vif->dev_flags);
 		return -EBUSY;
 	}
@@ -2402,15 +2482,21 @@ static int asr_cfg80211_change_station(struct wiphy *wiphy,
 			__func__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], timeout_ms);
 		return -EINVAL;
 	}
-	dev_info(asr_hw->dev, "%s: %d,0x%X(%02X:%02X:%02X:%02X:%02X:%02X)timeout_ms=%d,sta_idx=%d\n",
+	if (params)
+		dev_info(asr_hw->dev, "%s: %d,0x%X(%02X:%02X:%02X:%02X:%02X:%02X)timeout_ms=%d,sta_idx=%d\n",
 		 __func__, (params->sta_flags_set & BIT(NL80211_STA_FLAG_AUTHORIZED)) != 0,
 		 params->sta_flags_mask, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], timeout_ms, sta->sta_idx);
 
-	if (params->sta_flags_mask & BIT(NL80211_STA_FLAG_AUTHORIZED))
+	if (params && params->sta_flags_mask & BIT(NL80211_STA_FLAG_AUTHORIZED))
 		asr_send_me_set_control_port_req(asr_hw, (params->sta_flags_set & BIT(NL80211_STA_FLAG_AUTHORIZED))
 						 != 0, sta->sta_idx);
-
+#ifdef ASR_WIFI_CONFIG_SUPPORT
 	asr_set_cca_config(asr_hw);
+
+	if (ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_STATION) {
+		asr_set_edca_config(asr_hw, asr_vif);
+	}
+#endif
 
 	return 0;
 }
@@ -2706,19 +2792,19 @@ static int asr_cfg80211_set_bitrate(struct wiphy *wiphy,struct net_device *dev,
 	u8 mcsrate_2G = 0xff;
 	u32 legacy = 0xfff;
 	u32 ratemask = 0xfffff;
-	u8 mcs, ht_format, short_gi, nss, mcs_index, bg_rate,bw;
+	u8 mcs, ht_format, short_gi, nss, mcs_index,legacy_index, bg_rate,bw;
 	struct asr_sta *sta = NULL;
 	int ret = -1;
         u8 gi_2G = 0;
 
-        u16 he_mcsrate_2G = 0xffff;
+        u16 he_mcsrate_2G = 0x3ff;
 	u8 he_gi_2G = 0;
 	u8 he_ltf_2G = 0;
 	u8 he_format = 0;
 
 	ASR_DBG(ASR_FN_ENTRY_STR);
 
-	mcs = ht_format = short_gi = nss = bw = bg_rate = mcs_index = 0;
+	mcs = ht_format = short_gi = nss = bw = bg_rate = mcs_index = legacy_index = 0;
 	/*
 
 	   set fix rate cmd: iw dev wlan0 set bitrates [legacy-2.4 <legacy rate in Mbps>] [ht-mcs-2.4 <MCS index>]
@@ -2733,6 +2819,7 @@ static int asr_cfg80211_set_bitrate(struct wiphy *wiphy,struct net_device *dev,
 #else
 	legacy = mask->control[IEEE80211_BAND_2GHZ].legacy;
 #endif
+
 	ratemask = legacy;
 
 	/* copy mcs rate mask , mcs[nss-1],for nss=1, use mcs[0]*/
@@ -2747,9 +2834,11 @@ static int asr_cfg80211_set_bitrate(struct wiphy *wiphy,struct net_device *dev,
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 1)
         gi_2G = mask->control[NL80211_BAND_2GHZ].gi;
+        #ifdef CONFIG_ASR595X
         he_mcsrate_2G = mask->control[NL80211_BAND_2GHZ].he_mcs[0];
         he_gi_2G  = mask->control[NL80211_BAND_2GHZ].he_gi;
         he_ltf_2G = mask->control[NL80211_BAND_2GHZ].he_ltf;
+        #endif
 #endif
 
 	//set fix rate configuration (modulation,pre_type, short_gi, bw, nss, mcs)
@@ -2770,7 +2859,7 @@ static int asr_cfg80211_set_bitrate(struct wiphy *wiphy,struct net_device *dev,
 	   nss(4~3)   mcs(2~0)
 	 */
 
-	if (ratemask == 0xfffff && (he_mcsrate_2G == 0xffff))
+	if (ratemask == 0xfffff && (he_mcsrate_2G == 0x3ff))
 		rate_cfg = RC_FIXED_RATE_NOT_SET;
 	else {
 
@@ -2779,12 +2868,25 @@ static int asr_cfg80211_set_bitrate(struct wiphy *wiphy,struct net_device *dev,
 		    && (legacy != 0xfff)
 #endif
 		    ) {	
-			if (he_mcsrate_2G == 0xffff)
+			if (he_mcsrate_2G == 0x3ff)
 			{
 				// bg fixed rate set.
-				bg_rate = ratemask & 0xfff;
+				//bg_rate = ratemask & 0xfff;
+                                bg_rate = 0;
+				while (legacy_index < 12) {
+					if (legacy & BIT(legacy_index))
+						bg_rate = legacy_index;
+
+					legacy_index++;
+				}
+
+
 				ht_format = 0;
-				rate_cfg = ((ht_format & 0x7) << 11) | ((short_gi & 0x1) << 9) | (bg_rate & 0x7f);
+                                if (short_gi)
+				    rate_cfg = ((ht_format & 0x7) << 11) | (bg_rate & 0x7f);
+                                else
+				    rate_cfg = ((ht_format & 0x7) << 11) | (0x1 << 10) | (bg_rate & 0x7f);
+
 			} else {
 
 				he_format = 5;   //HE fixed rate config.
@@ -3524,9 +3626,11 @@ static int asr_fill_rate(int format, int mcs, int bw, int sgi, struct rate_info 
     {
         rate->mcs = mcs;
         rate->flags |= RATE_INFO_FLAGS_MCS;
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
         rate->bw = RATE_INFO_BW_20;
         if (bw)
             rate->bw = RATE_INFO_BW_40;
+	#endif
         if (sgi)
             rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
     }
@@ -3707,9 +3811,27 @@ static struct cfg80211_ops asr_cfg80211_ops = {
 static void asr_wdev_unregister(struct asr_hw *asr_hw)
 {
 	struct asr_vif *asr_vif, *tmp;
-
+#ifdef CONFIG_ASR_NAPI
+	struct sk_buff *skb;
+#endif
 	rtnl_lock();
 	list_for_each_entry_safe(asr_vif, tmp, &asr_hw->vifs, list) {
+#ifdef CONFIG_ASR_NAPI
+        if (asr_vif->napi_state == NAPI_ENABLE) {
+            napi_disable(&asr_vif->napi);
+            asr_vif->napi_state = NAPI_DISABLE;
+        }
+        hrtimer_cancel(&asr_vif->rx_napi_hrtimer);
+
+        if (skb_queue_len(&asr_vif->rx_napi_skb_list))
+            dev_err(asr_hw->dev, "rx_napi_skb_list not empty\n");
+        while ((skb = skb_dequeue(&asr_vif->rx_napi_skb_list)) != NULL)
+            dev_kfree_skb(skb);
+
+        netif_napi_del(&asr_vif->napi);
+
+#endif
+
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(3, 10, 0))
 		asr_cfg80211_del_iface(asr_hw->wiphy, &asr_vif->wdev);
 #else
@@ -3837,9 +3959,7 @@ void asr_get_mac(struct asr_hw *asr_hw, u8 * buf)
 				buf[0] = 0xAA;
 				buf[1] = 0x00;
 				buf[2] = 0xCD;
-				buf[3] = 0xEF;	//(u8)((asr_get_random_int_c()>>16)&0xff);
-				buf[4] = (u8) ((asr_get_random_int_c() >> 8) & 0xff);
-				buf[5] = (u8) ((asr_get_random_int_c() >> 0) & 0xff);
+				get_random_bytes(&buf[3], 3);
 			}
 		}
 	}
@@ -3997,7 +4117,8 @@ void ate_at_cmd_work_func(struct work_struct *work)
 		(asr_hw->mod_params->ate_at_cmd[0]=='r'&&
 		asr_hw->mod_params->ate_at_cmd[1]=='s'&&
 		asr_hw->mod_params->ate_at_cmd[2]=='p'&&
-		asr_hw->mod_params->ate_at_cmd[3]==':') ){
+		asr_hw->mod_params->ate_at_cmd[3]==':')
+		){
 		return;
 	}
 	//pr_info("%s \n",__func__);
@@ -4103,12 +4224,17 @@ long tx_evt_hrtimer_times;
 enum hrtimer_restart tx_evt_hrtimer_handler(struct hrtimer *timer)
 {
 	struct asr_hw *asr_hw = container_of(timer, struct asr_hw, tx_evt_hrtimer);
+	uint32_t tx_skb_pending_cnt = asr_xmit_opt ? skb_queue_len(&asr_hw->tx_sk_list) : asr_hw->tx_agg_env.aggr_buf_cnt;
+
 	tx_evt_hrtimer_times++;
 
-	//if (!asr_main_process_running(asr_hw))
+	if (tx_skb_pending_cnt)
 	{
+		asr_hw->restart_flag = true;
 		set_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag);
 		wake_up_interruptible(&asr_hw->waitq_main_task_thead);
+
+		hrtimer_start(&asr_hw->tx_evt_hrtimer, ktime_set(0, tx_hr_timer * 1000), HRTIMER_MODE_REL);
 	}
 	return HRTIMER_NORESTART;
 }
@@ -4160,7 +4286,7 @@ extern long full_to_trigger;
 
 extern int isr_write_clear_cnt;
 extern int ipc_read_rx_bm_fail_cnt;
-extern int ipc_read_tx_bm_fail_case2_cnt;
+extern int ipc_read_tx_bm_fail_case2_cnt,ipc_read_tx_bm_fail_case0_cnt;
 extern int ipc_read_tx_bm_fail_case3_cnt;
 extern int ipc_isr_skip_main_task_cnt;
 extern int more_task_update_bm_cnt;
@@ -4176,6 +4302,8 @@ extern u32 rxdesc_del_cnt;
 extern int asr_rxdataind_run_cnt;
 extern int asr_rxdataind_fn_cnt;
 extern u32 min_deaggr_free_cnt;
+extern u32 min_deaggr_amsdu_free_cnt;
+extern int rx_amsdu_skb_cnt;
 
 // oob related.
 extern long asr_oob_irq_times;
@@ -4189,6 +4317,9 @@ extern u32 g_cfg_vif_drv_txcnt;
 
 extern int asr_tra_rxdata_cnt;
 extern int asr_cfg_rxdata_cnt;
+
+extern u32 asr_total_rx_sk_deaggrbuf_cnt;
+extern u32 asr_wait_rx_sk_deaggrbuf_cnt;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 void tx_status_timer_handler(struct timer_list *tl)
@@ -4208,7 +4339,8 @@ void tx_status_timer_handler(unsigned long data)
 	int rx_skb_to_os_cnt;
 	#ifdef CFG_OOO_UPLOAD
     int rx_skb_total_cnt;
-	int rx_deaggr_skb_free_cnt;
+	int rx_deaggr_skb_free_cnt = 0;
+	int rx_deaggr_amsdu_skb_free_cnt = 0;
 	#endif
     struct asr_vif *asr_tra_vif = NULL;
 	struct asr_vif *asr_cfg_vif = NULL ;
@@ -4249,7 +4381,7 @@ void tx_status_timer_handler(unsigned long data)
         }
 
     // mrole tx debug
-    if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+    if (asr_hw->vif_index < asr_hw->vif_max_num) {
            asr_tra_vif      = asr_hw->vif_table[asr_hw->vif_index];
 		   if (asr_tra_vif) {
                tra_txring_bytes = asr_tra_vif->txring_bytes;
@@ -4257,7 +4389,7 @@ void tx_status_timer_handler(unsigned long data)
 		   }
 	}
 
-    if (asr_hw->ext_vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num){
+    if (asr_hw->ext_vif_index < asr_hw->vif_max_num){
            asr_cfg_vif     = asr_hw->vif_table[asr_hw->ext_vif_index];
 		   if (asr_cfg_vif) {
 		       cfg_txring_bytes  = asr_cfg_vif->txring_bytes;
@@ -4272,17 +4404,13 @@ void tx_status_timer_handler(unsigned long data)
     g_cfg_vif_drv_txcnt = g_tra_vif_drv_txcnt = 0;
 
     // rx debug
-    #ifndef SDIO_RXBUF_SPLIT
-	rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_sk_list);
-	#else
 	rx_skb_free_cnt = skb_queue_len(&asr_hw->rx_data_sk_list);
-	#endif
 	rx_skb_to_os_cnt = skb_queue_len(&asr_hw->rx_to_os_skb_list);
 
 	dev_err(asr_hw->dev,
-		"[%s] rx: isr clr fail(%d:%d %d %d %d) (up_bm:%d) (%lu + %d = %d)  (%d) rx_to_os[%d %d] rx aggr (%d %d %d %d %d %d %d %d) to_os(%d %d %d)\r\n",
+		"[%s] rx: isr clr fail(%d:%d %d %d %d %d) (up_bm:%d) (%lu + %d = %d)  (%d) rx_to_os[%d %d] rx aggr (%d %d %d %d %d %d %d %d) to_os(%d %d %d)\r\n",
 		__func__,
-		isr_write_clear_cnt, ipc_read_rx_bm_fail_cnt, ipc_read_tx_bm_fail_case2_cnt,ipc_read_tx_bm_fail_case3_cnt, ipc_isr_skip_main_task_cnt,
+		isr_write_clear_cnt, ipc_read_tx_bm_fail_case0_cnt,ipc_read_rx_bm_fail_cnt, ipc_read_tx_bm_fail_case2_cnt,ipc_read_tx_bm_fail_case3_cnt, ipc_isr_skip_main_task_cnt,
 		more_task_update_bm_cnt,
 		tx_evt_irq_times,main_task_from_thread_cnt, asr_main_task_run_cnt,
 		ipc_write_sdio_data_cnt,
@@ -4307,16 +4435,20 @@ void tx_status_timer_handler(unsigned long data)
 	asr_oob_irq_times = oob_intr_thread_cnt = asr_oob_times = 0;
 	#endif
 
-    #ifdef CFG_OOO_UPLOAD
-    //  rx ooo debug
+	#ifdef CFG_OOO_UPLOAD
+	//  rx ooo debug
 	rx_deaggr_skb_free_cnt = skb_queue_len(&asr_hw->rx_sk_sdio_deaggr_list);
+	#ifdef SDIO_DEAGGR_AMSDU
+	rx_deaggr_amsdu_skb_free_cnt = skb_queue_len(&asr_hw->rx_sk_sdio_deaggr_amsdu_list);
+	#endif
 	rx_skb_total_cnt = pending_data_cnt + direct_fwd_cnt;
 	dev_err(asr_hw->dev,
-	"[%s] ooo rx debug (%d %d %d %d) -> (%d == %d) fn_skb(%d) min_free_deaggr(%d) cur_free_deaggr(%d)\r\n",
+	"[%s] ooo rx debug (%d %d %d %d) -> (%d == %d) fn_skb(%d) min_free_deaggr(%d)(%d) cur_free_deaggr(%d)(%d),(%d),(%d %d)\r\n",
 	__func__,
-    pending_data_cnt,direct_fwd_cnt,rxdesc_refwd_cnt,rxdesc_del_cnt,
+	pending_data_cnt,direct_fwd_cnt,rxdesc_refwd_cnt,rxdesc_del_cnt,
 	asr_rxdataind_run_cnt,rx_skb_total_cnt,
-	asr_rxdataind_fn_cnt,min_deaggr_free_cnt,rx_deaggr_skb_free_cnt);
+	asr_rxdataind_fn_cnt,min_deaggr_free_cnt,min_deaggr_amsdu_free_cnt,rx_deaggr_skb_free_cnt,rx_deaggr_amsdu_skb_free_cnt,rx_amsdu_skb_cnt,
+	asr_wait_rx_sk_deaggrbuf_cnt,asr_total_rx_sk_deaggrbuf_cnt);
 	#endif
 
 	//clear
@@ -4324,19 +4456,23 @@ void tx_status_timer_handler(unsigned long data)
 	tx_full1_cnt = tx_full2_cnt = 0;
 
 	tx_agg_port_num1 = tx_agg_port_num2 = tx_agg_port_num3 =
-	    tx_agg_port_num4 = tx_agg_port_num5 = tx_agg_port_num6 = tx_agg_port_num7 = tx_agg_port_num8 = 0;
+	tx_agg_port_num4 = tx_agg_port_num5 = tx_agg_port_num6 = tx_agg_port_num7 = tx_agg_port_num8 = 0;
 	aggr_buf_cnt_100 = aggr_buf_cnt_80 = aggr_buf_cnt_40 = aggr_buf_cnt_8 = aggr_buf_cnt_less_8 = 0;
 	tx_evt_hrtimer_times = tx_evt_irq_times = tx_evt_xmit_times =
-	    full_to_trigger = tx_task_run_cnt = asr_main_task_run_cnt = 0;
+	full_to_trigger = tx_task_run_cnt = asr_main_task_run_cnt = 0;
 	no_avail_port_cnt = diff_bitmap_no_cnt = diff_bitmap_cnt = 0;
 	ipc_host_irq_times = asr_irq_times = asr_sdio_times =
-	    sdio_isr_uplod_cnt = ipc_read_sdio_reg_cnt =
-	    ipc_write_sdio_data_cnt = ipc_read_sdio_data_cnt = ipc_read_sdio_data_restart_cnt = 0;
+	sdio_isr_uplod_cnt = ipc_read_sdio_reg_cnt =
+	ipc_write_sdio_data_cnt = ipc_read_sdio_data_cnt = ipc_read_sdio_data_restart_cnt = 0;
+
+    #ifdef SDIO_DEAGGR
+        asr_wait_rx_sk_deaggrbuf_cnt = asr_total_rx_sk_deaggrbuf_cnt = 0;
+    #endif
 
 	for (i = 0; i < 16; i++)
 		tx_bitmap_change_cnt[i] = 0;
 
-	isr_write_clear_cnt = ipc_read_rx_bm_fail_cnt =
+	isr_write_clear_cnt = ipc_read_rx_bm_fail_cnt = ipc_read_tx_bm_fail_case0_cnt =
 	    ipc_read_tx_bm_fail_case2_cnt = ipc_read_tx_bm_fail_case3_cnt =
 	    ipc_isr_skip_main_task_cnt = more_task_update_bm_cnt =
 	    main_task_from_thread_cnt = asr_rx_to_os_task_run_cnt = 0;
@@ -4391,9 +4527,9 @@ int main_task_thread(void *data)
 {
 	struct asr_hw *asr_hw = (struct asr_hw *)data;
 	int ret = 0;
+	int state;
 
 	set_user_nice(current, -10);	//lower than to_os_task
-
 
 	while (!kthread_should_stop()) {
 		do {
@@ -4407,18 +4543,49 @@ int main_task_thread(void *data)
 			break;
 		}
 
-		if (test_and_clear_bit(ASR_FLAG_SDIO_INT_BIT, &asr_hw->ulFlag)) {
-			asr_sdio_dataworker(&asr_hw->datawork);
+#ifdef CONFIG_ASR_PM
+		state = asr_pm_acquire(asr_hw->plat, 0);
+#else
+		state = asr_sdio_get_state(asr_hw->plat);
+#endif
+		if (state == SDIO_STATE_ACTIVE) {
+			if (test_and_clear_bit(ASR_FLAG_SDIO_INT_BIT, &asr_hw->ulFlag)) {
+				asr_sdio_dataworker(&asr_hw->datawork);
+			}
+
+			if (test_and_clear_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag)) {
+				main_task_from_thread_cnt++;
+				asr_main_task(asr_hw, SDIO_THREAD);
+			}
+		} else {
+#ifdef CONFIG_ASR_PM
+			if (state != SDIO_STATE_RESUMING)
+#endif
+				asr_err( "sdio state error: %d", state);
 		}
 
-		if (test_and_clear_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag)) {
-			main_task_from_thread_cnt++;
-			asr_main_task(asr_hw, SDIO_THREAD);
-		}
+#ifdef CONFIG_ASR_PM
+		asr_pm_release(asr_hw->plat);
+#endif
 	}
 	dev_err(asr_hw->dev, "main_task_thread exit!\n");
 	return 0;
 }
+
+#ifdef CONFIG_ASR_PM
+void asr_notify_active(struct asr_hw *asr_hw)
+{
+	if (test_bit(ASR_FLAG_SDIO_INT_BIT, &asr_hw->ulFlag)
+		|| test_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag)) {
+		wake_up_interruptible(&asr_hw->waitq_main_task_thead);
+	}
+}
+
+void asr_notify_suspend(struct asr_hw *asr_hw)
+{
+	//todo:
+}
+#endif
 
 #ifdef CONFIG_ASR_SDIO
 #ifdef ASR_MODULE_RESET_SUPPORT
@@ -4531,12 +4698,12 @@ void dev_restart_work_func(struct work_struct *work)
 	dev_err(asr_hw->dev, "%s: [%d,%s]reset wifi,drv_flags=0X%X,reason=%u\n",
 		__func__, current->pid, current->comm, (unsigned int)asr_hw->phy_flags, reason);
 
-	if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+	if (asr_hw->vif_index < asr_hw->vif_max_num) {
 		asr_vif = asr_hw->vif_table[asr_hw->vif_index];
 	}
 
 	if (mrole_enable &&
-		(asr_hw->ext_vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num)) {
+		(asr_hw->ext_vif_index < asr_hw->vif_max_num)) {
 		asr_ext_vif = asr_hw->vif_table[asr_hw->ext_vif_index];
 	}
 
@@ -4807,7 +4974,7 @@ void cmd_crash_work_func(struct work_struct *work)
 		return;
 	}
 
-	if (asr_hw->vif_index < asr_hw->vif_max_num + asr_hw->sta_max_num) {
+	if (asr_hw->vif_index < asr_hw->vif_max_num) {
 		asr_vif = asr_hw->vif_table[asr_hw->vif_index];
 	}
 
@@ -4913,18 +5080,38 @@ void txflow_timer_handler(unsigned long data)
 	}
 #endif
 
-        tx_skb_pending_cnt = asr_xmit_opt ? skb_queue_len(&asr_hw->tx_sk_list) : asr_hw->tx_agg_env.aggr_buf_cnt ;
+    unsigned int diff_hostdesc_ms = 0;
+	struct sk_buff *skb_pending = NULL;
+	struct hostdesc *hostdesc_tmp = NULL;
+
+    if (asr_xmit_opt) {
+        skb_pending = asr_hw->tx_sk_list.next;
+        if (skb_pending) {
+            hostdesc_tmp = (struct hostdesc *)skb_pending->data;
+        }
+        tx_skb_pending_cnt = skb_queue_len(&asr_hw->tx_sk_list);
+    } else {
+        hostdesc_tmp = (struct hostdesc *)(asr_hw->tx_agg_env.cur_aggr_buf_next_addr);
+        tx_skb_pending_cnt = asr_hw->tx_agg_env.aggr_buf_cnt;
+    }
 
 	if (  tx_skb_pending_cnt > 0 && (skip_txflow == false)) {
 
 		diff_ms = jiffies_to_msecs(jiffies - asr_hw->stats.last_tx);
-		if (diff_ms > ASR_TXFLOW_TIMER_OUT) {
+        if (hostdesc_tmp && hostdesc_tmp->timestamp) {
+            diff_hostdesc_ms =jiffies_to_msecs((uint16_t)jiffies - hostdesc_tmp->timestamp);
+        }
+
+		if (diff_ms > ASR_TXFLOW_TIMER_OUT && hostdesc_tmp
+            && ( hostdesc_tmp->staid != asr_hw->sta_max_num || diff_hostdesc_ms > ASR_TXFLOW_TIMER_OUT ) ) {
 
 			asr_hw->restart_flag = true;
-			dev_info(asr_hw->dev, "%s:pending_skb_cnt=%u,last_tx=%lu,diff_ms=%u.\n", __func__,
-				 tx_skb_pending_cnt, asr_hw->stats.last_tx, diff_ms);
-
-			set_bit(ASR_FLAG_MAIN_TASK_BIT, &asr_hw->ulFlag);
+			dev_info(asr_hw->dev, "%s:pending_skb_cnt=%u,last_tx=%lu,diff_ms=%u,staid=%u,timeout=%u.\n", __func__,
+				 tx_skb_pending_cnt, asr_hw->stats.last_tx, diff_ms,hostdesc_tmp?hostdesc_tmp->staid:0,diff_hostdesc_ms);
+			dev_info(asr_hw->dev, "%s:sdio reread,sdio_ireg=0x%X,RD=0x%04X,WD=0x%04X,tx_use_bitmap=0x%04X! \n", __func__,
+			 asr_hw->sdio_ireg, asr_hw->sdio_reg[RD_BITMAP_U] | asr_hw->sdio_reg[RD_BITMAP_U] << 8,
+			 asr_hw->sdio_reg[WR_BITMAP_L] | asr_hw->sdio_reg[WR_BITMAP_U] << 8, asr_hw->tx_use_bitmap);
+			set_bit(ASR_FLAG_SDIO_INT_BIT, &asr_hw->ulFlag);
 			wake_up_interruptible(&asr_hw->waitq_main_task_thead);
 		}
 		//dev_info(asr_hw->dev, "%s:aggr_buf_cnt=%u,last_tx=%lu,diff_ms=%u.\n", __func__,
@@ -4945,7 +5132,16 @@ void txflow_timer_handler(unsigned long data)
  */
 
 extern int asr_txhifbuffs_alloc(struct asr_hw *asr_hw, u32 len, struct sk_buff **skb);
-
+#ifdef CFG_FOR_JICHENG_REGD
+static const struct ieee80211_regdomain asr_world_regdom_custom = {
+	.n_reg_rules = 2,
+	.alpha2 =  "99",
+	.reg_rules = {
+		REG_RULE(2412-10, 2462+10, 40, 0, 20, 0),
+		REG_RULE(2467-10, 2472+10, 40, 0, 20, 0),
+	}
+};
+#endif
 
 int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 {
@@ -4954,7 +5150,7 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 	struct wiphy *wiphy = NULL;
 	struct wireless_dev *wdev = NULL;
 	int i;
-#ifdef CONFIG_FW_TXAGG_PROC
+#ifdef CONFIG_HOST_DBG_PROC
 	struct proc_dir_entry *e = NULL;
 #endif
 	struct wifi_mib *pmib = NULL;
@@ -5036,7 +5232,7 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 	asr_hw->monitor_vif_idx = 0xff;
 #endif
 
-	for (i = 0; i < NX_VIRT_DEV_MAX + NX_REMOTE_STA_MAX; i++)
+	for (i = 0; i < NX_VIRT_DEV_MAX; i++)
 		asr_hw->avail_idx_map |= BIT(i);
 
 	asr_hwq_init(asr_hw);
@@ -5056,6 +5252,16 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 	wiphy->bands[NL80211_BAND_2GHZ] = &asr_band_2GHz;
 #else
 	wiphy->bands[IEEE80211_BAND_2GHZ] = &asr_band_2GHz;
+#endif
+#ifdef CFG_FOR_JICHENG_REGD
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 13, 11)
+	wiphy->flags |= WIPHY_FLAG_CUSTOM_REGULATORY;
+#else
+	wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG;
+#endif
+	wiphy_apply_custom_regulatory(wiphy, &asr_world_regdom_custom);
+	/* give the regulatory workqueue a chance to run */
+	schedule_timeout_interruptible(1);
 #endif
 	wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
 #ifdef CFG_SNIFFER_SUPPORT
@@ -5132,8 +5338,8 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
     #ifdef CONFIG_ASR595X
 
 	// default use new tx and disable txflow bcz new powe-save.
-	asr_xmit_opt = true;
-	skip_txflow = true;
+	//asr_xmit_opt = true;
+	//skip_txflow = true;
 
 	if (asr_hw->mod_params->twt_request)
 	    asr_hw->ext_capa[9] = BIT(5) ; //WLAN_EXT_CAPA10_TWT_REQUESTER_SUPPORT;
@@ -5178,15 +5384,18 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 	spin_lock_init(&asr_hw->cb_lock);
 	spin_lock_init(&asr_hw->tx_agg_env_lock);
 
-    #ifndef SDIO_RXBUF_SPLIT
-	skb_queue_head_init(&asr_hw->rx_sk_list);
-	#else
 	skb_queue_head_init(&asr_hw->rx_data_sk_list);
 	skb_queue_head_init(&asr_hw->rx_msg_sk_list);
-	#endif
+	skb_queue_head_init(&asr_hw->rx_log_sk_list);
 
 	#ifdef SDIO_DEAGGR
 	skb_queue_head_init(&asr_hw->rx_sk_sdio_deaggr_list);
+	skb_queue_head_init(&asr_hw->rx_sdio_sg_list);
+
+    #ifdef SDIO_DEAGGR_AMSDU
+	skb_queue_head_init(&asr_hw->rx_sk_sdio_deaggr_amsdu_list);
+	#endif
+
 	#endif
 
 	skb_queue_head_init(&asr_hw->rx_sk_split_list);
@@ -5388,17 +5597,19 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 		skb_queue_head_init(&asr_hw->tx_hif_free_buf_list);
 		skb_queue_head_init(&asr_hw->tx_hif_skb_list);
 
-        // use hif buf skb list.
-		for (i = 0; i < 2; i++) {
-			// Allocate a new hif tx buff
-			if (asr_txhifbuffs_alloc(asr_hw, IPC_HIF_TXBUF_SIZE, &hif_buf_skb)) {
-				dev_err(asr_hw->dev, "%s:%d: hif_buf(%d) ALLOC FAILED\n", __func__, __LINE__,i);
-			} else {
-                if (hif_buf_skb) {
-				    memset(hif_buf_skb->data, 0, IPC_HIF_TXBUF_SIZE);
-				    // Add the sk buffer structure in the table of rx buffer
-				    skb_queue_tail(&asr_hw->tx_hif_free_buf_list, hif_buf_skb);
-                }
+		if (asr_sdio_rw_sg == false) {
+	        // use hif buf skb list.
+			for (i = 0; i < 2; i++) {
+				// Allocate a new hif tx buff
+				if (asr_txhifbuffs_alloc(asr_hw, IPC_HIF_TXBUF_SIZE, &hif_buf_skb)) {
+					dev_err(asr_hw->dev, "%s:%d: hif_buf(%d) ALLOC FAILED\n", __func__, __LINE__,i);
+				} else {
+	                if (hif_buf_skb) {
+					    memset(hif_buf_skb->data, 0, IPC_HIF_TXBUF_SIZE);
+					    // Add the sk buffer structure in the table of rx buffer
+					    skb_queue_tail(&asr_hw->tx_hif_free_buf_list, hif_buf_skb);
+	                }
+				}
 			}
 		}
 	} else {
@@ -5454,8 +5665,25 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 		asr_hw->sta_max_num = 1;
 	}
 #if 0
+	const uint8_t g_fw_macaddr_default[] = {0x8c,0x59,0xdc,0x00,0x77,0x55};
 	if ((ret = asr_send_set_fw_macaddr_req(asr_hw, g_fw_macaddr_default)))
 		goto err_lmac_reqs;
+#endif
+
+#if 0
+	uint8_t txpwr[6] = {0x8c,0x8c,0x8c,0x90,0x8d,0x8c};
+	uint8_t txevm[6] = {0x80,0x80,0x80,0x80,0x80,0x80};
+	uint8_t efuse_index = 0;
+	uint8_t freq_err = 0x85;
+	// if ((ret = asr_send_efuse_txpwr_req(asr_hw, txpwr, txevm, &freq_err, true, &efuse_index))) {
+	// 	dev_err(asr_hw->dev, "efuse: ERROR, write efuse fail.\n");
+	// }
+
+	if ((ret = asr_send_efuse_txpwr_req(asr_hw, txpwr, txevm, &freq_err, false, &efuse_index))) {
+		dev_err(asr_hw->dev, "efuse: ERROR, read efuse fail.\n");
+	}
+
+	dev_info(asr_hw->dev, "efuse:%pM,%pM,%u,0x%X\n", txpwr, txevm, efuse_index, freq_err);
 #endif
 
 #ifdef LOAD_MAC_ADDR_FROM_FW
@@ -5555,17 +5783,17 @@ int asr_cfg80211_init(struct asr_plat *asr_plat, void **platform_data)
 	if (libasr_proc == NULL) {
 		printk("Unable to create proc directory\n");
 	}
-#ifdef CONFIG_FW_TXAGG_PROC
-	libasr_fwtxagg_disable = 0;
+#ifdef CONFIG_HOST_DBG_PROC
+	libasr_host_dbg_cmd = 0;
 	if (libasr_proc) {
-		e = proc_create_data("tx_aggr_disable", 0644, libasr_proc, &fwtxagg_disable_proc_fops, asr_hw);
+		e = proc_create_data("host_dbg_cmd", 0644, libasr_proc, &host_dbg_cmd_proc_fops, asr_hw);
 
 		if (!e) {
 			remove_proc_entry(DRV_PROCNAME, init_net.proc_net);
 		} else
-		    printk(" create proc tx_aggr_disable (0x%x)\n", (unsigned int)(uintptr_t) asr_hw);
+		    printk(" create proc host_dbg_cmd (0x%x)\n", (unsigned int)(uintptr_t) asr_hw);
 	}
-#endif /* CONFIG_FW_TXAGG_PROC */
+#endif /* CONFIG_HOST_DBG_PROC */
 #ifdef CONFIG_TWT
 	if (libasr_proc) {
 		e = proc_create_data("twt", 0644, libasr_proc, &twt_proc_fops, asr_hw);
@@ -5752,6 +5980,35 @@ void drvdebug_timer_handler(unsigned long data)
 }
 #endif //ASR_DRV_DEBUG_TIMER
 
+static int asr_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
+						 struct wireless_dev *wdev,
+						 const void *data, int len)
+{
+    struct asr_vendor_data *p_tmp = (struct asr_vendor_data *) data;
+	struct asr_hw *asr_hw = wiphy_priv(wiphy);
+
+	if (len < sizeof(*p_tmp)) {
+		printk("vendor command too short: %d\n", len);
+		return -EINVAL;
+	}
+    printk("cmd %x, reg %x, value %x\n", p_tmp->cmd, p_tmp->reg, p_tmp->value);
+    asr_send_me_host_dbg_cmd(asr_hw, p_tmp->cmd, p_tmp->reg, p_tmp->value);
+
+    return 0;
+}
+
+const struct wiphy_vendor_command asr_vendor_cmds[] = {
+	{
+		{
+			.vendor_id = 0x2ecc,//ASR_USB_VENDOR_ID_ASR,
+			.subcmd = ASR_VNDR_CMDS_DCMD
+		},
+		.flags = WIPHY_VENDOR_CMD_NEED_WDEV |
+			 WIPHY_VENDOR_CMD_NEED_RUNNING,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.doit = asr_cfg80211_vndr_cmds_dcmd_handler
+	},
+};
 
 
 int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data)
@@ -5761,7 +6018,7 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	struct wiphy *wiphy;
 	struct wireless_dev *wdev;
 	int i;
-#ifdef CONFIG_FW_TXAGG_PROC
+#ifdef CONFIG_HOST_DBG_PROC
 	struct proc_dir_entry *e = NULL;
 #endif
 	struct wifi_mib *pmib = NULL;
@@ -5801,8 +6058,6 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	g_wifi_config.pwr_config = false;
 	asr_read_wifi_config(asr_hw);
 #endif
-	//get mac address
-	asr_get_mac(asr_hw, asr_hw->mac_addr);
 	asr_hw->vif_started = 0;
 	asr_hw->adding_sta = false;
 
@@ -5810,7 +6065,7 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	asr_hw->monitor_vif_idx = 0xff;
 #endif
 
-	for (i = 0; i < NX_VIRT_DEV_MAX + NX_REMOTE_STA_MAX; i++)
+	for (i = 0; i < NX_VIRT_DEV_MAX; i++)
 		asr_hw->avail_idx_map |= BIT(i);
 
 	asr_hwq_init(asr_hw);
@@ -5824,7 +6079,6 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	/* Cookie can not be 0 */
 	asr_hw->roc_cookie_cnt = 1;
 
-	memcpy(wiphy->perm_addr, asr_hw->mac_addr, ETH_ALEN);
 	wiphy->mgmt_stypes = asr_default_mgmt_stypes;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 1)
@@ -5836,6 +6090,10 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
 #ifdef CFG_SNIFFER_SUPPORT
 	    BIT(NL80211_IFTYPE_MONITOR) |
+#endif
+#ifdef P2P_SUPPORT
+        BIT(NL80211_IFTYPE_P2P_CLIENT) |
+        BIT(NL80211_IFTYPE_P2P_GO) |
 #endif
 	    BIT(NL80211_IFTYPE_AP);
 
@@ -5885,6 +6143,8 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	wiphy->extended_capabilities = asr_hw->ext_capa;
 	wiphy->extended_capabilities_mask = asr_hw->ext_capa;
 	wiphy->extended_capabilities_len = ARRAY_SIZE(asr_hw->ext_capa);
+	wiphy->vendor_commands = asr_vendor_cmds;
+	wiphy->n_vendor_commands = 1;//ARRAY_SIZE(asr_vendor_cmds);
 
 	INIT_WORK(&asr_hw->rx_deauth_work.real_work, rx_deauth_work_func);
 
@@ -5911,6 +6171,7 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	INIT_LIST_HEAD(&asr_hw->vifs);
 	spin_lock_init(&asr_hw->tx_lock);
 	spin_lock_init(&asr_hw->cb_lock);
+	mutex_init(&asr_hw->tx_msg_mutex);
 	//spin_lock_init(&asr_hw->tx_agg_env_lock);
 
 	// todolala : instead of use static sbk buf pool, urb alloc skb directly, may modify later.
@@ -5929,6 +6190,9 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	if (asr_ipc_init(asr_hw))
 		goto err_platon;
 
+	//get mac address
+	asr_get_mac(asr_hw, asr_hw->mac_addr);
+	memcpy(wiphy->perm_addr, asr_hw->mac_addr, ETH_ALEN);
 #ifdef CONFIG_ASR_KEY_DBG
 	// tx_status_timer used to detect tx status
 	if (tx_status_debug)
@@ -6019,11 +6283,13 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
     // init scan related in asr_hw.
 	asr_hw->scan_request = NULL;
 	asr_hw->scan_vif_index = 0xFF;
-
 	/* Reset FW */
 	if ((ret = asr_send_reset(asr_hw)))
 		goto err_lmac_reqs;
 
+#ifdef CFG_FWLOG_2HOST
+    asr_send_dbg_set_mod_filter_req(asr_hw, 0x4000);
+#endif
 	if ((ret = asr_send_version_req(asr_hw, &asr_hw->version_cfm)))
 		goto err_lmac_reqs;
 
@@ -6123,17 +6389,17 @@ int asr_usb_platform_init(struct asr_usbdev_info *asr_plat, void **platform_data
 	if (libasr_proc == NULL) {
 		printk("Unable to create proc directory\n");
 	}
-#ifdef CONFIG_FW_TXAGG_PROC
-	libasr_fwtxagg_disable = 0;
+#ifdef CONFIG_HOST_DBG_PROC
+	libasr_host_dbg_cmd = 0;
 	if (libasr_proc) {
-		e = proc_create_data("tx_aggr_disable", 0644, libasr_proc, &fwtxagg_disable_proc_fops, asr_hw);
+		e = proc_create_data("host_dbg_cmd", 0644, libasr_proc, &host_dbg_cmd_proc_fops, asr_hw);
 
 		if (!e) {
 			remove_proc_entry(DRV_PROCNAME, init_net.proc_net);
 		} else
-		    printk(" create proc tx_aggr_disable (0x%x)\n", (unsigned int)(uintptr_t) asr_hw);
+		    printk(" create proc host_dbg_cmd (0x%x)\n", (unsigned int)(uintptr_t) asr_hw);
 	}
-#endif /* CONFIG_FW_TXAGG_PROC */
+#endif /* CONFIG_HOST_DBG_PROC */
 #ifdef CONFIG_TWT
 	if (libasr_proc) {
 		e = proc_create_data("twt", 0644, libasr_proc, &twt_proc_fops, asr_hw);
@@ -6201,8 +6467,8 @@ void asr_cfg80211_deinit(struct asr_hw *asr_hw)
 
 #ifdef CONFIG_ASR_PROC
 	if (libasr_proc) {
-#ifdef CONFIG_FW_TXAGG_PROC
-		remove_proc_entry("tx_aggr_disable", libasr_proc);
+#ifdef CONFIG_HOST_DBG_PROC
+		remove_proc_entry("host_dbg_cmd", libasr_proc);
 #endif
 #ifdef CONFIG_TWT
 		remove_proc_entry("twt", libasr_proc);
@@ -6360,6 +6626,7 @@ module_param(force_bw20, bool, 0660);
 module_param(tx_status_debug, int, 0660);
 module_param(tx_debug, int, 0660);
 module_param(asr_xmit_opt, bool, 0660);
+module_param(asr_sdio_rw_sg, bool, 0660);
 module_param(tx_wait_agger, bool, 0660);
 module_param(txlogen, bool, 0660);
 module_param(rxlogen, bool, 0660);
@@ -6384,6 +6651,7 @@ module_param(downloadATE, int, 0660);
 module_param(mac_param, charp, 0660);
 module_param(driver_mode, int, 0660);
 module_param(sdio1thread, bool, 0660);
+module_param(sdio_restart, bool, 0660);
 
 MODULE_FIRMWARE(ASR_CONFIG_FW_NAME);
 

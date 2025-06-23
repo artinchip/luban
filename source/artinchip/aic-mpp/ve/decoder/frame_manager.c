@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: frame buffer manager
-*/
+ * Copyright (C) 2020-2024 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: frame buffer manager
+ */
 
 #define LOG_TAG "frame_manager"
 
@@ -62,7 +64,8 @@ static struct alloc_ops def_ops = {
 
 struct frame_allocator* def_open_allocator()
 {
-	struct def_frame_allocator* impl = (struct def_frame_allocator*)mpp_alloc(sizeof(struct def_frame_allocator));
+	struct def_frame_allocator* impl =
+		(struct def_frame_allocator*)mpp_alloc(sizeof(struct def_frame_allocator));
 	if(impl == NULL) {
 		return NULL;
 	}
@@ -504,6 +507,37 @@ int fm_decoder_frame_to_render(struct frame_manager *fm, struct frame *frame, in
 	return 0;
 }
 
+
+int fm_decoder_reclaim_all_used_frame(struct frame_manager *fm)
+{
+	int i;
+	struct frame_impl *frm_impl;
+
+	if (!fm)
+		return -1;
+
+	pthread_mutex_lock(&fm->lock);
+
+	for (i = 0; i < fm->frame_count; i++) {
+		frm_impl = &fm->frame_node[i];
+		logd("frame ref_count: %d, id: %d, used_by_decoder: %d", frm_impl->ref_count,
+			frm_impl->node_id, frm_impl->used_by_decoder);
+		if (frm_impl->used_by_decoder) {
+			mpp_list_del_init(&frm_impl->list);
+			mpp_list_add_tail(&frm_impl->list, &fm->empty_list);
+			fm->empty_num++;
+			frm_impl->used_by_decoder = 0;
+			frm_impl->used_by_display = 0;
+			frm_impl->displayed = 1;
+			frm_impl->ref_count = 0;
+		}
+	}
+
+	pthread_mutex_unlock(&fm->lock);
+
+	return 0;
+}
+
 struct frame *fm_get_frame_by_id(struct frame_manager *fm, int id)
 {
 	struct frame_impl *frm_impl;
@@ -525,12 +559,16 @@ struct frame *fm_get_frame_by_id(struct frame_manager *fm, int id)
 
 int fm_get_empty_frame_num(struct frame_manager *fm)
 {
+	if (!fm)
+		return -1;
 	print_frame_info(fm, __FUNCTION__);
 	return fm->empty_num;
 }
 
 int fm_get_render_frame_num(struct frame_manager *fm)
 {
+	if (!fm)
+		return -1;
 	return fm->render_num;
 }
 
@@ -538,6 +576,9 @@ int fm_reset(struct frame_manager *fm)
 {
 	int i = 0;
 	struct frame_impl *frm_impl;
+
+	if (!fm)
+		return -1;
 
 	if (!mpp_list_empty(&fm->render_list)) {
 		struct frame_impl *fame1=NULL,*frame2=NULL;

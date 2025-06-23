@@ -1,0 +1,347 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" data-whc_version="27.0">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="description" content="CPU 采用平头哥 E907 高性能 32-bit RISC-V 内核 RV32IMAFDCP 指令架构 468 MHz @1.1V，552 MHz@1.2V L1 I/D-Cache 32 KB/32 KB 支持紧耦合存储 (TCM)，I/D-TCM 最大可配置 128 KB/ 128 KB 单精度/ 双精度浮点单元，集成 DSP 指令集 PMP 安全保护 核内中断 CLINT 和中断控制器 ..."/><meta name="DC.rights.owner" content="(C) 版权 2025"/><meta name="copyright" content="(C) 版权 2025"/><meta name="generator" content="DITA-OT"/><meta name="DC.type" content="concept"/><meta name="DC.contributor" content="yan.wang"/><meta name="DC.date.modified" content="2024-11-27"/><meta name="DC.format" content="HTML5"/><meta name="DC.identifier" content="m680x-feature"/><meta name="DC.language" content="zh-CN"/><title>功能特性</title><!--  Generated with build number 2024112209.  --><meta name="wh-path2root" content="../../"/><meta name="wh-toc-id" content=""/><meta name="wh-source-relpath" content="topics/product/m680x-feature.dita"/><meta name="wh-out-relpath" content="topics/product/m680x-feature.html"/>
+
+    <link rel="stylesheet" type="text/css" href="../../webhelp/app/commons.css?buildId=2024112209"/>
+    <link rel="stylesheet" type="text/css" href="../../webhelp/app/topic.css?buildId=2024112209"/>
+
+    <script src="../../webhelp/app/options/properties.js?buildId=20250123154945"></script>
+    <script src="../../webhelp/app/localization/strings.js?buildId=2024112209"></script>
+    <script src="../../webhelp/app/search/index/keywords.js?buildId=20250123154945"></script>
+    <script defer="defer" src="../../webhelp/app/commons.js?buildId=2024112209"></script>
+    <script defer="defer" src="../../webhelp/app/topic.js?buildId=2024112209"></script>
+<link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-styles-web.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/notes.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-common.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-images.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/footnote.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/aic-web-watermark.css?buildId=2024112209"/><link rel="stylesheet" type="text/css" href="../../webhelp/template/topic-body-list.css?buildId=2024112209"/></head>
+
+    <body id="m680x-feature" class="wh_topic_page two_columns">
+        <a href="#wh_topic_body" class="sr-only sr-only-focusable">
+            跳转到主要内容
+        </a>
+        
+        
+        
+        
+        <header class="navbar navbar-default wh_header">
+    <div class="container-fluid">
+        <div class="wh_header_flex_container navbar-nav navbar-expand-md navbar-dark">
+            <div class="wh_logo_and_publication_title_container">
+                <div class="wh_logo_and_publication_title">
+                    
+                    <a href="http://www.artinchip.com" class=" wh_logo d-none d-sm-block "><img src="../../company-logo-white.png" alt="  Linux SDK 使用指南  SDK 指南文件  "/></a>
+                    <div class=" wh_publication_title "><a href="../../index.html"><span class="booktitle">  <span class="ph mainbooktitle">Linux SDK 使用指南</span>  <span class="ph booktitlealt">SDK 指南文件</span>  </span></a></div>
+                    
+                </div>
+                
+                
+            </div>
+
+            <div class="wh_top_menu_and_indexterms_link collapse navbar-collapse" id="wh_top_menu_and_indexterms_link">
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+        
+        
+         
+        
+        <div class=" wh_search_input navbar-form wh_topic_page_search search " role="form">
+            
+            
+            
+            <form id="searchForm" method="get" role="search" action="../../search.html"><div><input type="search" placeholder="搜索 " class="wh_search_textfield" id="textToSearch" name="searchQuery" aria-label="搜索查询" required="required"/><button type="submit" class="wh_search_button" aria-label="搜索"><span class="search_input_text">搜索</span></button></div></form>
+            
+            
+            
+        </div>
+        
+        <div class="container-fluid" id="wh_topic_container">
+            <div class="row">
+
+                <nav class="wh_tools d-print-none navbar-expand-md" aria-label="Tools">
+                    
+                    <div data-tooltip-position="bottom" class=" wh_breadcrumb "></div>
+                    
+                    
+                    
+                    <div class="wh_right_tools">
+                        <button class="wh_hide_highlight" aria-label="切换搜索突出显示" title="切换搜索突出显示"></button>
+                        <button class="webhelp_expand_collapse_sections" data-next-state="collapsed" aria-label="折叠截面" title="折叠截面"></button>
+                        
+                        
+                        
+                        
+                        <div class=" wh_print_link print d-none d-md-inline-block "><button onClick="window.print()" title="打印此页" aria-label="打印此页"></button></div>
+                        
+                        
+                    </div>
+                    
+                </nav>
+            </div>
+            
+            
+            
+            
+            <div class="wh_content_area">
+                <div class="row">
+                    
+                    
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="wh_topic_body">
+                        
+                        <button id="wh_close_topic_toc_button" class="close-toc-button d-none" aria-label="Toggle topic table of content" aria-controls="wh_topic_toc" aria-expanded="true">
+                            <span class="close-toc-icon-container">
+                                <span class="close-toc-icon"></span>     
+                            </span>
+                        </button>
+                        
+                        <div class=" wh_topic_content body "><main role="main"><article class="- topic/topic concept/concept topic concept" role="article" aria-labelledby="ariaid-title1">
+	<span class="edit-link" style="font-size:12px; opacity:0.6; text-align:right; vertical-align:middle"><a target="_blank" title="Edit this document" href="http://172.16.35.88/tasks/jdssno1uvvbf2mltu9kb9v3if05d5gopuakboe8hlud18rma/edit/F:/aicdita/aicdita-cn/topics/product/m680x-feature.dita">Edit online</a></span><h1 class="- topic/title title topictitle1" id="ariaid-title1">功能特性</h1>
+	<div class="date inPage">27 Nov 2024</div><div style="color: gray;">
+                    Read time: 4 minute(s)
+                </div>
+	<div class="- topic/body concept/conbody body conbody">
+		<ul class="- topic/ul ul" id="m680x-feature__ul_njs_ckd_hzb" data-ofbid="m680x-feature__ul_njs_ckd_hzb">
+			<li class="- topic/li li" data-ofbid="d187259e33__20250123155220"><strong class="+ topic/ph hi-d/b ph b">CPU</strong><ul class="- topic/ul ul" id="m680x-feature__ul_fwj_bkd_hzb" data-ofbid="m680x-feature__ul_fwj_bkd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e38__20250123155220">采用平头哥 E907 高性能 32-bit RISC-V 内核</li>
+					<li class="- topic/li li" data-ofbid="d187259e41__20250123155220">RV32IMAFDCP 指令架构</li>
+					<li class="- topic/li li" data-ofbid="d187259e44__20250123155220">468 MHz @1.1V，552 MHz@1.2V</li>
+					<li class="- topic/li li" data-ofbid="d187259e47__20250123155220">L1
+						I/D-Cache 32 KB/32 KB</li>
+					<li class="- topic/li li" data-ofbid="d187259e50__20250123155220">支持紧耦合存储
+						(TCM)，I/D-TCM
+						最大可配置 128 KB/ 128 KB</li>
+					<li class="- topic/li li" data-ofbid="d187259e54__20250123155220">单精度/ 双精度浮点单元，集成 DSP 指令集</li>
+					<li class="- topic/li li" data-ofbid="d187259e57__20250123155220">PMP 安全保护</li>
+					<li class="- topic/li li" data-ofbid="d187259e60__20250123155220">核内中断 CLINT 和中断控制器 CLIC</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e64__20250123155220"><strong class="+ topic/ph hi-d/b ph b">片内存储</strong><ul class="- topic/ul ul" id="m680x-feature__ul_xfg_bld_hzb" data-ofbid="m680x-feature__ul_xfg_bld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e69__20250123155220">BROM 64 KB</li>
+					<li class="- topic/li li" data-ofbid="d187259e72__20250123155220">SRAM up to 1 MB，其中 256 KB 可配置为 TCM 使用</li>
+					<li class="- topic/li li" data-ofbid="d187259e75__20250123155220">片内 NOR
+						Flash up to 2 MB<ul class="- topic/ul ul" id="m680x-feature__ul_m5n_52d_cbc" data-ofbid="m680x-feature__ul_m5n_52d_cbc">
+							<li class="- topic/li li" data-ofbid="d187259e79__20250123155220">支持外部 SPI 接口直通模式烧录</li>
+							<li class="- topic/li li" data-ofbid="d187259e82__20250123155220">支持 USB/ UART /JTAG 烧录</li>
+						</ul></li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e87__20250123155220"><strong class="+ topic/ph hi-d/b ph b">系统安全</strong><ul class="- topic/ul ul" id="m680x-feature__ul_mvk_jkd_hzb" data-ofbid="m680x-feature__ul_mvk_jkd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e92__20250123155220">支持数字签名安全启动方式</li>
+					<li class="- topic/li li" data-ofbid="d187259e95__20250123155220">CE 实现 AES/ TDES/ RSA 等加解密算法及 SHA/ HMAC 校准算法</li>
+					<li class="- topic/li li" data-ofbid="d187259e98__20250123155220">SPI_ENC 实现
+						片内
+						NOR Flash 在线解密</li>
+					<li class="- topic/li li" data-ofbid="d187259e101__20250123155220">SID 内置熔丝 2048-bit ，其中 512-bit 供自定义使用</li>
+					<li class="- topic/li li" data-ofbid="d187259e104__20250123155220">内置 256-bit TRNG 产生器</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e108__20250123155220"><strong class="+ topic/ph hi-d/b ph b">系统保护</strong><ul class="- topic/ul ul" id="m680x-feature__ul_vtw_dld_hzb" data-ofbid="m680x-feature__ul_vtw_dld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e113__20250123155220">内置 THS 温度传感器，支持高低温报警和过温复位</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e117__20250123155220"><strong class="+ topic/ph hi-d/b ph b">GTC 通用计时器</strong><ul class="- topic/ul ul" id="m680x-feature__ul_gkb_2ld_hzb" data-ofbid="m680x-feature__ul_gkb_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e122__20250123155220">52 位计时器，提供系统心跳时钟，计时周期大于 35 年</li>
+					<li class="- topic/li li" data-ofbid="d187259e125__20250123155220">调试模式下可配置为暂停计时或继续计时</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e130__20250123155220"><strong class="+ topic/ph hi-d/b ph b">WDOG 看门狗</strong><ul class="- topic/ul ul" id="m680x-feature__ul_cqf_2ld_hzb" data-ofbid="m680x-feature__ul_cqf_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e135__20250123155220">支持中断和复位，超时时间 1 ms ~
+						37
+						小时可配置</li>
+					<li class="- topic/li li" data-ofbid="d187259e138__20250123155220">调试模式下可配置为暂停计时或继续计时</li>
+					<li class="- topic/li li" data-ofbid="d187259e141__20250123155220">硬件写保护机制</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e145__20250123155220"><strong class="+ topic/ph hi-d/b ph b">时钟和电源管理</strong><ul class="- topic/ul ul" id="m680x-feature__ul_as3_2ld_hzb" data-ofbid="m680x-feature__ul_as3_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e150__20250123155220">内置三个 PLL<ul class="- topic/ul ul" id="m680x-feature__ul_qdt_mld_hzb" data-ofbid="m680x-feature__ul_qdt_mld_hzb">
+							<li class="- topic/li li" data-ofbid="d187259e154__20250123155220">PLL_INT0 用于 CPU 单独使用</li>
+							<li class="- topic/li li" data-ofbid="d187259e157__20250123155220">PLL_INT1 用于总线，内部模块，及低速接口模块使用</li>
+							<li class="- topic/li li" data-ofbid="d187259e160__20250123155220">PLL_FRA0 用于 SPI 模块使用，支持展频</li>
+						</ul></li>
+					<li class="- topic/li li" data-ofbid="d187259e164__20250123155220">内置三个 LDO<ul class="- topic/ul ul" id="m680x-feature__ul_sz2_lld_hzb" data-ofbid="m680x-feature__ul_sz2_lld_hzb">
+							<li class="- topic/li li" data-ofbid="d187259e168__20250123155220">LDO25 (2.5 V 100 mA)，用于系统复位启动、ADC 供电、eFuse 供电</li>
+							<li class="- topic/li li" data-ofbid="d187259e171__20250123155220">LDO18 (1.8 V 100 mA)，用于其他外设供电 </li>
+							<li class="- topic/li li" data-ofbid="d187259e174__20250123155220">LDO1x (0.9~1.9 V 500 mA，每档 50 mV)，用于内核逻辑
+                                供电(VDD_SYS)</li>
+						</ul></li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e179__20250123155220"><strong class="+ topic/ph hi-d/b ph b">通用接口</strong><ul class="- topic/ul ul" id="m680x-feature__ul_ypk_2ld_hzb" data-ofbid="m680x-feature__ul_ypk_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e184__20250123155220">最多支持一个 USB DEVICE</li>
+					<li class="- topic/li li" data-ofbid="d187259e187__20250123155220">最多支持一个 EMAC，支持 RMII，支持 IEEE1588 协议</li>
+					<li class="- topic/li li" data-ofbid="d187259e190__20250123155220">最多支持三个 SPI，支持标准 SPI 和 QSPI
+						（仅
+						SPI1/2 支持 QSPI），可配置为 Master/ Slave</li>
+					<li class="- topic/li li" data-ofbid="d187259e193__20250123155220">最多支持八个 UART，兼容工业标准 16550，波特率精度 &lt; 2%</li>
+					<li class="- topic/li li" data-ofbid="d187259e196__20250123155220">最多支持三个 I2C，支持 7-bit 和 10-bit 寻址，最高速率 400
+						kb/s</li>
+					<li class="- topic/li li" data-ofbid="d187259e200__20250123155220">最多支持两个 CAN，支持 A  和 CAN2.0B，通信速率最高 1 Mbps </li>
+					<li class="- topic/li li" data-ofbid="d187259e203__20250123155220">最多支持一个 PBUS，用于对外部设备地址空间进行读写访问</li>
+					<li class="- topic/li li" data-ofbid="d187259e206__20250123155220">最多支持 88 个 GPIO，每个 IO 独立配置</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e210__20250123155220"><strong class="+ topic/ph hi-d/b ph b">CORDIC</strong><ul class="- topic/ul ul" id="m680x-feature__ul_nvm_2ld_hzb" data-ofbid="m680x-feature__ul_nvm_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e215__20250123155220">支持 sin/ cos/ arctan/ atan2/ phase 等数学函数加速</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e219__20250123155220"><strong class="+ topic/ph hi-d/b ph b">硬件电流环 (HCL)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_zmq_2ld_hzb" data-ofbid="m680x-feature__ul_zmq_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e224__20250123155220">支持自动获取 ADC 数据</li>
+					<li class="- topic/li li" data-ofbid="d187259e227__20250123155220">支持自动获取 QEP/ TA-IF/ ENDAT-IF/ BISS-IF 编码器位置数据</li>
+					<li class="- topic/li li" data-ofbid="d187259e230__20250123155220">支持 CLARKE/ PARK/ PID/ IPARK/ SVPWM 算法的硬件加速</li>
+					<li class="- topic/li li" data-ofbid="d187259e233__20250123155220">内置死区补偿算法</li>
+					<li class="- topic/li li" data-ofbid="d187259e236__20250123155220">支持自动更新 EPWM 输出占空比</li>
+					<li class="- topic/li li" data-ofbid="d187259e240__20250123155220">支持断点模式</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e244__20250123155220"><strong class="+ topic/ph hi-d/b ph b">Enhanced PWM (EPWM)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_qy4_vld_hzb" data-ofbid="m680x-feature__ul_qy4_vld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e249__20250123155220">最多可支持 12 个互补 PWM 输出或 24 个独立 PWM</li>
+					<li class="- topic/li li" data-ofbid="d187259e252__20250123155220">最多支持六个 HRPWM 输出，分辨率可达 156 ps</li>
+					<li class="- topic/li li" data-ofbid="d187259e255__20250123155220">内置 16-bit 计数器</li>
+					<li class="- topic/li li" data-ofbid="d187259e258__20250123155220">支持递增、递减或先递增后递减计数</li>
+					<li class="- topic/li li" data-ofbid="d187259e261__20250123155220">PWM 支持内部相位同步</li>
+					<li class="- topic/li li" data-ofbid="d187259e265__20250123155220">支持死区时间控制</li>
+					<li class="- topic/li li" data-ofbid="d187259e268__20250123155220">支持六个故障输入控制</li>
+					<li class="- topic/li li" data-ofbid="d187259e271__20250123155220">支持脉冲输出功能</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e276__20250123155220"><strong class="+ topic/ph hi-d/b ph b">CAP</strong><ul class="- topic/ul ul" id="m680x-feature__ul_w4g_yld_hzb" data-ofbid="m680x-feature__ul_w4g_yld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e281__20250123155220">最多支持六个输入捕获或六个独立 PWM</li>
+					<li class="- topic/li li" data-ofbid="d187259e284__20250123155220">内置 32-bit 计数器</li>
+					<li class="- topic/li li" data-ofbid="d187259e287__20250123155220">支持连续捕捉或单次捕捉</li>
+					<li class="- topic/li li" data-ofbid="d187259e290__20250123155220">支持配置为 PWM 输出模式</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e294__20250123155220"><strong class="+ topic/ph hi-d/b ph b">QEP</strong><ul class="- topic/ul ul" id="m680x-feature__ul_ccs_2ld_hzb" data-ofbid="m680x-feature__ul_ccs_2ld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e299__20250123155220">最多支持 10 个的 QEP 信号解析</li>
+					<li class="- topic/li li" data-ofbid="d187259e302__20250123155220">内置 32-bit 的位置计数器</li>
+					<li class="- topic/li li" data-ofbid="d187259e305__20250123155220">支持 AB 正交信号解析</li>
+					<li class="- topic/li li" data-ofbid="d187259e308__20250123155220">支持 CW/CCW 信号解析</li>
+					<li class="- topic/li li" data-ofbid="d187259e311__20250123155220">支持 CLK/DIR 信号解析</li>
+					<li class="- topic/li li" data-ofbid="d187259e315__20250123155220"> 内置看门狗定时器</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e319__20250123155220"><strong class="+ topic/ph hi-d/b ph b">Quadrature-pulse Output (QOUT)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_wzs_yld_hzb" data-ofbid="m680x-feature__ul_wzs_yld_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e324__20250123155220">最多支持两个 QOUT 信号输出</li>
+					<li class="- topic/li li" data-ofbid="d187259e327__20250123155220">支持任意分频比的脉冲输出</li>
+					<li class="- topic/li li" data-ofbid="d187259e330__20250123155220">输出最大支持 3 MHz 的正交脉冲信号</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e334__20250123155220"><strong class="+ topic/ph hi-d/b ph b">ADC</strong><ul class="- topic/ul ul" id="m680x-feature__ul_w5d_3md_hzb" data-ofbid="m680x-feature__ul_w5d_3md_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e339__20250123155220">两个 12-bit ADC，采样速率最高 4 Msps</li>
+					<li class="- topic/li li" data-ofbid="d187259e342__20250123155220">两个 ADC 复用 16 个采样通道</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e346__20250123155220"><strong class="+ topic/ph hi-d/b ph b">Comparator Module (CPM)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_nrk_3md_hzb" data-ofbid="m680x-feature__ul_nrk_3md_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e351__20250123155220">最多支持两个 CPM</li>
+					<li class="- topic/li li" data-ofbid="d187259e354__20250123155220">内置 12-bit DAC 参考的窗口比较</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e358__20250123155220"><strong class="+ topic/ph hi-d/b ph b">PWM</strong><ul class="- topic/ul ul" id="m680x-feature__ul_u3n_3md_hzb" data-ofbid="m680x-feature__ul_u3n_3md_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e363__20250123155220">最多可支持四个通用 PWM</li>
+					<li class="- topic/li li" data-ofbid="d187259e366__20250123155220">内置 16-bit 计数器，计数时钟分频最高可以达到 4096</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e371__20250123155220"><strong class="+ topic/ph hi-d/b ph b">Sigma-Delta Filter Module (SDFM)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_g2q_vmd_hzb" data-ofbid="m680x-feature__ul_g2q_vmd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e376__20250123155220">最多可支持四个 SDFM</li>
+					<li class="- topic/li li" data-ofbid="d187259e379__20250123155220">支持串行输入解码</li>
+					<li class="- topic/li li" data-ofbid="d187259e382__20250123155220">支持 SINC1/2/3 滤波器</li>
+					<li class="- topic/li li" data-ofbid="d187259e385__20250123155220">支持 OSR 可配置 (1~256)</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e389__20250123155220"><strong class="+ topic/ph hi-d/b ph b">T-Format/ A-Format Interface (TA-IF)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_jx1_ymd_hzb" data-ofbid="m680x-feature__ul_jx1_ymd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e394__20250123155220">最多可支持两个编码器接口</li>
+					<li class="- topic/li li" data-ofbid="d187259e397__20250123155220">兼容多摩川编码器和尼康编码器接口协议</li>
+					<li class="- topic/li li" data-ofbid="d187259e400__20250123155220">最高支持 24-bit 位置数据读取</li>
+					<li class="- topic/li li" data-ofbid="d187259e403__20250123155220">支持位置数据自动获取</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e407__20250123155220"><strong class="+ topic/ph hi-d/b ph b">BISS Interface (BISS-IF)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_cpp_bnd_hzb" data-ofbid="m680x-feature__ul_cpp_bnd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e412__20250123155220">最多可支持两个编码器接口</li>
+					<li class="- topic/li li" data-ofbid="d187259e415__20250123155220">兼容 SSI/BISS-C 协议</li>
+					<li class="- topic/li li" data-ofbid="d187259e418__20250123155220">最高支持 24-bit 位置数据读取</li>
+					<li class="- topic/li li" data-ofbid="d187259e421__20250123155220">支持位置数据自动获取</li>
+				</ul></li>
+			<li class="- topic/li li" data-ofbid="d187259e425__20250123155220"><strong class="+ topic/ph hi-d/b ph b">ENDAT Interface (ENDAT-IF)</strong><ul class="- topic/ul ul" id="m680x-feature__ul_hqd_1nd_hzb" data-ofbid="m680x-feature__ul_hqd_1nd_hzb">
+					<li class="- topic/li li" data-ofbid="d187259e430__20250123155220">最多可支持两个编码器接口</li>
+					<li class="- topic/li li" data-ofbid="d187259e433__20250123155220">兼容 EnDat 2.1/2.2 协议</li>
+					<li class="- topic/li li" data-ofbid="d187259e436__20250123155220">最高支持 24-bit 位置数据读取</li>
+					<li class="- topic/li li" data-ofbid="d187259e439__20250123155220">支持位置数据自动获取</li>
+				</ul></li>
+		</ul>
+		<section class="- topic/section section" id="m680x-feature__section_zsd_zd4_mdc" data-ofbid="m680x-feature__section_zsd_zd4_mdc"><h2 class="- topic/title title sectiontitle">典型应用</h2>
+			
+			<ul class="- topic/ul ul" id="m680x-feature__ul_hvr_5nd_hzb" data-ofbid="m680x-feature__ul_hvr_5nd_hzb">
+				<li class="- topic/li li" data-ofbid="d187259e451__20250123155220">伺服电机驱动器</li>
+				<li class="- topic/li li" data-ofbid="d187259e454__20250123155220">步进电机驱动器</li>
+				<li class="- topic/li li" data-ofbid="d187259e457__20250123155220">BLDC 电机驱动器</li>
+				<li class="- topic/li li" data-ofbid="d187259e460__20250123155220">交流变频器</li>
+				<li class="- topic/li li" data-ofbid="d187259e463__20250123155220">光伏逆变器</li>
+				<li class="- topic/li li" data-ofbid="d187259e467__20250123155220">数字电源</li>
+				<li class="- topic/li li" data-ofbid="d187259e470__20250123155220">PLC</li>
+			</ul>
+		</section>
+		<section class="- topic/section section" id="m680x-feature__section_sgk_124_mdc" data-ofbid="m680x-feature__section_sgk_124_mdc"><h2 class="- topic/title title sectiontitle">功能框图</h2>
+			
+			<div class="- topic/p p" data-ofbid="d187259e480__20250123155220">
+				<br/><img class="- topic/image image" id="m680x-feature__image_erf_yqs_1bc" src="../../images/m680x/m680x-block_diagram.png" width="576"/><br/>
+			</div>
+		</section>
+	</div>
+</article></main></div>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                    
+                        <nav role="navigation" id="wh_topic_toc" aria-label="On this page" class="col-lg-2 d-none d-lg-block navbar d-print-none"> 
+                            <div id="wh_topic_toc_content">
+		                        
+	                            <div class=" wh_topic_toc "><div class="wh_topic_label">在本页上</div><ul><li class="section-item"><div class="section-title"><a href="#m680x-feature__section_zsd_zd4_mdc" data-tocid="m680x-feature__section_zsd_zd4_mdc">典型应用</a></div></li><li class="section-item"><div class="section-title"><a href="#m680x-feature__section_sgk_124_mdc" data-tocid="m680x-feature__section_sgk_124_mdc">功能框图</a></div></li></ul></div>
+	                        	
+                        	</div>
+                        </nav>
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div> 
+        <footer class="navbar navbar-default wh_footer">
+  <div class=" footer-container mx-auto ">
+    <title>footer def</title>
+    <style><!--
+
+.p1 {
+  font-family: FangZhengShuSong, Times, serif;
+}
+.p2 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p3 {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+    
+--></style>
+  
+
+  
+    
+  
+  
+    
+            
+   
+  
+
+  <div class="webhelp.fragment.footer">
+    <p class="p1">Copyright © 2019-2024 广东匠芯创科技有限公司. All rights reserved.</p>
+  </div><div>
+    <div class="generation_time">
+      Update Time: 2025-01-23
+    </div>        
+  </div>
+  </div>
+</footer>
+        
+        <button id="go2top" class="d-print-none" title="返回顶部">
+            <span class="oxy-icon oxy-icon-up"></span>
+        </button>
+        
+        <div id="modal_img_large" class="modal">
+            <span class="close oxy-icon oxy-icon-remove"></span>
+            <div id="modal_img_container"></div>
+            <div id="caption"></div>
+        </div>
+        
+        
+    <script src="${pd}/publishing/publishing-styles-AIC-template/js/custom.js" defer="defer"></script>
+
+        
+    </body>
+</html>

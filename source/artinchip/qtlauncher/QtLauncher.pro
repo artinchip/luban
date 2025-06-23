@@ -19,17 +19,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 GE_SUPPORT = $$(QTLAUNCHER_GE_SUPPORT)
 SMALL_MEMORY = $$(QTLAUNCHER_SMALL_MEMORY)
+WIFI_MANAGER = $$(QTLAUNCHER_WIFI_MANAGER)
 
 contains(GE_SUPPORT,YES){
 DEFINES += QTLAUNCHER_GE_SUPPORT
-target.path += /usr/local/launcher
 LIBS += -L$$(STAGING_DIR)/usr/local/lib/ -lmpp_decoder -lmpp_ge -lmpp_ve -lmpp_base
-INCLUDEPATH += $$(STAGING_DIR)/usr/include/
-INCLUDEPATH += $$(STAGING_DIR)/usr/local/include/
-INSTALLS += target
 }
 contains(SMALL_MEMORY,YES){
 DEFINES += QTLAUNCHER_SMALL_MEMORY
+}
+contains(WIFI_MANAGER,YES){
+QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += c++11
+
+DEFINES += QTLAUNCHER_WIFI_MANAGER
+LIBS += -L$$(TARGET_DIR)/usr/local/lib/  -lwifimanager -lwpa_client -lrt
+}
+
+contains(GE_SUPPORT,YES) || contains(WIFI_MANAGER,YES){
+target.path += /usr/local/launcher
+INCLUDEPATH += $$(STAGING_DIR)/usr/include/
+INCLUDEPATH += $$(TARGET_DIR)/usr/local/include/
+INCLUDEPATH += $$(TARGET_DIR)/include/
+INCLUDEPATH += $$(STAGING_DIR)/usr/local/include/
+INSTALLS += target
 }
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -56,8 +69,19 @@ SOURCES += main.cpp\
     views/aicimageview.cpp \
     views/aicscaleview.cpp \
     views/aicrtpview.cpp \
+    views/aicvideoview.cpp \
+    video/aicdecodethread.cpp \
+    video/aicrenderthread.cpp \
+    video/aicvideothread.cpp \
+    video/aicimagedecoder.cpp \
     views/aicdashboardview.cpp
 
+contains(WIFI_MANAGER,YES){
+SOURCES +=     views/aicconfigview.cpp \
+    keyboard/Keyboard.cpp \
+    keyboard/KeyButton.cpp \
+    wifi/aicwifithread.cpp
+}
 
 HEADERS  += mainwindow.h \
     aicbasewindow.h \
@@ -78,7 +102,20 @@ HEADERS  += mainwindow.h \
     views/aicscaleview.h \
     utils/aicconsts.h \
     views/aicrtpview.h \
+    views/aicvideoview.h \
+    video/aicdecodethread.h \
+    video/aicrenderthread.h \
+    video/aicvideothread.h \
+    video/aicimagedecoder.h \
     views/aicdashboardview.h
+
+contains(WIFI_MANAGER,YES){
+HEADERS  += views/aicconfigview.h \
+    keyboard/Keyboard.h \
+    keyboard/KeyButton.h \
+    keyboard/AbstractKeyboard.h \
+    wifi/aicwifithread.h
+}
 
 DISTFILES += \
     resources/brief.png

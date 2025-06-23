@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: Apache-2.0
 
-# Copyright (C) 2022 ArtInChip
+# Copyright (C) 2022-2024 ArtInChip
 # Wu Dehuang
 
-import os, sys, argparse, subprocess
+import os
+import sys
+import argparse
+import subprocess
 
 UBOOT_DIR = 'source/uboot-2021.10/'
-LINUX_DIR = 'source/linux-5.10/'
+LINUX_DIR = ''
+
+
+def GetLinuxDir(args):
+    global LINUX_DIR
+    dirs = os.listdir(args.topdir + '/source')
+
+    for sub_dir in dirs:
+        if 'linux' in sub_dir:
+            LINUX_DIR = 'source/' + sub_dir + '/'
+
 
 def RunCommand(cmd, dumpmsg=False, verbose=False):
     """Execute command
@@ -33,6 +46,7 @@ def RunCommand(cmd, dumpmsg=False, verbose=False):
 
     return 0
 
+
 def RunShellCommand(cmd):
     ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if ret.returncode:
@@ -40,12 +54,14 @@ def RunShellCommand(cmd):
         sys.exit(1)
     return str(ret.stdout, encoding='utf-8')
 
+
 def indent_str(text, indent):
     itext = text
     while indent > 0:
         itext = '\t' + itext
         indent -= 1
     return itext
+
 
 def GetChipList(targetdir):
     cmd = 'grep "source *target/" {}'.format(targetdir + 'Config.in')
@@ -57,6 +73,7 @@ def GetChipList(targetdir):
         if os.path.isdir(targetdir + c):
             chiplist.append(c)
     return chiplist
+
 
 def SelectChip(chiplist):
     num = 1
@@ -77,10 +94,12 @@ def SelectChip(chiplist):
     print(indent_str(selected + '\n', 2))
     return selected
 
+
 def GetReferenceBoardDefconfig(targetcfg):
     cmd = 'find {} -maxdepth 1 -type f -name "*_defconfig"'.format(targetcfg)
     defconfigs = RunShellCommand(cmd)
     return defconfigs.split()
+
 
 def GetChipNameOfDefconfig(dotcfg):
     f = open(dotcfg, 'r')
@@ -94,6 +113,7 @@ def GetChipNameOfDefconfig(dotcfg):
             break
     return name
 
+
 def GetChipOptionOfDefconfig(dotcfg, chip):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -106,6 +126,7 @@ def GetChipOptionOfDefconfig(dotcfg, chip):
             break
     return name
 
+
 def GetBoardNameOfDefconfig(dotcfg):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -116,6 +137,7 @@ def GetBoardNameOfDefconfig(dotcfg):
             name = ln.replace('LUBAN_BOARD_NAME=', '').replace('"', '').strip()
             break
     return name
+
 
 def GetBoardOptionNameOfDefconfig(dotcfg, board_name):
     f = open(dotcfg, 'r')
@@ -128,6 +150,7 @@ def GetBoardOptionNameOfDefconfig(dotcfg, board_name):
             break
     return opt_name
 
+
 def GetArchOfRefDefconfig(dotcfg):
     f = open(dotcfg, 'r')
     lines = f.readlines()
@@ -138,6 +161,7 @@ def GetArchOfRefDefconfig(dotcfg):
             name = ln.replace('BR2_ARCH=', '').replace('"', '').strip()
             break
     return name
+
 
 def SelectReferenceDefconfig(chip, defconfigs, dotconfigs):
     reflist = []
@@ -169,6 +193,7 @@ def SelectReferenceDefconfig(chip, defconfigs, dotconfigs):
     print(indent_str(selected + '\n', 2))
     return selected
 
+
 def CheckBoardNameIsValid(name):
     invalid_name_char = '`~!@#$%^&*()-+=[]\\{}|;\':",./<>?'
     for c in invalid_name_char:
@@ -176,8 +201,10 @@ def CheckBoardNameIsValid(name):
             return False
     return True
 
+
 def GetBoardNameForConfig(name):
     return name.replace('\t', '_').replace(' ', '_')
+
 
 def GetNewBoardName():
     inputstr = input(indent_str("Input new board's name: ", 1)).strip()
@@ -191,6 +218,7 @@ def GetNewBoardName():
     print(indent_str(name + '\n', 2))
     return name
 
+
 def GetNewManufacturerName():
     inputstr = input(indent_str("Input manufacturer's name: ", 1)).strip()
     if len(inputstr.strip()) == 0:
@@ -199,6 +227,7 @@ def GetNewManufacturerName():
     name = inputstr.strip()
     print(indent_str(name + '\n', 2))
     return name
+
 
 def GenDotConfig(args, cfg_list):
     root_cfg = args.topdir + 'package/Config.in'
@@ -212,6 +241,7 @@ def GenDotConfig(args, cfg_list):
         cmd = 'HOSTARCH={} BR2_CONFIG={} BASE_DIR={} BR2_DEFCONFIG={} {} --defconfig={} {}'.format(args.arch, dotcfg, args.outdir, cfg, args.conf, cfg, root_cfg)
         RunShellCommand(cmd)
     return dotconfigs
+
 
 def CreateNewBoardDirectory(topdir, refcfg, dotconfigs, chip, boardname):
 
@@ -237,6 +267,7 @@ def CreateNewBoardDirectory(topdir, refcfg, dotconfigs, chip, boardname):
     # update product name
     cmd = 'find {} -type f -name "*.json" | xargs -I [] sed -i \'s/"product": *"[a-z,0-9,A-Z,_, ]*"/"product": "{}"/g\' []'.format(newboard_dir, boardname_cfg)
     RunShellCommand(cmd)
+
 
 def CreateNewDefconfig(topdir, refcfg, dotconfigs, chip, boardname, manu_name):
     global UBOOT_DIR
@@ -370,7 +401,9 @@ def CreateNewDefconfig(topdir, refcfg, dotconfigs, chip, boardname, manu_name):
     f.close()
     print(indent_str('Updated: ' + cfg_in.replace(topdir, ''), 1))
 
+
 def CreateNewBoard(args):
+    GetLinuxDir(args)
     target_cfgdir = args.topdir + 'target/configs/'
     defconfigs = GetReferenceBoardDefconfig(target_cfgdir)
     defconfigs.sort()
@@ -392,6 +425,7 @@ def CreateNewBoard(args):
     CreateNewDefconfig(args.topdir, refcfg, dotconfigs, chip, boardname, manu_name)
 
     return 0
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

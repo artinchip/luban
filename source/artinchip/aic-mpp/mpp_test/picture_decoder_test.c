@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg/png decode demo
-*/
+ * Copyright (C) 2020-2022 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *   Desc: jpeg/png decode demo
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,13 +42,15 @@ static unsigned int g_fb_format = 0;
 static unsigned int g_fb_phy = 0;
 unsigned char *g_fb_buf = NULL;
 
-static void print_help(void)
+static void print_help(char* program)
 {
-	printf("Usage: dec_test [OPTIONS] [SLICES PATH]\n\n"
-		"Options:\n"
-		" -i                             input stream file name\n"
-		" -h                             help\n\n"
-		"End:\n");
+	printf("Compile time: %s %s\n", __DATE__, __TIME__);
+	printf("Usage: %s [options]\n", program);
+	printf("\t -i, --input: \t\t input stream file name\n");
+	printf("\t -r, --rotate: \t\t enable clockwise rotate(0/90/180/270)\n");
+	printf("\t -s, --scale: \t\t enable scale(1- 1/2 scale; 2- 1/4 scale; 3- 1/8 scale)\n");
+	printf("\t -l, --flip: \t\t enable flip(1-horizontal flip; 2-vertical flip; 3-ver & hor flip)\n");
+	printf("\t -h, --help: \t\t print help info\n");
 }
 
 static int get_file_size(FILE* fp)
@@ -259,6 +263,34 @@ static int render_frame(struct mpp_frame *frame)
 	return 0;
 }
 
+static int parse_rotation(char *str)
+{
+    if (!strcmp(optarg, "90"))
+        return MPP_ROTATION_90;
+
+    if (!strcmp(optarg, "180"))
+        return MPP_ROTATION_180;
+
+    if (!strcmp(optarg, "270"))
+        return MPP_ROTATION_270;
+
+    return MPP_ROTATION_0;
+}
+
+static int parse_flip(char *str)
+{
+    if (!strcmp(optarg, "1"))
+        return MPP_FLIP_H;
+
+    if (!strcmp(optarg, "2"))
+        return MPP_FLIP_V;
+
+    if (!strcmp(optarg, "3"))
+        return MPP_FLIP_H | MPP_FLIP_V;
+
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int ret = 0;
@@ -267,9 +299,12 @@ int main(int argc, char **argv)
 	FILE* fp = NULL;
 	char* ptr = NULL;
 	int type = MPP_CODEC_VIDEO_DECODER_MJPEG;
+	int ver_scale = 0;
+	int hor_scale = 0;
+	int rot_flip_flag = 0;
 
 	while (1) {
-		opt = getopt(argc, argv, "i:h");
+		opt = getopt(argc, argv, "i:s:r:l:h");
 		if (opt == -1) {
 			break;
 		}
@@ -278,21 +313,37 @@ int main(int argc, char **argv)
 			logd("file path: %s", optarg);
 			if (optarg) {
 				ptr = strrchr(optarg, '.');
+				if (ptr == NULL) {
+					loge("unsupport this file: %s", optarg);
+					return -1;
+				}
 
 				if (!strcmp(ptr, ".jpg")) {
 					type = MPP_CODEC_VIDEO_DECODER_MJPEG;
-				}
-				if (!strcmp(ptr, ".png")) {
+				} else if (!strcmp(ptr, ".png")) {
 					type = MPP_CODEC_VIDEO_DECODER_PNG;
+				} else if (!strcmp(ptr, ".aicp")) {
+					type = MPP_CODEC_VIDEO_DECODER_AICP;
 				}
 				logd("decode type: 0x%02X", type);
 			}
 			fp = fopen(optarg, "rb");
 
-			break;
+			continue;
+		case 's':
+			ver_scale = atoi(optarg);
+			hor_scale = ver_scale = ver_scale > 3 ? 3: ver_scale;
+			loge("scale: %d", ver_scale);
+			continue;
+		case 'r':
+			rot_flip_flag |= parse_rotation(optarg);
+			continue;
+		case 'l':
+			rot_flip_flag |= parse_flip(optarg);
+			continue;
 		case 'h':
 		default:
-			print_help();
+			print_help(argv[0]);
 			return -1;
 		}
 	}
@@ -306,6 +357,10 @@ int main(int argc, char **argv)
 
 	// 1. create mpp_decoder
 	struct mpp_decoder* dec = mpp_decoder_create(type);
+	if(dec == NULL) {
+		loge("create decoder failed");
+		goto out;
+	}
 
 	struct decode_config config;
 	config.bitstream_buffer_size = (file_len + 1023 + 32) & (~1023);
@@ -317,6 +372,18 @@ int main(int argc, char **argv)
 		config.pix_fmt = MPP_FMT_YUV420P;
 	else if(type == MPP_CODEC_VIDEO_DECODER_PNG)
 		config.pix_fmt = MPP_FMT_ARGB_8888;
+
+	if(ver_scale || hor_scale) {
+		struct mpp_scale_ratio scale;
+		scale.hor_scale = hor_scale;
+		scale.ver_scale = ver_scale;
+		mpp_decoder_control(dec, MPP_DEC_INIT_CMD_SET_SCALE, &scale);
+	}
+
+	if(rot_flip_flag) {
+		logw("rot_flip_flag: %d", rot_flip_flag);
+		mpp_decoder_control(dec, MPP_DEC_INIT_CMD_SET_ROT_FLIP_FLAG, &rot_flip_flag);
+	}
 
 	// 2. init mpp_decoder
 	mpp_decoder_init(dec, &config);

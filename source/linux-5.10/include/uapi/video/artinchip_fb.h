@@ -114,6 +114,10 @@ struct aicfb_config_lists {
 	struct aicfb_layer_data layers[];
 };
 
+#define AICFB_PIXEL_ALPHA_MODE		0
+#define AICFB_GLOBAL_ALPHA_MODE		1
+#define AICFB_MIXDER_ALPHA_MODE		2
+
 /**
  * struct aicfb_alpha_config - aicfb layer alpha blending config
  *
@@ -228,6 +232,12 @@ struct aicfb_disp_prop {
 
 /** export a dma_buf fd, associates /dev/fb0 */
 #define AICFB_TO_DMABUF_FD _IOW(IOC_TYPE_FB, 0x52, struct dma_buf_info)
+
+/** get framebuffer dma coherent status */
+#define AICFB_GET_DMA_COHERENT_STATUS _IOR(IOC_TYPE_FB, 0x63, bool)
+
+/** update framebuffer dma coherent status */
+#define AICFB_UPDATE_DMA_COHERENT_STATUS _IOW(IOC_TYPE_FB, 0x64, bool)
 
 /** set display property */
 #define AICFB_SET_DISP_PROP _IOW(IOC_TYPE_FB, 0x60, struct aicfb_disp_prop)

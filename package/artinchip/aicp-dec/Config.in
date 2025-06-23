@@ -1,0 +1,3 @@
+menuconfig BR2_PACKAGE_AICP_DEC
+	bool "aicp-dec"
+	default y

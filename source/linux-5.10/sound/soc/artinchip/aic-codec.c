@@ -160,6 +160,7 @@
 #define FADE_CTRL1_REG						(0x5C)
 #define FADE_CTRL1_TARGET_VOL_MASK				GENMASK(14, 0)
 #define FADE_CTRL1_TARGET_VOL(vol)				((vol) << 0)
+#define FADE_CTRL1_GAIN						(0)
 
 #define GLOBE_CTL_REG						(0x60)
 #define GLOBE_GLB_RST						BIT(2)
@@ -587,6 +588,8 @@ static struct snd_soc_dai_driver aic_codec_dai[] = {
 #endif
 };
 
+static const DECLARE_TLV_DB_SCALE(aic_codec_tlv_range_scale,
+					-32767, 1, 1);
 static const DECLARE_TLV_DB_SCALE(aic_codec_dvc_scale,
 					-12000, 75, 1);
 static const DECLARE_TLV_DB_SCALE(aic_mixer_source_gain_scale,
@@ -675,9 +678,9 @@ static const struct snd_kcontrol_new aic_codec_controls[] = {
 	SOC_DOUBLE_TLV("DMICIN Capture Volume", RX_DVC_1_2_CTRL_REG,
 					RX_DVC1_GAIN, RX_DVC2_GAIN,
 					0xFF, 0, aic_codec_dvc_scale),
-	SOC_DOUBLE_TLV("AUDIO Playback Volume", TX_DVC_3_4_CTRL_REG,
-					TX_DVC3_GAIN, TX_DVC4_GAIN,
-					0xFF, 0, aic_codec_dvc_scale),
+	SOC_SINGLE_TLV("AUDIO Playback Volume", FADE_CTRL1_REG,
+					FADE_CTRL1_GAIN,
+					0x7FFF, 0, aic_codec_tlv_range_scale),
 #ifdef CONFIG_SND_SOC_AIC_CODEC_V1
 	SOC_SINGLE_TLV("ADC Capture Volume", ADC_DVC0_CTRL_REG,
 					ADC_DVC0_CTRL_DVC0_GAIN,
@@ -976,16 +979,33 @@ static const struct snd_soc_component_driver aic_cpu_component = {
 	.name = "aic-codec-comp",
 };
 
+static const struct snd_pcm_hardware aic_codec_pcm_hardware = {
+	.info			= SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID |
+					SNDRV_PCM_INFO_INTERLEAVED,
+	.buffer_bytes_max	= 128 * 1024,
+	.period_bytes_max	= 64 * 1024,
+	.period_bytes_min	= 256,
+	.periods_max		= 255,
+	.periods_min		= 2,
+	.fifo_size		= 0,
+};
+
+static const struct snd_dmaengine_pcm_config aic_codec_dmaengine_pcm_config = {
+	.pcm_hardware = &aic_codec_pcm_hardware,
+	.prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config,
+	.prealloc_buffer_size = 128 * 1024,
+};
+
 static int aic_codec_spk_event(struct snd_soc_dapm_widget *w,
 					struct snd_kcontrol *k, int event)
 {
-
-	if (SND_SOC_DAPM_EVENT_ON(event) && !IS_ERR_OR_NULL(gpiod_pa))
+	if (SND_SOC_DAPM_EVENT_ON(event) && !IS_ERR_OR_NULL(gpiod_pa)) {
+		msleep(20);
 		gpiod_set_value(gpiod_pa, 1);
-	else if (SND_SOC_DAPM_EVENT_OFF(event) && !IS_ERR_OR_NULL(gpiod_pa))
+		msleep(100);
+	} else if (SND_SOC_DAPM_EVENT_OFF(event) && !IS_ERR_OR_NULL(gpiod_pa)) {
 		gpiod_set_value(gpiod_pa, 0);
-
-	msleep(100);
+	}
 
 	return 0;
 }
@@ -1017,6 +1037,7 @@ static struct snd_soc_dai_link aic_codec_dai_link[] = {
 		.stream_name = "dmic-pcm",
 		.dai_fmt = SND_SOC_DAIFMT_I2S,
 		SND_SOC_DAILINK_REG(dmic_path),
+		.ignore_pmdown_time = 1,
 	},
 #ifdef CONFIG_SND_SOC_AIC_CODEC_V1
 	{
@@ -1122,6 +1143,11 @@ static int aic_codec_probe(struct platform_device *pdev)
 	struct aic_codec *codec;
 	void __iomem *base;
 	int ret;
+	struct device_node *np = pdev->dev.of_node;
+
+	if (of_find_property(np, "ignore-pmdown-time", NULL) != NULL) {
+		aic_codec_dai_link[0].ignore_pmdown_time = 0;
+	}
 
 	codec = devm_kzalloc(&pdev->dev, sizeof(*codec), GFP_KERNEL);
 	if (!codec)
@@ -1197,7 +1223,8 @@ static int aic_codec_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+	ret = devm_snd_dmaengine_pcm_register(&pdev->dev,
+						&aic_codec_dmaengine_pcm_config, 0);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to register dmaengine\n");
 		return ret;
@@ -1229,6 +1256,7 @@ static const struct of_device_id aic_codec_match[] = {
 	{
 		.compatible = "artinchip,aic-codec-v1.0",
 	},
+	{}
 };
 
 #ifdef CONFIG_PM

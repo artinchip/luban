@@ -387,7 +387,7 @@ static const struct fixed_parent_clk_cfg aic_fixed_parent_clk_cfg[] = {
 		12, 8, 0, 0),
 	FPCLK(CLK_RGB, "rgb", PARENT("sclk"), CLK_RGB_REG, 12, 8, 0, 0),
 	FPCLK(CLK_LVDS, "lvds", PARENT("sclk"), CLK_LVDS_REG, 12, 8, 0, 0),
-	FPCLK(CLK_MIPIDSI, "mipidsi", PARENT("sclk"), CLK_MIPID_REG,
+	FPCLK(CLK_MIPIDSI, "mipidsi", PARENT("pll_fra2"), CLK_MIPID_REG,
 		12, 8, 0, 0),
 	FPCLK(CLK_DDR, "ddr", PARENT("pll_fra0"), CLK_DDR_REG, -1, -1, 0, 5),
 };

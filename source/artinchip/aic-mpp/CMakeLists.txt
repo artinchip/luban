@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(aic-mpp LANGUAGES C)
+project(aic-mpp LANGUAGES C CXX)
 
 # include directory
 include_directories(include)
 include_directories(base/include)
+
+include_directories(BEFORE ${RTSP_INCLUDE}BasicUsageEnvironment)
+include_directories(BEFORE ${RTSP_INCLUDE}groupsock)
+include_directories(BEFORE ${RTSP_INCLUDE}liveMedia)
+include_directories(BEFORE ${RTSP_INCLUDE}UsageEnvironment)
 
 # Suppress cmake unused warning
 set(ignore ${BUILD_DOC}	${BUILD_DOCS} ${BUILD_EXAMPLE} ${BUILD_EXAMPLES}
@@ -59,4 +64,5 @@ if(DEFINED CMAKE_INSTALL_FULL_LIBDIR)
 	install(FILES include/dma_allocator.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 	install(FILES include/frame_allocator.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 	install(FILES middle_media/player/include/aic_player.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+	install(FILES middle_media/mini_audio_player/mini_audio_player.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif()

@@ -21,6 +21,7 @@
 #define SID_REG_WDATA 0x8
 #define SID_REG_RDATA 0xC
 #define SID_REG_TIMING 0x10
+#define SID_REG_VERSION 0xFC
 
 struct aic_sid_platdata {
 	void __iomem *base;
@@ -29,13 +30,14 @@ struct aic_sid_platdata {
 	u32 max_words;
 };
 
+#define SID_VERSION_200 0x200
+
 #define SID_OPCODE_OFS 16
 #define SID_OPCODE_MSK (0xFFF << SID_OPCODE_OFS)
 #define SID_OPCODE 0xA1C
 
 #define SID_STS_OFS 8
-#define SID_STS_MSK (0xFU << SID_STS_OFS)
-#define SID_STS_IDLE 2
+#define SID_STS_MSK (0x1FU << SID_STS_OFS)
 
 #define SID_READ_START_OFS 4
 #define SID_READ_START_MSK (0x1 << SID_READ_START_OFS)
@@ -45,13 +47,17 @@ struct aic_sid_platdata {
 
 static int wait_sid_ready(struct aic_sid_platdata *plat)
 {
-	u32 val, msk;
+	u32 val, msk, idle = 0;
 	s32 i;
+
+	val = readl(plat->base + SID_REG_VERSION);
+	if (0x200 != val)
+		idle = 2;
 
 	msk = SID_STS_MSK | SID_READ_START_MSK | SID_WRITE_START_MSK;
 	for (i = 1000; i > 0; i--) {
 		val = readl(plat->base + SID_REG_CTL);
-		if ((val & msk) == (SID_STS_IDLE << SID_STS_OFS))
+		if ((val & msk) == (idle << SID_STS_OFS))
 			return 0;
 	}
 
@@ -95,6 +101,7 @@ static int aic_sid_write_word(struct aic_sid_platdata *plat, u32 wid, u32 wval)
 		val &= ~(SID_WRITE_START_MSK);
 		val |= ((SID_OPCODE << SID_OPCODE_OFS) | (SID_WRITE_START_MSK));
 		writel(val, plat->base + SID_REG_CTL);
+		//udelay(10);
 
 		/* Wait write done */
 		while ((readl(plat->base + SID_REG_CTL) & SID_WRITE_START_MSK))
@@ -110,7 +117,7 @@ static int aic_sid_read(struct udevice *dev, int offset, void *buf, int size)
 	u32 val, wid, ofs, end, end_siz;
 	u8 *p;
 
-	if (offset < 0 || (offset + size) > plat->max_words) {
+	if (offset < 0 || (offset + size) > (4 * plat->max_words)) {
 		pr_err("Invalid offset %d.\n", offset);
 		return -EINVAL;
 	}
@@ -148,7 +155,7 @@ static int aic_sid_write(struct udevice *dev, int offset, const void *buf,
 	u32 val, wid, ofs, end, end_siz, cpsiz;
 	const u8 *p;
 
-	if (offset < 0 || (offset + size) > plat->max_words) {
+	if (offset < 0 || (offset + size) > (4 * plat->max_words)) {
 		pr_err("Invalid offset %d.\n", offset);
 		return -EINVAL;
 	}
@@ -244,9 +251,7 @@ static int aic_sid_probe(struct udevice *dev)
 
 	ret = aic_sid_set_clock(dev, true);
 
-	if (ofnode_read_u32(node, "aic,timing", &timing)) {
-		dev_info(dev, "Can't parse timing value\n");
-	} else {
+	if (!ofnode_read_u32(node, "aic,timing", &timing)) {
 		writel(timing, plat->base + SID_REG_TIMING);
 	}
 

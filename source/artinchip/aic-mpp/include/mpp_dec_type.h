@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: mpp_dec_type
-*/
+ * Copyright (C) 2020-2022 Artinchip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: mpp_dec_type
+ */
 
 #ifndef MPP_DEC_TYPE_H
 #define MPP_DEC_TYPE_H
@@ -37,7 +39,10 @@
 #endif
 #ifndef s64
 	typedef int64_t		s64;
+	#define FMT_d64		"%ld"
+	#define FMT_x64		"%lx"
 #endif
+
 
 #define MPP_MAX(a, b) ((a)>(b)? (a) : (b))
 #define MPP_MIN(a, b) ((a)<(b)? (a) : (b))
@@ -103,6 +108,7 @@ enum mpp_codec_type {
 	MPP_CODEC_VIDEO_DECODER_H264 = 0x1000,         // decoder
 	MPP_CODEC_VIDEO_DECODER_MJPEG,
 	MPP_CODEC_VIDEO_DECODER_PNG,
+	MPP_CODEC_VIDEO_DECODER_AICP,
 
 	MPP_CODEC_VIDEO_ENCODER_H264 = 0x2000,         // encoder
 };

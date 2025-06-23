@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <qi.xu@artinchip.com>
-*  Desc: jpeg encoder hal
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <qi.xu@artinchip.com>
+ *  Desc: jpeg encoder hal
+ */
 
 #include <stdlib.h>
 #include "ve_top_register.h"
@@ -37,7 +39,8 @@ static void config_header_info(struct jpeg_ctx *s)
 
 	write_reg_u32(s->regs_base + JPG_CTRL_REG, (3 << 12) | (3 << 8) | (3 << 3));
 
-	val = s->height | (s->width << 16);
+	int width_align = (s->width + 15) & (~15);
+	val = s->height | (width_align << 16);
 	write_reg_u32(s->regs_base + JPG_SIZE_REG, val);
 
 	int total_blks = s->h_count[0] * s->v_count[0] +
@@ -68,16 +71,16 @@ static void config_picture_info_register(struct jpeg_ctx *s)
 		color_mode = 3;
 	} else if (s->cur_frame->buf.format == MPP_FMT_YUV400) {
 		color_mode = 4;
-	} else if (s->cur_frame->buf.format == MPP_FMT_YUV422P){
+	} else if (s->cur_frame->buf.format == MPP_FMT_YUV422P) {
 		color_mode = 1;
 	} else {
 		loge("not supprt this format(%d)", s->cur_frame->buf.format);
 	}
 
-	val = s->width | (s->uv_interleave << 16) | (color_mode << 17);
+	val = s->y_stride | (s->uv_interleave << 16) | (color_mode << 17);
 	write_reg_u32(s->regs_base + PIC_INFO_START_REG, val);
 
-	val = s->height | (s->width << 16);
+	val = s->height | (s->y_stride << 16);
 	write_reg_u32(s->regs_base + PIC_INFO_START_REG + 4, val);
 	write_reg_u32(s->regs_base + PIC_INFO_START_REG + 8, s->phy_addr[0]);
 	write_reg_u32(s->regs_base + PIC_INFO_START_REG + 12, s->phy_addr[1]);
@@ -92,13 +95,11 @@ static void ve_config_quant_matrix(struct jpeg_ctx *s)
 	int i, j;
 
 	uint32_t val;
-	unsigned int* quant_tab[3] = { s->luma_quant_table, s->chroma_quant_table, s->chroma_quant_table};
-	for (int comp = 0; comp < 3; comp++)
-	{
+	unsigned int* quant_tab[3] = { s->luma_quant_table, s->chroma_quant_table, s->chroma_quant_table };
+	for (int comp = 0; comp < 3; comp++) {
 		write_reg_u32(s->regs_base + JPG_QMAT_INFO_REG, (comp << 6) | 3);
 		write_reg_u32(s->regs_base + JPG_QMAT_ADDR_REG, comp << 6);
-		for (i = 0; i < 64; i++)
-		{
+		for (i = 0; i < 64; i++) {
 			j = zigzag_direct[i];
 			// qmatrix should be  (1<<19)/q
 			val = (1 << QUANT_FIXED_POINT_BITS) / quant_tab[comp][j];
@@ -118,7 +119,6 @@ address of the 4 tables:
 	Chroma_AC: 256-511
 	Luma_DC: 512-528
 	Chroma_DC: 528-544
-
 */
 static void ve_config_huffman_table(struct jpeg_ctx *s)
 {
@@ -191,20 +191,20 @@ int jpeg_hw_encode(struct jpeg_ctx *s)
 
 	ve_get_client();
 
-	//* 1. config ve top
+	// 1. config ve top
 	config_ve_top_reg(s);
 
-	//* 2. config jpeg header
+	// 2. config jpeg header
 	config_header_info(s);
 
-	//* 3. config picture info
+	// 3. config picture info
 	config_picture_info_register(s);
 
-	//* 4. config quant/huffman table
+	// 4. config quant/huffman table
 	ve_config_quant_matrix(s);
 	ve_config_huffman_table(s);
 
-	//* 5. config bitstream
+	// 5. config bitstream
 	ve_config_stream_register(s);
 
 	write_reg_u32(s->regs_base + JPG_STATUS_REG, 0xf);

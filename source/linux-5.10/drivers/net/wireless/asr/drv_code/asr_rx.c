@@ -20,6 +20,8 @@
 #include "asr_tx.h"
 #include "asr_events.h"
 #include "asr_utils.h"
+#include "asr_msg_tx.h"
+
 
 extern bool rxlogen;
 
@@ -58,7 +60,7 @@ extern int asr_send_sm_disconnect_req(struct asr_hw *asr_hw, struct asr_vif *asr
  */
 static void asr_rx_statistic(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, struct asr_sta *sta)
 {
-#ifdef CONFIG_ASR_DEBUGFS
+//#ifdef CONFIG_ASR_DEBUGFS
 	struct asr_stats *stats = &asr_hw->stats;
 	struct asr_rx_rate_stats *rate_stats = &sta->stats.rx_rate;
 	struct rx_vector_1 *rxvect = &hw_rxhdr->hwvect.rx_vect1;
@@ -150,7 +152,7 @@ static void asr_rx_statistic(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, s
 	} else {
 		//wiphy_err(asr_hw->wiphy, "RX: Invalid index conversion => %d/%d\n", rate_idx, rate_stats->size);
 	}
-#endif
+//#endif
 }
 
 /**
@@ -171,6 +173,7 @@ static void asr_rx_statistic(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, s
  * When vif is an AP interface, multicast skb are forwarded and resent, whereas
  * skb for other BSS's STA are only resent.
  */
+int rx_amsdu_skb_cnt;
 static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, struct sk_buff *skb, struct hw_rxhdr *rxhdr)
 {
 	struct sk_buff_head list;
@@ -188,6 +191,7 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 	if (amsdu) {
 		int count;
 		//dev_err(asr_hw->dev, "rxamsdu:%d ",skb->len);
+                rx_amsdu_skb_cnt++;
 		ieee80211_amsdu_to_8023s(skb, &list, asr_vif->ndev->dev_addr, ASR_VIF_TYPE(asr_vif), 0,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 1)
 					 NULL, NULL
@@ -235,7 +239,7 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 	//dev_info(asr_hw->dev, "%s:%u,%d,%d,%d,%d\n",
 	//      __func__, skb->priority, rxhdr->flags_user_prio, rxhdr->flags_sta_idx,
 	//      rxhdr->flags_vif_idx, rxhdr->flags_dst_idx);
-       #if 0
+       #if 1
        if ( ntohs(((struct ethhdr *)skb->data)->h_proto) == ETH_P_PAE) {
                 struct ethhdr *eth = ((struct ethhdr *)skb->data);
 		dev_err(asr_hw->dev, "%s rx eapol, da(%x:%x:%x:%x:%x:%x), sa(%x:%x:%x:%x:%x:%x),  vif_idx=%d  \n", __func__,
@@ -245,6 +249,15 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 
        }
 	   #endif
+	   #if 0
+	   else if ( ntohs(((struct ethhdr *)skb->data)->h_proto) == 0x0806) {
+                struct ethhdr *eth = ((struct ethhdr *)skb->data);
+		dev_err(asr_hw->dev, "%s rx arp, da(%x:%x:%x:%x:%x:%x), sa(%x:%x:%x:%x:%x:%x),  vif_idx=%d  \n", __func__,
+                                     eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5],
+                                     eth->h_source[0], eth->h_source[1], eth->h_source[2], eth->h_source[3], eth->h_source[4], eth->h_source[5],
+                                     asr_vif->vif_index );
+       }
+       #endif
 
 	is_dhcp = check_is_dhcp_package(asr_vif, false, ntohs(((struct ethhdr *)skb->data)->h_proto),
 		&dhcp_type, &d_mac,
@@ -254,6 +267,9 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 		&& test_bit(ASR_DEV_STA_CONNECTED, &asr_vif->dev_flags)) {
 
 		set_bit(ASR_DEV_STA_DHCPEND, &asr_vif->dev_flags);
+		if(asr_hw->usr_cmd_ps){
+			asr_send_set_ps_mode(asr_vif->asr_hw, true);
+		}
 
 		dev_info(asr_hw->dev, "sta dhcp success.\n");
 	}
@@ -263,7 +279,7 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 		if (!rx_skb) {
 			break;
 		}
-#if 0
+#if 1
 		/* resend pkt on wireless interface */
 		if (resend) {
 			struct sk_buff *skb_copy;
@@ -316,18 +332,32 @@ static bool asr_rx_data_skb(struct asr_hw *asr_hw, struct asr_vif *asr_vif, stru
 			asr_hw->stats.last_rx_times = jiffies;
 #endif
 
+#ifdef CONFIG_ASR_NAPI
+            if (asr_hw->mod_params->napi_on) {
+                skb_queue_tail(&asr_vif->rx_napi_skb_list, rx_skb);
 #if 0
-			netif_receive_skb(rx_skb);
+                napi_schedule(&asr_vif->napi);
 #else
-			#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 1)
-				netif_rx(rx_skb);
-			#else
-			if (in_interrupt())
-				netif_rx(rx_skb);
-			else
-				netif_rx_ni(rx_skb);
-			#endif
+                if (skb_queue_len(&asr_vif->rx_napi_skb_list) >= asr_hw->mod_params->tcp_ack_num) {
+                    napi_schedule(&asr_vif->napi);
+                }
+                else if (!hrtimer_active(&(asr_vif->rx_napi_hrtimer))) {
+                    hrtimer_start(&asr_vif->rx_napi_hrtimer, ktime_set(0, 1000 * 1000), HRTIMER_MODE_REL);
+                }
 #endif
+            }
+            else
+#endif
+            {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 1)
+                netif_rx(rx_skb);
+#else
+                if (in_interrupt())
+                    netif_rx(rx_skb);
+                else
+                    netif_rx_ni(rx_skb);
+#endif
+            }
 		}
 	}
 
@@ -725,7 +755,7 @@ static int rx_skb_realloc(struct asr_hw *asr_hw)
 	return -1;
 }
 
-static int rx_data_dispatch(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, struct sk_buff *skb)
+static int rx_data_dispatch(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, struct sk_buff *skb,uint16_t rx_status)
 {
 	struct asr_vif *asr_vif = NULL;
 
@@ -738,10 +768,29 @@ static int rx_data_dispatch(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, st
 		return 0;
 	}
 
-	if (hw_rxhdr->flags_is_80211_mpdu) {
+    /*
+        for normal mode:   go  asr_rx_mgmt / asr_rx_data_skb
+        for sniffer mode:  call sniffer callback.
+    */
+    if ((ASR_VIF_TYPE(asr_vif) == NL80211_IFTYPE_MONITOR)) {
+		/* sniffer mode callback */
+		if ((NULL != sniffer_rx_cb) && (rx_status & RX_STAT_MONITOR))
+		    sniffer_rx_cb(skb->data, skb->len);
+		else {
+
+			// FIXME: may adapt to wireshark later.
+			dev_err(asr_hw->dev, "sniffer mode but no cb (0x%x)", rx_status);
+		}
+
+		dev_kfree_skb(skb);
+
+	} else if (hw_rxhdr->flags_is_80211_mpdu) {
+
 		//dev_err(asr_hw->dev, "rxmgmt\n");
 		asr_rx_mgmt(asr_hw, asr_vif, skb, hw_rxhdr);
+
 	} else {
+
 		if (hw_rxhdr->flags_sta_idx != 0xff) {
 			struct asr_sta *sta = &asr_hw->sta_table[hw_rxhdr->flags_sta_idx];
 
@@ -769,7 +818,7 @@ static int rx_data_dispatch(struct asr_hw *asr_hw, struct hw_rxhdr *hw_rxhdr, st
 
 		skb->priority = 256 + hw_rxhdr->flags_user_prio;
 		if (!asr_rx_data_skb(asr_hw, asr_vif, skb, hw_rxhdr)) {
-			dev_err(asr_hw->dev, "%s: drop data, forward is false\n", __func__);
+			//dev_err(asr_hw->dev, "%s: drop data, forward is false\n", __func__);
 			dev_kfree_skb(skb);
 		}
 	}
@@ -795,7 +844,8 @@ int asr_rxdataind_fn_cnt;
 int asr_tra_rxdata_cnt;
 int asr_cfg_rxdata_cnt;
 
-#if defined(SDIO_DEAGGR)
+//#if defined(SDIO_DEAGGR)
+#if defined(CONFIG_ASR_USB) || defined(SDIO_DEAGGR)
 u8 asr_rxdataind(void *pthis, void *hostid)
 {
 	struct asr_hw *asr_hw = NULL;
@@ -812,6 +862,8 @@ u8 asr_rxdataind(void *pthis, void *hostid)
 	u16 remain_len = 0;
 	static volatile bool amsdu_flag = false;
 	static volatile u16 pre_msdu_offset = 0;
+
+	uint16_t  rx_status = 0;
 
 	if (!pthis || !hostid) {
 		return -EFAULT;
@@ -839,7 +891,12 @@ u8 asr_rxdataind(void *pthis, void *hostid)
 		asr_rxdataind_fn_cnt++;
 
 	if (lalalaen)
-		dev_err(asr_hw->dev, "asr_rxdataind [%d %d] [%d %d][0x%x],(%d, %d,%d)\n", host_rx_desc->sta_idx,host_rx_desc->tid, seq_num,fn_num,host_rx_desc->rx_status,
+		dev_err(asr_hw->dev, "asr_rxdataind [%d] [%d %d] [%d %d] [%d %d %d] [0x%x],(%d, %d,%d)\n",
+                                                                                    amsdu_flag,
+                                                                                    host_rx_desc->sta_idx,host_rx_desc->tid,
+                                                                                    seq_num,fn_num,
+                                                                                    totol_frmlen,msdu_offset,frame_len,
+                                                                                    host_rx_desc->rx_status,
                                                                                     hw_rxhdr->flags_vif_idx,asr_hw->vif_index,asr_hw->ext_vif_index);
 
         if ((hw_rxhdr->flags_vif_idx != 0xFF ) && (hw_rxhdr->flags_vif_idx == asr_hw->vif_index )) {
@@ -880,6 +937,7 @@ rx_sk_tryagain:
 			}
 
 			hw_rxhdr = (struct hw_rxhdr *)&pre_host_rx_desc->frmlen;
+			rx_status = pre_host_rx_desc->rx_status;
 
 			remain_len = totol_frmlen - skb->len;
 
@@ -946,6 +1004,7 @@ rx_sk_tryagain:
 		}
 
 		if (!skb_queue_empty(&asr_hw->rx_sk_split_list) && (skb = skb_dequeue(&asr_hw->rx_sk_split_list))) {
+
 			memcpy(skb->data, host_rx_desc, msdu_offset + frame_len);
 			skb_reserve(skb, msdu_offset);
 			skb_put(skb, frame_len);
@@ -980,29 +1039,45 @@ rx_sk_tryagain:
 			goto check_alloc;
 		}
 
-		//memcpy(skb->data, host_rx_desc, msdu_offset + frame_len);
+		rx_status = host_rx_desc->rx_status;
+
 		skb_reserve(skb, msdu_offset);
 		skb_put(skb, frame_len);
+
 		pre_msdu_offset = 0;
 	}
 
     // here skb is ethier single msdu skb or amsdu skb.
-	rx_data_dispatch(asr_hw, hw_rxhdr, skb);
+	rx_data_dispatch(asr_hw, hw_rxhdr, skb,rx_status);
 
 check_alloc:
 
     #ifdef CONFIG_ASR_SDIO
-	/* Check if we need to allocate a new buffer */
-	if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_sdio_deagg, &skb)) {
-		dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
-	} else {
-		memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
-		// Add the sk buffer structure in the table of rx buffer
-		skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+    #ifdef SDIO_DEAGGR_AMSDU
+	if (msdu_offset + frame_len > IPC_RXBUF_SIZE_SDIO_DEAGG) {
+         /* this skb is amsdu skb, Check if we need to allocate a new buffer */
+		 if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu, &skb)) {
+			 dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
+		 } else {
+			 memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg_amsdu);
+			 // Add the sk buffer structure in the table of rx buffer
+			 skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_amsdu_list, skb);
+		 }
+
+	} else
+	#endif
+	{
+		/* Check if we need to allocate a new buffer */
+		if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_sdio_deagg, &skb)) {
+			dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
+		} else {
+			memset(skb->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
+			// Add the sk buffer structure in the table of rx buffer
+			skb_queue_tail(&asr_hw->rx_sk_sdio_deaggr_list, skb);
+		}
 	}
 	#endif
 
-	//dev_kfree_skb(skb_head);
 
 	return 0;
 }
@@ -1311,7 +1386,7 @@ rx_sk_tryagain:
 				pre_msdu_offset = 0;
 			}
 
-			rx_data_dispatch(asr_hw, hw_rxhdr, skb);
+			rx_data_dispatch(asr_hw, hw_rxhdr, skb, host_rx_desc->rx_status);
 
 check_alloc:
 			/* Check if we need to allocate a new buffer */
@@ -1365,11 +1440,7 @@ check_alloc:
     #ifndef SDIO_DEAGGR
 	memset(skb_head->data, 0, asr_hw->ipc_env->rx_bufsz);
 	// Add the sk buffer structure in the table of rx buffer
-	#ifndef SDIO_RXBUF_SPLIT
-	skb_queue_tail(&asr_hw->rx_sk_list, skb_head);
-	#else
 	skb_queue_tail(&asr_hw->rx_data_sk_list, skb_head);
-	#endif
 	#else
 	memset(skb_head->data, 0, asr_hw->ipc_env->rx_bufsz_sdio_deagg);
 	// Add the sk buffer structure in the table of rx buffer
@@ -1384,105 +1455,73 @@ check_alloc:
 }
 #endif
 
-#ifdef CFG_SNIFFER_SUPPORT
-/**
- * asr_rxdataind_sniffer - Process rx buffer in sniffer mode
- *
- * @pthis: Pointer to the object attached to the IPC structure
- *         (points to struct asr_hw is this case)
- * @hostid: Address of the RX descriptor
- *
- * This function is called for each buffer received by the fw
- *
- */
-u8 asr_rxdataind_sniffer(void *pthis, void *hostid)
+#ifdef CONFIG_ASR_NAPI
+enum hrtimer_restart rx_napi_hrtimer_handler(struct hrtimer *timer)
 {
-	struct asr_hw *asr_hw = NULL;
-	struct asr_vif *asr_vif = NULL;
-	struct sk_buff *skb_head = NULL;
-	struct sk_buff *skb = NULL;
-	struct host_rx_desc *host_rx_desc = NULL;
-	struct hw_rxhdr *hw_rxhdr = NULL;
-	int msdu_offset = 0;
-	int frame_len = 0;
-	int num = 0;
+	struct asr_vif *vif = container_of(timer, struct asr_vif, rx_napi_hrtimer);
 
-	if (!pthis || !hostid) {
-		return -EFAULT;
-	}
+    napi_schedule(&vif->napi);
+	return HRTIMER_NORESTART;
+}
 
-	asr_hw = (struct asr_hw *)pthis;
-	skb_head = (struct sk_buff *)hostid;
-	skb = skb_head;
+static int napi_recv(struct asr_vif *asr_vif, int budget)
+{
+	struct sk_buff *rx_skb;
+	int work_done = 0;
+	u8 rx_ok;
 
-	if (!skb->data) {
-		return -EFAULT;
-	}
+	while ((work_done < budget) &&
+	       (!skb_queue_empty(&asr_vif->rx_napi_skb_list))) {
+		rx_skb = skb_dequeue(&asr_vif->rx_napi_skb_list);
+		if (!rx_skb)
+			break;
 
-	host_rx_desc = (struct host_rx_desc *)skb->data;
-	hw_rxhdr = (struct hw_rxhdr *)&host_rx_desc->frmlen;
-	msdu_offset = host_rx_desc->pld_offset;
-	frame_len = host_rx_desc->frmlen;
-	num = host_rx_desc->num;
+		rx_ok = false;
 
-	while (num--) {
-		if (!skb_queue_empty(&asr_hw->rx_sk_split_list)
-		    && (skb = skb_dequeue(&asr_hw->rx_sk_split_list))) {
-			memcpy(skb->data, host_rx_desc, msdu_offset + frame_len);
+#ifdef CONFIG_ASR_GRO
+		if (asr_vif->asr_hw->mod_params->gro_on) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
+			if (napi_gro_receive(&asr_vif->napi, rx_skb) != GRO_DROP)
+				rx_ok = true;
+#else
+			napi_gro_receive(&asr_vif->napi, rx_skb);
+			rx_ok = true;
+#endif
+            //printk("GRO on!!");
+			goto next;
+		}
+#endif /* CONFIG_ASR_GRO */
 
-			/* Check if we need to forward the buffer */
-			asr_vif = asr_rx_get_vif(asr_hw, hw_rxhdr->flags_vif_idx);
+		if (netif_receive_skb(rx_skb) == NET_RX_SUCCESS)
+			rx_ok = true;
 
-			if (!asr_vif) {
-				dev_err(asr_hw->dev, "Frame received but no active vif (%d)", hw_rxhdr->flags_vif_idx);
-				dev_kfree_skb(skb);
-				goto check_alloc;
-			}
-
-			skb_reserve(skb, msdu_offset);
-			skb_put(skb, le32_to_cpu(hw_rxhdr->hwvect.len));
-
-			if ((NULL != asr_vif) && (NULL != sniffer_rx_cb)) {
-
-				/* check if there is callback function to forward the buffer */
-				sniffer_rx_cb(skb->data, skb->len);
-				dev_kfree_skb(skb);
-			}
-
-check_alloc:
-			/* Check if we need to allocate a new buffer */
-			if (asr_rxbuff_alloc(asr_hw, asr_hw->ipc_env->rx_bufsz_split, &skb)) {
-				dev_err(asr_hw->dev, "%s:%d: MEM ALLOC FAILED\n", __func__, __LINE__);
-			} else {
-				// Add the sk buffer structure in the table of rx buffer
-				skb_queue_tail(&asr_hw->rx_sk_split_list, skb);
-			}
-
-			if (num) {
-				// next rx pkt
-				host_rx_desc = (struct host_rx_desc *)((u8 *) host_rx_desc + host_rx_desc->sdio_rx_len);
-				hw_rxhdr = (struct hw_rxhdr *)&host_rx_desc->frmlen;
-				msdu_offset = host_rx_desc->pld_offset;
-				frame_len = host_rx_desc->frmlen;
-			}
+next:
+		if (rx_ok == true) {
+			work_done++;
 		} else {
-			dev_err(asr_hw->dev, "%s: rx_sk_split_list empty\n", __func__);
 		}
 	}
 
-#ifdef CONFIG_ASR_SDIO
-	memset(skb_head->data, 0, asr_hw->ipc_env->rx_bufsz);
-	// Add the sk buffer structure in the table of rx buffer
-	#ifndef SDIO_RXBUF_SPLIT	
-	skb_queue_tail(&asr_hw->rx_sk_list, skb_head);
-	#else
-	skb_queue_tail(&asr_hw->rx_data_sk_list, skb_head);
-	#endif
-#else
-	dev_kfree_skb(skb_head);
-#endif
-
-	return 0;
+	return work_done;
 }
 
+int asr_recv_napi_poll(struct napi_struct *napi, int budget)
+{
+	struct asr_vif *asr_vif = container_of(napi, struct asr_vif, napi);
+	int work_done = 0;
+
+	work_done = napi_recv(asr_vif, budget);
+	if (work_done < budget) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
+        napi_complete_done(napi, work_done);
+#else
+		napi_complete(napi);
 #endif
+		if (!skb_queue_empty(&asr_vif->rx_napi_skb_list))
+			napi_schedule(napi);
+	}
+
+	return work_done;
+}
+#endif
+

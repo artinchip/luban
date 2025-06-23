@@ -51,6 +51,27 @@
 #=======================================================================================================
 
 #=======================================================================================================
+增加ps休眠
+默认lega/duet 等均支持ps休眠
+一,lega 有3种休眠模式
+   1,默认的 xtal不gate的伪modem sleep,不需要任何额外的gpio唤醒pin .		  对应的配置是:bcm2711_asr_lega_defconfig
+   2,light sleep 需要2根gpio 唤醒pin,1根是host唤醒card,1根是card唤醒host. 对应的配置是:bcm2711_asr_lega_light_defconfig
+   3,light sleep,集成 1根host唤醒card pin.								  对应的配置是:bcm2711_asr_lega_jicheng_defconfig
+二,duet 有2种休眠模式
+	1,默认的 xtal不gate的伪modem sleep,不需要任何额外的gpio唤醒pin.		 对应的配置是:bcm2711_asr_duet_defconfig
+	2,真modem sleep,xtal gate住, 需要2根gpio 唤醒pin,1根是host唤醒card,1根是card唤醒host.对应的配置是:bcm2711_asr_duet_ture_modem_defconfig
+三,canon 5532u 有2种休眠模式
+   1,默认的 xtal不gate的伪modem sleep,不需要任何额外的gpio唤醒pin				 对应的配置是:bcm2711_asr_canon_5532u_defconfig
+   2,真light sleep 不需要额外的唤醒gpio                                          对应的配置是:bcm2711_asr_canon_5532u_light_defconfig
+
+四,canon 5532s 有2种休眠模式
+   1,默认的 xtal不gate的伪modem sleep,不需要任何额外的gpio唤醒pin				对应的配置是:bcm2711_asr_canon_5532s_defconfig
+   2,light sleep 需要2根gpio 唤醒pin,1根是host唤醒card,1根是card唤醒host        对应的配置是:bcm2711_asr_canon_5532s_light_defconfig
+五,其它芯片待补充
+
+#=======================================================================================================
+
+#=======================================================================================================
 pc上运行 usb asr5531方案：
 如果要在pc上运行 usb asr5531方案请将Makefile中如下宏置y,默认宏就是支持ubuntu 5531usb编译的
 CONFIG_PLATFORM_I386_PC = y         # y表示pc 平台，n表示arm平台
@@ -96,7 +117,7 @@ ccflags-y += -DASR_REDUCE_TCP_ACK 为开启降低ack发送频率，默认是6个
     }
 
 默认5532u支持驱动来设置tx功率功能：通过将 asr_platform.h 中的 PWR_MCS0等设置到 /lib/firmware/asr_wifi_config.ini 文件中
-说明：默认tx pwr调整最小单位是0.25dB，drv配置传到fw会乘以0.4取整后再除以0.25得到实际的变动的dB数
+说明：默认tx pwr调整最小单位是0.25dB，drv配置传到fw会乘以0.4取整后再乘以0.25得到实际的变动的dB数
 eg：增加mcs0 1dB的话：PWR_MCS0=10
 	增加mcs0 2dB的话：PWR_MCS0=20
 	增加mcs0 0.5dB的话：PWR_MCS0=5 这里5,6,7都行 算出的都是0.5dB

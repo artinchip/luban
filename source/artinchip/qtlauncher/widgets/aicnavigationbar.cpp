@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include "aicnavigationbar.h"
 #include "utils/aicconsts.h"
 
@@ -56,6 +62,16 @@ void AiCNavigationBar::initBar()
 
     mBGPixmap = QPixmap(":/resources/navbar/bg.png");
     this->setFixedSize(mSize);
+}
+
+void AiCNavigationBar::disableMenu(bool enable)
+{
+    if (enable)
+        mMenuButton->setIcon(QIcon(":/resources/navbar/menuhide.png"));
+    else
+        mMenuButton->setIcon(QIcon(":/resources/navbar/menu.png"));
+
+    mMenuButton->setDisabled(enable);
 }
 
 void AiCNavigationBar::paintEvent(QPaintEvent *event)

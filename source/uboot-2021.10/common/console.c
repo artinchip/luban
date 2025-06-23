@@ -21,6 +21,7 @@
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
+#include <log_buf.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -650,6 +651,7 @@ void putc(const char c)
 		return;
 
 	console_record_putc(c);
+	log_buf_write((char *)&c, 1);
 
 	/* sandbox can send characters to stdout before it has a console */
 	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {
@@ -691,6 +693,7 @@ void puts(const char *s)
 		return;
 
 	console_record_puts(s);
+	log_buf_write((char *)s, strlen(s));
 
 	/* sandbox can send characters to stdout before it has a console */
 	if (IS_ENABLED(CONFIG_SANDBOX) && !(gd->flags & GD_FLG_SERIAL_READY)) {

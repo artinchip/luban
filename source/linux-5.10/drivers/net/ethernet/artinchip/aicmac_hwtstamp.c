@@ -12,13 +12,13 @@
 
 void aicmac_hwtstamp_config_hw_tstamping(void __iomem *ioaddr, u32 data)
 {
-	writel(data, ioaddr + PTP_TCR);
+	writel(data, ioaddr + PTP_TMSTMP_CTL);
 }
 
 void aicmac_hwtstamp_config_sub_second_increment(void __iomem *ioaddr,
 						 u32 ptp_clock, u32 *ssinc)
 {
-	u32 value = readl(ioaddr + PTP_TCR);
+	u32 value = readl(ioaddr + PTP_TMSTMP_CTL);
 	unsigned long data;
 	u32 reg_value;
 
@@ -43,7 +43,7 @@ void aicmac_hwtstamp_config_sub_second_increment(void __iomem *ioaddr,
 
 	reg_value = data;
 
-	writel(reg_value, ioaddr + PTP_SSIR);
+	writel(reg_value, ioaddr + PTP_SUB_SEC_INCR);
 
 	if (ssinc)
 		*ssinc = data;
@@ -54,17 +54,17 @@ int aicmac_hwtstamp_init_systime(void __iomem *ioaddr, u32 sec, u32 nsec)
 	int limit;
 	u32 value;
 
-	writel(sec, ioaddr + PTP_STSUR);
-	writel(nsec, ioaddr + PTP_STNSUR);
+	writel(sec, ioaddr + PTP_UPDT_TIME_SEC);
+	writel(nsec, ioaddr + PTP_UPDT_TIME_NANO_SEC);
 	/* issue command to initialize the system time value */
-	value = readl(ioaddr + PTP_TCR);
+	value = readl(ioaddr + PTP_TMSTMP_CTL);
 	value |= PTP_TCR_TSINIT;
-	writel(value, ioaddr + PTP_TCR);
+	writel(value, ioaddr + PTP_TMSTMP_CTL);
 
 	/* wait for present system time initialize to complete */
 	limit = 10;
 	while (limit--) {
-		if (!(readl(ioaddr + PTP_TCR) & PTP_TCR_TSINIT))
+		if (!(readl(ioaddr + PTP_TMSTMP_CTL) & PTP_TCR_TSINIT))
 			break;
 		mdelay(10);
 	}
@@ -79,16 +79,16 @@ int aicmac_hwtstamp_config_addend(void __iomem *ioaddr, u32 addend)
 	u32 value;
 	int limit;
 
-	writel(addend, ioaddr + PTP_TAR);
+	writel(addend, ioaddr + PTP_TMSMP_ADDEND);
 	/* issue command to update the addend value */
-	value = readl(ioaddr + PTP_TCR);
+	value = readl(ioaddr + PTP_TMSTMP_CTL);
 	value |= PTP_TCR_TSADDREG;
-	writel(value, ioaddr + PTP_TCR);
+	writel(value, ioaddr + PTP_TMSTMP_CTL);
 
 	/* wait for present addend update to complete */
 	limit = 10;
 	while (limit--) {
-		if (!(readl(ioaddr + PTP_TCR) & PTP_TCR_TSADDREG))
+		if (!(readl(ioaddr + PTP_TMSTMP_CTL) & PTP_TCR_TSADDREG))
 			break;
 		mdelay(10);
 	}
@@ -109,26 +109,26 @@ int aicmac_hwtstamp_adjust_systime(void __iomem *ioaddr, u32 sec, u32 nsec,
 		 * the system time, then MAC_STSUR reg should be
 		 * programmed with (2^32 – <new_sec_value>)
 		 */
-		value = readl(ioaddr + PTP_TCR);
+		value = readl(ioaddr + PTP_TMSTMP_CTL);
 		if (value & PTP_TCR_TSCTRLSSR)
 			nsec = (PTP_DIGITAL_ROLLOVER_MODE - nsec);
 		else
 			nsec = (PTP_BINARY_ROLLOVER_MODE - nsec);
 	}
 
-	writel(sec, ioaddr + PTP_STSUR);
+	writel(sec, ioaddr + PTP_UPDT_TIME_SEC);
 	value = (add_sub << PTP_STNSUR_ADDSUB_SHIFT) | nsec;
-	writel(value, ioaddr + PTP_STNSUR);
+	writel(value, ioaddr + PTP_UPDT_TIME_NANO_SEC);
 
 	/* issue command to initialize the system time value */
-	value = readl(ioaddr + PTP_TCR);
+	value = readl(ioaddr + PTP_TMSTMP_CTL);
 	value |= PTP_TCR_TSUPDT;
-	writel(value, ioaddr + PTP_TCR);
+	writel(value, ioaddr + PTP_TMSTMP_CTL);
 
 	/* wait for present system time adjust/update to complete */
 	limit = 10;
 	while (limit--) {
-		if (!(readl(ioaddr + PTP_TCR) & PTP_TCR_TSUPDT))
+		if (!(readl(ioaddr + PTP_TMSTMP_CTL) & PTP_TCR_TSUPDT))
 			break;
 		mdelay(10);
 	}
@@ -143,9 +143,9 @@ void aicmac_hwtstamp_get_systime(void __iomem *ioaddr, u64 *systime)
 	u64 ns;
 
 	/* Get the TSSS value */
-	ns = readl(ioaddr + PTP_STNSR);
+	ns = readl(ioaddr + PTP_SYS_TIME_NANO_SEC);
 	/* Get the TSS and convert sec time value to nanosecond */
-	ns += readl(ioaddr + PTP_STSR) * 1000000000ULL;
+	ns += readl(ioaddr + PTP_SYS_TIME_SEC) * 1000000000ULL;
 
 	if (systime)
 		*systime = ns;

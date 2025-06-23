@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2024 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef AICNAVIGATIONBAR_H
 #define AICNAVIGATIONBAR_H
 
@@ -15,6 +21,8 @@ public:
     explicit AiCNavigationBar(QWidget *parent = 0);
     explicit AiCNavigationBar(QSize size, QWidget *parent = 0);
     ~AiCNavigationBar();
+
+    void disableMenu(bool enable);
 
 protected:
     void paintEvent(QPaintEvent *event);

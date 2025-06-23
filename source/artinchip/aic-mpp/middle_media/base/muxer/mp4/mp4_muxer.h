@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: mp4_muxer
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: mp4_muxer
+ */
 
 #ifndef __MP4_MUXER_H__
 #define __MP4_MUXER_H__
@@ -11,6 +13,7 @@
 #include <unistd.h>
 #include "aic_muxer.h"
 #include "aic_stream.h"
+#include "aic_tag.h"
 
 struct mov_stts {
 	unsigned int count;

@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_mp3_parser
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_mp3_parser
+ */
 
 #include <malloc.h>
 #include <string.h>
@@ -95,6 +97,7 @@ s32 aic_mp3_parser_create(unsigned char *uri, struct aic_parser **parser)
 	mp3_parser->base.get_media_info = mp3_get_media_info;
 	mp3_parser->base.peek = mp3_peek;
 	mp3_parser->base.read = mp3_read;
+	mp3_parser->base.control = NULL;
 	mp3_parser->base.destroy = mp3_destroy;
 	mp3_parser->base.seek = mp3_seek;
 	mp3_parser->base.init = mp3_init;

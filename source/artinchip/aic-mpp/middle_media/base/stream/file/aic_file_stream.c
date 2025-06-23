@@ -1,9 +1,11 @@
 /*
-* Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
-*
-*  author: <jun.ma@artinchip.com>
-*  Desc: aic_file_stream
-*/
+ * Copyright (C) 2020-2023 ArtInChip Technology Co. Ltd
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ *  author: <jun.ma@artinchip.com>
+ *  Desc: aic_file_stream
+ */
 
 /*why the macro definition is placed here:
 after the header file ,the complier error*/
@@ -202,6 +204,8 @@ s32 file_stream_open(const char* uri,struct aic_stream **stream, int flags)
 		ret = -1;
 		goto exit;
 	}
+
+	memset(file_stream,0x00,sizeof(struct aic_file_stream));
 
 	file_stream->fd = open(uri, flags|O_LARGEFILE);
 	if (file_stream->fd < 0) {

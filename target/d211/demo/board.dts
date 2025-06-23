@@ -97,6 +97,20 @@
 		sdmc0 = &sdmc0;
 		sdmc1 = &sdmc1;
 		sdmc2 = &sdmc2;
+		dma = &dma;
+		crypto = &crypto;
+		sid = &sid;
+		mtop = &mtop;
+		codec = &codec;
+		wri = &wri;
+		aicudc = &aicudc;
+		usbh0 = &usbh0;
+		usbh1 = &usbh1;
+		ohci0 = &ohci0;
+		ohci1 = &ohci1;
+		i2s0 = &i2s0;
+		i2s1 = &i2s1;
+		ge = &ge;
 	};
 
 	chosen {
@@ -673,7 +687,10 @@
 	};
 	uart0_pins_a: uart0-0 {
 		u-boot,dm-pre-reloc;
-		pins {
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
 			u-boot,dm-pre-reloc;
 		};
 	};
@@ -868,7 +885,7 @@
 	pinctrl-0 = <&gpai7_pins>;
 
 	gpai0 {
-		aic,sample-period-ms = <10>;
+		aic,sample-period-ms = <18>;
 		aic,high-level-thd = <1830>;
 		aic,low-level-thd = <1800>;
 		status = "disabled";

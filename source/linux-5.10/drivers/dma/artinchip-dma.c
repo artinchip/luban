@@ -823,10 +823,12 @@ static int aic_dma_start_desc(struct aic_vchan *vchan,
 	writel(vchan->desc->plink, pchan->base + DMA_CH_TASK_REG);
 	writel(0x01, pchan->base + DMA_CH_EN_REG);
 	writel(0x00, pchan->base + DMA_CH_PAUSE_REG);
+	#ifdef CONFIG_DEBUG_FS
 	dma_dbg("%s() Start ch%d[%s]: IRQ %#x, mode %#x, len %d\n", __func__,
 		pchan->id, vchan->vc.chan.dbg_client_name,
 		vchan->irq_type, vchan->desc->vlink->mode,
 		vchan->desc->vlink->len);
+	#endif
 	return 0;
 }
 
@@ -840,8 +842,10 @@ static void aic_dma_xfer(struct aic_dma_dev *sdev, struct aic_vchan *vchan)
 	spin_lock_irqsave(&sdev->lock, flags);
 	if (!desc) {
 		/* no request available, free the physical channel */
+		#ifdef CONFIG_DEBUG_FS
 		dma_dbg("%s() - Free ch%d[%s]\n", __func__,
 			pchan->id, vchan->vc.chan.dbg_client_name);
+		#endif
 		vchan->desc = NULL;
 		vchan->pchan = NULL;
 		pchan->vchan = NULL;
@@ -850,8 +854,10 @@ static void aic_dma_xfer(struct aic_dma_dev *sdev, struct aic_vchan *vchan)
 	}
 
 	if (pchan) {
+		#ifdef CONFIG_DEBUG_FS
 		dma_dbg("%s() - ch%d[%s] maybe has next desc\n", __func__,
 			pchan->id, vchan->vc.chan.dbg_client_name);
+		#endif
 		aic_dma_start_desc(vchan, desc);
 		spin_unlock_irqrestore(&sdev->lock, flags);
 		return;
@@ -864,10 +870,10 @@ static void aic_dma_xfer(struct aic_dma_dev *sdev, struct aic_vchan *vchan)
 		/* If the pchan is busy */
 		if (pchan->vchan)
 			continue;
-
+		#ifdef CONFIG_DEBUG_FS
 		dma_dbg("%s() - Allocate ch%d for %s\n", __func__,
 			pchan->id, vchan->vc.chan.dbg_client_name);
-
+		#endif
 		pchan->vchan = vchan;
 		vchan->pchan = pchan;
 		aic_dma_start_desc(vchan, desc);
@@ -885,16 +891,20 @@ static void aic_dma_issue_pending(struct dma_chan *chan)
 	struct aic_dma_dev *sdev = to_aic_dma_dev(chan->device);
 	struct aic_vchan *vchan = to_aic_vchan(chan);
 	unsigned long flags;
-
+	#ifdef CONFIG_DEBUG_FS
 	dma_dbg("%s() - issue %s\n", __func__, chan->dbg_client_name);
+	#endif
 	spin_lock_irqsave(&vchan->vc.lock, flags);
 
 	if (vchan_issue_pending(&vchan->vc)) {
-		if (!vchan->desc)
+		if (!vchan->desc) {
 			aic_dma_xfer(sdev, vchan);
-		else
+		} else {
+			#ifdef CONFIG_DEBUG_FS
 			dev_info(sdev->slave.dev, "%s has desc already!\n",
 				 chan->dbg_client_name);
+			#endif
+		}
 	}
 
 	spin_unlock_irqrestore(&vchan->vc.lock, flags);
@@ -936,12 +946,16 @@ struct dma_chan *aic_ddma_request_chan(struct device *dev, u32 port)
 			struct dma_chan *chan = &vchan->vc.chan;
 
 			chan->slave = dev;
+			#ifdef CONFIG_DEBUG_FS
 			chan->dbg_client_name = (char *)dev->kobj.name;
+			#endif
 			chan->device->privatecnt++;
 			vchan->port = port;
 			vchan->status = DMA_IN_PROGRESS; /* Means it's used */
+			#ifdef CONFIG_DEBUG_FS
 			dma_dbg("Alloc DDMA ch%d for [%d]%s\n", i, port,
 				chan->dbg_client_name);
+			#endif
 			return chan;
 		}
 	}
@@ -968,7 +982,9 @@ void aic_ddma_release_chan(struct dma_chan *chan)
 
 		if (vchan->status != DMA_IN_PROGRESS) {
 			chan->slave = NULL;
+			#ifdef CONFIG_DEBUG_FS
 			chan->dbg_client_name = NULL;
+			#endif
 			chan->device->privatecnt--;
 			vchan->port = 0;
 			vchan->status = DMA_COMPLETE; /* Means it's free */
